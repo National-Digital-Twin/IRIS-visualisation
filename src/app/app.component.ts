@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
+
+import '@arc-web/components/dist/arc';
 
 @Component({
   selector: 'c477-root',
@@ -8,7 +10,8 @@ import { RouterOutlet } from '@angular/router';
   imports: [CommonModule, RouterOutlet],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppComponent {
-  title = 'c477-vis';
+  title = 'C477 Visualisation';
 }

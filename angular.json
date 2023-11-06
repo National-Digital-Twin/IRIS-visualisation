@@ -27,16 +27,22 @@
             "outputPath": "dist/c477-vis",
             "index": "src/index.html",
             "main": "src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
+            "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "node_modules/@arc-web/components/dist/assets",
+                "output": "assets"
+              }
             ],
             "styles": [
+              "node_modules/@arc-web/components/dist/themes/index.css",
+              "node_modules/@arc-web/components/dist/themes/light.css",
+              "node_modules/@arc-web/components/dist/themes/dark.css",
               "src/styles.scss"
             ],
             "scripts": []
@@ -89,20 +95,14 @@
         "test": {
           "builder": "@angular-devkit/build-angular:jest",
           "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
+            "polyfills": ["zone.js", "zone.js/testing"],
             "tsConfig": "tsconfig.spec.json"
           }
         },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.html"
-            ]
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         },
         "cypress-run": {
