@@ -13,7 +13,8 @@
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "prepare": "husky install",
-    "commit": "git-cz"
+    "commit": "git-cz",
+    "compodoc": "npx compodoc -p tsconfig.doc.json -a screenshots -n \"C477 Vis documentation\" -s -o"
   },
   "private": true,
   "dependencies": {
@@ -41,6 +42,7 @@
     "@commitlint/cli": "^18.2.0",
     "@commitlint/config-conventional": "^18.1.0",
     "@commitlint/cz-commitlint": "^18.2.0",
+    "@compodoc/compodoc": "^1.1.22",
     "@cypress/schematic": "^2.5.1",
     "@types/jasmine": "~4.3.0",
     "@typescript-eslint/eslint-plugin": "5.62.0",
