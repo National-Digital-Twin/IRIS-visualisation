@@ -2,7 +2,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 
-import '@arc-web/components/dist/arc';
+import '@arc-web/components';
 
 @Component({
   selector: 'c477-root',
