@@ -32,8 +32,21 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ### Linting & code style
 
 The project uses a combination of [ES Lint](https://eslint.org) & [Prettier](https://prettier.io) to execute code
-linting and style checking. Check code linting and style using `npm run lint
-`
+linting and style checking. Check code linting and style using `npm run lint`
+
+### Docker
+
+Run `docker build -t c477-vis .` to build the image
+
+The application uses environment specific configuration.
+
+To test the `qa` configuration run:
+
+- `docker run -p 80:80 --env ARUP_ENV=qa c477-vis` and view at http://localhost/
+
+To test the `prod` configuration run:
+
+- `docker run -p 80:80 --env ARUP_ENV=prod c477-vis` and view at http://localhost/
 
 ### Code commit messages
 

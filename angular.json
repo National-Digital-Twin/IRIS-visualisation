@@ -33,6 +33,9 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
+              "src/config.json",
+              "src/config.qa.json",
+              "src/config.prod.json",
               {
                 "glob": "**/*",
                 "input": "node_modules/@arc-web/components/dist/assets",

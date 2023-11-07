@@ -1,0 +1,5 @@
+{
+  "production": true,
+  "env": "prod",
+  "apiURL": ""
+}
