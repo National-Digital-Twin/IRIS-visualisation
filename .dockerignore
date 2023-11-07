@@ -1,0 +1,9 @@
+node_modules
+coverage
+dist
+e2e
+docs
+.vscode
+.git
+*.log
+documentation
