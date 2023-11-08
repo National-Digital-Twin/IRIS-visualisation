@@ -31,6 +31,7 @@ export class MapComponent implements AfterViewInit {
     // containers are created
     setTimeout(() => {
       this.initializeMap();
+      this.setupMapListeners();
     }, 0);
   }
 
@@ -43,9 +44,24 @@ export class MapComponent implements AfterViewInit {
       center: this.center,
       style: this.style,
     });
+  }
 
+  setupMapListeners() {
     this.map.on('style.load', () => {
       this.map.setConfigProperty('basemap', 'showPointOfInterestLabels', false);
+      this.getMapState();
     });
+
+    this.map.on('moveend', () => {
+      this.getMapState();
+    });
+  }
+
+  getMapState() {
+    console.log('Map bounds ', this.map.getBounds());
+    console.log('Map zoom ', this.map.getZoom());
+    console.log('Map pitch ', this.map.getPitch());
+    console.log('Map bearing ', this.map.getBearing());
+    console.log('Map center ', this.map.getCenter());
   }
 }
