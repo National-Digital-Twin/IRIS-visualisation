@@ -42,21 +42,17 @@
                 "output": "assets"
               }
             ],
-            "styles": [
-              "node_modules/@arc-web/components/dist/themes/index.css",
-              "node_modules/@arc-web/components/dist/themes/light.css",
-              "node_modules/@arc-web/components/dist/themes/dark.css",
-              "src/styles.scss"
-            ],
-            "scripts": []
+            "styles": ["src/scss/main.scss", "mapbox-gl/dist/mapbox-gl.css"],
+            "scripts": [],
+            "allowedCommonJsDependencies": ["mapbox-gl"]
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "2mb",
+                  "maximumError": "2.5mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -73,6 +69,72 @@
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
+            },
+            "dev": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true,
+              "assets": [
+                "src/favicon.ico",
+                "src/assets",
+                "src/config.json",
+                "src/config.qa.json",
+                "src/config.prod.json",
+                {
+                  "glob": "**/*",
+                  "input": "node_modules/@arc-web/components/dist/assets",
+                  "output": "assets"
+                }
+              ]
+            },
+            "local": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true,
+              "assets": [
+                "src/favicon.ico",
+                "src/assets",
+                "src/config.json",
+                "src/config.qa.json",
+                "src/config.prod.json",
+                {
+                  "glob": "**/*",
+                  "input": "node_modules/@arc-web/components/dist/assets",
+                  "output": "assets"
+                }
+              ],
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.local.ts"
+                }
+              ]
+            },
+            "qa": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true,
+              "assets": [
+                "src/favicon.ico",
+                "src/assets",
+                "src/config.json",
+                "src/config.qa.json",
+                "src/config.prod.json",
+                {
+                  "glob": "**/*",
+                  "input": "node_modules/@arc-web/components/dist/assets",
+                  "output": "assets"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -85,6 +147,15 @@
             },
             "development": {
               "browserTarget": "c477-vis:build:development"
+            },
+            "qa": {
+              "browserTarget": "c477-vis:build:qa"
+            },
+            "dev": {
+              "browserTarget": "c477-vis:build:dev"
+            },
+            "local": {
+              "browserTarget": "c477-vis:build:local"
             }
           },
           "defaultConfiguration": "development"

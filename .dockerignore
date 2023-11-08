@@ -7,3 +7,7 @@ docs
 .git
 *.log
 documentation
+
+# Enviroments
+/src/environments/environment.local.ts
+/src/environments/mapbox.environment.ts

@@ -1,3 +1,10 @@
+interface Map {
+  style: string;
+  zoom: number;
+  pitch: number;
+  center: number[];
+}
+
 export interface RuntimeConfigurationModel {
   /* Application is in production */
   production: boolean;
@@ -5,4 +12,6 @@ export interface RuntimeConfigurationModel {
   env: 'local' | 'dev' | 'prod';
   /* IA API URL */
   apiURL: string;
+  /* Mapbox map config */
+  map: Map;
 }

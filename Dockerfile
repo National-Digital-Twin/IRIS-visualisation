@@ -7,6 +7,9 @@ COPY package.json package-lock.json ./
 RUN npm ci --no-optional
 # Copy source code
 COPY . .
+# Create config file
+ARG MAPBOX_API_KEY=$MAPBOX_API_KEY
+RUN npm run config
 # Build app
 RUN npm run build
 

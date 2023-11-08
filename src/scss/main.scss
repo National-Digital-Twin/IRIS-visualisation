@@ -1,0 +1,8 @@
+/* ARC BASE STYLES */
+@import '~@arc-web/components/dist/themes/index.css';
+@import '~@arc-web/components/dist/themes/light.css';
+@import '~@arc-web/components/dist/themes/dark.css';
+
+/* LAYOUT STYLES */
+@import './layout/body';
+@import './layout/main';

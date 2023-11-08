@@ -41,3 +41,7 @@ documentation
 # System files
 .DS_Store
 Thumbs.db
+
+# Enviroments
+/src/environments/environment.local.ts
+/src/environments/mapbox.environment.ts

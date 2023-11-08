@@ -1,5 +1,11 @@
 {
   "production": false,
   "env": "qa",
-  "apiURL": ""
+  "apiURL": "",
+  "map": {
+    "style": "mapbox://styles/mapbox/standard-beta",
+    "zoom": 16,
+    "pitch": 64.9,
+    "center": [-1.30303, 50.7561]
+  }
 }

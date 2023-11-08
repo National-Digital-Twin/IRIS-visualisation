@@ -11,7 +11,29 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 ## Development server
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+#### Environments
+
+For local development, create a `environment.local.ts` file in `environments`. This should have the same structure as the existing environment files. This local file is not committed to git, and can have any secret keys added safely.
+
+Create a file called `environments\mapbox.environment.ts` with the following and add your Mapbox API key. This file will not be committed to the code repository.
+
+```
+export const mapbox = {
+  mapbox: {
+    apiKey: 'the-key-you-can-expose',
+  },
+};
+```
+
+Run `npm start` for a dev server using the `local` app configuration. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+
+The application also provides npm scripts for running a development server that will load the corresponding environment configuration.
+
+```npm
+npm run start
+npm run start:dev
+npm run start:prod
+```
 
 ## Code scaffolding
 
@@ -36,7 +58,9 @@ linting and style checking. Check code linting and style using `npm run lint`
 
 ### Docker
 
-Run `docker build -t c477-vis .` to build the image
+You will need a Mapbox API key to be used as a build argument during the image build.
+
+Run `docker build -t c477-vis --build-arg MAPBOX_API_KEY='' .` to build the image
 
 The application uses environment specific configuration.
 
