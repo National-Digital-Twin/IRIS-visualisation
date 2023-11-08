@@ -5,6 +5,8 @@ import { CommonModule } from '@angular/common';
 // @ts-ignore
 import { Map as MapboxMap } from '!mapbox-gl';
 
+import { environment } from 'src/environments/environment';
+
 @Component({
   selector: 'c477-map',
   standalone: true,
@@ -18,7 +20,7 @@ export class MapComponent implements AfterViewInit {
   lng = -1.30303;
   pitch = 64.9;
   zoom = 16;
-  accessToken = '';
+  accessToken = environment.mapbox.apiKey;
 
   ngAfterViewInit() {
     // delay map creation until after parent
