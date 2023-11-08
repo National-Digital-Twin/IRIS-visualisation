@@ -1,4 +1,4 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 // eslint-disable-next-line
@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { Map as MapboxMap } from '!mapbox-gl';
 
 import { environment } from 'src/environments/environment';
+import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 
 @Component({
   selector: 'c477-map',
@@ -15,11 +16,14 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./map.component.scss'],
 })
 export class MapComponent implements AfterViewInit {
+  runtimeConfig = inject(RUNTIME_CONFIGURATION);
   map: MapboxMap | undefined;
-  lat = 50.7561;
-  lng = -1.30303;
-  pitch = 64.9;
-  zoom = 16;
+
+  /** Map config */
+  center = this.runtimeConfig.map.center;
+  pitch = this.runtimeConfig.map.pitch;
+  zoom = this.runtimeConfig.map.zoom;
+  style = this.runtimeConfig.map.style;
   accessToken = environment.mapbox.apiKey;
 
   ngAfterViewInit() {
@@ -36,7 +40,8 @@ export class MapComponent implements AfterViewInit {
       accessToken: this.accessToken,
       pitch: this.pitch,
       zoom: this.zoom,
-      center: [this.lng, this.lat],
+      center: this.center,
+      style: this.style,
     });
 
     this.map.on('style.load', () => {
