@@ -42,13 +42,9 @@
                 "output": "assets"
               }
             ],
-            "styles": [
-              "node_modules/@arc-web/components/dist/themes/index.css",
-              "node_modules/@arc-web/components/dist/themes/light.css",
-              "node_modules/@arc-web/components/dist/themes/dark.css",
-              "src/styles.scss"
-            ],
-            "scripts": []
+            "styles": ["src/scss/main.scss", "mapbox-gl/dist/mapbox-gl.css"],
+            "scripts": [],
+            "allowedCommonJsDependencies": ["mapbox-gl"]
           },
           "configurations": {
             "production": {
