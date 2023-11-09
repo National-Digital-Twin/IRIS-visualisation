@@ -1,10 +1,4 @@
-interface Map {
-  style: string;
-  zoom: number;
-  pitch: number;
-  lng: number;
-  lat: number;
-}
+import { MapConfigModel } from './map-configuration.model';
 
 export interface RuntimeConfigurationModel {
   /* Application is in production */
@@ -14,5 +8,5 @@ export interface RuntimeConfigurationModel {
   /* IA API URL */
   apiURL: string;
   /* Mapbox map config */
-  map: Map;
+  map: MapConfigModel;
 }
