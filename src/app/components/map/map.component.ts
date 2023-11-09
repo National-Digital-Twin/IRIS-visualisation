@@ -1,12 +1,19 @@
-import { AfterViewInit, Component, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  Output,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 // eslint-disable-next-line
 // @ts-ignore
 import { Map as MapboxMap } from '!mapbox-gl';
 
-import { environment } from 'src/environments/environment';
+import { MapConfigModel } from '@core/models/map-configuration.model';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'c477-map',
@@ -16,6 +23,8 @@ import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token'
   styleUrls: ['./map.component.scss'],
 })
 export class MapComponent implements AfterViewInit {
+  @Output() setRouteParams = new EventEmitter<MapConfigModel>();
+
   runtimeConfig = inject(RUNTIME_CONFIGURATION);
   map: MapboxMap | undefined;
 
@@ -60,9 +69,17 @@ export class MapComponent implements AfterViewInit {
 
   getMapState() {
     console.log('Map bounds ', this.map.getBounds());
-    console.log('Map zoom ', this.map.getZoom());
-    console.log('Map pitch ', this.map.getPitch());
-    console.log('Map bearing ', this.map.getBearing());
-    console.log('Map center ', this.map.getCenter());
+    const zoom = this.map.getZoom();
+    const pitch = this.map.getPitch();
+    const bearing = this.map.getBearing();
+    const { lng, lat } = this.map.getCenter();
+    const mapConfig: MapConfigModel = {
+      bearing,
+      lat,
+      lng,
+      pitch,
+      zoom,
+    };
+    this.setRouteParams.emit(mapConfig);
   }
 }
