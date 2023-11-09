@@ -1,19 +1,14 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+
 import { RouterOutlet } from '@angular/router';
 
 import '@arc-web/components';
 
-import { MapComponent } from './map/map.component';
-
 @Component({
   selector: 'c477-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, MapComponent],
+  imports: [RouterOutlet],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class AppComponent {
-  title = 'C477 Visualisation';
-}
+export class AppComponent {}

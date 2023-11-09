@@ -1,6 +1,5 @@
 import { TestBed } from '@angular/core/testing';
 import { RouterOutlet } from '@angular/router';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 import { AppComponent } from './app.component';
 
@@ -8,7 +7,6 @@ describe('AppComponent', () => {
   beforeEach(() =>
     TestBed.configureTestingModule({
       imports: [AppComponent, RouterOutlet],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
     })
   );
 
