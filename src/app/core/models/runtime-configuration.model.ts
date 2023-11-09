@@ -2,7 +2,8 @@ interface Map {
   style: string;
   zoom: number;
   pitch: number;
-  center: number[];
+  lng: number;
+  lat: number;
 }
 
 export interface RuntimeConfigurationModel {

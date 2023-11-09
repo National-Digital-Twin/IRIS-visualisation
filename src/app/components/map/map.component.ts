@@ -20,7 +20,8 @@ export class MapComponent implements AfterViewInit {
   map: MapboxMap | undefined;
 
   /** Map config */
-  center = this.runtimeConfig.map.center;
+  lng = this.runtimeConfig.map.lng;
+  lat = this.runtimeConfig.map.lat;
   pitch = this.runtimeConfig.map.pitch;
   zoom = this.runtimeConfig.map.zoom;
   style = this.runtimeConfig.map.style;
@@ -41,7 +42,7 @@ export class MapComponent implements AfterViewInit {
       accessToken: this.accessToken,
       pitch: this.pitch,
       zoom: this.zoom,
-      center: this.center,
+      center: [this.lng, this.lat],
       style: this.style,
     });
   }
