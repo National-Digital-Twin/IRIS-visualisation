@@ -1,7 +1,7 @@
 {
   "production": false,
   "env": "local",
-  "apiURL": "",
+  "apiURL": "https://thirdp.telicent.live",
   "map": {
     "style": "mapbox://styles/mapbox/standard-beta",
     "zoom": 16,
