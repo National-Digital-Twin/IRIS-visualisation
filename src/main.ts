@@ -6,7 +6,7 @@ import { appConfig } from './app/app.config';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { provideHttpClient } from '@angular/common/http';
 
-fetch('config.json')
+fetch('configuration/config.json')
   .then(response => response.json())
   .then(config =>
     bootstrapApplication(AppComponent, {
