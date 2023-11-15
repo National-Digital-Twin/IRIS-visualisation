@@ -138,16 +138,16 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "c477-vis:build:production"
+              "buildTarget": "c477-vis:build:production"
             },
             "development": {
-              "browserTarget": "c477-vis:build:development"
+              "buildTarget": "c477-vis:build:development"
             },
             "dev": {
-              "browserTarget": "c477-vis:build:dev"
+              "buildTarget": "c477-vis:build:dev"
             },
             "local": {
-              "browserTarget": "c477-vis:build:local"
+              "buildTarget": "c477-vis:build:local"
             }
           },
           "defaultConfiguration": "development"
@@ -155,7 +155,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "c477-vis:build"
+            "buildTarget": "c477-vis:build"
           }
         },
         "test": {
