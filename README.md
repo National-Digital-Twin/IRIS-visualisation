@@ -13,7 +13,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 #### Environments
 
-For local development, create a `environment.local.ts` file in `environments`. This should have the same structure as the existing environment files. This local file is not committed to git, and can have any secret keys added safely.
+For local development, create a `environment.local.ts` file in `environments` and a `\local\config.json` directory & file in `configurations`. These two files should have the same structure as the existing environment files. These local files are not committed to git, and can have any secret keys added safely.
 
 Create a file called `environments\mapbox.environment.ts` with the following and add your Mapbox API key. This file will not be committed to the code repository.
 
@@ -32,6 +32,7 @@ The application also provides npm scripts for running a development server that 
 ```npm
 npm run start
 npm run start:dev
+npm run start:qa
 npm run start:prod
 ```
 
@@ -55,22 +56,6 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 
 The project uses a combination of [ES Lint](https://eslint.org) & [Prettier](https://prettier.io) to execute code
 linting and style checking. Check code linting and style using `npm run lint`
-
-### Docker
-
-You will need a Mapbox API key to be used as a build argument during the image build.
-
-Run `docker build -t c477-vis --build-arg MAPBOX_API_KEY='' .` to build the image
-
-The application uses environment specific configuration.
-
-To test the `qa` configuration run:
-
-- `docker run -p 80:80 --env ARUP_ENV=qa c477-vis` and view at http://localhost/
-
-To test the `prod` configuration run:
-
-- `docker run -p 80:80 --env ARUP_ENV=prod c477-vis` and view at http://localhost/
 
 ### Code commit messages
 
