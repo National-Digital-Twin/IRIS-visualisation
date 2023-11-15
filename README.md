@@ -13,7 +13,7 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 #### Environments
 
-For local development, create a `environment.local.ts` file in `environments`. This should have the same structure as the existing environment files. This local file is not committed to git, and can have any secret keys added safely.
+For local development, create a `environment.local.ts` file in `environments` and a `\local\config.json` directory & file in `configurations`. These two files should have the same structure as the existing environment files. These local files are not committed to git, and can have any secret keys added safely.
 
 Create a file called `environments\mapbox.environment.ts` with the following and add your Mapbox API key. This file will not be committed to the code repository.
 
@@ -32,6 +32,7 @@ The application also provides npm scripts for running a development server that 
 ```npm
 npm run start
 npm run start:dev
+npm run start:qa
 npm run start:prod
 ```
 
