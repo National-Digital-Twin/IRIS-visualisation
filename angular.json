@@ -33,9 +33,6 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              "src/config.json",
-              "src/config.qa.json",
-              "src/config.prod.json",
               {
                 "glob": "**/*",
                 "input": "node_modules/@arc-web/components/dist/assets",
@@ -48,6 +45,20 @@
           },
           "configurations": {
             "production": {
+              "assets": [
+                "src/favicon.ico",
+                "src/assets",
+                {
+                  "input": "src/configurations/prod",
+                  "output": "configuration/",
+                  "glob": "*.json"
+                },
+                {
+                  "input": "node_modules/@arc-web/components/dist/assets",
+                  "output": "assets",
+                  "glob": "**/*"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
@@ -78,15 +89,17 @@
               "sourceMap": true,
               "namedChunks": true,
               "assets": [
-                "src/favicon.ico",
                 "src/assets",
-                "src/config.json",
-                "src/config.qa.json",
-                "src/config.prod.json",
+                "src/favicon.ico",
                 {
-                  "glob": "**/*",
+                  "input": "src/configurations/dev",
+                  "output": "configuration/",
+                  "glob": "*.json"
+                },
+                {
                   "input": "node_modules/@arc-web/components/dist/assets",
-                  "output": "assets"
+                  "output": "assets",
+                  "glob": "**/*"
                 }
               ]
             },
@@ -100,39 +113,21 @@
               "assets": [
                 "src/favicon.ico",
                 "src/assets",
-                "src/config.json",
-                "src/config.qa.json",
-                "src/config.prod.json",
                 {
-                  "glob": "**/*",
+                  "input": "src/configurations/local",
+                  "output": "configuration/",
+                  "glob": "*.json"
+                },
+                {
                   "input": "node_modules/@arc-web/components/dist/assets",
-                  "output": "assets"
+                  "output": "assets",
+                  "glob": "**/*"
                 }
               ],
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.local.ts"
-                }
-              ]
-            },
-            "qa": {
-              "buildOptimizer": false,
-              "optimization": false,
-              "vendorChunk": true,
-              "extractLicenses": false,
-              "sourceMap": true,
-              "namedChunks": true,
-              "assets": [
-                "src/favicon.ico",
-                "src/assets",
-                "src/config.json",
-                "src/config.qa.json",
-                "src/config.prod.json",
-                {
-                  "glob": "**/*",
-                  "input": "node_modules/@arc-web/components/dist/assets",
-                  "output": "assets"
                 }
               ]
             }
@@ -147,9 +142,6 @@
             },
             "development": {
               "browserTarget": "c477-vis:build:development"
-            },
-            "qa": {
-              "browserTarget": "c477-vis:build:qa"
             },
             "dev": {
               "browserTarget": "c477-vis:build:dev"
