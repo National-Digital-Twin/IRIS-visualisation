@@ -2,8 +2,8 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
-  Output,
   inject,
+  Output,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
