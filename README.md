@@ -56,22 +56,6 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 The project uses a combination of [ES Lint](https://eslint.org) & [Prettier](https://prettier.io) to execute code
 linting and style checking. Check code linting and style using `npm run lint`
 
-### Docker
-
-You will need a Mapbox API key to be used as a build argument during the image build.
-
-Run `docker build -t c477-vis --build-arg MAPBOX_API_KEY='' .` to build the image
-
-The application uses environment specific configuration.
-
-To test the `qa` configuration run:
-
-- `docker run -p 80:80 --env ARUP_ENV=qa c477-vis` and view at http://localhost/
-
-To test the `prod` configuration run:
-
-- `docker run -p 80:80 --env ARUP_ENV=prod c477-vis` and view at http://localhost/
-
 ### Code commit messages
 
 The project enforces the use of [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary). This forces consistent commit message format and allows the generation of a [Changelog](./CHANGELOG.md) during the release process.
