@@ -45,6 +45,7 @@
           },
           "configurations": {
             "production": {
+              "baseHref": "/c477-vis/",
               "assets": [
                 "src/favicon.ico",
                 "src/assets",
@@ -74,6 +75,7 @@
               "outputHashing": "all"
             },
             "development": {
+              "baseHref": "/",
               "buildOptimizer": false,
               "optimization": false,
               "vendorChunk": true,
@@ -82,6 +84,7 @@
               "namedChunks": true
             },
             "dev": {
+              "baseHref": "/c477-vis/",
               "buildOptimizer": false,
               "optimization": false,
               "vendorChunk": true,
@@ -104,6 +107,7 @@
               ]
             },
             "local": {
+              "baseHref": "/",
               "buildOptimizer": false,
               "optimization": false,
               "vendorChunk": true,
