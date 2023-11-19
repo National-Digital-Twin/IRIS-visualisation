@@ -7,7 +7,7 @@
     "start:dev": "ng serve --configuration=dev",
     "start:prod": "ng serve --configuration=production",
     "build": "ng build",
-    "build:dev": "ng build --configuration=dev --base-href /c477-vis/ --deploy-url /c477-vis/",
+    "build:dev": "ng build --configuration=dev",
     "build:local": "npm run config && ng build --configuration=local",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
