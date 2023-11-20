@@ -1,9 +1,4 @@
-import {
-  Component,
-  CUSTOM_ELEMENTS_SCHEMA,
-  inject,
-  OnInit,
-} from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -13,6 +8,7 @@ import { DataService } from '@core/services/data.service';
 
 import { MapComponent } from 'src/app/components/map/map.component';
 import { MapConfigModel } from '@core/models/map-configuration.model';
+import { map, Observable } from 'rxjs';
 
 @Component({
   selector: 'c477-shell',
@@ -23,22 +19,23 @@ import { MapConfigModel } from '@core/models/map-configuration.model';
   styleUrls: ['./shell.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ShellComponent implements OnInit {
+export class ShellComponent {
   dataService = inject(DataService);
   router = inject(Router);
   runtimeConfig = inject(RUNTIME_CONFIGURATION);
 
+  // TODO - remove, this is for testing purposes only
+
+  data$: Observable<object[]> = this.dataService
+    .getUPRNs$()
+    .pipe(map(data => this.dataService.createGeoJSON(data)));
+
   title = 'C477 Visualisation';
 
-  // TODO - remove, this is for testing purposes only
-  ngOnInit(): void {
-    this.dataService.getUPRNs().subscribe(data => console.log(data));
-  }
-
   setRouteParams(params: MapConfigModel) {
-    const { bearing, lat, lng, pitch, zoom } = params;
+    const { bearing, center, pitch, zoom } = params;
     this.router.navigate(['/'], {
-      queryParams: { bearing, lat, lng, pitch, zoom },
+      queryParams: { bearing, lat: center[1], lng: center[0], pitch, zoom },
     });
   }
 }

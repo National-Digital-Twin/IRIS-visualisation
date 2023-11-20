@@ -4,7 +4,11 @@
   </arc-navbar>
   <div class="content">
     <div class="content__map-container">
-      <c477-map (setRouteParams)="setRouteParams($event)"></c477-map>
+      <ng-container *ngIf="data$ | async as data">
+        <c477-map
+          (setRouteParams)="setRouteParams($event)"
+          [data]="data"></c477-map>
+      </ng-container>
     </div>
   </div>
 </arc-container>
