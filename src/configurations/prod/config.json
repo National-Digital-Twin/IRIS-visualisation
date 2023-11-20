@@ -6,8 +6,6 @@
     "style": "mapbox://styles/mapbox/standard-beta",
     "zoom": 16,
     "pitch": 64.9,
-    "lng": -1.30303,
-    "lat": 50.7561,
-    "bearing": 0
+    "center": [-1.2919, 50.6914]
   }
 }

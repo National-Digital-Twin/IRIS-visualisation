@@ -1,7 +1,6 @@
 export interface MapConfigModel {
   bearing: number;
-  lat: number;
-  lng: number;
+  center: [number, number];
   pitch: number;
   style?: string;
   zoom: number;
