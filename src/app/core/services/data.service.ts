@@ -1,11 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subscriber } from 'rxjs';
 
 import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
 import { SPARQLReturn } from '@core/models/rdf-data.model';
 
-interface TableRow {
+export interface TableRow {
   [key: string]: string;
 }
 
@@ -16,7 +16,7 @@ export class DataService {
   private readonly http: HttpClient = inject(HttpClient);
   private readonly searchEndpoint: string = inject(SEARCH_ENDPOINT);
 
-  getUPRNs() {
+  getUPRNs$() {
     const selectString = `
       PREFIX data: <http://nationaldigitaltwin.gov.uk/data#>
       PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
@@ -38,8 +38,6 @@ export class DataService {
         ?geopoint ies:isIdentifiedBy ?lon .
         ?lon rdf:type ies:Longitude .
         ?lon ies:representationValue ?lon_literal .
-        ?state ies:isStateOf ?building .
-        ?state a ?current_energy_rating .
       }
     `;
     return this.selectTable(selectString);
@@ -51,21 +49,23 @@ export class DataService {
    * @returns observable of parsed data
    */
   private selectTable(query: string) {
-    let newTable: Array<object>;
+    let newTable: Array<TableRow>;
     const uri = encodeURIComponent(query);
     const httpOptions = {
       withCredentials: true,
     };
 
-    const tableObservable = new Observable(observer => {
-      this.http
-        .get<SPARQLReturn>(`${this.searchEndpoint}?query=${uri}`, httpOptions)
-        .subscribe((data: SPARQLReturn) => {
-          newTable = this.buildTable(data);
-          observer.next(newTable);
-          observer.complete();
-        });
-    });
+    const tableObservable = new Observable(
+      (observer: Subscriber<TableRow[]>) => {
+        this.http
+          .get<SPARQLReturn>(`${this.searchEndpoint}?query=${uri}`, httpOptions)
+          .subscribe((data: SPARQLReturn) => {
+            newTable = this.buildTable(data);
+            observer.next(newTable);
+            observer.complete();
+          });
+      }
+    );
     return tableObservable;
   }
 
@@ -97,5 +97,27 @@ export class DataService {
       }
     }
     return table;
+  }
+
+  // TODO - temporary to display EPC points on map
+  createGeoJSON(data: TableRow[]) {
+    const featureCollection = [];
+    for (const item in data) {
+      const feature = {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [+data[item].lon_literal, +data[item].lat_literal],
+        },
+        properties: {
+          epc: data[item].current_energy_rating.slice(
+            data[item].current_energy_rating.length - 1
+          ),
+        },
+      };
+      featureCollection.push(feature);
+    }
+    console.log(featureCollection);
+    return featureCollection;
   }
 }
