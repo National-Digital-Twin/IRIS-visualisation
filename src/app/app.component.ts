@@ -4,7 +4,7 @@ import { RouterOutlet } from '@angular/router';
 
 import '@arc-web/components';
 
-import { MapComponent } from './map/map.component';
+import { MapComponent } from './components/map/map.component';
 
 @Component({
   selector: 'c477-root',
