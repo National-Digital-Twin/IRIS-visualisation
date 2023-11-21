@@ -1,4 +1,4 @@
-interface Map {
+export interface MapConfig {
   style: string;
   zoom: number;
   pitch: number;
@@ -13,5 +13,5 @@ export interface RuntimeConfigurationModel {
   /* IA API URL */
   apiURL: string;
   /* Mapbox map config */
-  map: Map;
+  map: MapConfig;
 }
