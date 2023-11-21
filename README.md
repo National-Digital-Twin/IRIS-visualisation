@@ -2,7 +2,6 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.0.0.
 
-- [Jest](https://jestjs.io/)
 - [Cypress](https://cypress.io/)
 - [ES Lint](https://eslint.org)
 - [Prettier](https://prettier.io)
@@ -44,24 +43,20 @@ Run `ng generate component component-name` to generate a new component. You can 
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
 
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
 ## Running end-to-end tests
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+Run `ng e2e` to execute the end-to-end tests with [Cypress](https://cypress.io/)
 
-### Linting & code style
+## Linting & code style
 
 The project uses a combination of [ES Lint](https://eslint.org) & [Prettier](https://prettier.io) to execute code
 linting and style checking. Check code linting and style using `npm run lint`
 
-### Code commit messages
+## Code commit messages
 
 The project enforces the use of [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary). This forces consistent commit message format and allows the generation of a [Changelog](./CHANGELOG.md) during the release process.
 
-### Documentation
+## Documentation
 
 Run `npm run compodoc` to generate and view app documentation using [Compodoc](https://compodoc.app/).
 
