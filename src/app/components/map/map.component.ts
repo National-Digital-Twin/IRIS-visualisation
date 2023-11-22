@@ -1,8 +1,10 @@
 import {
   AfterViewInit,
   Component,
+  EventEmitter,
   OnDestroy,
   OnInit,
+  Output,
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -28,6 +30,9 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   runtimeConfig = inject(RUNTIME_CONFIGURATION);
   mapService = inject(MapService);
 
+  @Output() setSearchArea: EventEmitter<GeoJSON.Feature> =
+    new EventEmitter<GeoJSON.Feature>();
+
   private drawControl!: MapboxDraw;
   private subscription!: Subscription;
 
@@ -35,6 +40,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.subscription = this.mapService.mapLoaded$
       .pipe(
         tap(() => {
+          this.addTerrainLayer();
           this.addBuildingsLayer();
           this.addControls();
           this.initMapEvents();
@@ -48,6 +54,19 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
    */
   initMapEvents() {
     this.mapService.mapInstance.on('draw.create', this.onDrawCreate);
+  }
+
+  addTerrainLayer() {
+    this.mapService.mapInstance.addSource('mapbox-dem', {
+      type: 'raster-dem',
+      url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+      tileSize: 512,
+      maxzoom: 14,
+    });
+    // add the DEM source as a terrain layer
+    this.mapService.mapInstance.setTerrain({
+      source: 'mapbox-dem',
+    });
   }
 
   /**
@@ -142,9 +161,8 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.mapService.mapInstance.zoomOut();
   }
 
-  onDrawCreate = (e: MapboxDraw.DrawEvent) => {
-    // TODO use event geometry to select buildings
-    console.log(e);
+  onDrawCreate = (e: MapboxDraw.DrawCreateEvent) => {
+    this.setSearchArea.emit(e.features[0]);
   };
 
   ngOnDestroy(): void {
