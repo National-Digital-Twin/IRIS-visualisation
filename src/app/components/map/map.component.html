@@ -30,7 +30,7 @@
     mat-icon-button
     aria-label="Draw polygon"
     class="draw-button"
-    (click)="drawPolygon()">
+    (click)="setDrawMode('polygon')">
     <mat-icon fontSet="material-icons-outlined">rectangle</mat-icon>
   </button>
   <button
@@ -38,7 +38,7 @@
     mat-icon-button
     aria-label="Draw polygon"
     class="draw-button"
-    (click)="delete()">
+    (click)="setDrawMode('delete')">
     <mat-icon fontSet="material-icons-outlined">delete</mat-icon>
   </button>
 </div>

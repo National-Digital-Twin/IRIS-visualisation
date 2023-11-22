@@ -6,6 +6,8 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 import { Subscription, tap } from 'rxjs';
 
@@ -16,7 +18,7 @@ import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token'
 @Component({
   selector: 'c477-map',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule],
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
 })
@@ -80,5 +82,41 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
+  }
+
+  resetMapView() {
+    this.mapService.mapInstance.easeTo({
+      center: this.runtimeConfig.map.center,
+      zoom: this.runtimeConfig.map.zoom,
+      duration: 1500,
+    });
+  }
+
+  setDrawMode(mode: string) {
+    switch (mode) {
+      case 'polygon': {
+        this.updateMode('draw_polygon');
+        break;
+      }
+      case 'delete': {
+        this.drawControl.trash();
+        break;
+      }
+      default:
+        this.updateMode('simple_select');
+        break;
+    }
+  }
+
+  updateMode(mode: string) {
+    this.drawControl.changeMode(mode);
+  }
+
+  zoomIn() {
+    this.mapService.mapInstance.zoomIn();
+  }
+
+  zoomOut() {
+    this.mapService.mapInstance.zoomOut();
   }
 }
