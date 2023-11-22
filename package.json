@@ -31,7 +31,7 @@
     "@angular/platform-browser-dynamic": "^17.0.2",
     "@angular/router": "^17.0.2",
     "@arc-web/components": "^2.3.1",
-    "mapbox-gl": "^3.0.0-rc.1",
+    "mapbox-gl": "^2.15.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.2"
