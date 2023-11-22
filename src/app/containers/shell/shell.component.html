@@ -1,0 +1,10 @@
+<arc-container>
+  <arc-navbar slot="nav" tabs="0">
+    <span slot="name">{{ title }}</span>
+  </arc-navbar>
+  <div class="content">
+    <div class="content__map-container">
+      <c477-map (setSearchArea)="setSearchArea($event)"></c477-map>
+    </div>
+  </div>
+</arc-container>

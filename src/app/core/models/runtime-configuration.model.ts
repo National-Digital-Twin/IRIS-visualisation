@@ -1,3 +1,5 @@
+import { Layer } from 'mapbox-gl';
+
 export interface MapConfig {
   style: string;
   zoom: number;
@@ -15,4 +17,6 @@ export interface RuntimeConfigurationModel {
   apiURL: string;
   /* Mapbox map config */
   map: MapConfig;
+  /* Mapbox map layers */
+  mapLayers: Layer[];
 }
