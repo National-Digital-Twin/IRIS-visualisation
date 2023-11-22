@@ -11,6 +11,8 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { Subscription, tap } from 'rxjs';
 
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
+
 import { MapService } from '@core/services/map.service';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
@@ -26,6 +28,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   runtimeConfig = inject(RUNTIME_CONFIGURATION);
   mapService = inject(MapService);
 
+  private drawControl!: MapboxDraw;
   private subscription!: Subscription;
 
   ngOnInit(): void {
@@ -33,9 +36,18 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       .pipe(
         tap(() => {
           this.addBuildingsLayer();
+          this.addControls();
+          this.initMapEvents();
         })
       )
       .subscribe();
+  }
+
+  /**
+   * Map event listeners
+   */
+  initMapEvents() {
+    this.mapService.mapInstance.on('draw.create', this.onDrawCreate);
   }
 
   /**
@@ -76,18 +88,27 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     });
   }
 
-  ngAfterViewInit() {
-    this.mapService.setup(this.runtimeConfig.map);
+  /**
+   * Add draw tool to the map but hide
+   * ui as we're using custom buttons
+   */
+  addControls(): void {
+    this.drawControl = new MapboxDraw({
+      displayControlsDefault: false,
+    });
+    this.mapService.mapInstance.addControl(this.drawControl, 'top-right');
   }
 
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
+  ngAfterViewInit() {
+    this.mapService.setup(this.runtimeConfig.map);
   }
 
   resetMapView() {
     this.mapService.mapInstance.easeTo({
       center: this.runtimeConfig.map.center,
       zoom: this.runtimeConfig.map.zoom,
+      pitch: this.runtimeConfig.map.pitch,
+      bearing: this.runtimeConfig.map.bearing,
       duration: 1500,
     });
   }
@@ -99,7 +120,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         break;
       }
       case 'delete': {
-        this.drawControl.trash();
+        this.drawControl.deleteAll();
         break;
       }
       default:
@@ -118,5 +139,14 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
 
   zoomOut() {
     this.mapService.mapInstance.zoomOut();
+  }
+
+  onDrawCreate = (e: MapboxDraw.DrawEvent) => {
+    // TODO use event geometry to select buildings
+    console.log(e);
+  };
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 }
