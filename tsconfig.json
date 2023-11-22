@@ -21,6 +21,7 @@
     "useDefineForClassFields": false,
     "lib": ["ES2022", "dom"],
     "skipLibCheck": true,
+    "esModuleInterop": true,
     "paths": {
       "@components/*": ["src/app/components/*"],
       "@containers/*": ["src/app/containers/*"],

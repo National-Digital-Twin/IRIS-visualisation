@@ -6,8 +6,12 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 import { Subscription, tap } from 'rxjs';
+
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 import { MapService } from '@core/services/map.service';
 
@@ -16,7 +20,7 @@ import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token'
 @Component({
   selector: 'c477-map',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule],
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
 })
@@ -24,6 +28,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   runtimeConfig = inject(RUNTIME_CONFIGURATION);
   mapService = inject(MapService);
 
+  private drawControl!: MapboxDraw;
   private subscription!: Subscription;
 
   ngOnInit(): void {
@@ -31,9 +36,18 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       .pipe(
         tap(() => {
           this.addBuildingsLayer();
+          this.addControls();
+          this.initMapEvents();
         })
       )
       .subscribe();
+  }
+
+  /**
+   * Map event listeners
+   */
+  initMapEvents() {
+    this.mapService.mapInstance.on('draw.create', this.onDrawCreate);
   }
 
   /**
@@ -74,9 +88,64 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     });
   }
 
+  /**
+   * Add draw tool to the map but hide
+   * ui as we're using custom buttons
+   */
+  addControls(): void {
+    this.drawControl = new MapboxDraw({
+      displayControlsDefault: false,
+    });
+    this.mapService.mapInstance.addControl(this.drawControl, 'top-right');
+  }
+
   ngAfterViewInit() {
     this.mapService.setup(this.runtimeConfig.map);
   }
+
+  resetMapView() {
+    this.mapService.mapInstance.easeTo({
+      center: this.runtimeConfig.map.center,
+      zoom: this.runtimeConfig.map.zoom,
+      pitch: this.runtimeConfig.map.pitch,
+      bearing: this.runtimeConfig.map.bearing,
+      duration: 1500,
+    });
+  }
+
+  setDrawMode(mode: string) {
+    switch (mode) {
+      case 'polygon': {
+        this.drawControl.deleteAll();
+        this.updateMode('draw_polygon');
+        break;
+      }
+      case 'delete': {
+        this.drawControl.deleteAll();
+        break;
+      }
+      default:
+        this.updateMode('simple_select');
+        break;
+    }
+  }
+
+  updateMode(mode: string) {
+    this.drawControl.changeMode(mode);
+  }
+
+  zoomIn() {
+    this.mapService.mapInstance.zoomIn();
+  }
+
+  zoomOut() {
+    this.mapService.mapInstance.zoomOut();
+  }
+
+  onDrawCreate = (e: MapboxDraw.DrawEvent) => {
+    // TODO use event geometry to select buildings
+    console.log(e);
+  };
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
