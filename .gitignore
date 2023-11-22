@@ -45,5 +45,5 @@ Thumbs.db
 # Enviroments
 /src/configurations/local
 /src/environments/environment.local.ts
-/src/environments/mapbox.environment.ts
+/src/environments/keys.environment.ts
 

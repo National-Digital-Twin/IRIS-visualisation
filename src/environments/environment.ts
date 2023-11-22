@@ -3,4 +3,7 @@ export const environment = {
   mapbox: {
     apiKey: 'undefined',
   },
+  os: {
+    apiKey: 'undefined',
+  },
 };

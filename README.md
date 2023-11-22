@@ -14,12 +14,16 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 For local development, create a `environment.local.ts` file in `environments` and a `\local\config.json` directory & file in `configurations`. These two files should have the same structure as the existing environment files. These local files are not committed to git, and can have any secret keys added safely.
 
-Create a file called `environments\mapbox.environment.ts` with the following and add your Mapbox API key. This file will not be committed to the code repository.
+Create a file called `environments\keys.environment.ts` and add your Mapbox API key and OS Data Hub API key. This file will not be committed to the code repository.
 
 ```
-export const mapbox = {
+export const apiKeys = {
   mapbox: {
-    apiKey: 'the-key-you-can-expose',
+    apiKey:
+      'your mapbox api key',
+  },
+  os: {
+    apiKey: 'your os data hub api key',
   },
 };
 ```
