@@ -42,6 +42,7 @@ export class MapService {
     const { center, pitch, zoom, style } = config;
 
     const accessToken = environment.mapbox.apiKey;
+    const apiKey = environment.os.apiKey;
 
     this.mapInstance = new MapboxMap({
       container: 'map',
@@ -50,6 +51,19 @@ export class MapService {
       zoom,
       center,
       style,
+      // append OS api key and srs details to OS VTS requests
+      transformRequest: (url: string) => {
+        if (url.indexOf('api.os.uk') > -1) {
+          if (!/[?&]key=/.test(url)) url += '?key=' + apiKey;
+          return {
+            url: url + '&srs=3857',
+          };
+        } else {
+          return {
+            url: url,
+          };
+        }
+      },
     });
   }
 
