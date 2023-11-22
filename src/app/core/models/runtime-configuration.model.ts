@@ -3,6 +3,7 @@ export interface MapConfig {
   zoom: number;
   pitch: number;
   center: number[];
+  bearing: number;
 }
 
 export interface RuntimeConfigurationModel {
