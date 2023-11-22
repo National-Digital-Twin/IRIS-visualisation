@@ -1,6 +1,9 @@
 @import '../abstracts/variables';
 
 .zoom-controls {
+  .mat-mdc-icon-button .mat-mdc-button-persistent-ripple {
+    border-radius: 0;
+  }
   z-index: 1001;
   position: absolute;
   margin: 0.625rem 0.625rem 0 0;
