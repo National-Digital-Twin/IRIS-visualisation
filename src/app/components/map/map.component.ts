@@ -13,6 +13,9 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { Subscription, tap } from 'rxjs';
 
+import { Polygon } from 'geojson';
+
+import { Layer, RasterDemSource } from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 import { MapService } from '@core/services/map.service';
@@ -30,8 +33,8 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   runtimeConfig = inject(RUNTIME_CONFIGURATION);
   mapService = inject(MapService);
 
-  @Output() setSearchArea: EventEmitter<GeoJSON.Feature> =
-    new EventEmitter<GeoJSON.Feature>();
+  @Output() setSearchArea: EventEmitter<GeoJSON.Feature<Polygon>> =
+    new EventEmitter<GeoJSON.Feature<Polygon>>();
 
   private drawControl!: MapboxDraw;
   private subscription!: Subscription;
@@ -41,7 +44,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       .pipe(
         tap(() => {
           this.addTerrainLayer();
-          this.addBuildingsLayer();
+          this.addLayers();
           this.addControls();
           this.initMapEvents();
         })
@@ -54,57 +57,29 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
    */
   initMapEvents() {
     this.mapService.mapInstance.on('draw.create', this.onDrawCreate);
+    this.mapService.mapInstance.on('draw.update', this.onDrawUpdate);
   }
 
   addTerrainLayer() {
-    this.mapService.mapInstance.addSource('mapbox-dem', {
+    const config: RasterDemSource = {
       type: 'raster-dem',
       url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
       tileSize: 512,
       maxzoom: 14,
-    });
-    // add the DEM source as a terrain layer
-    this.mapService.mapInstance.setTerrain({
-      source: 'mapbox-dem',
-    });
+    };
+    this.mapService.addMapSource('mapbox-dem', config);
   }
 
   /**
-   * Add the buildings layer by extruding
-   * an the existing buildings layer in the
-   * OS Vector Tile Service
+   * Add the following map layers
+   *  - 2d buildings layer for spatial search
+   *  - 3d buildings layer for extruding
+   *  - 3d buildings layer for highlighting
    */
-  addBuildingsLayer() {
-    this.mapService.mapInstance.addLayer({
-      id: 'OS/TopographicArea_2/Building/1_3D',
-      type: 'fill-extrusion',
-      source: 'esri',
-      'source-layer': 'TopographicArea_2',
-      filter: ['==', '_symbol', 4],
-      minzoom: 15,
-      layout: {},
-      paint: {
-        'fill-extrusion-color': '#DCD7C6',
-        'fill-extrusion-height': [
-          'interpolate',
-          ['linear'],
-          ['zoom'],
-          15,
-          0,
-          15.05,
-          ['get', 'RelHMax'],
-        ],
-        'fill-extrusion-opacity': [
-          'interpolate',
-          ['linear'],
-          ['zoom'],
-          15,
-          0,
-          16,
-          0.9,
-        ],
-      },
-    });
+  addLayers() {
+    this.runtimeConfig.mapLayers.forEach((layer: Layer) =>
+      this.mapService.addMapLayer(layer)
+    );
   }
 
   /**
@@ -140,7 +115,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         break;
       }
       case 'delete': {
-        this.drawControl.deleteAll();
+        this.deleteSearchArea();
         break;
       }
       default:
@@ -153,6 +128,16 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.drawControl.changeMode(mode);
   }
 
+  deleteSearchArea() {
+    // delete search geom
+    this.drawControl.deleteAll();
+    // reset building highlight layer
+    this.mapService.filterMapLayer(
+      'OS/TopographicArea_2/Building/1_3D-highlighted',
+      ['all', ['==', '_symbol', 4], ['in', 'TOID', '']]
+    );
+  }
+
   zoomIn() {
     this.mapService.mapInstance.zoomIn();
   }
@@ -161,8 +146,20 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.mapService.mapInstance.zoomOut();
   }
 
+  /**
+   * Set search area when a search area is drawn
+   * @param e Mapbox draw create event
+   */
   onDrawCreate = (e: MapboxDraw.DrawCreateEvent) => {
-    this.setSearchArea.emit(e.features[0]);
+    this.setSearchArea.emit(e.features[0] as GeoJSON.Feature<Polygon>);
+  };
+
+  /**
+   * Set search area when an existing search area updated (moved)
+   * @param e Mapbox draw update event
+   */
+  onDrawUpdate = (e: MapboxDraw.DrawUpdateEvent) => {
+    this.setSearchArea.emit(e.features[0] as GeoJSON.Feature<Polygon>);
   };
 
   ngOnDestroy(): void {
