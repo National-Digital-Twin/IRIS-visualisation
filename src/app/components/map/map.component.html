@@ -1,1 +1,45 @@
+<div class="zoom-controls">
+  <button
+    disableRipple="true"
+    mat-icon-button
+    aria-label="Reset map extent"
+    class="map-button"
+    (click)="resetMapView()">
+    <mat-icon fontSet="material-icons-outlined">home</mat-icon>
+  </button>
+  <button
+    class="map-button"
+    disableRipple="true"
+    mat-icon-button
+    aria-label="Zoom in map"
+    (click)="zoomIn()">
+    <mat-icon>add</mat-icon>
+  </button>
+  <button
+    class="map-button"
+    disableRipple="true"
+    mat-icon-button
+    aria-label="Zoom out map"
+    (click)="zoomOut()">
+    <mat-icon>remove</mat-icon>
+  </button>
+</div>
+<div class="draw-controls">
+  <button
+    disableRipple="true"
+    mat-icon-button
+    aria-label="Draw polygon"
+    class="draw-button"
+    (click)="drawPolygon()">
+    <mat-icon fontSet="material-icons-outlined">rectangle</mat-icon>
+  </button>
+  <button
+    disableRipple="true"
+    mat-icon-button
+    aria-label="Draw polygon"
+    class="draw-button"
+    (click)="delete()">
+    <mat-icon fontSet="material-icons-outlined">delete</mat-icon>
+  </button>
+</div>
 <div id="map"></div>
