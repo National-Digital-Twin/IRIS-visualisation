@@ -39,7 +39,11 @@
                 "output": "assets"
               }
             ],
-            "styles": ["src/scss/main.scss", "mapbox-gl/dist/mapbox-gl.css"],
+            "styles": [
+              "@angular/material/prebuilt-themes/indigo-pink.css",
+              "src/scss/main.scss",
+              "mapbox-gl/dist/mapbox-gl.css"
+            ],
             "scripts": [],
             "allowedCommonJsDependencies": ["mapbox-gl"]
           },
