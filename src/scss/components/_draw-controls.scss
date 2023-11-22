@@ -1,0 +1,31 @@
+@import '../abstracts/variables';
+
+.draw-controls {
+  z-index: 1001;
+  position: absolute;
+  // margin: 14.375rem 0.625rem 0 0;
+  float: right;
+  right: 1rem;
+  top: 14.375rem;
+  padding: 1rem;
+  :first-child {
+    border-radius: 4px 4px 0 0;
+  }
+  :last-child {
+    border-radius: 0 0 4px 4px;
+  }
+
+  .draw-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: $color-button-background !important;
+    box-shadow: 0px 2px 3px rgba(118, 118, 118, 0.2);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    &__reset {
+      margin-bottom: 0.5rem;
+      background-color: $color-button-background !important;
+      box-shadow: 0px 2px 3px rgba(118, 118, 118, 0.2);
+    }
+  }
+}
