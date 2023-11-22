@@ -116,6 +116,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   setDrawMode(mode: string) {
     switch (mode) {
       case 'polygon': {
+        this.drawControl.deleteAll();
         this.updateMode('draw_polygon');
         break;
       }
