@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 
 import bbox from '@turf/bbox';
 import intersect from '@turf/intersect';
@@ -12,6 +12,12 @@ import { Expression } from 'mapbox-gl';
 })
 export class SpatialQueryService {
   private mapService = inject(MapService);
+
+  selectedBuildingTOID = signal<string | undefined>(undefined);
+
+  setSelectedTOID(toid: string) {
+    this.selectedBuildingTOID.set(toid);
+  }
 
   selectBuilding(toid: string) {
     this.mapService.filterMapLayer(
