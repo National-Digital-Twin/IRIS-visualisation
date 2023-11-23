@@ -23,6 +23,7 @@ export class ShellComponent {
 
   setSelectedBuildingTOID(selectedBuilding: string | null) {
     if (selectedBuilding) {
+      this.spatialQueryService.setSelectedTOID(selectedBuilding);
       this.spatialQueryService.selectBuilding(selectedBuilding);
     }
   }
