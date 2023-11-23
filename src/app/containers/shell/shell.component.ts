@@ -20,4 +20,11 @@ export class ShellComponent {
   setSearchArea(searchArea: GeoJSON.Feature<Polygon>) {
     this.spatialQueryService.selectBuildings(searchArea);
   }
+
+  setSelectedBuildingTOID(selectedBuilding: string | null) {
+    if (selectedBuilding) {
+      this.spatialQueryService.setSelectedTOID(selectedBuilding);
+      this.spatialQueryService.selectBuilding(selectedBuilding);
+    }
+  }
 }

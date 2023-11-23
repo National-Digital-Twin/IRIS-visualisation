@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 
 import bbox from '@turf/bbox';
 import intersect from '@turf/intersect';
@@ -11,8 +11,20 @@ import { Expression } from 'mapbox-gl';
   providedIn: 'root',
 })
 export class SpatialQueryService {
-  mapService = inject(MapService);
-  constructor() {}
+  private mapService = inject(MapService);
+
+  selectedBuildingTOID = signal<string | undefined>(undefined);
+
+  setSelectedTOID(toid: string) {
+    this.selectedBuildingTOID.set(toid);
+  }
+
+  selectBuilding(toid: string) {
+    this.mapService.filterMapLayer(
+      'OS/TopographicArea_2/Building/1_3D-selected',
+      ['all', ['==', '_symbol', 4], ['in', 'TOID', toid]]
+    );
+  }
 
   selectBuildings(geom: GeoJSON.Feature<Polygon>) {
     // get bounding box of drawn geometry as this
