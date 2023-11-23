@@ -11,8 +11,14 @@ import { Expression } from 'mapbox-gl';
   providedIn: 'root',
 })
 export class SpatialQueryService {
-  mapService = inject(MapService);
-  constructor() {}
+  private mapService = inject(MapService);
+
+  selectBuilding(toid: string) {
+    this.mapService.filterMapLayer(
+      'OS/TopographicArea_2/Building/1_3D-selected',
+      ['all', ['==', '_symbol', 4], ['in', 'TOID', toid]]
+    );
+  }
 
   selectBuildings(geom: GeoJSON.Feature<Polygon>) {
     // get bounding box of drawn geometry as this
