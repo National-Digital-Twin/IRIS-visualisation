@@ -15,7 +15,7 @@ import { Subscription, tap } from 'rxjs';
 
 import { Polygon } from 'geojson';
 
-import { Layer, RasterDemSource } from 'mapbox-gl';
+import { Layer, MapLayerMouseEvent, RasterDemSource } from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 import { MapService } from '@core/services/map.service';
@@ -32,6 +32,9 @@ import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token'
 export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   runtimeConfig = inject(RUNTIME_CONFIGURATION);
   mapService = inject(MapService);
+
+  @Output() setSelectedBuildingTOID: EventEmitter<string | null> =
+    new EventEmitter<string | null>();
 
   @Output() setSearchArea: EventEmitter<GeoJSON.Feature<Polygon>> =
     new EventEmitter<GeoJSON.Feature<Polygon>>();
@@ -56,8 +59,29 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
    * Map event listeners
    */
   initMapEvents() {
+    /** Spatial search events */
     this.mapService.mapInstance.on('draw.create', this.onDrawCreate);
     this.mapService.mapInstance.on('draw.update', this.onDrawUpdate);
+    /** Select building event */
+    this.mapService.mapInstance.on(
+      'click',
+      'OS/TopographicArea_2/Building/1_3D',
+      this.selectBuilding
+    );
+    this.mapService.mapInstance.on(
+      'mouseenter',
+      'OS/TopographicArea_2/Building/1_3D',
+      () => {
+        if (this.drawControl.getMode() !== 'draw_polygon') {
+          this.mapService.mapInstance.getCanvas().style.cursor = 'pointer';
+        }
+      }
+    );
+    this.mapService.mapInstance.on(
+      'mouseleave',
+      'OS/TopographicArea_2/Building/1_3D',
+      () => (this.mapService.mapInstance.getCanvas().style.cursor = '')
+    );
   }
 
   addTerrainLayer() {
@@ -160,6 +184,12 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
    */
   onDrawUpdate = (e: MapboxDraw.DrawUpdateEvent) => {
     this.setSearchArea.emit(e.features[0] as GeoJSON.Feature<Polygon>);
+  };
+
+  selectBuilding = (e: MapLayerMouseEvent) => {
+    if (e.features && this.drawControl.getMode() !== 'draw_polygon') {
+      this.setSelectedBuildingTOID.emit(e.features[0].properties!.TOID);
+    }
   };
 
   ngOnDestroy(): void {
