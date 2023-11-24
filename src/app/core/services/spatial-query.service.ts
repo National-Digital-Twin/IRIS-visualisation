@@ -6,7 +6,12 @@ import intersect from '@turf/intersect';
 import { MapService } from './map.service';
 import { Polygon } from 'geojson';
 import { Expression } from 'mapbox-gl';
+import { MapLayerFilter } from '@core/models/layer-filter.model';
 
+/**
+ * Service for selecting and filtering buildings
+ * on the map
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -15,17 +20,24 @@ export class SpatialQueryService {
 
   selectedBuildingTOID = signal<string | undefined>(undefined);
 
-  setSelectedTOID(toid: string) {
-    this.selectedBuildingTOID.set(toid);
+  /** Set the TOID of an individual building */
+  setSelectedTOID(TOID: string) {
+    this.selectedBuildingTOID.set(TOID);
   }
 
-  selectBuilding(toid: string) {
-    this.mapService.filterMapLayer(
-      'OS/TopographicArea_2/Building/1_3D-selected',
-      ['all', ['==', '_symbol', 4], ['in', 'TOID', toid]]
-    );
+  /** Filter map to show selected buildings */
+  selectBuilding(TOID: string) {
+    const filter: MapLayerFilter = {
+      layerId: 'OS/TopographicArea_2/Building/1_3D-selected',
+      expression: ['all', ['==', '_symbol', 4], ['in', 'TOID', TOID]],
+    };
+    this.mapService.filterMapLayer(filter);
   }
 
+  /**
+   * Filter map to show selection of multiple buildings
+   * @param geom user drawn geometry
+   */
   selectBuildings(geom: GeoJSON.Feature<Polygon>) {
     // get bounding box of drawn geometry as this
     // is the input required by mapbox to query
@@ -42,10 +54,11 @@ export class SpatialQueryService {
     // be larger than the drawn geometry so need to remove some results
     const filteredBuildings = this.getBuildingsInGeom(geom, selectedBuildings);
     // apply the filter to the building highlight layer
-    this.mapService.filterMapLayer(
-      'OS/TopographicArea_2/Building/1_3D-highlighted',
-      filteredBuildings
-    );
+    const filter: MapLayerFilter = {
+      layerId: 'OS/TopographicArea_2/Building/1_3D-highlighted',
+      expression: filteredBuildings,
+    };
+    this.mapService.filterMapLayer(filter);
   }
 
   /**

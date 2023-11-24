@@ -3,21 +3,21 @@
     mat-icon-button
     aria-label="Reset map extent"
     class="map-button"
-    (click)="resetMapView()">
+    (click)="resetMapView.emit()">
     <mat-icon fontSet="material-icons-outlined">home</mat-icon>
   </button>
   <button
     class="map-button"
     mat-icon-button
     aria-label="Zoom in map"
-    (click)="zoomIn()">
+    (click)="zoomIn.emit()">
     <mat-icon>add</mat-icon>
   </button>
   <button
     class="map-button"
     mat-icon-button
     aria-label="Zoom out map"
-    (click)="zoomOut()">
+    (click)="zoomOut.emit()">
     <mat-icon>remove</mat-icon>
   </button>
 </div>

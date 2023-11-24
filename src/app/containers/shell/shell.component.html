@@ -5,6 +5,10 @@
   <div class="content">
     <div class="content__map-container">
       <c477-map
+        (filterLayer)="filterLayer($event)"
+        (resetMapView)="resetMapView()"
+        (zoomIn)="zoomIn()"
+        (zoomOut)="zoomOut()"
         (setSearchArea)="setSearchArea($event)"
         (setSelectedBuildingTOID)="setSelectedBuildingTOID($event)"></c477-map>
     </div>

@@ -3,14 +3,20 @@ import { Injectable, NgZone } from '@angular/core';
 import { AsyncSubject, Observable } from 'rxjs';
 import { first } from 'rxjs/operators';
 
+// ignore mapbox-gl
 // eslint-disable-next-line
 // @ts-ignore
 import { MapEvent, Map as MapboxMap } from '!mapbox-gl';
+import { Layer, RasterDemSource, Source } from 'mapbox-gl';
+
 import { MapConfig } from '@core/models/runtime-configuration.model';
+import { MapLayerFilter } from '@core/models/layer-filter.model';
 
 import { environment } from 'src/environments/environment';
-import { Expression, Layer, RasterDemSource, Source } from 'mapbox-gl';
 
+/**
+ * Service for the MapboxGLJS map
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -39,22 +45,29 @@ export class MapService {
   }
 
   addMapSource(name: string, source: Source | RasterDemSource) {
-    this.mapInstance.addSource(name, source);
+    this.zone.runOutsideAngular(() => {
+      this.mapInstance.addSource(name, source);
 
-    if (source.type === 'raster-dem') {
-      // add the DEM source as a terrain layer
-      this.mapInstance.setTerrain({
-        source: name,
-      });
-    }
+      if (source.type === 'raster-dem') {
+        // add the DEM source as a terrain layer
+        this.mapInstance.setTerrain({
+          source: name,
+        });
+      }
+    });
   }
 
   addMapLayer(layerConfig: Layer) {
-    this.mapInstance.addLayer(layerConfig);
+    this.zone.runOutsideAngular(() => {
+      this.mapInstance.addLayer(layerConfig);
+    });
   }
 
-  filterMapLayer(layerId: string, filter: Expression) {
-    this.mapInstance.setFilter(layerId, filter);
+  filterMapLayer(filter: MapLayerFilter) {
+    const { layerId, expression } = filter;
+    this.zone.runOutsideAngular(() => {
+      this.mapInstance.setFilter(layerId, expression);
+    });
   }
 
   private createMap(config: MapConfig) {
@@ -85,6 +98,12 @@ export class MapService {
         }
       },
     });
+  }
+
+  destroyMap() {
+    if (this.mapInstance) {
+      this.mapInstance.remove();
+    }
   }
 
   private hookEvents() {

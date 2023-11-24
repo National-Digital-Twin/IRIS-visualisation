@@ -19,9 +19,9 @@ import { Layer, MapLayerMouseEvent, RasterDemSource } from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 import { MapService } from '@core/services/map.service';
-import { SpatialQueryService } from '@core/services/spatial-query.service';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
+import { MapLayerFilter } from '@core/models/layer-filter.model';
 
 @Component({
   selector: 'c477-map',
@@ -33,19 +33,27 @@ import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token'
 export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   private runtimeConfig = inject(RUNTIME_CONFIGURATION);
   private mapService = inject(MapService);
-  private queryService = inject(SpatialQueryService);
-
-  private selectedBuildingTOID = this.queryService.selectedBuildingTOID;
-
-  @Output() setSelectedBuildingTOID: EventEmitter<string | null> =
-    new EventEmitter<string | null>();
-
-  @Output() setSearchArea: EventEmitter<GeoJSON.Feature<Polygon>> =
-    new EventEmitter<GeoJSON.Feature<Polygon>>();
 
   private drawControl!: MapboxDraw;
   private subscription!: Subscription;
 
+  @Output() resetMapView: EventEmitter<null> = new EventEmitter<null>();
+  @Output() zoomIn: EventEmitter<null> = new EventEmitter<null>();
+  @Output() zoomOut: EventEmitter<null> = new EventEmitter<null>();
+
+  @Output() filterLayer: EventEmitter<MapLayerFilter> =
+    new EventEmitter<MapLayerFilter>();
+  @Output() setSearchArea: EventEmitter<GeoJSON.Feature<Polygon>> =
+    new EventEmitter<GeoJSON.Feature<Polygon>>();
+  @Output() setSelectedBuildingTOID: EventEmitter<string | null> =
+    new EventEmitter<string | null>();
+
+  /** setup map */
+  ngAfterViewInit() {
+    this.mapService.setup(this.runtimeConfig.map);
+  }
+
+  /** on map loaded, setup layers, controls etc */
   ngOnInit(): void {
     this.subscription = this.mapService.mapLoaded$
       .pipe(
@@ -70,8 +78,9 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.mapService.mapInstance.on(
       'click',
       'OS/TopographicArea_2/Building/1_3D',
-      this.selectBuilding
+      this.setSelectedTOID
     );
+    /** Change mouse cursor on building hover */
     this.mapService.mapInstance.on(
       'mouseenter',
       'OS/TopographicArea_2/Building/1_3D',
@@ -81,6 +90,7 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
         }
       }
     );
+    /** Remove mouse cursor when hovering off a building */
     this.mapService.mapInstance.on(
       'mouseleave',
       'OS/TopographicArea_2/Building/1_3D',
@@ -121,20 +131,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.mapService.mapInstance.addControl(this.drawControl, 'top-right');
   }
 
-  ngAfterViewInit() {
-    this.mapService.setup(this.runtimeConfig.map);
-  }
-
-  resetMapView() {
-    this.mapService.mapInstance.easeTo({
-      center: this.runtimeConfig.map.center,
-      zoom: this.runtimeConfig.map.zoom,
-      pitch: this.runtimeConfig.map.pitch,
-      bearing: this.runtimeConfig.map.bearing,
-      duration: 1500,
-    });
-  }
-
   setDrawMode(mode: string) {
     switch (mode) {
       case 'polygon': {
@@ -160,18 +156,10 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     // delete search geom
     this.drawControl.deleteAll();
     // reset building highlight layer
-    this.mapService.filterMapLayer(
-      'OS/TopographicArea_2/Building/1_3D-highlighted',
-      ['all', ['==', '_symbol', 4], ['in', 'TOID', '']]
-    );
-  }
-
-  zoomIn() {
-    this.mapService.mapInstance.zoomIn();
-  }
-
-  zoomOut() {
-    this.mapService.mapInstance.zoomOut();
+    this.filterLayer.emit({
+      layerId: 'OS/TopographicArea_2/Building/1_3D-highlighted',
+      expression: ['all', ['==', '_symbol', 4], ['in', 'TOID', '']],
+    });
   }
 
   /**
@@ -190,28 +178,14 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.setSearchArea.emit(e.features[0] as GeoJSON.Feature<Polygon>);
   };
 
-  selectBuilding = (e: MapLayerMouseEvent) => {
-    // if clicking an already selected building, deselect
-    if (
-      e.features &&
-      this.drawControl.getMode() !== 'draw_polygon' &&
-      this.selectedBuildingTOID() === e.features[0].properties!.TOID
-    ) {
-      this.queryService.setSelectedTOID('');
-      this.mapService.filterMapLayer(
-        'OS/TopographicArea_2/Building/1_3D-selected',
-        ['all', ['==', '_symbol', 4], ['in', 'TOID', '']]
-      );
-    } else if (
-      e.features &&
-      this.drawControl.getMode() !== 'draw_polygon' &&
-      this.selectedBuildingTOID() !== e.features[0].properties!.TOID
-    ) {
+  setSelectedTOID = (e: MapLayerMouseEvent) => {
+    if (e.features && this.drawControl.getMode() !== 'draw_polygon') {
       this.setSelectedBuildingTOID.emit(e.features![0].properties!.TOID);
     }
   };
 
   ngOnDestroy(): void {
+    this.mapService.destroyMap();
     this.subscription.unsubscribe();
   }
 }

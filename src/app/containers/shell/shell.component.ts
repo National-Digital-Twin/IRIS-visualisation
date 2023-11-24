@@ -3,7 +3,12 @@ import { CommonModule } from '@angular/common';
 import { Polygon } from 'geojson';
 
 import { MapComponent } from '@components/map/map.component';
+
+import { MapService } from '@core/services/map.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
+
+import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
+import { MapLayerFilter } from '@core/models/layer-filter.model';
 
 @Component({
   selector: 'c477-shell',
@@ -14,17 +19,47 @@ import { SpatialQueryService } from '@core/services/spatial-query.service';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ShellComponent {
-  spatialQueryService = inject(SpatialQueryService);
+  private mapService = inject(MapService);
+  private runtimeConfig = inject(RUNTIME_CONFIGURATION);
+  private spatialQueryService = inject(SpatialQueryService);
+  private selectedBuildingTOID = this.spatialQueryService.selectedBuildingTOID;
+
   title = 'C477 Visualisation';
+
+  filterLayer(filter: MapLayerFilter) {
+    this.mapService.filterMapLayer(filter);
+  }
 
   setSearchArea(searchArea: GeoJSON.Feature<Polygon>) {
     this.spatialQueryService.selectBuildings(searchArea);
   }
 
-  setSelectedBuildingTOID(selectedBuilding: string | null) {
-    if (selectedBuilding) {
-      this.spatialQueryService.setSelectedTOID(selectedBuilding);
-      this.spatialQueryService.selectBuilding(selectedBuilding);
+  setSelectedBuildingTOID(TOID: string | null) {
+    const currentTOID = this.selectedBuildingTOID();
+    if (TOID && currentTOID !== TOID) {
+      this.spatialQueryService.setSelectedTOID(TOID);
+      this.spatialQueryService.selectBuilding(TOID);
+    } else {
+      this.spatialQueryService.setSelectedTOID('');
+      this.spatialQueryService.selectBuilding('');
     }
+  }
+
+  zoomIn() {
+    this.mapService.mapInstance.zoomIn();
+  }
+
+  zoomOut() {
+    this.mapService.mapInstance.zoomOut();
+  }
+
+  resetMapView() {
+    this.mapService.mapInstance.easeTo({
+      center: this.runtimeConfig.map.center,
+      zoom: this.runtimeConfig.map.zoom,
+      pitch: this.runtimeConfig.map.pitch,
+      bearing: this.runtimeConfig.map.bearing,
+      duration: 1500,
+    });
   }
 }
