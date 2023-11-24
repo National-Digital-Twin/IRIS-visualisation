@@ -21,7 +21,10 @@
     "useDefineForClassFields": false,
     "lib": ["ES2022", "dom"],
     "skipLibCheck": true,
+    "esModuleInterop": true,
     "paths": {
+      "@components/*": ["src/app/components/*"],
+      "@containers/*": ["src/app/containers/*"],
       "@core/*": ["src/app/core/*"]
     }
   },
@@ -30,6 +33,5 @@
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": true
-  },
-  "exclude": ["./cypress.config.ts", "cypress"]
+  }
 }

@@ -4,11 +4,14 @@
   </arc-navbar>
   <div class="content">
     <div class="content__map-container">
-      <ng-container *ngIf="data$ | async as data">
-        <c477-map
-          (setRouteParams)="setRouteParams($event)"
-          [data]="data"></c477-map>
-      </ng-container>
+      <c477-map
+        (setRouteParams)="setRouteParams($event)"
+        (filterLayer)="filterLayer($event)"
+        (resetMapView)="resetMapView()"
+        (zoomIn)="zoomIn()"
+        (zoomOut)="zoomOut()"
+        (setSearchArea)="setSearchArea($event)"
+        (setSelectedBuildingTOID)="setSelectedBuildingTOID($event)"></c477-map>
     </div>
   </div>
 </arc-container>

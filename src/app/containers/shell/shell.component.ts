@@ -1,36 +1,70 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Polygon } from 'geojson';
+
+import { MapComponent } from '@components/map/map.component';
+
+import { MapService } from '@core/services/map.service';
+import { SpatialQueryService } from '@core/services/spatial-query.service';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
-
-import { DataService } from '@core/services/data.service';
-
-import { MapComponent } from 'src/app/components/map/map.component';
+import { MapLayerFilter } from '@core/models/layer-filter.model';
+import { Router } from '@angular/router';
 import { MapConfigModel } from '@core/models/map-configuration.model';
-import { map, Observable } from 'rxjs';
 
 @Component({
   selector: 'c477-shell',
   standalone: true,
-  providers: [DataService],
   imports: [CommonModule, MapComponent],
   templateUrl: './shell.component.html',
-  styleUrls: ['./shell.component.scss'],
+  styleUrl: './shell.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ShellComponent {
-  dataService = inject(DataService);
-  router = inject(Router);
-  runtimeConfig = inject(RUNTIME_CONFIGURATION);
-
-  // TODO - remove, this is for testing purposes only
-
-  data$: Observable<object[]> = this.dataService
-    .getUPRNs$()
-    .pipe(map(data => this.dataService.createGeoJSON(data)));
+  private mapService = inject(MapService);
+  private runtimeConfig = inject(RUNTIME_CONFIGURATION);
+  private router = inject(Router);
+  private spatialQueryService = inject(SpatialQueryService);
+  private selectedBuildingTOID = this.spatialQueryService.selectedBuildingTOID;
 
   title = 'C477 Visualisation';
+
+  filterLayer(filter: MapLayerFilter) {
+    this.mapService.filterMapLayer(filter);
+  }
+
+  setSearchArea(searchArea: GeoJSON.Feature<Polygon>) {
+    this.spatialQueryService.selectBuildings(searchArea);
+  }
+
+  setSelectedBuildingTOID(TOID: string | null) {
+    const currentTOID = this.selectedBuildingTOID();
+    if (TOID && currentTOID !== TOID) {
+      this.spatialQueryService.setSelectedTOID(TOID);
+      this.spatialQueryService.selectBuilding(TOID);
+    } else {
+      this.spatialQueryService.setSelectedTOID('');
+      this.spatialQueryService.selectBuilding('');
+    }
+  }
+
+  zoomIn() {
+    this.mapService.mapInstance.zoomIn();
+  }
+
+  zoomOut() {
+    this.mapService.mapInstance.zoomOut();
+  }
+
+  resetMapView() {
+    this.mapService.mapInstance.easeTo({
+      center: this.runtimeConfig.map.center,
+      zoom: this.runtimeConfig.map.zoom,
+      pitch: this.runtimeConfig.map.pitch,
+      bearing: this.runtimeConfig.map.bearing,
+      duration: 1500,
+    });
+  }
 
   setRouteParams(params: MapConfigModel) {
     const { bearing, center, pitch, zoom } = params;

@@ -1,10 +1,11 @@
 import { bootstrapApplication } from '@angular/platform-browser';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
 
 import { AppComponent } from './app/app.component';
 import { appConfig } from './app/app.config';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
-import { provideHttpClient } from '@angular/common/http';
 
 fetch('configuration/config.json')
   .then(response => response.json())
@@ -14,6 +15,7 @@ fetch('configuration/config.json')
         ...appConfig.providers,
         { provide: RUNTIME_CONFIGURATION, useValue: config },
         provideHttpClient(),
+        provideAnimations(),
       ],
     }).catch(err => console.error(err))
   );

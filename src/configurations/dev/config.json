@@ -3,9 +3,112 @@
   "env": "dev",
   "apiURL": "https://thirdp-test.telicent.live",
   "map": {
-    "style": "mapbox://styles/mapbox/standard-beta",
+    "style": "https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Greyscale.json",
     "zoom": 16,
     "pitch": 64.9,
-    "center": [-1.2919, 50.6914]
-  }
+    "center": [-1.30303, 50.7561],
+    "bearing": 0
+  },
+  "mapLayers": [
+    {
+      "id": "OS/TopographicArea_2/Building/1_2D",
+      "type": "fill",
+      "source": "esri",
+      "source-layer": "TopographicArea_2",
+      "filter": ["==", "_symbol", 4],
+      "paint": {
+        "fill-opacity": 0
+      }
+    },
+    {
+      "id": "OS/TopographicArea_2/Building/1_3D",
+      "type": "fill-extrusion",
+      "source": "esri",
+      "source-layer": "TopographicArea_2",
+      "filter": ["==", "_symbol", 4],
+      "minzoom": 15,
+      "layout": {},
+      "paint": {
+        "fill-extrusion-color": "#DCD7C6",
+        "fill-extrusion-height": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          15,
+          0,
+          15.05,
+          ["get", "RelHMax"]
+        ],
+        "fill-extrusion-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          15,
+          0,
+          16,
+          0.9
+        ]
+      }
+    },
+    {
+      "id": "OS/TopographicArea_2/Building/1_3D-highlighted",
+      "type": "fill-extrusion",
+      "source": "esri",
+      "source-layer": "TopographicArea_2",
+      "filter": ["all", ["==", "_symbol", 4], ["in", "TOID", ""]],
+      "minzoom": 15,
+      "layout": {},
+      "paint": {
+        "fill-extrusion-color": "#E9153B",
+        "fill-extrusion-height": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          15,
+          0,
+          15.05,
+          ["get", "RelHMax"]
+        ],
+        "fill-extrusion-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          15,
+          0,
+          16,
+          0.9
+        ]
+      }
+    },
+    {
+      "id": "OS/TopographicArea_2/Building/1_3D-selected",
+      "type": "fill-extrusion",
+      "source": "esri",
+      "source-layer": "TopographicArea_2",
+      "filter": ["all", ["==", "_symbol", 4], ["in", "TOID", ""]],
+      "minzoom": 15,
+      "layout": {},
+      "paint": {
+        "fill-extrusion-color": "#51406C",
+        "fill-extrusion-height": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          15,
+          0,
+          15.05,
+          ["get", "RelHMax"]
+        ],
+        "fill-extrusion-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          15,
+          0,
+          16,
+          0.9
+        ]
+      }
+    }
+  ]
 }

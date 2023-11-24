@@ -2,84 +2,207 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
-  inject,
-  Input,
-  OnChanges,
+  OnDestroy,
+  OnInit,
   Output,
-  SimpleChanges,
+  inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
-// eslint-disable-next-line
-// @ts-ignore
-import { Map as MapboxMap } from '!mapbox-gl';
+import { Subscription, tap } from 'rxjs';
+
+import { Polygon } from 'geojson';
+
+import { Layer, MapLayerMouseEvent, RasterDemSource } from 'mapbox-gl';
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
+
+import { MapService } from '@core/services/map.service';
+
+import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 
 import { MapConfigModel } from '@core/models/map-configuration.model';
-import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
-import { environment } from 'src/environments/environment';
+import { MapLayerFilter } from '@core/models/layer-filter.model';
 
 @Component({
   selector: 'c477-map',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule],
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
 })
-export class MapComponent implements AfterViewInit, OnChanges {
-  @Input() data: Array<object> | undefined;
-  @Output() setRouteParams = new EventEmitter<MapConfigModel>();
+export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
+  private runtimeConfig = inject(RUNTIME_CONFIGURATION);
+  private mapService = inject(MapService);
 
-  runtimeConfig = inject(RUNTIME_CONFIGURATION);
-  map: MapboxMap | undefined;
+  private drawControl!: MapboxDraw;
+  private subscription!: Subscription;
 
-  /** Map config */
-  center = this.runtimeConfig.map.center;
-  pitch = this.runtimeConfig.map.pitch;
-  zoom = this.runtimeConfig.map.zoom;
-  style = this.runtimeConfig.map.style;
-  accessToken = environment.mapbox.apiKey;
+  @Output() resetMapView: EventEmitter<null> = new EventEmitter<null>();
+  @Output() zoomIn: EventEmitter<null> = new EventEmitter<null>();
+  @Output() zoomOut: EventEmitter<null> = new EventEmitter<null>();
 
+  @Output() filterLayer: EventEmitter<MapLayerFilter> =
+    new EventEmitter<MapLayerFilter>();
+  @Output() setSearchArea: EventEmitter<GeoJSON.Feature<Polygon>> =
+    new EventEmitter<GeoJSON.Feature<Polygon>>();
+  @Output() setSelectedBuildingTOID: EventEmitter<string | null> =
+    new EventEmitter<string | null>();
+  @Output() setRouteParams: EventEmitter<MapConfigModel> =
+    new EventEmitter<MapConfigModel>();
+
+  /** setup map */
   ngAfterViewInit() {
-    // delay map creation until after parent
-    // containers are created
-    setTimeout(() => {
-      this.initializeMap();
-      this.setupMapListeners();
-    }, 0);
+    this.mapService.setup(this.runtimeConfig.map);
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    this.addLayerToMap(changes.data.currentValue);
+  /** on map loaded, setup layers, controls etc */
+  ngOnInit(): void {
+    this.subscription = this.mapService.mapLoaded$
+      .pipe(
+        tap(() => {
+          this.getMapState();
+          this.addTerrainLayer();
+          this.addLayers();
+          this.addControls();
+          this.initMapEvents();
+        })
+      )
+      .subscribe();
   }
 
-  initializeMap() {
-    this.map = new MapboxMap({
-      container: 'map',
-      accessToken: this.accessToken,
-      pitch: this.pitch,
-      zoom: this.zoom,
-      center: this.center,
-      style: this.style,
-    });
-  }
+  /**
+   * Map event listeners
+   */
+  initMapEvents() {
+    /** Spatial search events */
+    this.mapService.mapInstance.on('draw.create', this.onDrawCreate);
+    this.mapService.mapInstance.on('draw.update', this.onDrawUpdate);
+    /** Select building event */
+    this.mapService.mapInstance.on(
+      'click',
+      'OS/TopographicArea_2/Building/1_3D',
+      this.setSelectedTOID
+    );
+    /** Change mouse cursor on building hover */
+    this.mapService.mapInstance.on(
+      'mouseenter',
+      'OS/TopographicArea_2/Building/1_3D',
+      () => {
+        if (this.drawControl.getMode() !== 'draw_polygon') {
+          this.mapService.mapInstance.getCanvas().style.cursor = 'pointer';
+        }
+      }
+    );
+    /** Remove mouse cursor when hovering off a building */
+    this.mapService.mapInstance.on(
+      'mouseleave',
+      'OS/TopographicArea_2/Building/1_3D',
+      () => (this.mapService.mapInstance.getCanvas().style.cursor = '')
+    );
 
-  setupMapListeners() {
-    this.map.on('style.load', () => {
-      this.map.setConfigProperty('basemap', 'showPointOfInterestLabels', false);
+    this.mapService.mapInstance.on('moveend', () => {
       this.getMapState();
-      this.addLayerToMap(this.data!);
     });
+  }
 
-    this.map.on('moveend', () => {
-      this.getMapState();
+  addTerrainLayer() {
+    const config: RasterDemSource = {
+      type: 'raster-dem',
+      url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+      tileSize: 512,
+      maxzoom: 14,
+    };
+    this.mapService.addMapSource('mapbox-dem', config);
+  }
+
+  /**
+   * Add the following map layers
+   *  - 2d buildings layer for spatial search
+   *  - 3d buildings layer for extruding
+   *  - 3d buildings layer for highlighting
+   */
+  addLayers() {
+    this.runtimeConfig.mapLayers.forEach((layer: Layer) =>
+      this.mapService.addMapLayer(layer)
+    );
+  }
+
+  /**
+   * Add draw tool to the map but hide
+   * ui as we're using custom buttons
+   */
+  addControls(): void {
+    this.drawControl = new MapboxDraw({
+      displayControlsDefault: false,
     });
+    this.mapService.mapInstance.addControl(this.drawControl, 'top-right');
+  }
+
+  setDrawMode(mode: string) {
+    switch (mode) {
+      case 'polygon': {
+        this.drawControl.deleteAll();
+        this.updateMode('draw_polygon');
+        break;
+      }
+      case 'delete': {
+        this.deleteSearchArea();
+        break;
+      }
+      default:
+        this.updateMode('simple_select');
+        break;
+    }
+  }
+
+  updateMode(mode: string) {
+    this.drawControl.changeMode(mode);
+  }
+
+  deleteSearchArea() {
+    // delete search geom
+    this.drawControl.deleteAll();
+    // reset building highlight layer
+    this.filterLayer.emit({
+      layerId: 'OS/TopographicArea_2/Building/1_3D-highlighted',
+      expression: ['all', ['==', '_symbol', 4], ['in', 'TOID', '']],
+    });
+  }
+
+  /**
+   * Set search area when a search area is drawn
+   * @param e Mapbox draw create event
+   */
+  onDrawCreate = (e: MapboxDraw.DrawCreateEvent) => {
+    this.setSearchArea.emit(e.features[0] as GeoJSON.Feature<Polygon>);
+  };
+
+  /**
+   * Set search area when an existing search area updated (moved)
+   * @param e Mapbox draw update event
+   */
+  onDrawUpdate = (e: MapboxDraw.DrawUpdateEvent) => {
+    this.setSearchArea.emit(e.features[0] as GeoJSON.Feature<Polygon>);
+  };
+
+  setSelectedTOID = (e: MapLayerMouseEvent) => {
+    if (e.features && this.drawControl.getMode() !== 'draw_polygon') {
+      this.setSelectedBuildingTOID.emit(e.features![0].properties!.TOID);
+    }
+  };
+
+  ngOnDestroy(): void {
+    this.mapService.destroyMap();
+    this.subscription.unsubscribe();
   }
 
   getMapState() {
-    const zoom = this.map.getZoom();
-    const pitch = this.map.getPitch();
-    const bearing = this.map.getBearing();
-    const { lng, lat } = this.map.getCenter();
+    const zoom = this.mapService.mapInstance.getZoom();
+    const pitch = this.mapService.mapInstance.getPitch();
+    const bearing = this.mapService.mapInstance.getBearing();
+    const { lng, lat } = this.mapService.mapInstance.getCenter();
     const mapConfig: MapConfigModel = {
       bearing,
       center: [lat, lng],
@@ -87,53 +210,5 @@ export class MapComponent implements AfterViewInit, OnChanges {
       zoom,
     };
     this.setRouteParams.emit(mapConfig);
-  }
-
-  // TODO remove or refactor.  Temp method to add EPC points to the map
-  /**
-   * A: #084A28;
-     B: #2C9F29
-     C: #9DCB3C
-     D: #FFDF4C
-     E: #E1A900
-     F: #E66E23
-     G: #940004
-   */
-  addLayerToMap(featureCollection: Array<object>) {
-    if (!this.map) return;
-    this.map.addLayer({
-      type: 'circle',
-      id: 'uprn',
-      slot: 'top',
-      source: {
-        type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: featureCollection,
-        },
-      },
-      paint: {
-        'circle-radius': ['interpolate', ['linear'], ['zoom'], 5, 2, 10, 6],
-        'circle-color': [
-          'match',
-          ['get', 'epc'],
-          'A',
-          '#084A28',
-          'B',
-          '#2C9F29',
-          'C',
-          '#9DCB3C',
-          'D',
-          '#FFDF4C',
-          'E',
-          '#E1A900',
-          'F',
-          '#E66E23',
-          'G',
-          '#940004',
-          '#ccc',
-        ],
-      },
-    });
   }
 }

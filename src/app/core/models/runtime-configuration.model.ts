@@ -1,4 +1,13 @@
 import { MapConfigModel } from './map-configuration.model';
+import { Layer } from 'mapbox-gl';
+
+export interface MapConfig {
+  style: string;
+  zoom: number;
+  pitch: number;
+  center: number[];
+  bearing: number;
+}
 
 export interface RuntimeConfigurationModel {
   /* Application is in production */
@@ -9,4 +18,6 @@ export interface RuntimeConfigurationModel {
   apiURL: string;
   /* Mapbox map config */
   map: MapConfigModel;
+  /* Mapbox map layers */
+  mapLayers: Layer[];
 }
