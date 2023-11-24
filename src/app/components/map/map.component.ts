@@ -22,7 +22,6 @@ import { MapService } from '@core/services/map.service';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 
-import { MapConfigModel } from '@core/models/map-configuration.model';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
 
 @Component({
@@ -49,8 +48,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     new EventEmitter<GeoJSON.Feature<Polygon>>();
   @Output() setSelectedBuildingTOID: EventEmitter<string | null> =
     new EventEmitter<string | null>();
-  @Output() setRouteParams: EventEmitter<MapConfigModel> =
-    new EventEmitter<MapConfigModel>();
 
   /** setup map */
   ngAfterViewInit() {
@@ -62,7 +59,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
     this.subscription = this.mapService.mapLoaded$
       .pipe(
         tap(() => {
-          this.getMapState();
           this.addTerrainLayer();
           this.addLayers();
           this.addControls();
@@ -101,10 +97,6 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       'OS/TopographicArea_2/Building/1_3D',
       () => (this.mapService.mapInstance.getCanvas().style.cursor = '')
     );
-
-    this.mapService.mapInstance.on('moveend', () => {
-      this.getMapState();
-    });
   }
 
   addTerrainLayer() {
@@ -196,19 +188,5 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   ngOnDestroy(): void {
     this.mapService.destroyMap();
     this.subscription.unsubscribe();
-  }
-
-  getMapState() {
-    const zoom = this.mapService.mapInstance.getZoom();
-    const pitch = this.mapService.mapInstance.getPitch();
-    const bearing = this.mapService.mapInstance.getBearing();
-    const { lng, lat } = this.mapService.mapInstance.getCenter();
-    const mapConfig: MapConfigModel = {
-      bearing,
-      center: [lat, lng],
-      pitch,
-      zoom,
-    };
-    this.setRouteParams.emit(mapConfig);
   }
 }

@@ -9,8 +9,6 @@ import { SpatialQueryService } from '@core/services/spatial-query.service';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
-import { Router } from '@angular/router';
-import { MapConfigModel } from '@core/models/map-configuration.model';
 
 @Component({
   selector: 'c477-shell',
@@ -23,7 +21,6 @@ import { MapConfigModel } from '@core/models/map-configuration.model';
 export class ShellComponent {
   private mapService = inject(MapService);
   private runtimeConfig = inject(RUNTIME_CONFIGURATION);
-  private router = inject(Router);
   private spatialQueryService = inject(SpatialQueryService);
   private selectedBuildingTOID = this.spatialQueryService.selectedBuildingTOID;
 
@@ -63,13 +60,6 @@ export class ShellComponent {
       pitch: this.runtimeConfig.map.pitch,
       bearing: this.runtimeConfig.map.bearing,
       duration: 1500,
-    });
-  }
-
-  setRouteParams(params: MapConfigModel) {
-    const { bearing, center, pitch, zoom } = params;
-    this.router.navigate(['/'], {
-      queryParams: { bearing, lat: center[1], lng: center[0], pitch, zoom },
     });
   }
 }
