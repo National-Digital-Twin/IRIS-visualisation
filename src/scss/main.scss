@@ -1,15 +1,17 @@
+/* ABSTRACT STYLES */
+@import './abstracts/variables';
+
 /* ARC BASE STYLES */
 @import '~@arc-web/components/dist/themes/index.css';
 @import '~@arc-web/components/dist/themes/light.css';
 @import '~@arc-web/components/dist/themes/dark.css';
 
-/* ABSTRACT STYLES */
-@import './abstracts/variables';
-
 /* COMPONENT STYLES */
 @import './components/draw-controls';
+@import './components/results-panel';
 @import './components/zoom-controls';
 
 /* LAYOUT STYLES */
 @import './layout/body';
 @import './layout/main';
+@import './layout/panel';

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Polygon } from 'geojson';
 
 import { MapComponent } from '@components/map/map.component';
+import { ResultsPanelComponent } from '@containers/results-panel/results-panel.component';
 
 import { MapService } from '@core/services/map.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
@@ -13,7 +14,7 @@ import { MapLayerFilter } from '@core/models/layer-filter.model';
 @Component({
   selector: 'c477-shell',
   standalone: true,
-  imports: [CommonModule, MapComponent],
+  imports: [CommonModule, MapComponent, ResultsPanelComponent],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
