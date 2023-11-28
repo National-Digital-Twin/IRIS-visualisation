@@ -1,0 +1,29 @@
+.results-card {
+  padding: 1rem;
+  width: 100%;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+
+    .mdc-label {
+      font-weight: 500;
+      font-size: 1rem;
+    }
+
+    button {
+      font-weight: 400;
+      color: $color-text-light !important;
+      font-size: 0.75rem;
+    }
+  }
+
+  &__details {
+    margin-left: 2.75rem;
+  }
+
+  &__address {
+    max-width: 70%;
+    margin: 0;
+  }
+}
