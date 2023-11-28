@@ -1,0 +1,54 @@
+.details-panel {
+  top: calc(20vh - 1rem);
+  left: calc(1rem + 26.5rem + 0.5rem);
+  padding: 1rem;
+  padding-right: 0;
+  max-width: 22rem;
+  max-height: 80vh;
+  overflow-y: scroll;
+  h1 {
+    font-size: 1.5rem;
+    margin: 0;
+  }
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__overview {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+
+    .label {
+      width: 60%;
+    }
+  }
+
+  &__overview-buttons {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__tab {
+    p {
+      margin: 0;
+    }
+    h2 {
+      font-size: 1rem;
+    }
+
+    &--overview {
+      .overview {
+        padding-bottom: 1rem;
+        border-bottom: 1px solid $color-line;
+      }
+    }
+  }
+
+  .mdc-tab {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
