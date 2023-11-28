@@ -1,6 +1,8 @@
 .results-card {
   padding: 1rem;
   width: 100%;
+  display: flex;
+  justify-content: space-between;
 
   &__header {
     display: flex;
@@ -15,6 +17,7 @@
       font-weight: 400;
       color: $color-text-light !important;
       font-size: 0.75rem;
+      margin-right: 0.5rem;
     }
   }
 
@@ -25,5 +28,14 @@
   &__address {
     max-width: 70%;
     margin: 0;
+  }
+
+  &__buttons {
+    border-left: 1px solid $color-line;
+  }
+
+  &__labels {
+    display: flex;
+    gap: 1rem;
   }
 }
