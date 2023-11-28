@@ -43,10 +43,7 @@
               "@angular/material/prebuilt-themes/indigo-pink.css",
               "src/scss/main.scss",
               "mapbox-gl/dist/mapbox-gl.css",
-              "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css",
-              "node_modules/@arc-web/components/themes/index.css",
-              "node_modules/@arc-web/components/themes/light.css",
-              "node_modules/@arc-web/components/themes/dark.css"
+              "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css"
             ],
             "scripts": [],
             "allowedCommonJsDependencies": ["mapbox-gl"]
