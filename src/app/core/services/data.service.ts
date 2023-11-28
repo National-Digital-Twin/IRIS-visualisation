@@ -1,9 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, Subscriber } from 'rxjs';
+import { Papa } from 'ngx-papaparse';
 
 import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
 import { SPARQLReturn } from '@core/models/rdf-data.model';
+import { BuildingModel } from '@core/models/building.model';
 
 export interface TableRow {
   [key: string]: string;
@@ -15,6 +15,11 @@ export interface TableRow {
 export class DataService {
   private readonly http: HttpClient = inject(HttpClient);
   private readonly searchEndpoint: string = inject(SEARCH_ENDPOINT);
+
+  private addressesSubject = new Subject<BuildingModel[] | undefined>();
+  addresses$ = this.addressesSubject.asObservable();
+
+  constructor(private papa: Papa) {}
 
   getUPRNs$() {
     const selectString = `
@@ -99,25 +104,51 @@ export class DataService {
     return table;
   }
 
-  // TODO - temporary to display EPC points on map
-  createGeoJSON(data: TableRow[]) {
-    const featureCollection = [];
-    for (const item in data) {
-      const feature = {
-        type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: [+data[item].lon_literal, +data[item].lat_literal],
-        },
-        properties: {
-          epc: data[item].current_energy_rating.slice(
-            data[item].current_energy_rating.length - 1
-          ),
-        },
-      };
-      featureCollection.push(feature);
+  loadAddressData() {
+    return (
+      this.http
+        // TODO remove when using real API
+        .get('assets/data/combined_address_profile_unique.csv', {
+          responseType: 'text',
+        })
+        .pipe(
+          map(res => this.csvToArray(res)),
+          tap(addresses => this.setAddressData(addresses.data)),
+          catchError(this.handleError)
+        )
+    );
+  }
+
+  setAddressData(addresses: BuildingModel[]) {
+    this.addressesSubject.next(addresses);
+  }
+  /**
+   * Convert csv file into an array of objects
+   * @param csv csv file
+   * @returns Array csv rows
+   */
+  csvToArray(csv: string) {
+    return this.papa.parse(csv, {
+      quoteChar: '"',
+      header: true,
+      dynamicTyping: true,
+    });
+  }
+
+  /**
+   * Error handler
+   * @param err Http error response
+   * @returns error
+   */
+  private handleError(err: HttpErrorResponse): Observable<never> {
+    let errorMessage = '';
+    if (err.error instanceof ErrorEvent) {
+      // A client-side or network error occurred. Handle it accordingly.
+      errorMessage = `An error occurred: ${err.error.message}`;
+    } else {
+      errorMessage = `Server returned code: ${err.status}, error message is: ${err.message}`;
     }
-    console.log(featureCollection);
-    return featureCollection;
+    console.error(errorMessage);
+    return throwError(() => new Error(errorMessage));
   }
 }
