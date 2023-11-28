@@ -1,5 +1,6 @@
 .panel {
   position: absolute;
   z-index: 10001;
-  background-color: $panel-background;
+  background-color: $color-panel-background;
+  box-shadow: 0px 3px 4px 0px rgba(102, 102, 102, 0.25);
 }
