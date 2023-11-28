@@ -12,6 +12,7 @@ import { LngLatBounds } from 'mapbox-gl';
 import { Polygon } from 'geojson';
 
 import { MapComponent } from '@components/map/map.component';
+import { ResultsPanelComponent } from '@containers/results-panel/results-panel.component';
 
 import { DataService } from '@core/services/data.service';
 import { MapService } from '@core/services/map.service';
@@ -24,7 +25,7 @@ import { MapLayerFilter } from '@core/models/layer-filter.model';
 @Component({
   selector: 'c477-shell',
   standalone: true,
-  imports: [MapComponent, NgIf, AsyncPipe],
+  imports: [MapComponent, NgIf, AsyncPipe, ResultsPanelComponent],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

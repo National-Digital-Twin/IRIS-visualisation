@@ -1,8 +1,9 @@
-<arc-container>
+<arc-container fullscreen="true">
   <arc-navbar slot="nav" tabs="0">
     <span slot="name">{{ title }}</span>
   </arc-navbar>
   <div class="content">
+    <c477-results-panel></c477-results-panel>
     <div class="content__map-container">
       <c477-map
         [filteredAddresses]="filteredAddresses$ | async"
