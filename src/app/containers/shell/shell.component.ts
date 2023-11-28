@@ -2,6 +2,7 @@ import { CUSTOM_ELEMENTS_SCHEMA, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Polygon } from 'geojson';
 
+import { DetailsPanelComponent } from '@components/details-panel/details-panel.component';
 import { MapComponent } from '@components/map/map.component';
 import { ResultsPanelComponent } from '@containers/results-panel/results-panel.component';
 
@@ -14,7 +15,12 @@ import { MapLayerFilter } from '@core/models/layer-filter.model';
 @Component({
   selector: 'c477-shell',
   standalone: true,
-  imports: [CommonModule, MapComponent, ResultsPanelComponent],
+  imports: [
+    CommonModule,
+    DetailsPanelComponent,
+    MapComponent,
+    ResultsPanelComponent,
+  ],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

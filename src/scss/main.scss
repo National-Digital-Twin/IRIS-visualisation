@@ -7,7 +7,9 @@
 @import '~@arc-web/components/dist/themes/dark.css';
 
 /* COMPONENT STYLES */
+@import './components/details-panel';
 @import './components/draw-controls';
+@import './components/label';
 @import './components/results-panel';
 @import './components/zoom-controls';
 
