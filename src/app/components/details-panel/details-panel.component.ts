@@ -13,4 +13,6 @@ import '@arc-web/components';
   templateUrl: './details-panel.component.html',
   styleUrl: './details-panel.component.scss',
 })
-export class DetailsPanelComponent {}
+export class DetailsPanelComponent {
+  epcRating = 'B';
+}

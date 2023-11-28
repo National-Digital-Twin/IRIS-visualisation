@@ -6,7 +6,11 @@
   <div class="details-panel__overview">
     <div>
       <p>Number 23, Street Address, Newport PO10 4BC</p>
-      <p class="label label__epc--b">EPC: B</p>
+      <p
+        class="label label__epc--b"
+        [ngClass]="'label__epc--' + epcRating.toLowerCase()">
+        EPC: {{ epcRating }}
+      </p>
       <p class="label label__type">Apartment</p>
     </div>
     <div class="details-panel__overview-buttons">
