@@ -1,5 +1,18 @@
 import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import {
+  Observable,
+  Subject,
+  Subscriber,
+  catchError,
+  tap,
+  map,
+  throwError,
+} from 'rxjs';
+
 import { Papa } from 'ngx-papaparse';
+
+import { LngLat, LngLatBounds } from 'mapbox-gl';
 
 import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
 import { SPARQLReturn } from '@core/models/rdf-data.model';
@@ -121,6 +134,13 @@ export class DataService {
 
   setAddressData(addresses: BuildingModel[]) {
     this.addressesSubject.next(addresses);
+  }
+
+  filterAddresses(addresses: BuildingModel[], bounds: LngLatBounds) {
+    const addressesInBounds = addresses.filter(address =>
+      bounds.contains(new LngLat(+address.Longitude, +address.Latitude))
+    );
+    return addressesInBounds;
   }
   /**
    * Convert csv file into an array of objects

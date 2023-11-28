@@ -2,8 +2,8 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  Input,
   OnDestroy,
-  OnInit,
   Output,
   inject,
 } from '@angular/core';
@@ -15,7 +15,12 @@ import { Subscription, tap } from 'rxjs';
 
 import { Polygon } from 'geojson';
 
-import { Layer, MapLayerMouseEvent, RasterDemSource } from 'mapbox-gl';
+import {
+  Layer,
+  LngLatBounds,
+  MapLayerMouseEvent,
+  RasterDemSource,
+} from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 import { MapService } from '@core/services/map.service';
@@ -23,6 +28,7 @@ import { MapService } from '@core/services/map.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 
 import { MapLayerFilter } from '@core/models/layer-filter.model';
+import { BuildingModel } from '@core/models/building.model';
 
 @Component({
   selector: 'c477-map',
@@ -31,12 +37,14 @@ import { MapLayerFilter } from '@core/models/layer-filter.model';
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
 })
-export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
+export class MapComponent implements AfterViewInit, OnDestroy {
   private runtimeConfig = inject(RUNTIME_CONFIGURATION);
   private mapService = inject(MapService);
 
   private drawControl!: MapboxDraw;
   private subscription!: Subscription;
+
+  @Input() filteredAddresses?: BuildingModel[] | null;
 
   @Output() resetMapView: EventEmitter<null> = new EventEmitter<null>();
   @Output() zoomIn: EventEmitter<null> = new EventEmitter<null>();
@@ -49,20 +57,24 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
   @Output() setSelectedBuildingTOID: EventEmitter<string | null> =
     new EventEmitter<string | null>();
 
+  @Output() setMapBounds: EventEmitter<LngLatBounds> =
+    new EventEmitter<LngLatBounds>();
+
   /** setup map */
   ngAfterViewInit() {
     this.mapService.setup(this.runtimeConfig.map);
   }
 
   /** on map loaded, setup layers, controls etc */
-  ngOnInit(): void {
+  constructor() {
     this.subscription = this.mapService.mapLoaded$
       .pipe(
         tap(() => {
-          this.addTerrainLayer();
           this.addLayers();
+          this.addTerrainLayer();
           this.addControls();
           this.initMapEvents();
+          this.getMapState();
         })
       )
       .subscribe();
@@ -97,6 +109,10 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       'OS/TopographicArea_2/Building/1_3D',
       () => (this.mapService.mapInstance.getCanvas().style.cursor = '')
     );
+    /** Get map state whenever the map is moved */
+    this.mapService.mapInstance.on('moveend', () => {
+      this.getMapState();
+    });
   }
 
   addTerrainLayer() {
@@ -184,6 +200,11 @@ export class MapComponent implements AfterViewInit, OnDestroy, OnInit {
       this.setSelectedBuildingTOID.emit(e.features![0].properties!.TOID);
     }
   };
+
+  getMapState() {
+    const bounds: LngLatBounds = this.mapService.mapInstance.getBounds();
+    this.setMapBounds.emit(bounds);
+  }
 
   ngOnDestroy(): void {
     this.mapService.destroyMap();

@@ -5,6 +5,8 @@
   <div class="content">
     <div class="content__map-container">
       <c477-map
+        [filteredAddresses]="filteredAddresses$ | async"
+        (setMapBounds)="setMapBounds($event)"
         (filterLayer)="filterLayer($event)"
         (resetMapView)="resetMapView()"
         (zoomIn)="zoomIn()"
