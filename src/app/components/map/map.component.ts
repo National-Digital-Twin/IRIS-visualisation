@@ -2,12 +2,10 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
-  Input,
   OnDestroy,
   Output,
   inject,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -28,12 +26,11 @@ import { MapService } from '@core/services/map.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 
 import { MapLayerFilter } from '@core/models/layer-filter.model';
-import { BuildingModel } from '@core/models/building.model';
 
 @Component({
   selector: 'c477-map',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule],
+  imports: [MatButtonModule, MatIconModule],
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
 })
@@ -42,9 +39,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private mapService = inject(MapService);
 
   private drawControl!: MapboxDraw;
-  private subscription!: Subscription;
-
-  @Input() filteredAddresses?: BuildingModel[] | null;
+  private mapSubscription!: Subscription;
 
   @Output() resetMapView: EventEmitter<null> = new EventEmitter<null>();
   @Output() zoomIn: EventEmitter<null> = new EventEmitter<null>();
@@ -67,7 +62,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   /** on map loaded, setup layers, controls etc */
   constructor() {
-    this.subscription = this.mapService.mapLoaded$
+    this.mapSubscription = this.mapService.mapLoaded$
       .pipe(
         tap(() => {
           this.addLayers();
@@ -208,6 +203,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.mapService.destroyMap();
-    this.subscription.unsubscribe();
+    this.mapSubscription.unsubscribe();
   }
 }

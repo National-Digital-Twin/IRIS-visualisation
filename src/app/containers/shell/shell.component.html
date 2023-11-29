@@ -6,7 +6,6 @@
     <c477-results-panel></c477-results-panel>
     <div class="content__map-container">
       <c477-map
-        [filteredAddresses]="filteredAddresses$ | async"
         (setMapBounds)="setMapBounds($event)"
         (filterLayer)="filterLayer($event)"
         (resetMapView)="resetMapView()"
