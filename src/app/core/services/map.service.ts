@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone, inject } from '@angular/core';
 
 import { AsyncSubject, Observable, Subject } from 'rxjs';
 import { first } from 'rxjs/operators';
@@ -17,6 +17,8 @@ import {
 
 import { MapLayerFilter } from '@core/models/layer-filter.model';
 
+import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
+
 import { environment } from 'src/environments/environment';
 import { MapConfigModel } from '@core/models/map-configuration.model';
 import { BuildingModel } from '@core/models/building.model';
@@ -33,11 +35,14 @@ export class MapService {
   mapLoaded$: Observable<void>;
   mapEvents: MapEvent;
 
+  private runtimeConfig = inject(RUNTIME_CONFIGURATION);
   private mapCreated = new AsyncSubject<void>();
   private mapLoaded = new AsyncSubject<void>();
 
   private mapBoundsSubject = new Subject<LngLatBounds | undefined>();
   mapBounds$ = this.mapBoundsSubject.asObservable();
+
+  private epcColours = this.runtimeConfig.epcColours;
 
   constructor(private zone: NgZone) {
     this.mapCreated$ = this.mapCreated.asObservable();
@@ -85,60 +90,38 @@ export class MapService {
     this.mapBoundsSubject.next(bounds);
   }
 
+  /**
+   * Set the paint property of a layer
+   * @param layerId layer id to apply paint property to
+   * @param paintProperty paint property to apply expression
+   * @param value paint colour expression
+   */
   setMapLayerPaint(layerId: string, paintProperty: string, value: Expression) {
     this.zone.runOutsideAngular(() => {
       this.mapInstance.setPaintProperty(layerId, paintProperty, value);
     });
   }
 
+  /**
+   * Create an array of building TOIDS and colours from buildings
+   * @param addresses filtered addresses within map bounds
+   * @returns MapboxGLJS expression
+   */
   createBuildingColourFilter(addresses: BuildingModel[]) {
     const matchExpression: Expression = ['match', ['get', 'TOID']];
     for (const row of addresses) {
-      const colour = this.setColour(row);
+      const colour = this.getEPCColour(row.SAPBand);
       matchExpression.push(row['TOID'], colour);
     }
-    matchExpression.push('#ccc');
+    matchExpression.push(this.epcColours['default']);
     return matchExpression;
   }
 
-  setColour(address: BuildingModel) {
-    let color = '#ccc';
-    switch (address.SAPBand) {
-      case 'A': {
-        color = '#084A28';
-        return color;
-      }
-      case 'B': {
-        color = '#2C9F29';
-        return color;
-      }
-      case 'C': {
-        color = '#9DCB3C';
-        return color;
-      }
-      case 'D': {
-        color = '#FFDF4C';
-        return color;
-      }
-      case 'E': {
-        color = '#E1A900';
-        return color;
-      }
-      case 'F': {
-        color = '#E66E23';
-        return color;
-      }
-      case 'G': {
-        color = '#E66E23';
-        return color;
-      }
-      case '':
-        color = '#ccc';
-        return color;
-      default:
-        color = '#ccc';
-        return color;
-    }
+  getEPCColour(SAPBand: string) {
+    const color = SAPBand
+      ? this.epcColours[SAPBand]
+      : this.epcColours['default'];
+    return color;
   }
 
   private createMap(config: MapConfigModel) {
@@ -179,7 +162,6 @@ export class MapService {
 
   private hookEvents() {
     this.mapInstance.on('load', () => {
-      // this.mapBoundsSubject.next(this.mapInstance.getBounds());
       this.mapLoaded.next(undefined);
       this.mapLoaded.complete();
     });

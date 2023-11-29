@@ -20,4 +20,8 @@ export interface RuntimeConfigurationModel {
   map: MapConfigModel;
   /* Mapbox map layers */
   mapLayers: Layer[];
+  /** EPC Colours */
+  epcColours: { [key: string]: string };
+  /** EPC Colours - Colour Deficient*/
+  epcColoursCD: { [key: string]: string };
 }

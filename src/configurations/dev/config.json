@@ -9,6 +9,26 @@
     "center": [-1.30303, 50.7561],
     "bearing": 0
   },
+  "epcColours": {
+    "A": "#3D4E3B",
+    "B": "#4BA046",
+    "C": "#A3EB9F",
+    "D": "#FFD10A",
+    "E": "#FFCC99",
+    "F": "#E66E23",
+    "G": "#B60007",
+    "default": "#ccc"
+  },
+  "epcColoursCD": {
+    "A": "#0051F2",
+    "B": "#377CF6",
+    "C": "#377CF6",
+    "D": "#DAFFA5",
+    "E": "#FFD173",
+    "F": "#D9963A",
+    "G": "#B35A00",
+    "default": "#ccc"
+  },
   "mapLayers": [
     {
       "id": "OS/TopographicArea_2/Building/1_2D",
@@ -29,7 +49,7 @@
       "minzoom": 15,
       "layout": {},
       "paint": {
-        "fill-extrusion-color": "#DCD7C6",
+        "fill-extrusion-color": "#ccc",
         "fill-extrusion-height": [
           "interpolate",
           ["linear"],
