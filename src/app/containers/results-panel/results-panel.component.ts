@@ -3,11 +3,18 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ResultsCardComponent } from '@components/results-card/results-card.component';
+import { ResultsCardExpandableComponent } from '@components/results-card-expandable/results-card-expandable.component';
 
 @Component({
   selector: 'c477-results-panel',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, ResultsCardComponent],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    ResultsCardComponent,
+    ResultsCardExpandableComponent,
+  ],
   templateUrl: './results-panel.component.html',
   styleUrl: './results-panel.component.scss',
 })

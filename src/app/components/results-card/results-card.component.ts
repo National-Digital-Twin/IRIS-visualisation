@@ -26,7 +26,8 @@ import { SignalsService } from '@core/services/signals.service';
 export class ResultsCardComponent {
   constructor(private signalsService: SignalsService) {}
 
-  viewDetails() {
+  viewDetails(event: Event) {
+    event.stopPropagation();
     this.signalsService.detailsPanelOpen.set(
       !this.signalsService.detailsPanelOpen()
     );

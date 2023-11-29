@@ -3,6 +3,7 @@
   width: 100%;
   display: flex;
   justify-content: space-between;
+  border-bottom: 1px solid $color-line;
 
   &__header {
     display: flex;
@@ -37,5 +38,21 @@
   &__labels {
     display: flex;
     gap: 1rem;
+  }
+}
+
+.results-card-expansion {
+  box-shadow: unset !important;
+  .mat-expansion-panel-header {
+    padding: 0;
+    align-items: flex-start;
+    font-weight: 400;
+
+    .mat-expansion-indicator {
+      margin: 1rem !important;
+    }
+  }
+  .mat-expansion-panel-body {
+    padding: 0 0 0 2.5rem;
   }
 }
