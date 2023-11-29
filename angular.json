@@ -46,7 +46,7 @@
               "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css"
             ],
             "scripts": [],
-            "allowedCommonJsDependencies": ["mapbox-gl"]
+            "allowedCommonJsDependencies": ["mapbox-gl", "papaparse"]
           },
           "configurations": {
             "production": {

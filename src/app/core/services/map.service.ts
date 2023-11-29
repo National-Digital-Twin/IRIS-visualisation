@@ -1,18 +1,27 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone, inject } from '@angular/core';
 
-import { AsyncSubject, Observable } from 'rxjs';
+import { AsyncSubject, Observable, Subject } from 'rxjs';
 import { first } from 'rxjs/operators';
 
 // ignore mapbox-gl
 // eslint-disable-next-line
 // @ts-ignore
 import { MapEvent, Map as MapboxMap } from '!mapbox-gl';
-import { Layer, RasterDemSource, Source } from 'mapbox-gl';
+import {
+  Expression,
+  Layer,
+  LngLatBounds,
+  RasterDemSource,
+  Source,
+} from 'mapbox-gl';
 
-import { MapConfig } from '@core/models/runtime-configuration.model';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
 
+import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
+
 import { environment } from 'src/environments/environment';
+import { MapConfigModel } from '@core/models/map-configuration.model';
+import { BuildingModel } from '@core/models/building.model';
 
 /**
  * Service for the MapboxGLJS map
@@ -26,15 +35,21 @@ export class MapService {
   mapLoaded$: Observable<void>;
   mapEvents: MapEvent;
 
+  private runtimeConfig = inject(RUNTIME_CONFIGURATION);
   private mapCreated = new AsyncSubject<void>();
   private mapLoaded = new AsyncSubject<void>();
+
+  private mapBoundsSubject = new Subject<LngLatBounds | undefined>();
+  mapBounds$ = this.mapBoundsSubject.asObservable();
+
+  private epcColours = this.runtimeConfig.epcColours;
 
   constructor(private zone: NgZone) {
     this.mapCreated$ = this.mapCreated.asObservable();
     this.mapLoaded$ = this.mapLoaded.asObservable();
   }
 
-  setup(config: MapConfig) {
+  setup(config: MapConfigModel) {
     // Need onStable to wait for a potential @angular/route transition to end
     this.zone.onStable.pipe(first()).subscribe(() => {
       this.createMap(config);
@@ -70,7 +85,46 @@ export class MapService {
     });
   }
 
-  private createMap(config: MapConfig) {
+  /** Set the current map bounds */
+  setMapBounds(bounds: LngLatBounds) {
+    this.mapBoundsSubject.next(bounds);
+  }
+
+  /**
+   * Set the paint property of a layer
+   * @param layerId layer id to apply paint property to
+   * @param paintProperty paint property to apply expression
+   * @param value paint colour expression
+   */
+  setMapLayerPaint(layerId: string, paintProperty: string, value: Expression) {
+    this.zone.runOutsideAngular(() => {
+      this.mapInstance.setPaintProperty(layerId, paintProperty, value);
+    });
+  }
+
+  /**
+   * Create an array of building TOIDS and colours from buildings
+   * @param addresses filtered addresses within map bounds
+   * @returns MapboxGLJS expression
+   */
+  createBuildingColourFilter(addresses: BuildingModel[]) {
+    const matchExpression: Expression = ['match', ['get', 'TOID']];
+    for (const row of addresses) {
+      const colour = this.getEPCColour(row.SAPBand);
+      matchExpression.push(row['TOID'], colour);
+    }
+    matchExpression.push(this.epcColours['default']);
+    return matchExpression;
+  }
+
+  getEPCColour(SAPBand: string) {
+    const color = SAPBand
+      ? this.epcColours[SAPBand]
+      : this.epcColours['default'];
+    return color;
+  }
+
+  private createMap(config: MapConfigModel) {
     NgZone.assertNotInAngularZone();
     const { center, pitch, zoom, style } = config;
 

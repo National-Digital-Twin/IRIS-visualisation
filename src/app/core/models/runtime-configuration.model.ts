@@ -1,3 +1,4 @@
+import { MapConfigModel } from './map-configuration.model';
 import { Layer } from 'mapbox-gl';
 
 export interface MapConfig {
@@ -16,7 +17,11 @@ export interface RuntimeConfigurationModel {
   /* IA API URL */
   apiURL: string;
   /* Mapbox map config */
-  map: MapConfig;
+  map: MapConfigModel;
   /* Mapbox map layers */
   mapLayers: Layer[];
+  /** EPC Colours */
+  epcColours: { [key: string]: string };
+  /** EPC Colours - Colour Deficient*/
+  epcColoursCD: { [key: string]: string };
 }
