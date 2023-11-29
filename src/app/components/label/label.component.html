@@ -1,0 +1,11 @@
+<p
+  *ngIf="epcRating; else BuildingType"
+  class="label"
+  [ngClass]="'label__epc--' + epcRating.toLowerCase()">
+  EPC: {{ epcRating }}
+</p>
+<ng-template #BuildingType>
+  <p class="label label__type">
+    <ng-content></ng-content>
+  </p>
+</ng-template>

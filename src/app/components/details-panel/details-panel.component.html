@@ -1,33 +1,19 @@
-<div class="panel details-panel">
+<div class="panel details-panel" *ngIf="signalsService.detailsPanelOpen()">
   <div class="details-panel__header">
     <h1>Property 2</h1>
-    <button mat-icon-button><mat-icon>close</mat-icon></button>
+    <button
+      mat-icon-button
+      (click)="signalsService.detailsPanelOpen.set(false)">
+      <mat-icon>close</mat-icon>
+    </button>
   </div>
   <div class="details-panel__overview">
     <div>
       <p>Number 23, Street Address, Newport PO10 4BC</p>
-      <p
-        class="label label__epc--b"
-        [ngClass]="'label__epc--' + epcRating.toLowerCase()">
-        EPC: {{ epcRating }}
-      </p>
-      <p class="label label__type">Apartment</p>
+      <c477-label [epcRating]="epcRating"></c477-label>
+      <c477-label>Apartment</c477-label>
     </div>
-    <div class="details-panel__overview-buttons">
-      <button mat-icon-button>
-        <img
-          src="assets/icons/FileArrowDown.svg"
-          alt="download the data for this dwelling" />
-      </button>
-      <button mat-icon-button>
-        <img
-          src="assets/icons/FlagPennant.svg"
-          alt="Toggle the flag status of this property" />
-      </button>
-      <button mat-icon-button>
-        <img src="assets/icons/Notepad.svg" alt="add notes to this dwelling" />
-      </button>
-    </div>
+    <c477-dwelling-buttons></c477-dwelling-buttons>
   </div>
   <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
     <mat-tab label="Overview">
@@ -47,6 +33,5 @@
       </div>
     </mat-tab>
     <mat-tab label="Flag">*Flag information*</mat-tab>
-    <mat-tab label="Asset">*Asset information*</mat-tab>
   </mat-tab-group>
 </div>

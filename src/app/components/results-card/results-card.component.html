@@ -1,0 +1,20 @@
+<div class="results-card">
+  <div>
+    <div class="results-card__header">
+      <mat-checkbox [color]="'primary'">Property 2</mat-checkbox>
+      <button mat-button (click)="viewDetails($event)">
+        View details <mat-icon iconPositionEnd>arrow_right_alt</mat-icon>
+      </button>
+    </div>
+    <div class="results-card__details">
+      <p class="results-card__address">
+        Number 1, Street Address, Newport PO30 5AE
+      </p>
+      <div class="results-card__labels">
+        <c477-label [epcRating]="'B'"></c477-label>
+        <c477-label>Apartment</c477-label>
+      </div>
+    </div>
+  </div>
+  <c477-dwelling-buttons class="results-card__buttons"></c477-dwelling-buttons>
+</div>

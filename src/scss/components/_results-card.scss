@@ -1,0 +1,58 @@
+.results-card {
+  padding: 1rem;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid $color-line;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+
+    .mdc-label {
+      font-weight: 500;
+      font-size: 1rem;
+    }
+
+    button {
+      font-weight: 400;
+      color: $color-text-light !important;
+      font-size: 0.75rem;
+      margin-right: 0.5rem;
+    }
+  }
+
+  &__details {
+    margin-left: 2.75rem;
+  }
+
+  &__address {
+    max-width: 70%;
+    margin: 0;
+  }
+
+  &__buttons {
+    border-left: 1px solid $color-line;
+  }
+
+  &__labels {
+    display: flex;
+    gap: 1rem;
+  }
+}
+
+.results-card-expansion {
+  box-shadow: unset !important;
+  .mat-expansion-panel-header {
+    padding: 0;
+    align-items: flex-start;
+    font-weight: 400;
+
+    .mat-expansion-indicator {
+      margin: 1rem !important;
+    }
+  }
+  .mat-expansion-panel-body {
+    padding: 0 0 0 2.5rem;
+  }
+}

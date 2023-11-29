@@ -10,6 +10,7 @@
 @import './components/details-panel';
 @import './components/draw-controls';
 @import './components/label';
+@import './components/results-card';
 @import './components/results-panel';
 @import './components/zoom-controls';
 
@@ -17,3 +18,5 @@
 @import './layout/body';
 @import './layout/main';
 @import './layout/panel';
+
+@import './themes/light.scss';
