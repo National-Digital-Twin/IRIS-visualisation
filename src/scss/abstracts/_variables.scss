@@ -1,7 +1,72 @@
 $color-button-background: #fafafa;
 $color-text-light: #00000099;
-$color-panel-background: #ffffff;
 $color-light-text: #ffffff;
 $color-epc-b: #2c9f29;
 $color-type: #51406c;
 $color-line: rgba(0, 0, 0, 0.12);
+
+$c477-primary-palette: (
+  50: #eae8ed,
+  100: #cbc6d3,
+  200: #a8a0b6,
+  300: #857998,
+  400: #6b5d82,
+  500: #51406c,
+  600: #4a3a64,
+  700: #403259,
+  800: #372a4f,
+  900: #271c3d,
+  A100: #a880ff,
+  A200: #844dff,
+  A400: #611aff,
+  A700: #5001ff,
+  contrast: (
+    50: #000000,
+    100: #000000,
+    200: #000000,
+    300: #000000,
+    400: #ffffff,
+    500: #ffffff,
+    600: #ffffff,
+    700: #ffffff,
+    800: #ffffff,
+    900: #ffffff,
+    A100: #000000,
+    A200: #ffffff,
+    A400: #ffffff,
+    A700: #ffffff,
+  ),
+);
+
+$c477-accent-palette: (
+  50: #fefdfe,
+  100: #fdfbfd,
+  200: #fbf9fc,
+  300: #f9f6fa,
+  400: #f8f4f9,
+  500: #f7f2f8,
+  600: #f6f0f7,
+  700: #f5eef6,
+  800: #f3ecf5,
+  900: #f1e8f3,
+  A100: #ffffff,
+  A200: #ffffff,
+  A400: #ffffff,
+  A700: #ffffff,
+  contrast: (
+    50: #000000,
+    100: #000000,
+    200: #000000,
+    300: #000000,
+    400: #000000,
+    500: #000000,
+    600: #000000,
+    700: #000000,
+    800: #000000,
+    900: #000000,
+    A100: #000000,
+    A200: #000000,
+    A400: #000000,
+    A700: #000000,
+  ),
+);

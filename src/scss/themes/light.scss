@@ -1,0 +1,17 @@
+@use '@angular/material' as mat;
+@include mat.core();
+
+$c477-light-theme: mat.define-light-theme(
+  mat.define-palette($c477-primary-palette),
+  mat.define-palette($c477-accent-palette),
+  mat.define-palette(mat.$red-palette)
+);
+
+@include mat.core-theme($c477-light-theme);
+@include mat.all-component-themes($c477-light-theme);
+
+:root,
+:host,
+arc-container[theme='light'] {
+  --arc-background-color: var(--arc-white-000);
+}

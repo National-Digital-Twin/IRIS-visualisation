@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { DwellingButtonsComponent } from '@components/dwelling-buttons/dwelling-buttons.component';
 import { LabelComponent } from '@components/label/label.component';
+import { SignalsService } from '@core/services/signals.service';
 
 @Component({
   selector: 'c477-details-panel',
@@ -23,4 +24,5 @@ import { LabelComponent } from '@components/label/label.component';
 })
 export class DetailsPanelComponent {
   epcRating = 'B';
+  constructor(public signalsService: SignalsService) {}
 }

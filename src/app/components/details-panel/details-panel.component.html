@@ -1,7 +1,11 @@
-<div class="panel details-panel">
+<div class="panel details-panel" *ngIf="signalsService.detailsPanelOpen()">
   <div class="details-panel__header">
     <h1>Property 2</h1>
-    <button mat-icon-button><mat-icon>close</mat-icon></button>
+    <button
+      mat-icon-button
+      (click)="signalsService.detailsPanelOpen.set(false)">
+      <mat-icon>close</mat-icon>
+    </button>
   </div>
   <div class="details-panel__overview">
     <div>
