@@ -1,5 +1,6 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
 
 import { AppComponent } from './app/app.component';
 import { appConfig } from './app/app.config';
@@ -13,6 +14,7 @@ fetch('configuration/config.json')
       providers: [
         ...appConfig.providers,
         { provide: RUNTIME_CONFIGURATION, useValue: config },
+        provideHttpClient(),
         provideAnimations(),
       ],
     }).catch(err => console.error(err))

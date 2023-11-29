@@ -7,6 +7,7 @@
     <c477-details-panel></c477-details-panel>
     <div class="content__map-container">
       <c477-map
+        (setMapBounds)="setMapBounds($event)"
         (filterLayer)="filterLayer($event)"
         (resetMapView)="resetMapView()"
         (zoomIn)="zoomIn()"
