@@ -1,10 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { LabelComponent } from '@components/label/label.component';
 import { SignalsService } from '@core/services/signals.service';
+import { ResultsCard } from '@core/models/result-card.model';
 
 @Component({
   selector: 'c477-results-card',
@@ -20,6 +21,8 @@ import { SignalsService } from '@core/services/signals.service';
   styleUrl: './results-card.component.css',
 })
 export class ResultsCardComponent {
+  @Input() card!: ResultsCard;
+  @Input() select: boolean = false;
   private signalsService = inject(SignalsService);
 
   viewDetails(event: Event) {

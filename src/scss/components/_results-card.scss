@@ -1,15 +1,21 @@
 .results-card {
-  padding: 1rem;
+  padding: 1rem 0 1rem 2rem;
   width: 100%;
   border-bottom: 1px solid $color-line;
 
   &__header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
 
-    .mdc-label {
+    .mdc-label,
+    .card-title {
       font-weight: 500;
       font-size: 1rem;
+    }
+    .card-title {
+      margin: 0 1rem 0 0;
+      line-height: var(--arc-line-height-dense);
     }
 
     button {
@@ -17,18 +23,22 @@
       color: $color-text-light !important;
       font-size: 0.75rem;
       margin-right: 0.5rem;
+      min-width: 7.5rem;
     }
   }
 
   &__details {
-    margin-left: 2.75rem;
     display: flex;
     justify-content: space-between;
+    &--select {
+      margin-left: 2.75rem;
+    }
   }
 
   &__address {
     max-width: 70%;
-    margin: 0;
+    margin-top: 0;
+    line-height: var(--arc-line-height-dense);
   }
 
   &__buttons {
@@ -40,6 +50,9 @@
     .mat-mdc-icon-button {
       width: 2rem !important;
       height: 2rem !important;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
   }
 
@@ -51,10 +64,14 @@
 
 .results-card-expansion {
   box-shadow: unset !important;
+
   .mat-expansion-panel-header {
     padding: 0;
     align-items: flex-start;
     font-weight: 400;
+    .results-card {
+      padding-left: 0;
+    }
 
     .mat-expansion-indicator {
       margin: 1rem !important;
@@ -62,5 +79,8 @@
   }
   .mat-expansion-panel-body {
     padding: 0 0 0 2.5rem;
+    .results-card {
+      border-bottom: none;
+    }
   }
 }

@@ -1,11 +1,11 @@
 <mat-expansion-panel class="results-card-expansion" [togglePosition]="'before'">
   <mat-expansion-panel-header
     class="results-card-expansion__header"
-    [collapsedHeight]="'11.5rem'"
-    [expandedHeight]="'11.5rem'">
-    <c477-results-card></c477-results-card>
+    [collapsedHeight]="'auto'"
+    [expandedHeight]="'auto'">
+    <c477-results-card [card]="card" [select]="select"></c477-results-card>
   </mat-expansion-panel-header>
-  <ng-container *ngFor="let dwelling of cardData.dwellings">
-    <c477-results-card></c477-results-card>
+  <ng-container *ngFor="let dwelling of card.dwellings">
+    <c477-results-card [card]="dwelling" [select]="select"></c477-results-card>
   </ng-container>
 </mat-expansion-panel>

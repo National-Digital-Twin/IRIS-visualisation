@@ -2,7 +2,9 @@
   <section>
     <div class="results-panel__header">
       <p class="results-panel__number">132 results</p>
-      <mat-slide-toggle [color]="'primary'">Select multiple</mat-slide-toggle>
+      <mat-slide-toggle [color]="'primary'" [(ngModel)]="selectMultiple"
+        >Select multiple</mat-slide-toggle
+      >
     </div>
     <div class="results-panel__header">
       <button mat-flat-button disabled class="results-panel__button">
@@ -14,7 +16,16 @@
     </div>
   </section>
   <section class="results-panel__cards-container">
-    <c477-results-card></c477-results-card>
-    <c477-results-card-expandable></c477-results-card-expandable>
+    @for (card of cardData; track card.name) {
+      @if (!card.dwellings) {
+        <c477-results-card
+          [card]="card"
+          [select]="selectMultiple"></c477-results-card>
+      } @else {
+        <c477-results-card-expandable
+          [card]="card"
+          [select]="selectMultiple"></c477-results-card-expandable>
+      }
+    }
   </section>
 </div>
