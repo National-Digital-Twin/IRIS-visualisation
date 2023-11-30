@@ -1,7 +1,17 @@
 <div class="panel results-panel">
-  <section class="results-panel__header">
-    <button mat-button disabled>Flag selected</button>
-    <button mat-button disabled>Export selected</button>
+  <section>
+    <div class="results-panel__header">
+      <p class="results-panel__number">132 results</p>
+      <mat-slide-toggle [color]="'primary'">Select multiple</mat-slide-toggle>
+    </div>
+    <div class="results-panel__header">
+      <button mat-flat-button disabled class="results-panel__button">
+        <img src="assets/icons/FlagPennant.svg" alt="" /> Flag selected
+      </button>
+      <button mat-flat-button [color]="'primary'" class="results-panel__button">
+        <img src="assets/icons/FileArrowDown_white.svg" alt="" />Download all
+      </button>
+    </div>
   </section>
   <section class="results-panel__cards-container">
     <c477-results-card></c477-results-card>

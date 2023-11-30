@@ -1,37 +1,38 @@
-<div class="panel details-panel" *ngIf="signalsService.detailsPanelOpen()">
-  <div class="details-panel__header">
-    <h1>Property 2</h1>
-    <button
-      mat-icon-button
-      (click)="signalsService.detailsPanelOpen.set(false)">
-      <mat-icon>close</mat-icon>
-    </button>
-  </div>
-  <div class="details-panel__overview">
-    <div>
-      <p>Number 23, Street Address, Newport PO10 4BC</p>
-      <c477-label [epcRating]="epcRating"></c477-label>
-      <c477-label>Apartment</c477-label>
+@if (signalsService.detailsPanelOpen()) {
+  <div class="panel details-panel">
+    <div class="details-panel__header">
+      <h1>Property 2</h1>
+      <button
+        mat-icon-button
+        (click)="signalsService.detailsPanelOpen.set(false)">
+        <mat-icon>close</mat-icon>
+      </button>
     </div>
-    <c477-dwelling-buttons></c477-dwelling-buttons>
-  </div>
-  <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
-    <mat-tab label="Overview">
-      <div class="details-panel__tab details-panel__tab--overview">
-        <div class="overview">
-          <h2>Overview</h2>
-          <p>Number of flats: 3</p>
-          <p>Inspection date: 01-02-2023</p>
-        </div>
-        <div>
-          <h2>Details</h2>
-          <p>Parts:</p>
-          <p>Part type:</p>
-          <p>Insulation type:</p>
-          <p>Insulation thickness:</p>
-        </div>
+    <div class="details-panel__overview">
+      <div>
+        <p>Number 23, Street Address, Newport PO10 4BC</p>
+        <c477-label [epcRating]="epcRating"></c477-label>
+        <c477-label>Apartment</c477-label>
       </div>
-    </mat-tab>
-    <mat-tab label="Flag">*Flag information*</mat-tab>
-  </mat-tab-group>
-</div>
+    </div>
+    <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+      <mat-tab label="Overview">
+        <div class="details-panel__tab details-panel__tab--overview">
+          <div class="overview">
+            <h2>Overview</h2>
+            <p>Number of flats: 3</p>
+            <p>Inspection date: 01-02-2023</p>
+          </div>
+          <div>
+            <h2>Details</h2>
+            <p>Parts:</p>
+            <p>Part type:</p>
+            <p>Insulation type:</p>
+            <p>Insulation thickness:</p>
+          </div>
+        </div>
+      </mat-tab>
+      <mat-tab label="Flag">*Flag information*</mat-tab>
+    </mat-tab-group>
+  </div>
+}

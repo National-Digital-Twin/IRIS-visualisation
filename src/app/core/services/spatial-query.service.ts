@@ -7,6 +7,7 @@ import { MapService } from './map.service';
 import { Polygon } from 'geojson';
 import { Expression } from 'mapbox-gl';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
+import { SignalsService } from './signals.service';
 
 /**
  * Service for selecting and filtering buildings
@@ -17,6 +18,7 @@ import { MapLayerFilter } from '@core/models/layer-filter.model';
 })
 export class SpatialQueryService {
   private mapService = inject(MapService);
+  private signalsService = inject(SignalsService);
 
   selectedBuildingTOID = signal<string | undefined>(undefined);
 
@@ -32,6 +34,7 @@ export class SpatialQueryService {
       expression: ['all', ['==', '_symbol', 4], ['in', 'TOID', TOID]],
     };
     this.mapService.filterMapLayer(filter);
+    this.signalsService.detailsPanelOpen.set(true);
   }
 
   /**

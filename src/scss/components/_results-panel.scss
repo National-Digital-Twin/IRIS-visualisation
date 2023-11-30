@@ -8,6 +8,24 @@
 
   &__header {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 1rem 1rem 1rem;
+    gap: 1rem;
+  }
+
+  &__button {
+    width: 50%;
+    .mdc-button__label {
+      display: flex !important;
+      align-items: center !important;
+      gap: 0.5rem;
+    }
+  }
+
+  &__number {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 0 0.5rem;
   }
 }

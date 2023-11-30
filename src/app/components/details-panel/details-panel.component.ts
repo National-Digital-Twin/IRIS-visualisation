@@ -1,9 +1,13 @@
-import { CUSTOM_ELEMENTS_SCHEMA, Component } from '@angular/core';
+import {
+  CUSTOM_ELEMENTS_SCHEMA,
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
-import { DwellingButtonsComponent } from '@components/dwelling-buttons/dwelling-buttons.component';
 import { LabelComponent } from '@components/label/label.component';
 import { SignalsService } from '@core/services/signals.service';
 
@@ -12,7 +16,6 @@ import { SignalsService } from '@core/services/signals.service';
   standalone: true,
   imports: [
     CommonModule,
-    DwellingButtonsComponent,
     LabelComponent,
     MatButtonModule,
     MatIconModule,
@@ -21,8 +24,9 @@ import { SignalsService } from '@core/services/signals.service';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './details-panel.component.html',
   styleUrl: './details-panel.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DetailsPanelComponent {
   epcRating = 'B';
-  constructor(public signalsService: SignalsService) {}
+  signalsService = inject(SignalsService);
 }

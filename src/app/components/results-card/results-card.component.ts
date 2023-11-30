@@ -1,11 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
-import { DwellingButtonsComponent } from '@components/dwelling-buttons/dwelling-buttons.component';
 import { LabelComponent } from '@components/label/label.component';
-import { DetailsPanelComponent } from '@components/details-panel/details-panel.component';
 import { SignalsService } from '@core/services/signals.service';
 
 @Component({
@@ -13,8 +11,6 @@ import { SignalsService } from '@core/services/signals.service';
   standalone: true,
   imports: [
     CommonModule,
-    DetailsPanelComponent,
-    DwellingButtonsComponent,
     LabelComponent,
     MatButtonModule,
     MatCheckboxModule,
@@ -24,12 +20,10 @@ import { SignalsService } from '@core/services/signals.service';
   styleUrl: './results-card.component.css',
 })
 export class ResultsCardComponent {
-  constructor(private signalsService: SignalsService) {}
+  private signalsService = inject(SignalsService);
 
   viewDetails(event: Event) {
     event.stopPropagation();
-    this.signalsService.detailsPanelOpen.set(
-      !this.signalsService.detailsPanelOpen()
-    );
+    this.signalsService.detailsPanelOpen.set(true);
   }
 }
