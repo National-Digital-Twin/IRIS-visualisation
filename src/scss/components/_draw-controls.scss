@@ -1,6 +1,10 @@
 @import '../abstracts/variables';
 
 .draw-controls {
+  .mat-mdc-icon-button img {
+    width: 2rem;
+    height: 2rem;
+  }
   .mat-mdc-icon-button .mat-mdc-button-persistent-ripple {
     border-radius: 0;
   }
@@ -8,9 +12,9 @@
   position: absolute;
   // margin: 14.375rem 0.625rem 0 0;
   float: right;
-  right: 1rem;
-  top: 14.375rem;
-  padding: 1rem;
+  top: 13.125rem;
+  right: 0.5rem;
+  padding: 0.5rem 0 0.5rem 0.5rem;
   :first-child {
     border-radius: 4px 4px 0 0;
   }
