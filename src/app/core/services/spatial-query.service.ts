@@ -3,11 +3,10 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Subject } from 'rxjs';
 
 import bbox from '@turf/bbox';
-import intersect from '@turf/intersect';
 
 import { MapService } from './map.service';
 import { Polygon } from 'geojson';
-import { Expression, LngLat, LngLatBounds } from 'mapbox-gl';
+import { LngLat, LngLatBounds } from 'mapbox-gl';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
 
 /**
@@ -23,6 +22,7 @@ export class SpatialQueryService {
   private spatialFilterBounds = new Subject<LngLatBounds | undefined>();
   spatialFilterBounds$ = this.spatialFilterBounds.asObservable();
 
+  spatialFilterEnabled = signal<boolean>(false);
   selectedBuildingTOID = signal<string | undefined>(undefined);
 
   /** Set the TOID of an individual building */
@@ -39,6 +39,10 @@ export class SpatialQueryService {
     this.mapService.filterMapLayer(filter);
   }
 
+  setSpatialFilter(enabled: boolean) {
+    this.spatialFilterEnabled.set(enabled);
+  }
+
   /**
    * Filter map to show selection of multiple buildings
    * @param geom user drawn geometry
@@ -48,25 +52,8 @@ export class SpatialQueryService {
     // is the input required by mapbox to query
     // features
     const geomBBox = this.getBBox(geom);
-
+    this.setSpatialFilter(true);
     this.spatialFilterBounds.next(geomBBox);
-    // query the features from the 2d buildings layer
-    // querying 3d layer isn't accurate due to pitch of map
-    // const selectedBuildings = this.mapService.mapInstance.queryRenderedFeatures(
-    //   geomBBox,
-    //   { layers: ['OS/TopographicArea_2/Building/1_2D'] }
-    // );
-    // console.log(selectedBuildings);
-    // // filter the buildings by doing an intersect between the queryed building results
-    // // and the original drawn geometry.  This is because the bounding box geom will
-    // // be larger than the drawn geometry so need to remove some results
-    // const filteredBuildings = this.getBuildingsInGeom(geom, selectedBuildings);
-    // // apply the filter to the building highlight layer
-    // const filter: MapLayerFilter = {
-    //   layerId: 'OS/TopographicArea_2/Building/1_2D',
-    //   expression: filteredBuildings,
-    // };
-    // this.mapService.filterMapLayer(filter);
   }
 
   /**
@@ -80,42 +67,6 @@ export class SpatialQueryService {
     const southWest = new LngLat(bboxPolygon[0], bboxPolygon[1]);
     const northEast = new LngLat(bboxPolygon[2], bboxPolygon[3]);
     const bbBounds = new LngLatBounds(southWest, northEast);
-    // convert to canvas x,y pixel coordinates
-    // const nePointPixel = this.mapService.mapInstance.project(northEast);
-    // const swPointPixel = this.mapService.mapInstance.project(southWest);
-    // const southWest = [bboxPolygon[0], bboxPolygon[1]];
-    // const northEast = [bboxPolygon[2], bboxPolygon[3]];
-    // // convert to canvas x,y pixel coordinates
-    // const nePointPixel = this.mapService.mapInstance.project(northEast);
-    // const swPointPixel = this.mapService.mapInstance.project(southWest);
     return bbBounds;
-  }
-
-  /**
-   * Find buildings that intersect the input (user drawn) geometry
-   * and return their TOIDs as a Mapbox filter expression
-   * @param searchGeom input geometry
-   * @param features features to intersect with input geometry
-   * @returns a Mapbox expression that includes a list of TOIDs
-   * that are from buildings that intersect the input geometry
-   */
-  private getBuildingsInGeom(
-    searchGeom: GeoJSON.Feature<Polygon>,
-    features: Array<GeoJSON.Feature<Polygon>>
-  ): Expression {
-    const filtered = features.reduce(
-      (memo, feature) => {
-        const intersects = intersect(feature, searchGeom);
-        if (intersects) {
-          // only add the building if the feature intersects the user
-          // drawn geometry
-          memo.push(feature.properties!.TOID);
-        }
-        return memo;
-      },
-      ['in', 'TOID']
-    );
-    console.log(filtered);
-    return filtered as Expression;
   }
 }
