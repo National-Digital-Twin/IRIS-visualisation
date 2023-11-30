@@ -1,11 +1,13 @@
 import { Injectable, inject, signal } from '@angular/core';
 
+import { Subject } from 'rxjs';
+
 import bbox from '@turf/bbox';
 import intersect from '@turf/intersect';
 
 import { MapService } from './map.service';
 import { Polygon } from 'geojson';
-import { Expression } from 'mapbox-gl';
+import { Expression, LngLat, LngLatBounds } from 'mapbox-gl';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
 
 /**
@@ -17,6 +19,9 @@ import { MapLayerFilter } from '@core/models/layer-filter.model';
 })
 export class SpatialQueryService {
   private mapService = inject(MapService);
+
+  private spatialFilterBounds = new Subject<LngLatBounds | undefined>();
+  spatialFilterBounds$ = this.spatialFilterBounds.asObservable();
 
   selectedBuildingTOID = signal<string | undefined>(undefined);
 
@@ -43,22 +48,25 @@ export class SpatialQueryService {
     // is the input required by mapbox to query
     // features
     const geomBBox = this.getBBox(geom);
+
+    this.spatialFilterBounds.next(geomBBox);
     // query the features from the 2d buildings layer
     // querying 3d layer isn't accurate due to pitch of map
-    const selectedBuildings = this.mapService.mapInstance.queryRenderedFeatures(
-      geomBBox,
-      { layers: ['OS/TopographicArea_2/Building/1_2D'] }
-    );
-    // filter the buildings by doing an intersect between the queryed building results
-    // and the original drawn geometry.  This is because the bounding box geom will
-    // be larger than the drawn geometry so need to remove some results
-    const filteredBuildings = this.getBuildingsInGeom(geom, selectedBuildings);
-    // apply the filter to the building highlight layer
-    const filter: MapLayerFilter = {
-      layerId: 'OS/TopographicArea_2/Building/1_3D-highlighted',
-      expression: filteredBuildings,
-    };
-    this.mapService.filterMapLayer(filter);
+    // const selectedBuildings = this.mapService.mapInstance.queryRenderedFeatures(
+    //   geomBBox,
+    //   { layers: ['OS/TopographicArea_2/Building/1_2D'] }
+    // );
+    // console.log(selectedBuildings);
+    // // filter the buildings by doing an intersect between the queryed building results
+    // // and the original drawn geometry.  This is because the bounding box geom will
+    // // be larger than the drawn geometry so need to remove some results
+    // const filteredBuildings = this.getBuildingsInGeom(geom, selectedBuildings);
+    // // apply the filter to the building highlight layer
+    // const filter: MapLayerFilter = {
+    //   layerId: 'OS/TopographicArea_2/Building/1_2D',
+    //   expression: filteredBuildings,
+    // };
+    // this.mapService.filterMapLayer(filter);
   }
 
   /**
@@ -67,14 +75,20 @@ export class SpatialQueryService {
    * @returns bounding box pixel coordinates of
    * user drawn area
    */
-  private getBBox(geom: GeoJSON.Feature): number[] {
+  private getBBox(geom: GeoJSON.Feature): LngLatBounds {
     const bboxPolygon = bbox(geom);
-    const southWest = [bboxPolygon[0], bboxPolygon[1]];
-    const northEast = [bboxPolygon[2], bboxPolygon[3]];
+    const southWest = new LngLat(bboxPolygon[0], bboxPolygon[1]);
+    const northEast = new LngLat(bboxPolygon[2], bboxPolygon[3]);
+    const bbBounds = new LngLatBounds(southWest, northEast);
     // convert to canvas x,y pixel coordinates
-    const nePointPixel = this.mapService.mapInstance.project(northEast);
-    const swPointPixel = this.mapService.mapInstance.project(southWest);
-    return [swPointPixel, nePointPixel];
+    // const nePointPixel = this.mapService.mapInstance.project(northEast);
+    // const swPointPixel = this.mapService.mapInstance.project(southWest);
+    // const southWest = [bboxPolygon[0], bboxPolygon[1]];
+    // const northEast = [bboxPolygon[2], bboxPolygon[3]];
+    // // convert to canvas x,y pixel coordinates
+    // const nePointPixel = this.mapService.mapInstance.project(northEast);
+    // const swPointPixel = this.mapService.mapInstance.project(southWest);
+    return bbBounds;
   }
 
   /**
@@ -101,6 +115,7 @@ export class SpatialQueryService {
       },
       ['in', 'TOID']
     );
+    console.log(filtered);
     return filtered as Expression;
   }
 }
