@@ -48,7 +48,7 @@ export class ShellComponent implements OnDestroy {
 
   constructor() {
     // TODO remove when using real API
-    this.dataSubscription = this.dataService.loadAddressData().subscribe();
+    // this.dataSubscription = this.dataService.loadAddressData().subscribe();
 
     // When map bounds change, refilter data
     this.addressesSubscription = combineLatest([
@@ -81,6 +81,7 @@ export class ShellComponent implements OnDestroy {
   }
 
   setSelectedBuildingTOID(TOID: string | null) {
+    console.log(TOID);
     const currentTOID = this.selectedBuildingTOID();
     if (TOID && currentTOID !== TOID) {
       this.spatialQueryService.setSelectedTOID(TOID);
@@ -111,6 +112,9 @@ export class ShellComponent implements OnDestroy {
 
   setMapBounds(bounds: LngLatBounds) {
     this.mapService.setMapBounds(bounds);
+    // this.dataService
+    //   .getEPCWithinBounds$(bounds)
+    //   .subscribe(res => console.log(res));
   }
 
   ngOnDestroy(): void {

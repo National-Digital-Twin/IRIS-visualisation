@@ -61,6 +61,41 @@ export class DataService {
     return this.selectTable(selectString);
   }
 
+  getEPCWithinBounds$(bounds: LngLatBounds) {
+    // _sw.lat <= building.lat && building.lat <= _ne.lat && _sw.lng <= building.lng && building.lng <= _ne.lng
+    console.log(bounds);
+    const { _ne, _sw } = bounds;
+    const selectString = `
+    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+    PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    SELECT ?uprn_id ?current_energy_rating ?type
+    WHERE {
+      ?building a ?type .
+      ?building ies:isIdentifiedBy/ies:representationValue ?uprn_id .
+      ?building ies:inLocation ?geopoint .
+
+      ?state ies:isStateOf ?building .
+      ?state a ?current_energy_rating .
+
+      ?geopoint rdf:type ies:GeoPoint .
+      ?geopoint ies:isIdentifiedBy ?lat .
+      ?lat rdf:type ies:Latitude .
+      ?lat ies:representationValue ?lat_literal .
+      ?geopoint ies:isIdentifiedBy ?lon .
+      ?lon rdf:type ies:Longitude .
+      ?lon ies:representationValue ?lon_literal .
+
+      FILTER (${_sw.lat} <= xsd:float(?lat_literal) && xsd:float(?lat_literal) <= ${_ne.lat} && ${_sw.lng} <= xsd:float(?lon_literal) && xsd:float(?lon_literal) <= ${_ne.lng}) .
+    }
+    `;
+    return this.selectTable(selectString);
+  }
+
+  getBuildingDetails(uprn: string) {
+    console.log(uprn);
+  }
+
   /**
    * Query Telicent IA
    * @param query SPARQL query
