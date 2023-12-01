@@ -112,9 +112,9 @@ export class ShellComponent implements OnDestroy {
 
   setMapBounds(bounds: LngLatBounds) {
     this.mapService.setMapBounds(bounds);
-    // this.dataService
-    //   .getEPCWithinBounds$(bounds)
-    //   .subscribe(res => console.log(res));
+    this.dataService
+      .getEPCWithinBounds$(bounds)
+      .subscribe(res => console.log(res));
   }
 
   ngOnDestroy(): void {

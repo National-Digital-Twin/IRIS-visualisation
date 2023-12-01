@@ -78,20 +78,19 @@ export class DataService {
       ?state ies:isStateOf ?building .
       ?state a ?current_energy_rating .
 
-      #?geopoint rdf:type ies:GeoPoint .
-      #?geopoint ies:isIdentifiedBy ?lat .
-      #?lat rdf:type ies:Latitude .
-      #?lat ies:representationValue ?lat_literal .
-      #?geopoint ies:isIdentifiedBy ?lon .
-      #?lon rdf:type ies:Longitude .
-      #?lon ies:representationValue ?lon_literal .
+      ?geopoint rdf:type ies:GeoPoint .
+      ?geopoint ies:isIdentifiedBy ?lat .
+      ?lat rdf:type ies:Latitude .
+      ?lat ies:representationValue ?lat_literal .
+      ?geopoint ies:isIdentifiedBy ?lon .
+      ?lon rdf:type ies:Longitude .
+      ?lon ies:representationValue ?lon_literal .
 
-      #FILTER (${_sw.lat} <= xsd:float(?lat_literal) && xsd:float(?lat_literal) <= ${_ne.lat} && ${_sw.lng} <= xsd:float(?lon_literal) && xsd:float(?lon_literal) <= ${_ne.lng}) .
+      FILTER (${_sw.lat} <= xsd:float(?lat_literal) && xsd:float(?lat_literal) <= ${_ne.lat} && ${_sw.lng} <= xsd:float(?lon_literal) && xsd:float(?lon_literal) <= ${_ne.lng}) .
     }
     GROUP BY
       ?uprn_id
       ?current_energy_rating
-    #LIMIT 1000
     `;
     return this.selectTable(selectString);
   }
