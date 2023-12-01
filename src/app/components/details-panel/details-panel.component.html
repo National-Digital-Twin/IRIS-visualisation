@@ -9,8 +9,8 @@
       </button>
     </div>
     <div class="details-panel__overview">
-      <div>
-        <p>Number 23, Street Address, Newport PO10 4BC</p>
+      <p class="address">Number 23, Street Address, Newport PO10 4BC</p>
+      <div class="labels">
         <c477-label [epcRating]="epcRating"></c477-label>
         <c477-label>Apartment</c477-label>
       </div>
@@ -18,21 +18,53 @@
     <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
       <mat-tab label="Overview">
         <div class="details-panel__tab details-panel__tab--overview">
-          <div class="overview">
-            <h2>Overview</h2>
-            <p>Number of flats: 3</p>
-            <p>Inspection date: 01-02-2023</p>
+          <div class="about">
+            <h2>About</h2>
+            <p><span class="field">Number of flats:</span> <span>3</span></p>
+            <p><span class="field">Built form:</span><span>N/A</span></p>
+            <p>
+              <span class="field">Inspection date:</span>
+              <span>01-02-2023</span>
+            </p>
           </div>
-          <div>
-            <h2>Details</h2>
-            <p>Parts:</p>
-            <p>Part type:</p>
-            <p>Insulation type:</p>
-            <p>Insulation thickness:</p>
+          <div class="specification">
+            <h2>Specifcation</h2>
+            <p>
+              <span class="field">Floor construction:</span>
+              <span>Another dwelling below</span>
+            </p>
+            <p>
+              <span class="field">Floor insulation:</span>
+              <span>Limited insulation</span>
+            </p>
+            <p>
+              <span class="field">Roof construction:</span>
+              <span>Another dwelling above</span>
+            </p>
+            <p>
+              <span class="field">Roof insulation location:</span>
+              <span>Thatched with additional insulation</span>
+            </p>
+            <p>
+              <span class="field">Roof insulation thickness:</span>
+              <span>300+ mm</span>
+            </p>
+            <p>
+              <span class="field">Wall construction:</span> Sandstone or
+              Limestone
+            </p>
           </div>
         </div>
       </mat-tab>
       <mat-tab label="Flag">*Flag information*</mat-tab>
     </mat-tab-group>
+    <div class="details-panel__buttons">
+      <button mat-flat-button [color]="'primary'">
+        <img src="assets/icons/FlagPennant_white.svg" alt="" />Add a flag
+      </button>
+      <button mat-flat-button [color]="'primary'">
+        <img src="assets/icons/FileArrowDown_white.svg" alt="" />Download
+      </button>
+    </div>
   </div>
 }
