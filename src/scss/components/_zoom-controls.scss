@@ -1,6 +1,10 @@
 @import '../abstracts/variables';
 
 .zoom-controls {
+  .mat-mdc-icon-button img {
+    width: 2rem;
+    height: 2rem;
+  }
   .mat-mdc-icon-button .mat-mdc-button-persistent-ripple {
     border-radius: 0;
   }
@@ -8,8 +12,8 @@
   position: absolute;
   margin: 0.625rem 0.625rem 0 0;
   float: right;
-  right: 1rem;
-  padding: 1rem;
+  right: 0.5rem;
+  padding: 0.5rem 0 0.5rem 0.5rem;
   :first-child {
     border-radius: 4px 4px 0 0;
   }

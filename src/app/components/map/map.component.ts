@@ -25,8 +25,6 @@ import { MapService } from '@core/services/map.service';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 
-import { MapLayerFilter } from '@core/models/layer-filter.model';
-
 @Component({
   selector: 'c477-map',
   standalone: true,
@@ -45,8 +43,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   @Output() zoomIn: EventEmitter<null> = new EventEmitter<null>();
   @Output() zoomOut: EventEmitter<null> = new EventEmitter<null>();
 
-  @Output() filterLayer: EventEmitter<MapLayerFilter> =
-    new EventEmitter<MapLayerFilter>();
+  @Output() deleteSpatialFilter: EventEmitter<null> = new EventEmitter<null>();
   @Output() setSearchArea: EventEmitter<GeoJSON.Feature<Polygon>> =
     new EventEmitter<GeoJSON.Feature<Polygon>>();
   @Output() setSelectedBuildingTOID: EventEmitter<string | null> =
@@ -167,11 +164,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   deleteSearchArea() {
     // delete search geom
     this.drawControl.deleteAll();
-    // reset building highlight layer
-    this.filterLayer.emit({
-      layerId: 'OS/TopographicArea_2/Building/1_3D-highlighted',
-      expression: ['all', ['==', '_symbol', 4], ['in', 'TOID', '']],
-    });
+    // reset building colour to entire map
+    // by updating map bounds to trigger
+    // filter
+    this.deleteSpatialFilter.emit();
+    this.getMapState();
   }
 
   /**
