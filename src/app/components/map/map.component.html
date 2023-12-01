@@ -1,40 +1,20 @@
 <div class="zoom-controls">
-  <button
-    mat-icon-button
-    aria-label="Reset map extent"
-    class="map-button"
-    (click)="resetMapView.emit()">
-    <mat-icon fontSet="material-icons-outlined">home</mat-icon>
+  <button mat-icon-button class="map-button" (click)="resetMapView.emit()">
+    <img src="assets/icons/NavigationArrow.svg" alt="reset map view" />
   </button>
-  <button
-    class="map-button"
-    mat-icon-button
-    aria-label="Zoom in map"
-    (click)="zoomIn.emit()">
-    <mat-icon>add</mat-icon>
+  <button class="map-button" mat-icon-button (click)="zoomIn.emit()">
+    <img src="assets/icons/Plus.svg" alt="zoom in" />
   </button>
-  <button
-    class="map-button"
-    mat-icon-button
-    aria-label="Zoom out map"
-    (click)="zoomOut.emit()">
-    <mat-icon>remove</mat-icon>
+  <button class="map-button" mat-icon-button (click)="zoomOut.emit()">
+    <img src="assets/icons/Minus.svg" alt="zoom out" />
   </button>
 </div>
 <div class="draw-controls">
-  <button
-    mat-icon-button
-    aria-label="Draw polygon"
-    class="draw-button"
-    (click)="setDrawMode('polygon')">
-    <mat-icon fontSet="material-icons-outlined">rectangle</mat-icon>
+  <button mat-icon-button class="draw-button" (click)="setDrawMode('polygon')">
+    <img src="assets/icons/SpatialSearch.svg" alt="draw polygon" />
   </button>
-  <button
-    mat-icon-button
-    aria-label="Draw polygon"
-    class="draw-button"
-    (click)="setDrawMode('delete')">
-    <mat-icon fontSet="material-icons-outlined">delete</mat-icon>
+  <button mat-icon-button class="draw-button" (click)="setDrawMode('delete')">
+    <img src="assets/icons/Trash.svg" alt="delete polygon" />
   </button>
 </div>
 <div id="map"></div>

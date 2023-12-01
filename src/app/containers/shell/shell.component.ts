@@ -46,6 +46,8 @@ export class ShellComponent implements OnDestroy {
   dataSubscription!: Subscription;
   addressesSubscription: Subscription;
 
+  spatialFilterSubscription: Subscription;
+
   constructor() {
     // TODO remove when using real API
     this.dataSubscription = this.dataService.loadAddressData().subscribe();
@@ -60,16 +62,37 @@ export class ShellComponent implements OnDestroy {
           this.dataService.filterAddresses(addresses!, bounds!)
         ),
         tap((data: BuildingModel[]) => {
-          // create building colour filter expression to style buildings layer
-          const exp = this.mapService.createBuildingColourFilter(data);
-          this.mapService.setMapLayerPaint(
-            'OS/TopographicArea_2/Building/1_3D',
-            'fill-extrusion-color',
-            exp
-          );
+          const spatialFilterEnabled =
+            this.spatialQueryService.spatialFilterEnabled();
+          if (!spatialFilterEnabled) {
+            this.updateMap(data);
+          }
         })
       )
       .subscribe();
+
+    // when a spatial filter is set, filter map
+    this.spatialFilterSubscription = combineLatest([
+      this.spatialQueryService.spatialFilterBounds$.pipe(),
+      this.dataService.addresses$.pipe(distinctUntilChanged()),
+    ])
+      .pipe(
+        map(([bounds, addresses]) => {
+          return this.dataService.filterAddresses(addresses!, bounds!);
+        }),
+        tap((data: BuildingModel[]) => this.updateMap(data))
+      )
+      .subscribe();
+  }
+
+  updateMap(data: BuildingModel[]) {
+    // create building colour filter expression to style buildings layer
+    const exp = this.mapService.createBuildingColourFilter(data);
+    this.mapService.setMapLayerPaint(
+      'OS/TopographicArea_2/Building/1_3D',
+      'fill-extrusion-color',
+      exp
+    );
   }
 
   filterLayer(filter: MapLayerFilter) {
@@ -111,6 +134,10 @@ export class ShellComponent implements OnDestroy {
 
   setMapBounds(bounds: LngLatBounds) {
     this.mapService.setMapBounds(bounds);
+  }
+
+  deleteSpatialFilter() {
+    this.spatialQueryService.setSpatialFilter(false);
   }
 
   ngOnDestroy(): void {
