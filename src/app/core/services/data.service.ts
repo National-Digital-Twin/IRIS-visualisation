@@ -17,6 +17,7 @@ import { LngLat, LngLatBounds } from 'mapbox-gl';
 import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
 import { SPARQLReturn } from '@core/models/rdf-data.model';
 import { BuildingModel } from '@core/models/building.model';
+import { Queries } from './Queries';
 
 export interface TableRow {
   [key: string]: string;
@@ -32,71 +33,39 @@ export class DataService {
   private addressesSubject = new Subject<BuildingModel[] | undefined>();
   addresses$ = this.addressesSubject.asObservable();
 
+  private queries = new Queries();
+
   constructor(private papa: Papa) {}
 
-  getUPRNs$() {
-    const selectString = `
-      PREFIX data: <http://nationaldigitaltwin.gov.uk/data#>
-      PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
-      PREFIX qudt: <http://qudt.org/2.1/schema/qudt/>
-      PREFIX ndt: <http://nationaldigitaltwin.gov.uk/ontology#>
-      PREFIX iesuncertainty: <http://ies.data.gov.uk/ontology/ies_uncertainty_proposal/v2.0#>
-      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-      SELECT ?uprn_id ?current_energy_rating ?lat_literal ?lon_literal
-      WHERE {
-        ?building a ndt:House .
-        ?building ies:isIdentifiedBy/ies:representationValue ?uprn_id .
-        ?state ies:isStateOf ?building .
-        ?state a ?current_energy_rating .
-        ?building ies:inLocation ?geopoint .
-        ?geopoint rdf:type ies:GeoPoint .
-        ?geopoint ies:isIdentifiedBy ?lat .
-        ?lat rdf:type ies:Latitude .
-        ?lat ies:representationValue ?lat_literal .
-        ?geopoint ies:isIdentifiedBy ?lon .
-        ?lon rdf:type ies:Longitude .
-        ?lon ies:representationValue ?lon_literal .
-      }
-    `;
-    return this.selectTable(selectString);
-  }
-
+  /**
+   * Get building EPC values within map bounds
+   * @param bounds map bounds
+   * @returns
+   */
   getEPCWithinBounds$(bounds: LngLatBounds) {
-    // _sw.lat <= building.lat && building.lat <= _ne.lat && _sw.lng <= building.lng && building.lng <= _ne.lng
-    console.log(bounds);
-    const { _ne, _sw } = bounds;
-    const selectString = `
-    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-    PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    SELECT ?uprn_id ?current_energy_rating (GROUP_CONCAT(DISTINCT ?type; SEPARATOR="; ") AS ?types)
-    WHERE {
-      ?building a ?type .
-      ?building ies:isIdentifiedBy/ies:representationValue ?uprn_id .
-      ?building ies:inLocation ?geopoint .
-
-      ?state ies:isStateOf ?building .
-      ?state a ?current_energy_rating .
-
-      ?geopoint rdf:type ies:GeoPoint .
-      ?geopoint ies:isIdentifiedBy ?lat .
-      ?lat rdf:type ies:Latitude .
-      ?lat ies:representationValue ?lat_literal .
-      ?geopoint ies:isIdentifiedBy ?lon .
-      ?lon rdf:type ies:Longitude .
-      ?lon ies:representationValue ?lon_literal .
-
-      FILTER (${_sw.lat} <= xsd:float(?lat_literal) && xsd:float(?lat_literal) <= ${_ne.lat} && ${_sw.lng} <= xsd:float(?lon_literal) && xsd:float(?lon_literal) <= ${_ne.lng}) .
-    }
-    GROUP BY
-      ?uprn_id
-      ?current_energy_rating
-    `;
+    const selectString = this.queries.getEPCWithinBounds(bounds);
     return this.selectTable(selectString);
   }
 
+  /**
+   * Return building details for an individual building
+   * @param uprn UPRN of building to get details
+   * @returns
+   */
   getBuildingDetails(uprn: string) {
-    console.log(uprn);
+    const selectString = this.queries.getBuildingDetails(uprn);
+    return this.selectTable(selectString);
+  }
+
+  /**
+   * Return an array of building details to use in filter
+   * results list
+   * @param uprns array of uprns to get details for
+   * @returns
+   */
+  getBuildingListDetails(uprns: string[]) {
+    const selectString = this.queries.getBuildingListDetails(uprns);
+    return this.selectTable(selectString);
   }
 
   /**
