@@ -12,9 +12,9 @@ export class Queries {
 
   SELECT
       ?building
-      (GROUP_CONCAT(DISTINCT ?building_type; SEPARATOR="; ") AS ?building_types)
+      (GROUP_CONCAT(DISTINCT REPLACE(STR(?building_type), "http://nationaldigitaltwin.gov.uk/ontology#", ""); SEPARATOR="; ") AS ?building_types)
       ?inspection_date_literal
-      ?epc_rating
+      (REPLACE(STR(?epc_rating), "http://gov.uk/government/organisations/department-for-levelling-up-housing-and-communities/ontology/epc#BuildingWithEnergyRatingOf", "") AS ?epc)
       #?sap_points
       ?counterpart
       ?line_of_address_literal
@@ -46,10 +46,6 @@ export class Queries {
           ?building ndt:actualCounterpartElement ?counterpartset .
           ?counterpart iesuncertainty:counterpartElement ?counterpartset .
       }}
-
-      FILTER (
-          regex(str(?epc_rating), "^http://gov.uk/government/organisations/department-for-levelling-up-housing-and-communities/ontology/epc#")
-      )
   }}
   GROUP BY
       ?building
@@ -72,8 +68,8 @@ export class Queries {
 
     SELECT
         ?building
-        (GROUP_CONCAT(DISTINCT ?building_type; SEPARATOR="; ") AS ?building_types)
-        ?epc_rating
+        (GROUP_CONCAT(DISTINCT REPLACE(STR(?building_type), "http://nationaldigitaltwin.gov.uk/ontology#", ""); SEPARATOR="; ") AS ?building_types)
+        (REPLACE(STR(?epc_rating), "http://gov.uk/government/organisations/department-for-levelling-up-housing-and-communities/ontology/epc#BuildingWithEnergyRatingOf", "") AS ?epc)
         ?line_of_address_literal
     WHERE {
         ?building ies:isIdentifiedBy ?uprn .
@@ -91,10 +87,6 @@ export class Queries {
         ?state ies:isStateOf ?building .
 
         ?state a ?epc_rating .
-
-        FILTER (
-            regex(str(?epc_rating), "^http://gov.uk/government/organisations/department-for-levelling-up-housing-and-communities/ontology/epc#")
-        )
     }
     GROUP BY
         ?building
