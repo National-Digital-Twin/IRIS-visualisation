@@ -1,9 +1,15 @@
 import {
   CUSTOM_ELEMENTS_SCHEMA,
   Component,
+  Input,
+  NgZone,
+  OnChanges,
   OnDestroy,
   inject,
+  numberAttribute,
 } from '@angular/core';
+import { Router } from '@angular/router';
+
 import {
   combineLatest,
   distinctUntilChanged,
@@ -25,6 +31,8 @@ import { SpatialQueryService } from '@core/services/spatial-query.service';
 
 import { BuildingModel } from '@core/models/building.model';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
+import { MapConfigModel } from '@core/models/map-configuration.model';
+
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 
 @Component({
@@ -35,11 +43,21 @@ import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token'
   styleUrl: './shell.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ShellComponent implements OnDestroy {
+export class ShellComponent implements OnDestroy, OnChanges {
+  // get map state from route query params
+  @Input({ transform: numberAttribute }) pitch: number = 0;
+  @Input({ transform: numberAttribute }) bearing: number = 0;
+  @Input({ transform: numberAttribute }) lat: number = 0;
+  @Input({ transform: numberAttribute }) lng: number = 0;
+  @Input({ transform: numberAttribute }) zoom: number = 0;
+
   private dataService = inject(DataService);
   private mapService = inject(MapService);
+  private router = inject(Router);
   private runtimeConfig = inject(RUNTIME_CONFIGURATION);
   private spatialQueryService = inject(SpatialQueryService);
+  private zone = inject(NgZone);
+
   private selectedBuildingTOID = this.spatialQueryService.selectedBuildingTOID;
 
   title = 'C477 Visualisation';
@@ -47,6 +65,8 @@ export class ShellComponent implements OnDestroy {
   addressesSubscription: Subscription;
 
   spatialFilterSubscription: Subscription;
+
+  mapConfig?: MapConfigModel;
 
   constructor() {
     // TODO remove when using real API
@@ -83,6 +103,16 @@ export class ShellComponent implements OnDestroy {
         tap((data: BuildingModel[]) => this.updateMap(data))
       )
       .subscribe();
+  }
+
+  ngOnChanges(): void {
+    const mapConfig: MapConfigModel = {
+      bearing: this.bearing,
+      pitch: this.pitch,
+      zoom: this.zoom,
+      center: [this.lat, this.lng],
+    };
+    this.mapConfig = mapConfig;
   }
 
   updateMap(data: BuildingModel[]) {
@@ -132,12 +162,20 @@ export class ShellComponent implements OnDestroy {
     });
   }
 
+  deleteSpatialFilter() {
+    this.spatialQueryService.setSpatialFilter(false);
+  }
   setMapBounds(bounds: LngLatBounds) {
     this.mapService.setMapBounds(bounds);
   }
 
-  deleteSpatialFilter() {
-    this.spatialQueryService.setSpatialFilter(false);
+  setRouteParams(params: MapConfigModel) {
+    const { bearing, center, pitch, zoom } = params;
+    this.zone.run(() => {
+      this.router.navigate(['/'], {
+        queryParams: { bearing, lat: center[1], lng: center[0], pitch, zoom },
+      });
+    });
   }
 
   ngOnDestroy(): void {
