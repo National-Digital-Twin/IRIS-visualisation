@@ -37,6 +37,11 @@ export class DataService {
 
   constructor(private papa: Papa) {}
 
+  getAllData() {
+    const selectString = this.queries.getAllData();
+    return this.selectTable(selectString);
+  }
+
   /**
    * Get building EPC values within map bounds
    * @param bounds map bounds

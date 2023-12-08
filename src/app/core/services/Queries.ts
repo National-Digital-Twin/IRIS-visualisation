@@ -155,4 +155,36 @@ export class Queries {
       }
     `;
   }
+
+  getAllData() {
+    return `
+    PREFIX data: <http://nationaldigitaltwin.gov.uk/data#>
+    PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
+    PREFIX qudt: <http://qudt.org/2.1/schema/qudt/>
+    PREFIX ndt: <http://nationaldigitaltwin.gov.uk/ontology#>
+    PREFIX iesuncertainty: <http://ies.data.gov.uk/ontology/ies_uncertainty_proposal/v2.0#>
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+    SELECT
+        ?uprn_id
+        (GROUP_CONCAT(DISTINCT REPLACE(STR(?building_type), "http://nationaldigitaltwin.gov.uk/ontology#", ""); SEPARATOR="; ") AS ?building_types)
+        (REPLACE(STR(?epc_rating), "http://gov.uk/government/organisations/department-for-levelling-up-housing-and-communities/ontology/epc#BuildingWithEnergyRatingOf", "") AS ?epc)
+        ?line_of_address_literal
+    WHERE {
+        ?building ies:isIdentifiedBy/ies:representationValue ?uprn_id .
+        ?building rdf:type ?building_type.
+        ?building ies:inLocation ?address .
+        ?address ies:isIdentifiedBy ?line_of_address .
+        ?line_of_address rdf:type ies:FirstLineOfAddress .
+        ?line_of_address ies:representationValue ?line_of_address_literal .
+        ?state ies:isStateOf ?building .
+        ?state a ?epc_rating .
+    }
+    GROUP BY
+        ?uprn_id
+        ?building
+        ?epc_rating
+        ?line_of_address_literal
+    `;
+  }
 }
