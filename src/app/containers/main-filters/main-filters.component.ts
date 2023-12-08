@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LabelComponent } from '@components/label/label.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,6 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
   standalone: true,
   imports: [
     CommonModule,
+    LabelComponent,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,

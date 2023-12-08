@@ -22,6 +22,7 @@ import { LngLatBounds } from 'mapbox-gl';
 import { Polygon } from 'geojson';
 
 import { DetailsPanelComponent } from '@components/details-panel/details-panel.component';
+import { MainFiltersComponent } from '@containers/main-filters/main-filters.component';
 import { MapComponent } from '@components/map/map.component';
 import { ResultsPanelComponent } from '@containers/results-panel/results-panel.component';
 
@@ -38,7 +39,12 @@ import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token'
 @Component({
   selector: 'c477-shell',
   standalone: true,
-  imports: [DetailsPanelComponent, MapComponent, ResultsPanelComponent],
+  imports: [
+    DetailsPanelComponent,
+    MainFiltersComponent,
+    MapComponent,
+    ResultsPanelComponent,
+  ],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
