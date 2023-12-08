@@ -2,9 +2,10 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  inject,
+  Input,
   OnDestroy,
   Output,
-  inject,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,6 +25,7 @@ import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { MapService } from '@core/services/map.service';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
+import { MapConfigModel } from '@core/models/map-configuration.model';
 
 @Component({
   selector: 'c477-map',
@@ -39,6 +41,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private drawControl!: MapboxDraw;
   private mapSubscription!: Subscription;
 
+  @Input() mapConfig!: MapConfigModel | undefined;
+
   @Output() resetMapView: EventEmitter<null> = new EventEmitter<null>();
   @Output() zoomIn: EventEmitter<null> = new EventEmitter<null>();
   @Output() zoomOut: EventEmitter<null> = new EventEmitter<null>();
@@ -51,17 +55,29 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   @Output() setMapBounds: EventEmitter<LngLatBounds> =
     new EventEmitter<LngLatBounds>();
+  @Output() setRouteParams: EventEmitter<MapConfigModel> =
+    new EventEmitter<MapConfigModel>();
 
   /** setup map */
   ngAfterViewInit() {
-    this.mapService.setup(this.runtimeConfig.map);
+    const { bearing, zoom, pitch } = this.mapConfig!;
+    const config: MapConfigModel = {
+      style: this.runtimeConfig.map.style!,
+      center: [this.mapConfig!.center[0], this.mapConfig!.center[1]],
+      bearing,
+      zoom,
+      pitch,
+    };
+    this.mapService.setup(config);
   }
 
   /** on map loaded, setup layers, controls etc */
   constructor() {
+    // this.setRouterParams();
     this.mapSubscription = this.mapService.mapLoaded$
       .pipe(
         tap(() => {
+          this.setRouterParams();
           this.addLayers();
           this.addTerrainLayer();
           this.addControls();
@@ -103,6 +119,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     );
     /** Get map state whenever the map is moved */
     this.mapService.mapInstance.on('moveend', () => {
+      this.setRouterParams();
       this.getMapState();
     });
   }
@@ -196,6 +213,20 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   getMapState() {
     const bounds: LngLatBounds = this.mapService.mapInstance.getBounds();
     this.setMapBounds.emit(bounds);
+  }
+
+  setRouterParams() {
+    const zoom = this.mapService.mapInstance.getZoom();
+    const pitch = this.mapService.mapInstance.getPitch();
+    const bearing = this.mapService.mapInstance.getBearing();
+    const { lng, lat } = this.mapService.mapInstance.getCenter();
+    const mapConfig: MapConfigModel = {
+      bearing,
+      center: [lat, lng],
+      pitch,
+      zoom,
+    };
+    this.setRouteParams.emit(mapConfig);
   }
 
   ngOnDestroy(): void {

@@ -7,6 +7,8 @@
     <c477-details-panel></c477-details-panel>
     <div class="content__map-container">
       <c477-map
+        [mapConfig]="mapConfig"
+        (setRouteParams)="setRouteParams($event)"
         (setMapBounds)="setMapBounds($event)"
         (deleteSpatialFilter)="deleteSpatialFilter()"
         (resetMapView)="resetMapView()"
