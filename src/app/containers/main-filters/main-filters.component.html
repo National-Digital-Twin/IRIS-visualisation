@@ -1,0 +1,27 @@
+<div class="main-filters">
+  <mat-form-field class="search">
+    <mat-label>Search by address, postcode</mat-label>
+    <input matInput type="text" aria-label="Search by address, postcode" />
+    <button matSuffix mat-icon-button aria-label="Search">
+      <mat-icon>search</mat-icon>
+    </button>
+  </mat-form-field>
+  <mat-form-field class="epc-filter">
+    <mat-label>EPC Rating</mat-label>
+    <mat-select multiple>
+      <mat-option>A</mat-option>
+      <mat-option>B</mat-option>
+      <mat-option>C</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field class="building-type-filter">
+    <mat-label>Building Type</mat-label>
+    <mat-select multiple>
+      <mat-option>House</mat-option>
+      <mat-option>Flat</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <button class="filters-button" mat-flat-button>
+    Advanced Filters <mat-icon iconPositionEnd>add</mat-icon>
+  </button>
+</div>
