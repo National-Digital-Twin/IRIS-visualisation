@@ -1,9 +1,15 @@
 import {
   CUSTOM_ELEMENTS_SCHEMA,
   Component,
+  Input,
+  NgZone,
+  OnChanges,
   OnDestroy,
   inject,
+  numberAttribute,
 } from '@angular/core';
+import { Router } from '@angular/router';
+
 import { Subscription } from 'rxjs';
 
 import { LngLatBounds } from 'mapbox-gl';
@@ -18,6 +24,8 @@ import { MapService } from '@core/services/map.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
 
 import { MapLayerFilter } from '@core/models/layer-filter.model';
+import { MapConfigModel } from '@core/models/map-configuration.model';
+
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 
 @Component({
@@ -28,16 +36,28 @@ import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token'
   styleUrl: './shell.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ShellComponent implements OnDestroy {
+export class ShellComponent implements OnDestroy, OnChanges {
+  // get map state from route query params
+  @Input({ transform: numberAttribute }) pitch: number = 0;
+  @Input({ transform: numberAttribute }) bearing: number = 0;
+  @Input({ transform: numberAttribute }) lat: number = 0;
+  @Input({ transform: numberAttribute }) lng: number = 0;
+  @Input({ transform: numberAttribute }) zoom: number = 0;
+
   private dataService = inject(DataService);
   private mapService = inject(MapService);
+  private router = inject(Router);
   private runtimeConfig = inject(RUNTIME_CONFIGURATION);
   private spatialQueryService = inject(SpatialQueryService);
+  private zone = inject(NgZone);
+
   private selectedBuildingTOID = this.spatialQueryService.selectedBuildingTOID;
 
   title = 'C477 Visualisation';
   dataSubscription!: Subscription;
   // addressesSubscription: Subscription;
+
+  mapConfig?: MapConfigModel;
 
   constructor() {
     // TODO remove when using real API
@@ -45,6 +65,26 @@ export class ShellComponent implements OnDestroy {
       .getAllData()
       .subscribe(res => console.log('all data', res));
   }
+
+  ngOnChanges(): void {
+    const mapConfig: MapConfigModel = {
+      bearing: this.bearing,
+      pitch: this.pitch,
+      zoom: this.zoom,
+      center: [this.lat, this.lng],
+    };
+    this.mapConfig = mapConfig;
+  }
+
+  // updateMap(data: BuildingModel[]) {
+  //   // create building colour filter expression to style buildings layer
+  //   const exp = this.mapService.createBuildingColourFilter(data);
+  //   this.mapService.setMapLayerPaint(
+  //     'OS/TopographicArea_2/Building/1_3D',
+  //     'fill-extrusion-color',
+  //     exp
+  //   );
+  // }
 
   filterLayer(filter: MapLayerFilter) {
     this.mapService.filterMapLayer(filter);
@@ -83,8 +123,21 @@ export class ShellComponent implements OnDestroy {
     });
   }
 
+  deleteSpatialFilter() {
+    this.spatialQueryService.setSpatialFilter(false);
+  }
+
   setMapBounds(bounds: LngLatBounds) {
     this.mapService.setMapBounds(bounds);
+  }
+
+  setRouteParams(params: MapConfigModel) {
+    const { bearing, center, pitch, zoom } = params;
+    this.zone.run(() => {
+      this.router.navigate(['/'], {
+        queryParams: { bearing, lat: center[1], lng: center[0], pitch, zoom },
+      });
+    });
   }
 
   ngOnDestroy(): void {
