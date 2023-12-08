@@ -1,20 +1,43 @@
 <div class="results-card">
-  <div>
-    <div class="results-card__header">
-      <mat-checkbox [color]="'primary'">Property 2</mat-checkbox>
-      <button mat-button (click)="viewDetails($event)">
-        View details <mat-icon iconPositionEnd>arrow_right_alt</mat-icon>
-      </button>
-    </div>
-    <div class="results-card__details">
+  <div class="results-card__header">
+    @if (select) {
+      <mat-checkbox [color]="'primary'">{{ card.name }}</mat-checkbox>
+    } @else {
+      <p class="card-title">{{ card.name }}</p>
+    }
+    <button mat-button (click)="viewDetails($event)">
+      View details <mat-icon iconPositionEnd>arrow_right_alt</mat-icon>
+    </button>
+  </div>
+  <div
+    class="results-card__details"
+    [ngClass]="{ 'results-card__details--select': select }">
+    <div>
       <p class="results-card__address">
-        Number 1, Street Address, Newport PO30 5AE
+        {{ card.Address }}
       </p>
       <div class="results-card__labels">
-        <c477-label [epcRating]="'B'"></c477-label>
-        <c477-label>Apartment</c477-label>
+        <c477-label [epcRating]="card.SAPBand"></c477-label>
+        <c477-label>{{ card.PropertyType }}</c477-label>
       </div>
     </div>
+    <div class="results-card__buttons">
+      <button mat-icon-button>
+        <img
+          src="assets/icons/FileArrowDown.svg"
+          alt="download the data for this dwelling" />
+      </button>
+      <button mat-icon-button>
+        @if (card.flagged) {
+          <img
+            src="assets/icons/FlagPennant_red.svg"
+            alt="Toggle the flag status of this property" />
+        } @else {
+          <img
+            src="assets/icons/FlagPennant.svg"
+            alt="Toggle the flag status of this property" />
+        }
+      </button>
+    </div>
   </div>
-  <c477-dwelling-buttons class="results-card__buttons"></c477-dwelling-buttons>
 </div>

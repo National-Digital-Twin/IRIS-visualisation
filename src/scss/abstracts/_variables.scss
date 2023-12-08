@@ -1,9 +1,20 @@
+$color-primary: #51406c;
+$color-accent: #f7ebf3;
 $color-button-background: #fafafa;
 $color-text-light: #00000099;
 $color-light-text: #ffffff;
-$color-epc-b: #2c9f29;
-$color-type: #51406c;
+
+$color-type: $color-accent;
 $color-line: rgba(0, 0, 0, 0.12);
+
+// DEFAULT EPC COLORS
+$color-epc-a: #3d4e3b;
+$color-epc-b: #4ba046;
+$color-epc-c: #a3eb9f;
+$color-epc-d: #ffd10a;
+$color-epc-e: #ffcc99;
+$color-epc-f: #e66e23;
+$color-epc-g: #b60007;
 
 $c477-primary-palette: (
   50: #eae8ed,
@@ -40,15 +51,15 @@ $c477-primary-palette: (
 
 $c477-accent-palette: (
   50: #fefdfe,
-  100: #fdfbfd,
-  200: #fbf9fc,
-  300: #f9f6fa,
-  400: #f8f4f9,
-  500: #f7f2f8,
-  600: #f6f0f7,
-  700: #f5eef6,
-  800: #f3ecf5,
-  900: #f1e8f3,
+  100: #fdf9fb,
+  200: #fbf5f9,
+  300: #f9f1f7,
+  400: #f8eef5,
+  500: #f7ebf3,
+  600: #f6e9f1,
+  700: #f5e5ef,
+  800: #f3e2ed,
+  900: #f1ddea,
   A100: #ffffff,
   A200: #ffffff,
   A400: #ffffff,
