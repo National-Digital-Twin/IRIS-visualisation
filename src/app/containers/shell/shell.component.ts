@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { Subscription } from 'rxjs';
+import { Subscription, combineLatest, map, tap } from 'rxjs';
 
 import { LngLatBounds } from 'mapbox-gl';
 import { Polygon } from 'geojson';
@@ -23,8 +23,10 @@ import { DataService } from '@core/services/data.service';
 import { MapService } from '@core/services/map.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
 
-import { MapLayerFilter } from '@core/models/layer-filter.model';
+import { EPCMap } from '@core/models/epc.model';
 import { MapConfigModel } from '@core/models/map-configuration.model';
+import { MapLayerFilter } from '@core/models/layer-filter.model';
+import { ToidMap } from '@core/models/toid.model';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 
@@ -54,16 +56,32 @@ export class ShellComponent implements OnDestroy, OnChanges {
   private selectedBuildingTOID = this.spatialQueryService.selectedBuildingTOID;
 
   title = 'C477 Visualisation';
-  dataSubscription!: Subscription;
-  // addressesSubscription: Subscription;
+  toidSubscription!: Subscription;
+  epcDataSubscription!: Subscription;
+  dataSubscription: Subscription;
 
   mapConfig?: MapConfigModel;
 
   constructor() {
     // TODO remove when using real API
-    this.dataSubscription = this.dataService
-      .getAllData()
-      .subscribe(res => console.log('all data', res));
+    this.toidSubscription = this.dataService.loadTOIDS().subscribe();
+    // Load data from IA
+    this.epcDataSubscription = this.dataService
+      .getAllEPCData()
+      .pipe(
+        map(rawData => this.dataService.mapBuildingEPCs(rawData, 'uprn_id')),
+        tap(res => {
+          this.dataService.setEPCData(res);
+        })
+      )
+      .subscribe();
+
+    this.dataSubscription = combineLatest([
+      this.dataService.toids$.pipe(),
+      this.dataService.epcs$.pipe(),
+    ])
+      .pipe(tap(([toids, epcs]) => this.updateMap(toids!, epcs!)))
+      .subscribe();
   }
 
   ngOnChanges(): void {
@@ -76,15 +94,15 @@ export class ShellComponent implements OnDestroy, OnChanges {
     this.mapConfig = mapConfig;
   }
 
-  // updateMap(data: BuildingModel[]) {
-  //   // create building colour filter expression to style buildings layer
-  //   const exp = this.mapService.createBuildingColourFilter(data);
-  //   this.mapService.setMapLayerPaint(
-  //     'OS/TopographicArea_2/Building/1_3D',
-  //     'fill-extrusion-color',
-  //     exp
-  //   );
-  // }
+  updateMap(toids: ToidMap, epcs: EPCMap) {
+    // create building colour filter expression to style buildings layer
+    const exp = this.mapService.createBuildingColourFilter(toids, epcs);
+    this.mapService.setMapLayerPaint(
+      'OS/TopographicArea_2/Building/1_3D',
+      'fill-extrusion-color',
+      exp
+    );
+  }
 
   filterLayer(filter: MapLayerFilter) {
     this.mapService.filterMapLayer(filter);
@@ -95,6 +113,7 @@ export class ShellComponent implements OnDestroy, OnChanges {
   }
 
   setSelectedBuildingTOID(TOID: string | null) {
+    console.log(TOID);
     const currentTOID = this.selectedBuildingTOID();
     if (TOID && currentTOID !== TOID) {
       this.spatialQueryService.setSelectedTOID(TOID);
@@ -141,6 +160,8 @@ export class ShellComponent implements OnDestroy, OnChanges {
   }
 
   ngOnDestroy(): void {
+    this.toidSubscription.unsubscribe();
     this.dataSubscription.unsubscribe();
+    this.epcDataSubscription.unsubscribe();
   }
 }
