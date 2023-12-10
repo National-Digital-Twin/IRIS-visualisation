@@ -1,14 +1,7 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import {
-  Observable,
-  Subject,
-  Subscriber,
-  catchError,
-  map,
-  tap,
-  throwError,
-} from 'rxjs';
+import { Observable, Subscriber, catchError, map, tap, throwError } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 import { Papa } from 'ngx-papaparse';
 
@@ -28,24 +21,35 @@ import { Queries } from './Queries';
 export class DataService {
   private readonly http: HttpClient = inject(HttpClient);
   private readonly searchEndpoint: string = inject(SEARCH_ENDPOINT);
-
-  private toidsSubject = new Subject<ToidMap | undefined>();
-  toids$ = this.toidsSubject.asObservable();
-  private epcsSubject = new Subject<EPCMap | undefined>();
-  epcs$ = this.epcsSubject.asObservable();
+  private papa = inject(Papa);
 
   private queries = new Queries();
 
-  constructor(private papa: Papa) {}
+  private toidsData = signal<ToidMap | undefined>(undefined);
+  private toids$ = this.http
+    // TODO remove when using real API
+    .get('assets/data/toids.csv', {
+      responseType: 'text',
+    })
+    .pipe(
+      map(res => this.csvToArray(res)),
+      map(arr => this.mapTOIDS(arr.data)),
+      tap(toids => this.setToidsData(toids)),
+      catchError(this.handleError)
+    );
+  private toidsResults = toSignal(this.toids$, { initialValue: undefined });
+  toids = computed(() => this.toidsResults());
 
+  private epcsData = signal<EPCMap | undefined>(undefined);
   /**
    * Get UPRNs, EPC ratings, addresses
    * @returns
    */
-  getAllEPCData() {
-    const selectString = this.queries.getAllData();
-    return this.selectTable(selectString);
-  }
+  epcs$ = this.selectTable(this.queries.getAllData()).pipe(
+    map(rawData => this.mapBuildingEPCs(rawData, 'uprn_id'))
+  );
+  private epcResults = toSignal(this.epcs$, { initialValue: undefined });
+  epcs = computed(() => this.epcResults());
 
   /**
    * Get building EPC values within map bounds
@@ -134,28 +138,12 @@ export class DataService {
     return table;
   }
 
-  loadTOIDS() {
-    return (
-      this.http
-        // TODO remove when using real API
-        .get('assets/data/toids.csv', {
-          responseType: 'text',
-        })
-        .pipe(
-          map(res => this.csvToArray(res)),
-          map(arr => this.mapTOIDS(arr.data)),
-          tap(toids => this.setAddressData(toids)),
-          catchError(this.handleError)
-        )
-    );
-  }
-
-  setAddressData(toids: ToidMap) {
-    this.toidsSubject.next(toids);
+  setToidsData(toids: ToidMap) {
+    this.toidsData.set(toids);
   }
 
   setEPCData(epc: EPCMap) {
-    this.epcsSubject.next(epc);
+    this.epcsData.set(epc);
   }
 
   filterAddresses(addresses: BuildingModel[], bounds: LngLatBounds) {
@@ -186,6 +174,7 @@ export class DataService {
    * array of uprns
    */
   mapTOIDS(toids: ToidCSVRow[]) {
+    console.log('map toids');
     const toidMap: ToidMap = {};
     toids.forEach((row: ToidCSVRow) => {
       if (Object.hasOwn(toidMap, row.TOID)) {
@@ -205,7 +194,6 @@ export class DataService {
    * address
    */
   mapBuildingEPCs(epcs: TableRow[], keyField: string) {
-    console.log(epcs.length);
     const epcMap: EPCMap = epcs.reduce(
       (acc: { [key: string]: TableRow }, item: TableRow) => {
         const key = item[keyField] as string;
