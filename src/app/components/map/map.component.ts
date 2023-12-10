@@ -14,12 +14,7 @@ import { Subscription, tap } from 'rxjs';
 
 import { Polygon } from 'geojson';
 
-import {
-  Layer,
-  LngLatBounds,
-  MapLayerMouseEvent,
-  RasterDemSource,
-} from 'mapbox-gl';
+import { MapLayerMouseEvent } from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 import { MapService } from '@core/services/map.service';
@@ -53,8 +48,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   @Output() setSelectedBuildingTOID: EventEmitter<string | null> =
     new EventEmitter<string | null>();
 
-  @Output() setMapBounds: EventEmitter<LngLatBounds> =
-    new EventEmitter<LngLatBounds>();
   @Output() setRouteParams: EventEmitter<MapConfigModel> =
     new EventEmitter<MapConfigModel>();
 
@@ -73,16 +66,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   /** on map loaded, setup layers, controls etc */
   constructor() {
-    // this.setRouterParams();
     this.mapSubscription = this.mapService.mapLoaded$
       .pipe(
         tap(() => {
-          this.setRouterParams();
-          this.addLayers();
-          this.addTerrainLayer();
           this.addControls();
           this.initMapEvents();
-          this.getMapState();
         })
       )
       .subscribe();
@@ -120,30 +108,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     /** Get map state whenever the map is moved */
     this.mapService.mapInstance.on('moveend', () => {
       this.setRouterParams();
-      this.getMapState();
     });
-  }
-
-  addTerrainLayer() {
-    const config: RasterDemSource = {
-      type: 'raster-dem',
-      url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
-      tileSize: 512,
-      maxzoom: 14,
-    };
-    this.mapService.addMapSource('mapbox-dem', config);
-  }
-
-  /**
-   * Add the following map layers
-   *  - 2d buildings layer for spatial search
-   *  - 3d buildings layer for extruding
-   *  - 3d buildings layer for highlighting
-   */
-  addLayers() {
-    this.runtimeConfig.mapLayers.forEach((layer: Layer) =>
-      this.mapService.addMapLayer(layer)
-    );
   }
 
   /**
@@ -185,7 +150,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     // by updating map bounds to trigger
     // filter
     this.deleteSpatialFilter.emit();
-    this.getMapState();
   }
 
   /**
@@ -209,11 +173,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.setSelectedBuildingTOID.emit(e.features![0].properties!.TOID);
     }
   };
-
-  getMapState() {
-    const bounds: LngLatBounds = this.mapService.mapInstance.getBounds();
-    this.setMapBounds.emit(bounds);
-  }
 
   setRouterParams() {
     const zoom = this.mapService.mapInstance.getZoom();
