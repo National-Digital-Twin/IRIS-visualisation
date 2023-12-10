@@ -1,15 +1,65 @@
 .label {
   border-radius: 4px;
-  color: $color-light-text;
-  padding: 0 1rem 0 1rem;
+  padding-right: 1rem;
+  margin: 0;
+  line-height: var(--arc-line-height-dense);
+  border: 1px solid;
 
   &__epc {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+
+    p {
+      margin: 0 0 0 1rem;
+    }
+    &--a {
+      border-color: $color-epc-a;
+      div {
+        background-color: $color-epc-a;
+      }
+    }
     &--b {
-      background-color: $color-epc-b;
+      border-color: $color-epc-b;
+      div {
+        background-color: $color-epc-b;
+      }
+    }
+    &--c {
+      border-color: $color-epc-c;
+      div {
+        background-color: $color-epc-c;
+      }
+    }
+    &--d {
+      border-color: $color-epc-d;
+      div {
+        background-color: $color-epc-d;
+      }
+    }
+    &--e {
+      border-color: $color-epc-e;
+      div {
+        background-color: $color-epc-e;
+      }
+    }
+    &--f {
+      border-color: $color-epc-f;
+      div {
+        background-color: $color-epc-f;
+      }
+    }
+    &--g {
+      border-color: $color-epc-g;
+      div {
+        background-color: $color-epc-g;
+      }
     }
   }
 
   &__type {
+    border-color: $color-type;
     background-color: $color-type;
+    color: $color-primary;
+    padding-left: 1rem;
   }
 }

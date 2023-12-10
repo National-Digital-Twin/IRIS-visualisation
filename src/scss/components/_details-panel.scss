@@ -17,18 +17,15 @@
   }
 
   &__overview {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-
-    .label {
+    .address {
       width: 60%;
+      line-height: var(--arc-line-height-dense);
     }
-  }
-
-  &__overview-buttons {
-    display: flex;
-    flex-direction: column;
+    .labels {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
   }
 
   &__tab {
@@ -40,9 +37,23 @@
     }
 
     &--overview {
-      .overview {
+      .about {
         padding-bottom: 1rem;
         border-bottom: 1px solid $color-line;
+        p {
+          display: grid;
+          grid-template-columns: 1fr 2fr;
+          gap: 1rem;
+        }
+      }
+      .field {
+        font-weight: 300;
+      }
+      .specification {
+        p {
+          display: flex;
+          flex-direction: column;
+        }
       }
     }
   }
@@ -50,5 +61,19 @@
   .mdc-tab {
     padding-left: 1rem;
     padding-right: 1rem;
+  }
+
+  &__buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    button {
+      width: 50%;
+      .mdc-button__label {
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.5rem;
+      }
+    }
   }
 }

@@ -1,0 +1,37 @@
+.main-filters {
+  position: absolute;
+  z-index: 10001;
+  left: var(--arc-spacing-normal);
+  top: 4.5rem;
+  display: flex;
+  align-items: flex-start;
+
+  .search {
+    width: 26.5rem;
+    margin-right: var(--arc-spacing-x-small);
+  }
+
+  .epc-filter {
+    .mdc-text-field--filled {
+      border-top-right-radius: 0 !important;
+    }
+  }
+
+  .building-type-filter {
+    .mdc-text-field--filled {
+      border-top-left-radius: 0 !important;
+    }
+  }
+
+  .filters-button {
+    margin-top: 0;
+    margin-left: 0.5rem;
+    height: 3.5rem;
+    box-shadow: $box-shadow;
+  }
+
+  .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+    background: $color-input-background;
+    box-shadow: $box-shadow;
+  }
+}
