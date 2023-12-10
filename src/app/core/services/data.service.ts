@@ -38,7 +38,11 @@ export class DataService {
 
   constructor(private papa: Papa) {}
 
-  getAllData() {
+  /**
+   * Get UPRNs, EPC ratings, addresses
+   * @returns
+   */
+  getAllEPCData() {
     const selectString = this.queries.getAllData();
     return this.selectTable(selectString);
   }
