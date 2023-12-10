@@ -5,8 +5,8 @@ import {
   Subject,
   Subscriber,
   catchError,
-  tap,
   map,
+  tap,
   throwError,
 } from 'rxjs';
 
@@ -15,13 +15,12 @@ import { Papa } from 'ngx-papaparse';
 import { LngLat, LngLatBounds } from 'mapbox-gl';
 
 import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
-import { SPARQLReturn } from '@core/models/rdf-data.model';
+import { SPARQLReturn, TableRow } from '@core/models/rdf-data.model';
 import { BuildingModel } from '@core/models/building.model';
-import { Queries } from './Queries';
+import { ToidCSVRow, ToidMap } from '@core/models/toid.model';
+import { EPCMap } from '@core/models/epc.model';
 
-export interface TableRow {
-  [key: string]: string;
-}
+import { Queries } from './Queries';
 
 @Injectable({
   providedIn: 'root',
@@ -30,8 +29,10 @@ export class DataService {
   private readonly http: HttpClient = inject(HttpClient);
   private readonly searchEndpoint: string = inject(SEARCH_ENDPOINT);
 
-  private addressesSubject = new Subject<BuildingModel[] | undefined>();
-  addresses$ = this.addressesSubject.asObservable();
+  private toidsSubject = new Subject<ToidMap | undefined>();
+  toids$ = this.toidsSubject.asObservable();
+  private epcsSubject = new Subject<EPCMap | undefined>();
+  epcs$ = this.epcsSubject.asObservable();
 
   private queries = new Queries();
 
@@ -129,23 +130,28 @@ export class DataService {
     return table;
   }
 
-  loadAddressData() {
+  loadTOIDS() {
     return (
       this.http
         // TODO remove when using real API
-        .get('assets/data/combined_address_profile_unique.csv', {
+        .get('assets/data/toids.csv', {
           responseType: 'text',
         })
         .pipe(
           map(res => this.csvToArray(res)),
-          tap(addresses => this.setAddressData(addresses.data)),
+          map(arr => this.mapTOIDS(arr.data)),
+          tap(toids => this.setAddressData(toids)),
           catchError(this.handleError)
         )
     );
   }
 
-  setAddressData(addresses: BuildingModel[]) {
-    this.addressesSubject.next(addresses);
+  setAddressData(toids: ToidMap) {
+    this.toidsSubject.next(toids);
+  }
+
+  setEPCData(epc: EPCMap) {
+    this.epcsSubject.next(epc);
   }
 
   filterAddresses(addresses: BuildingModel[], bounds: LngLatBounds) {
@@ -154,6 +160,7 @@ export class DataService {
     );
     return addressesInBounds;
   }
+
   /**
    * Convert csv file into an array of objects
    * @param csv csv file
@@ -165,6 +172,45 @@ export class DataService {
       header: true,
       dynamicTyping: true,
     });
+  }
+
+  /**
+   * Create an object where TOIDs are keys
+   * and values are an array of UPRNS
+   * @param toids array of toids & uprns
+   * @returns an object with toid as id, and
+   * array of uprns
+   */
+  mapTOIDS(toids: ToidCSVRow[]) {
+    const toidMap: ToidMap = {};
+    toids.forEach((row: ToidCSVRow) => {
+      if (Object.hasOwn(toidMap, row.TOID)) {
+        toidMap[row.TOID].push(row.UPRN);
+      }
+      toidMap[row.TOID] = [row.UPRN];
+    });
+    return toidMap;
+  }
+
+  /**
+   * An object where UPRNs are keys, and values is the epc
+   * and addresses of a building or dwelling
+   * @param epcs array of epcs, toids, uprns and addresses
+   * @param keyField field to use as key in return object
+   * @returns an object with uprn as key, and object with epc,
+   * address
+   */
+  mapBuildingEPCs(epcs: TableRow[], keyField: string) {
+    console.log(epcs.length);
+    const epcMap: EPCMap = epcs.reduce(
+      (acc: { [key: string]: TableRow }, item: TableRow) => {
+        const key = item[keyField] as string;
+        acc[key] = item;
+        return acc;
+      },
+      {}
+    );
+    return epcMap;
   }
 
   /**
