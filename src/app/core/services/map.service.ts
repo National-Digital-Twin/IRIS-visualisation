@@ -1,6 +1,6 @@
-import { Injectable, NgZone, inject } from '@angular/core';
+import { Injectable, NgZone, inject, signal } from '@angular/core';
 
-import { AsyncSubject, Observable, Subject } from 'rxjs';
+import { AsyncSubject, Observable } from 'rxjs';
 import { first } from 'rxjs/operators';
 
 // ignore mapbox-gl
@@ -17,9 +17,10 @@ import {
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 
+import { DataService } from './data.service';
+
 import { MapConfigModel } from '@core/models/map-configuration.model';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
-import { EPCMap } from '@core/models/epc.model';
 import { ToidMap } from '@core/models/toid.model';
 
 import { environment } from 'src/environments/environment';
@@ -40,8 +41,9 @@ export class MapService {
   private mapCreated = new AsyncSubject<void>();
   private mapLoaded = new AsyncSubject<void>();
 
-  private mapBoundsSubject = new Subject<LngLatBounds | undefined>();
-  mapBounds$ = this.mapBoundsSubject.asObservable();
+  private dataService = inject(DataService);
+
+  currentMapBounds = signal<LngLatBounds | undefined>(undefined);
 
   private epcColours = this.runtimeConfig.epcColours;
 
@@ -88,7 +90,7 @@ export class MapService {
 
   /** Set the current map bounds */
   setMapBounds(bounds: LngLatBounds) {
-    this.mapBoundsSubject.next(bounds);
+    this.currentMapBounds.set(bounds);
   }
 
   /**
@@ -108,7 +110,10 @@ export class MapService {
    * @param addresses filtered addresses within map bounds
    * @returns MapboxGLJS expression
    */
-  createBuildingColourFilter(toids: ToidMap, epcs: EPCMap) {
+  createBuildingColourFilter() {
+    const allToids = this.dataService.toids();
+    const epcs = this.dataService.epcs();
+    const toids = this.filterTOIDSWithinBounds(allToids!);
     const matchExpression: Expression = ['match', ['get', 'TOID']];
     // iterate through toid object and get toid (as key)
     Object.keys(toids).forEach((key: string) => {
@@ -117,7 +122,7 @@ export class MapService {
       const uprns: number[] = toids[key];
       /* One UPRN for a TOID */
       if (uprns.length === 1) {
-        const epc = epcs[uprns[0]];
+        const epc = epcs![uprns[0]];
         if (epc) {
           const colour = this.getEPCColour(epc['epc']);
           matchExpression.push(toid, colour);
@@ -133,7 +138,7 @@ export class MapService {
          */
         const buildingEPCs: string[] = [];
         uprns.forEach(uprn => {
-          const epc = epcs[uprn];
+          const epc = epcs![uprn];
           if (epc) {
             buildingEPCs.push(epc['epc']);
           }
@@ -197,13 +202,25 @@ export class MapService {
     return color;
   }
 
-  queryFeatures() {
-    this.zone.runOutsideAngular(() => {
-      const features = this.mapInstance.queryRenderedFeatures({
+  /** Query map features within current map bounds */
+  queryFeatures(): GeoJSON.Feature[] {
+    return this.zone.runOutsideAngular(() => {
+      return this.mapInstance.queryRenderedFeatures({
         layers: ['OS/TopographicArea_2/Building/1_3D'],
       });
-      console.log(features);
     });
+  }
+
+  filterTOIDSWithinBounds(toids: ToidMap) {
+    const currentFeatures = this.queryFeatures();
+    const filteredToids: ToidMap = {};
+    currentFeatures.forEach(feature => {
+      const toid = toids[feature.properties!.TOID];
+      if (toid) {
+        filteredToids[feature.properties!.TOID] = toid;
+      }
+    });
+    return filteredToids;
   }
 
   private createMap(config: MapConfigModel) {
@@ -236,6 +253,28 @@ export class MapService {
     });
   }
 
+  addTerrainLayer() {
+    const config: RasterDemSource = {
+      type: 'raster-dem',
+      url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+      tileSize: 512,
+      maxzoom: 14,
+    };
+    this.addMapSource('mapbox-dem', config);
+  }
+
+  /**
+   * Add the following map layers
+   *  - 2d buildings layer for spatial search
+   *  - 3d buildings layer for extruding
+   *  - 3d buildings layer for highlighting
+   */
+  addLayers() {
+    this.runtimeConfig.mapLayers.forEach((layer: Layer) =>
+      this.addMapLayer(layer)
+    );
+  }
+
   destroyMap() {
     if (this.mapInstance) {
       this.mapInstance.remove();
@@ -244,6 +283,8 @@ export class MapService {
 
   private hookEvents() {
     this.mapInstance.on('load', () => {
+      this.addLayers();
+      this.addTerrainLayer();
       this.mapLoaded.next(undefined);
       this.mapLoaded.complete();
     });
