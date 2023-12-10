@@ -15,13 +15,14 @@ import {
   Source,
 } from 'mapbox-gl';
 
-import { MapLayerFilter } from '@core/models/layer-filter.model';
-
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 
-import { environment } from 'src/environments/environment';
 import { MapConfigModel } from '@core/models/map-configuration.model';
-import { BuildingModel } from '@core/models/building.model';
+import { MapLayerFilter } from '@core/models/layer-filter.model';
+import { EPCMap } from '@core/models/epc.model';
+import { ToidMap } from '@core/models/toid.model';
+
+import { environment } from 'src/environments/environment';
 
 /**
  * Service for the MapboxGLJS map
@@ -107,14 +108,86 @@ export class MapService {
    * @param addresses filtered addresses within map bounds
    * @returns MapboxGLJS expression
    */
-  createBuildingColourFilter(addresses: BuildingModel[]) {
+  createBuildingColourFilter(toids: ToidMap, epcs: EPCMap) {
     const matchExpression: Expression = ['match', ['get', 'TOID']];
-    for (const row of addresses) {
-      const colour = this.getEPCColour(row.SAPBand);
-      matchExpression.push(row['TOID'], colour);
-    }
+    // iterate through toid object and get toid (as key)
+    Object.keys(toids).forEach((key: string) => {
+      const toid = key;
+      // get the uprns for the corresponding toid
+      const uprns: number[] = toids[key];
+      /* One UPRN for a TOID */
+      if (uprns.length === 1) {
+        const epc = epcs[uprns[0]];
+        if (epc) {
+          const colour = this.getEPCColour(epc['epc']);
+          matchExpression.push(toid, colour);
+        } else {
+          matchExpression.push(toid, this.epcColours['default']);
+        }
+      } else if (uprns.length > 1) {
+        /**
+         * Multiple UPRNs for a single TOID.
+         *
+         * Get the EPC value for each
+         * UPRN and add to array
+         */
+        const buildingEPCs: string[] = [];
+        uprns.forEach(uprn => {
+          const epc = epcs[uprn];
+          if (epc) {
+            buildingEPCs.push(epc['epc']);
+          }
+        });
+        /**
+         * If there are no EPCs for any of the
+         * building UPRNs, add the default colour
+         */
+        if (buildingEPCs.length === 0) {
+          matchExpression.push(toid, this.epcColours['default']);
+        } else {
+          /**
+           * If there are mulitple EPCs, get the mean value
+           */
+          const meanEPC = this.getMeanEPCValue(buildingEPCs);
+
+          const buildingColor = this.getEPCColour(meanEPC);
+          matchExpression.push(toid, buildingColor);
+        }
+      }
+    });
     matchExpression.push(this.epcColours['default']);
     return matchExpression;
+  }
+
+  /**
+   *
+   * @param epcRatings Array of EPC ratings
+   * @returns The mean EPC rating
+   */
+  getMeanEPCValue(epcRatings: string[]) {
+    let meanEPC = '';
+    // assign a weighting to the EPC ratings
+    const weightings: { [key: string]: number } = {
+      A: 1,
+      B: 2,
+      C: 3,
+      D: 4,
+      E: 5,
+      F: 6,
+      G: 7,
+    };
+    const scores: number[] = [];
+    // get the weighting for each epc value
+    epcRatings.forEach(val => scores.push(weightings[val]));
+    const sum = scores.reduce((a, c) => a + c, 0);
+    const mean = sum / scores.length;
+    Object.keys(weightings).forEach((epc: string) => {
+      // find the corresponding weighting for the mean
+      if (Math.floor(mean) === weightings[epc]) {
+        meanEPC = epc;
+      }
+    });
+    return meanEPC;
   }
 
   getEPCColour(SAPBand: string) {
@@ -122,6 +195,15 @@ export class MapService {
       ? this.epcColours[SAPBand]
       : this.epcColours['default'];
     return color;
+  }
+
+  queryFeatures() {
+    this.zone.runOutsideAngular(() => {
+      const features = this.mapInstance.queryRenderedFeatures({
+        layers: ['OS/TopographicArea_2/Building/1_3D'],
+      });
+      console.log(features);
+    });
   }
 
   private createMap(config: MapConfigModel) {
