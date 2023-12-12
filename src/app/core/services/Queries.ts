@@ -1,7 +1,7 @@
 import { LngLatBounds } from 'mapbox-gl';
 
 export class Queries {
-  getBuildingDetails(uprn: string) {
+  getBuildingDetails(uprn: number) {
     return `
     PREFIX data: <http://nationaldigitaltwin.gov.uk/data#>
     PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
@@ -15,7 +15,7 @@ export class Queries {
       (GROUP_CONCAT(DISTINCT REPLACE(STR(?building_type), "http://nationaldigitaltwin.gov.uk/ontology#", ""); SEPARATOR="; ") AS ?building_types)
       ?inspection_date_literal
       (REPLACE(STR(?epc_rating), "http://gov.uk/government/organisations/department-for-levelling-up-housing-and-communities/ontology/epc#BuildingWithEnergyRatingOf", "") AS ?epc)
-      #?sap_points
+      ?sap_points
       ?counterpart
       ?line_of_address_literal
       (GROUP_CONCAT(DISTINCT ?part; SEPARATOR="; ") AS ?parts)
@@ -35,14 +35,12 @@ export class Queries {
       ?state ies:isStateOf ?building .
       ?inspection_date ies:iso8601PeriodRepresentation ?inspection_date_literal .
 
-      ?part ies:isPartOf ?state .
-
       ?state a ?epc_rating .
 
-      #?state ies:hasCharacteristic ?quantity .
-      #?quantity qudt:value ?sap_points .
-
       OPTIONAL {{
+          ?part ies:isPartOf ?state .
+          ?state ies:hasCharacteristic ?quantity .
+          ?quantity qudt:value ?sap_points .
           ?building ndt:actualCounterpartElement ?counterpartset .
           ?counterpart iesuncertainty:counterpartElement ?counterpartset .
       }}
@@ -51,13 +49,13 @@ export class Queries {
       ?building
       ?inspection_date_literal
       ?epc_rating
-      #?sap_points
+      ?sap_points
       ?counterpart
       ?line_of_address_literal
   `;
   }
 
-  getBuildingListDetails(uprns: string[]) {
+  getBuildingListDetails(uprns: number[]) {
     return `
     PREFIX data: <http://nationaldigitaltwin.gov.uk/data#>
     PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
@@ -67,12 +65,14 @@ export class Queries {
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
     SELECT
+        ?uprn_id
         ?building
         (GROUP_CONCAT(DISTINCT REPLACE(STR(?building_type), "http://nationaldigitaltwin.gov.uk/ontology#", ""); SEPARATOR="; ") AS ?building_types)
         (REPLACE(STR(?epc_rating), "http://gov.uk/government/organisations/department-for-levelling-up-housing-and-communities/ontology/epc#BuildingWithEnergyRatingOf", "") AS ?epc)
         ?line_of_address_literal
     WHERE {
-        ?building ies:isIdentifiedBy ?uprn .
+        ?building ies:isIdentifiedBy/ies:representationValue ?uprn_id .
+        #?building ies:isIdentifiedBy ?uprn .
 
         ?uprn ies:representationValue ?uprnValue .
         VALUES ?uprnValue {"${uprns.join('" "')}"} .
@@ -89,6 +89,7 @@ export class Queries {
         ?state a ?epc_rating .
     }
     GROUP BY
+        ?uprn_id
         ?building
         ?epc_rating
         ?line_of_address_literal
