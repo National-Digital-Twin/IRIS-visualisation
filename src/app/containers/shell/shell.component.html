@@ -4,7 +4,9 @@
   </arc-navbar>
   <div class="content">
     <c477-results-panel></c477-results-panel>
-    <c477-details-panel></c477-details-panel>
+
+    <c477-details-panel (closePanel)="closeDetails()"></c477-details-panel>
+
     <div class="content__map-container">
       <c477-map
         [mapConfig]="mapConfig"
