@@ -1,7 +1,16 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, Subscriber, catchError, map, tap, throwError } from 'rxjs';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+  Observable,
+  Subscriber,
+  catchError,
+  map,
+  of,
+  switchMap,
+  tap,
+  throwError,
+} from 'rxjs';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 
 import { Papa } from 'ngx-papaparse';
 
@@ -135,7 +144,8 @@ export class DataService {
    * @param uprn UPRN of building to get details
    * @returns
    */
-  getBuildingDetails(uprn: string) {
+  getBuildingDetails(uprn: number) {
+    console.log('get details ', uprn);
     const selectString = this.queries.getBuildingDetails(uprn);
     return this.selectTable(selectString);
   }
@@ -146,7 +156,7 @@ export class DataService {
    * @param uprns array of uprns to get details for
    * @returns
    */
-  getBuildingListDetails(uprns: string[]) {
+  getBuildingListDetails(uprns: number[]) {
     const selectString = this.queries.getBuildingListDetails(uprns);
     return this.selectTable(selectString);
   }
@@ -156,7 +166,7 @@ export class DataService {
    * @param query SPARQL query
    * @returns observable of parsed data
    */
-  private selectTable(query: string) {
+  selectTable(query: string) {
     let newTable: Array<TableRow>;
     const uri = encodeURIComponent(query);
     const httpOptions = {
@@ -243,13 +253,13 @@ export class DataService {
    * array of uprns
    */
   mapTOIDS(toids: ToidCSVRow[]) {
-    console.log('map toids');
     const toidMap: ToidMap = {};
     toids.forEach((row: ToidCSVRow) => {
       if (Object.hasOwn(toidMap, row.TOID)) {
         toidMap[row.TOID].push(row.UPRN);
+      } else {
+        toidMap[row.TOID] = [row.UPRN];
       }
-      toidMap[row.TOID] = [row.UPRN];
     });
     return toidMap;
   }
