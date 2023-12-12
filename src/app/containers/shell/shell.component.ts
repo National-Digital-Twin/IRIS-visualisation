@@ -95,18 +95,34 @@ export class ShellComponent implements OnChanges {
 
   setSearchArea(searchArea: GeoJSON.Feature<Polygon>) {
     this.spatialQueryService.selectBuildings(searchArea);
+    this.updateMap();
   }
 
   setSelectedBuildingTOID(TOID: string | null) {
     console.log(TOID);
     const currentTOID = this.selectedBuildingTOID();
     if (TOID && currentTOID !== TOID) {
+      // get uprns for the selected building
+      const uprns = this.dataService.getBuildingUPRNs(TOID);
+      // get buidling details and open details panel
+      if (uprns.length === 1) {
+        this.dataService.setSelectedUPRN(uprns[0]);
+      } else if (uprns.length > 1) {
+        this.dataService.setSelectedUPRNs(uprns);
+      }
       this.spatialQueryService.setSelectedTOID(TOID);
       this.spatialQueryService.selectBuilding(TOID);
     } else {
+      this.dataService.setSelectedUPRN(undefined);
       this.spatialQueryService.setSelectedTOID('');
       this.spatialQueryService.selectBuilding('');
     }
+  }
+
+  closeDetails() {
+    this.spatialQueryService.setSelectedTOID('');
+    this.spatialQueryService.selectBuilding('');
+    this.dataService.setSelectedUPRN(undefined);
   }
 
   zoomIn() {
@@ -129,6 +145,8 @@ export class ShellComponent implements OnChanges {
 
   deleteSpatialFilter() {
     this.spatialQueryService.setSpatialFilter(false);
+    this.spatialQueryService.setSpatialFilterBounds(undefined);
+    this.dataService.setSelectedUPRNs(undefined);
     this.updateMap();
   }
 
@@ -139,7 +157,8 @@ export class ShellComponent implements OnChanges {
         queryParams: { bearing, lat: center[1], lng: center[0], pitch, zoom },
       });
     });
-    if (zoom >= 15) {
+    // if zoom is greater than 15 & there isn't a spatial filter
+    if (zoom >= 15 && !this.spatialQueryService.spatialFilterEnabled()) {
       this.updateMap();
     }
   }
