@@ -40,6 +40,12 @@ export class DataService {
   private toidsResults = toSignal(this.toids$, { initialValue: undefined });
   toids = computed(() => this.toidsResults());
 
+  // single uprn
+  selectedUPRN = signal<number | undefined>(undefined);
+  selectedBuilding = signal<TableRow | undefined>(undefined);
+  // multiple uprns
+  buildingUPRNs = signal<number[]>([]);
+  buildingsSelection = signal<TableRow[] | undefined>(undefined);
   private epcsData = signal<EPCMap | undefined>(undefined);
   /**
    * Get UPRNs, EPC ratings, addresses
@@ -50,6 +56,69 @@ export class DataService {
   );
   private epcResults = toSignal(this.epcs$, { initialValue: undefined });
   epcs = computed(() => this.epcResults());
+
+  /**
+   * Create observable from selectedUPRN signal
+   * React to emissions, piping the UPRN through an observable
+   * pipeline.
+   * Use switchmap to get the data
+   * Use toSignal to automatically subscribe & unsubscribe
+   */
+  private buildingDetails$ = toObservable(this.selectedUPRN).pipe(
+    switchMap(uprn =>
+      this.getBuildingDetails(uprn!).pipe(
+        tap(details => {
+          console.log(details);
+          this.setSelectedBuilding(details);
+        }),
+        catchError(() => of([] as TableRow[]))
+      )
+    )
+  );
+  readOnlyBuildingDetails = toSignal(this.buildingDetails$, {
+    initialValue: [] as TableRow[],
+  });
+
+  private getBuildingsList$ = toObservable(this.buildingUPRNs).pipe(
+    switchMap(uprns =>
+      this.getBuildingListDetails(uprns!).pipe(
+        tap(buildings => {
+          console.log(buildings);
+          this.setSelectedBuildings(buildings);
+        }),
+        catchError(() => of([] as TableRow[]))
+      )
+    )
+  );
+
+  readOnlyBuildingsList = toSignal(this.getBuildingsList$, {
+    initialValue: [] as TableRow[],
+  });
+
+  setSelectedUPRN(uprn: number | undefined) {
+    this.selectedUPRN.set(uprn);
+  }
+
+  setSelectedBuilding(building: TableRow[] | undefined) {
+    this.selectedBuilding.set(building ? building[0] : undefined);
+  }
+
+  setSelectedUPRNs(uprns: number[] | undefined) {
+    this.buildingUPRNs.set(uprns ? uprns : []);
+  }
+
+  setSelectedBuildings(buildings: TableRow[] | undefined) {
+    this.buildingsSelection.set(buildings ? buildings : undefined);
+  }
+
+  getBuildingUPRNs(toid: string): number[] {
+    const toids = this.toids();
+    const uprns = toids![toid];
+    if (uprns) {
+      return uprns;
+    }
+    return [];
+  }
 
   /**
    * Get building EPC values within map bounds
