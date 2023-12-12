@@ -1,12 +1,10 @@
 import { Injectable, inject, signal } from '@angular/core';
 
-import { Subject } from 'rxjs';
-
 import bbox from '@turf/bbox';
 
 import { MapService } from './map.service';
 import { Polygon } from 'geojson';
-import { LngLat, LngLatBounds } from 'mapbox-gl';
+import { LngLat } from 'mapbox-gl';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
 import { SignalsService } from './signals.service';
 
@@ -21,8 +19,9 @@ export class SpatialQueryService {
   private mapService = inject(MapService);
   private signalsService = inject(SignalsService);
 
-  private spatialFilterBounds = new Subject<LngLatBounds | undefined>();
-  spatialFilterBounds$ = this.spatialFilterBounds.asObservable();
+  spatialFilterBounds = signal<number[] | undefined>(undefined);
+
+  spatialFilterGeom = signal<GeoJSON.Feature<Polygon> | undefined>(undefined);
 
   spatialFilterEnabled = signal<boolean>(false);
   selectedBuildingTOID = signal<string | undefined>(undefined);
@@ -32,18 +31,23 @@ export class SpatialQueryService {
     this.selectedBuildingTOID.set(TOID);
   }
 
-  /** Filter map to show selected buildings */
+  /** Filter map to show selected building */
   selectBuilding(TOID: string) {
     const filter: MapLayerFilter = {
       layerId: 'OS/TopographicArea_2/Building/1_3D-selected',
       expression: ['all', ['==', '_symbol', 4], ['in', 'TOID', TOID]],
     };
     this.mapService.filterMapLayer(filter);
-    this.signalsService.detailsPanelOpen.set(true);
+    const panelOpen = TOID ? true : false;
+    this.signalsService.detailsPanelOpen.set(panelOpen);
   }
 
   setSpatialFilter(enabled: boolean) {
     this.spatialFilterEnabled.set(enabled);
+  }
+
+  setSpatialFilterBounds(bounds: number[] | undefined) {
+    this.spatialFilterBounds.set(bounds);
   }
 
   /**
@@ -51,12 +55,13 @@ export class SpatialQueryService {
    * @param geom user drawn geometry
    */
   selectBuildings(geom: GeoJSON.Feature<Polygon>) {
+    this.spatialFilterGeom.set(geom);
     // get bounding box of drawn geometry as this
     // is the input required by mapbox to query
     // features
     const geomBBox = this.getBBox(geom);
     this.setSpatialFilter(true);
-    this.spatialFilterBounds.next(geomBBox);
+    this.setSpatialFilterBounds(geomBBox);
   }
 
   /**
@@ -65,11 +70,15 @@ export class SpatialQueryService {
    * @returns bounding box pixel coordinates of
    * user drawn area
    */
-  private getBBox(geom: GeoJSON.Feature): LngLatBounds {
+  private getBBox(geom: GeoJSON.Feature): number[] {
     const bboxPolygon = bbox(geom);
     const southWest = new LngLat(bboxPolygon[0], bboxPolygon[1]);
     const northEast = new LngLat(bboxPolygon[2], bboxPolygon[3]);
-    const bbBounds = new LngLatBounds(southWest, northEast);
-    return bbBounds;
+    // const bbBounds = new LngLatBounds(southWest, northEast);
+    // convert to canvas x,y pixel coordinates
+    const nePointPixel = this.mapService.mapInstance.project(northEast);
+    const swPointPixel = this.mapService.mapInstance.project(southWest);
+    return [swPointPixel, nePointPixel];
+    // return bbBounds;
   }
 }
