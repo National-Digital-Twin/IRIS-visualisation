@@ -10,7 +10,8 @@ import { SpatialQueryService } from './spatial-query.service';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 
-import { ToidMap } from '@core/models/toid.model';
+import { BuildingMap } from '@core/models/building.model';
+import { TableRow } from '@core/models/rdf-data.model';
 
 @Injectable({
   providedIn: 'root',
@@ -31,34 +32,36 @@ export class UtilService {
    * @returns MapboxGLJS expression
    */
   createBuildingColourFilter() {
-    const allToids = this.dataService.toids();
-    const epcs = this.dataService.epcs();
+    const buildings = this.dataService.buildings();
     const spatialFilter = this.spatialQueryService.spatialFilterBounds();
-    const toids = this.filterTOIDSWithinBounds(allToids!, spatialFilter);
+    const filteredBuildings = this.filterBuildingsWithinBounds(
+      buildings!,
+      spatialFilter
+    );
     // if there is a spatial filter get the UPRNs within the filter area
     // and set in signal to get data from IA to display in filter results
     if (spatialFilter) {
-      const uprns = this.getUPRNsWithSpatialFilter(toids);
+      const uprns = this.getUPRNsWithSpatialFilter(filteredBuildings);
       uprns.length === 1
         ? this.dataService.setSelectedUPRN(uprns[0])
         : this.dataService.setSelectedUPRNs(uprns);
     }
     const matchExpression: Expression = ['match', ['get', 'TOID']];
     // iterate through toid object and get toid (as key)
-    Object.keys(toids).forEach((key: string) => {
+    Object.keys(filteredBuildings).forEach((key: string) => {
       const toid = key;
       // get the uprns for the corresponding toid
-      const uprns: number[] = toids[key];
+      const buildings: TableRow[] = filteredBuildings[key];
       /* One UPRN for a TOID */
-      if (uprns.length === 1) {
-        const epc = epcs![uprns[0]];
+      if (buildings.length === 1) {
+        const epc = buildings[0].epc;
         if (epc) {
-          const colour = this.getEPCColour(epc['epc']);
+          const colour = this.getEPCColour(epc);
           matchExpression.push(toid, colour);
         } else {
           matchExpression.push(toid, this.epcColours['default']);
         }
-      } else if (uprns.length > 1) {
+      } else if (buildings.length > 1) {
         /**
          * Multiple UPRNs for a single TOID.
          *
@@ -66,10 +69,10 @@ export class UtilService {
          * UPRN and add to array
          */
         const buildingEPCs: string[] = [];
-        uprns.forEach(uprn => {
-          const epc = epcs![uprn];
+        buildings.forEach(building => {
+          const epc = building.epc;
           if (epc) {
-            buildingEPCs.push(epc['epc']);
+            buildingEPCs.push(epc);
           }
         });
         /**
@@ -90,7 +93,11 @@ export class UtilService {
       }
     });
     matchExpression.push(this.epcColours['default']);
-    return matchExpression;
+    this.setCurrentMapExpression(matchExpression);
+  }
+
+  setCurrentMapExpression(expression: Expression) {
+    this.currentMapViewExpression.set(expression);
   }
 
   /**
@@ -131,7 +138,10 @@ export class UtilService {
     return color;
   }
 
-  filterTOIDSWithinBounds(toids: ToidMap, spatialQueryBounds?: number[]) {
+  filterBuildingsWithinBounds(
+    buildings: BuildingMap,
+    spatialQueryBounds?: number[]
+  ) {
     // if there is a spatial filter get features
     // within it's bounding box, else get features
     // within map extent
@@ -143,7 +153,7 @@ export class UtilService {
     const spatialFilter = spatialQueryBounds
       ? this.spatialQueryService.spatialFilterGeom()
       : undefined;
-    const filteredToids: ToidMap = {};
+    const filteredToids: BuildingMap = {};
     currentFeatures
       .filter(feature =>
         // if there is a spatial filter
@@ -157,9 +167,9 @@ export class UtilService {
           : feature
       )
       .forEach(feature => {
-        const toid = toids[feature.properties!.TOID];
-        if (toid) {
-          filteredToids[feature.properties!.TOID] = toid;
+        const building = buildings[feature.properties!.TOID];
+        if (building) {
+          filteredToids[feature.properties!.TOID] = building;
         }
       });
     return filteredToids;
@@ -171,7 +181,7 @@ export class UtilService {
    * @param filteredToids toids with spatial filter area
    * @returns array of uprns
    */
-  getUPRNsWithSpatialFilter(filteredToids: ToidMap): number[] {
+  getUPRNsWithSpatialFilter(filteredToids: BuildingMap): number[] {
     let filteredUPRNs: number[] = [];
     Object.keys(filteredToids).forEach((toid: string) => {
       const uprns = this.dataService.getBuildingUPRNs(toid);
