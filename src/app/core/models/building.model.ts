@@ -1,44 +1,29 @@
+import { TableRow } from './rdf-data.model';
+
 export interface BuildingModel {
-  UPRN: number;
-  TOID: string;
-  Address: string;
-  PostcodeLocator: string;
-  Latitude: number;
-  Longitude: number;
-  ParentUPRN?: number;
-  ClassDescription: string;
-  EnvironmentalImpactRating: number;
-  tCO2: number;
-  'HeatingCost(Â£/yr)': number;
-  SAPRating: number;
-  SAPBand: string;
-  PropertyType: string;
-  ConstructionAgeBand?: string;
-  BuiltForm: string;
-  StoreysCount?: number;
-  FlatLocation?: string;
-  FlatLevel?: number;
-  LowestFloorArea?: string;
-  MainHeatingCategory: number;
-  MainFuelType: string;
-  DerivedSAPMainHeatingCode?: string;
-  HeatEmitterType?: string;
-  WaterHeatingFuel?: string;
-  RoofConstruction: string;
-  RoofInsulationLocation: string;
-  RoofInsulationThickness: string;
-  WallConstruction: string;
-  WallInsulationType: string;
-  WallInsulationThickness?: string;
-  FloorConstruction: string;
-  FloorInsulation: string;
-  FloorInsulationThickness?: string;
-  MultipleGlazingType: string;
-  OpenFireplacesCount: number;
-  Renewables: number;
-  Ventilation: string;
-  'WaterHeatingCost(Â£/yr)': number;
-  'LightingCost(Â£/yr)': number;
-  TotalFloorArea: number;
-  CertificateType: string;
+  uprnId: string;
+  toid?: string;
+  fullAddress: string;
+  epc: string;
+}
+
+export interface BuildingDetailsModel extends BuildingModel {
+  builtForm: string;
+  propertyType: string;
+  sapPoints: string;
+  inspectionDate: string;
+  parts: string;
+}
+
+export interface BuildingSpecificationModel {
+  floorConstruction: string;
+  floorInsulation: string;
+  roofConstruction: string;
+  roofInsulationLocation: string;
+  roofInsulationThickness: string;
+  wallConstruction: string;
+}
+
+export interface BuildingMap {
+  [key: string]: TableRow[];
 }
