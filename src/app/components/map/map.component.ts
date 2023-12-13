@@ -169,7 +169,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   };
 
   setSelectedTOID = (e: MapLayerMouseEvent) => {
-    if (e.features && this.drawControl.getMode() !== 'draw_polygon') {
+    if (e.features && !this.drawControl.getAll().features.length) {
       this.setSelectedBuildingTOID.emit(e.features![0].properties!.TOID);
     }
   };
