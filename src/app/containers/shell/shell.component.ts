@@ -4,10 +4,11 @@ import {
   Input,
   NgZone,
   OnChanges,
-  computed,
+  // computed,
   effect,
   inject,
   numberAttribute,
+  signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
 
@@ -20,6 +21,7 @@ import { ResultsPanelComponent } from '@containers/results-panel/results-panel.c
 import { DataService } from '@core/services/data.service';
 import { MapService } from '@core/services/map.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
+import { UtilService } from '@core/services/utils.service';
 
 import { MapConfigModel } from '@core/models/map-configuration.model';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
@@ -47,26 +49,34 @@ export class ShellComponent implements OnChanges {
   private router = inject(Router);
   private runtimeConfig = inject(RUNTIME_CONFIGURATION);
   private spatialQueryService = inject(SpatialQueryService);
+  private utilService = inject(UtilService);
   private zone = inject(NgZone);
 
   private selectedBuildingTOID = this.spatialQueryService.selectedBuildingTOID;
 
-  title = 'C477 Visualisation';
+  detailsPanelOpen = signal(false);
+
+  title = 'Energy Performance Viewer';
 
   mapConfig?: MapConfigModel;
 
-  buildingData = computed(() => {
-    const toids = this.dataService.toids();
-    const epcs = this.dataService.epcs();
-    if (toids && epcs) {
-      console.log('update map');
-      this.updateMap();
-    }
-  });
+  buildingData = this.dataService.buildings;
+
+  buildingLayerExpression = this.utilService.currentMapViewExpression;
+
+  // buildingData = computed(() => {
+  //   const buildings = this.dataService.buildings();
+  //   if (buildings && Object.keys(buildings)?.length !== 0) {
+  //     console.log('data loaded');
+  //     // return true;
+  //   }
+  //   // return false;
+  // });
 
   constructor() {
-    // TODO remove when using real API
-    effect(() => this.buildingData());
+    effect(() => {
+      this.buildingData();
+    });
   }
 
   ngOnChanges(): void {
@@ -81,11 +91,11 @@ export class ShellComponent implements OnChanges {
 
   updateMap() {
     // create building colour filter expression to style buildings layer
-    const exp = this.mapService.createBuildingColourFilter();
+    this.utilService.createBuildingColourFilter();
     this.mapService.setMapLayerPaint(
       'OS/TopographicArea_2/Building/1_3D',
       'fill-extrusion-color',
-      exp
+      this.buildingLayerExpression()!
     );
   }
 
@@ -104,15 +114,22 @@ export class ShellComponent implements OnChanges {
     if (TOID && currentTOID !== TOID) {
       // get uprns for the selected building
       const uprns = this.dataService.getBuildingUPRNs(TOID);
-      // get buidling details and open details panel
+      // get building details and open details panel
       if (uprns.length === 1) {
+        // set many uprns to undefined to
+        // close results panel if it's open
+        this.dataService.setSelectedUPRNs(undefined);
         this.dataService.setSelectedUPRN(uprns[0]);
       } else if (uprns.length > 1) {
+        // set individual uprn to undefined to
+        // close details panel if it's open.
+        this.dataService.setSelectedUPRN(undefined);
         this.dataService.setSelectedUPRNs(uprns);
       }
       this.spatialQueryService.setSelectedTOID(TOID);
       this.spatialQueryService.selectBuilding(TOID);
     } else {
+      this.dataService.setSelectedUPRNs(undefined);
       this.dataService.setSelectedUPRN(undefined);
       this.spatialQueryService.setSelectedTOID('');
       this.spatialQueryService.selectBuilding('');
@@ -120,9 +137,16 @@ export class ShellComponent implements OnChanges {
   }
 
   closeDetails() {
-    this.spatialQueryService.setSelectedTOID('');
-    this.spatialQueryService.selectBuilding('');
-    this.dataService.setSelectedUPRN(undefined);
+    // if there are building UPRNs then the results
+    // panel is open so only clear selected building
+    // to keep building highlighted on the map
+    if (this.dataService.buildingUPRNs()?.length) {
+      this.dataService.setSelectedBuilding(undefined);
+    } else {
+      this.spatialQueryService.setSelectedTOID('');
+      this.spatialQueryService.selectBuilding('');
+      this.dataService.setSelectedUPRN(undefined);
+    }
   }
 
   zoomIn() {
@@ -147,6 +171,8 @@ export class ShellComponent implements OnChanges {
     this.spatialQueryService.setSpatialFilter(false);
     this.spatialQueryService.setSpatialFilterBounds(undefined);
     this.dataService.setSelectedUPRNs(undefined);
+    this.dataService.setSelectedUPRN(undefined);
+    this.dataService.setSelectedBuilding(undefined);
     this.updateMap();
   }
 
