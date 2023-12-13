@@ -12,15 +12,11 @@ import {
 } from 'rxjs';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 
-import { Papa } from 'ngx-papaparse';
-
-import { LngLat, LngLatBounds } from 'mapbox-gl';
+import { LngLatBounds } from 'mapbox-gl';
 
 import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
 import { SPARQLReturn, TableRow } from '@core/models/rdf-data.model';
-import { BuildingModel } from '@core/models/building.model';
-import { ToidCSVRow, ToidMap } from '@core/models/toid.model';
-import { EPCMap } from '@core/models/epc.model';
+import { BuildingMap } from '@core/models/building.model';
 
 import { Queries } from './Queries';
 
@@ -30,24 +26,8 @@ import { Queries } from './Queries';
 export class DataService {
   private readonly http: HttpClient = inject(HttpClient);
   private readonly searchEndpoint: string = inject(SEARCH_ENDPOINT);
-  private papa = inject(Papa);
 
   private queries = new Queries();
-
-  private toidsData = signal<ToidMap | undefined>(undefined);
-  private toids$ = this.http
-    // TODO remove when using real API
-    .get('assets/data/toids.csv', {
-      responseType: 'text',
-    })
-    .pipe(
-      map(res => this.csvToArray(res)),
-      map(arr => this.mapTOIDS(arr.data)),
-      tap(toids => this.setToidsData(toids)),
-      catchError(this.handleError)
-    );
-  private toidsResults = toSignal(this.toids$, { initialValue: undefined });
-  toids = computed(() => this.toidsResults());
 
   // single uprn
   selectedUPRN = signal<number | undefined>(undefined);
@@ -55,16 +35,18 @@ export class DataService {
   // multiple uprns
   buildingUPRNs = signal<number[]>([]);
   buildingsSelection = signal<TableRow[] | undefined>(undefined);
-  private epcsData = signal<EPCMap | undefined>(undefined);
+  private buildingData = signal<BuildingMap | undefined>(undefined);
   /**
    * Get UPRNs, EPC ratings, addresses
    * @returns
    */
-  epcs$ = this.selectTable(this.queries.getAllData()).pipe(
-    map(rawData => this.mapBuildingEPCs(rawData, 'uprn_id'))
+  buildings$ = this.selectTable(this.queries.getAllData()).pipe(
+    map(rawData => this.mapBuildings(rawData))
   );
-  private epcResults = toSignal(this.epcs$, { initialValue: undefined });
-  epcs = computed(() => this.epcResults());
+  private buildingResults = toSignal(this.buildings$, {
+    initialValue: undefined,
+  });
+  buildings = computed(() => this.buildingResults());
 
   /**
    * Create observable from selectedUPRN signal
@@ -77,7 +59,6 @@ export class DataService {
     switchMap(uprn =>
       this.getBuildingDetails(uprn!).pipe(
         tap(details => {
-          console.log(details);
           this.setSelectedBuilding(details);
         }),
         catchError(() => of([] as TableRow[]))
@@ -92,7 +73,6 @@ export class DataService {
     switchMap(uprns =>
       this.getBuildingListDetails(uprns!).pipe(
         tap(buildings => {
-          console.log(buildings);
           this.setSelectedBuildings(buildings);
         }),
         catchError(() => of([] as TableRow[]))
@@ -108,23 +88,40 @@ export class DataService {
     this.selectedUPRN.set(uprn);
   }
 
+  /**
+   * Set individual building
+   * @param building individual building
+   */
   setSelectedBuilding(building: TableRow[] | undefined) {
     this.selectedBuilding.set(building ? building[0] : undefined);
+  }
+
+  /**
+   * Set multiple buildings
+   * @param building buildings
+   */
+  setSelectedBuildings(buildings: TableRow[] | undefined) {
+    this.buildingsSelection.set(buildings ? buildings : undefined);
   }
 
   setSelectedUPRNs(uprns: number[] | undefined) {
     this.buildingUPRNs.set(uprns ? uprns : []);
   }
 
-  setSelectedBuildings(buildings: TableRow[] | undefined) {
-    this.buildingsSelection.set(buildings ? buildings : undefined);
+  setBuildingData(buildings: BuildingMap) {
+    this.buildingData.set(buildings);
   }
 
+  /**
+   * Find building UPRNs based on TOID
+   * @param toid toid of building
+   * @returns array of uprns for the building
+   */
   getBuildingUPRNs(toid: string): number[] {
-    const toids = this.toids();
-    const uprns = toids![toid];
-    if (uprns) {
-      return uprns;
+    const allBuildings = this.buildings();
+    const buildings = allBuildings![toid];
+    if (buildings) {
+      return buildings.map(building => +building.uprnId);
     }
     return [];
   }
@@ -145,7 +142,6 @@ export class DataService {
    * @returns
    */
   getBuildingDetails(uprn: number) {
-    console.log('get details ', uprn);
     const selectString = this.queries.getBuildingDetails(uprn);
     return this.selectTable(selectString);
   }
@@ -217,71 +213,24 @@ export class DataService {
     return table;
   }
 
-  setToidsData(toids: ToidMap) {
-    this.toidsData.set(toids);
-  }
-
-  setEPCData(epc: EPCMap) {
-    this.epcsData.set(epc);
-  }
-
-  filterAddresses(addresses: BuildingModel[], bounds: LngLatBounds) {
-    const addressesInBounds = addresses.filter(address =>
-      bounds.contains(new LngLat(+address.Longitude, +address.Latitude))
-    );
-    return addressesInBounds;
-  }
-
-  /**
-   * Convert csv file into an array of objects
-   * @param csv csv file
-   * @returns Array csv rows
-   */
-  csvToArray(csv: string) {
-    return this.papa.parse(csv, {
-      quoteChar: '"',
-      header: true,
-      dynamicTyping: true,
-    });
-  }
-
-  /**
-   * Create an object where TOIDs are keys
-   * and values are an array of UPRNS
-   * @param toids array of toids & uprns
-   * @returns an object with toid as id, and
-   * array of uprns
-   */
-  mapTOIDS(toids: ToidCSVRow[]) {
-    const toidMap: ToidMap = {};
-    toids.forEach((row: ToidCSVRow) => {
-      if (Object.hasOwn(toidMap, row.TOID)) {
-        toidMap[row.TOID].push(row.UPRN);
-      } else {
-        toidMap[row.TOID] = [row.UPRN];
-      }
-    });
-    return toidMap;
-  }
-
   /**
    * An object where UPRNs are keys, and values is the epc
    * and addresses of a building or dwelling
-   * @param epcs array of epcs, toids, uprns and addresses
-   * @param keyField field to use as key in return object
+   * @param buildings array of epcs, toids, uprns and addresses
    * @returns an object with uprn as key, and object with epc,
-   * address
+   * address etc
    */
-  mapBuildingEPCs(epcs: TableRow[], keyField: string) {
-    const epcMap: EPCMap = epcs.reduce(
-      (acc: { [key: string]: TableRow }, item: TableRow) => {
-        const key = item[keyField] as string;
-        acc[key] = item;
-        return acc;
-      },
-      {}
-    );
-    return epcMap;
+  mapBuildings(buildings: TableRow[]) {
+    const buildingMap: BuildingMap = {};
+    buildings.forEach((row: TableRow) => {
+      const toid = row.toid ? row.toid : row.parentToid;
+      if (toid && buildingMap[toid]) {
+        buildingMap[toid].push(row);
+      } else {
+        buildingMap[toid] = [row];
+      }
+    });
+    return buildingMap;
   }
 
   /**
