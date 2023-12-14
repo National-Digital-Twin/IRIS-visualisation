@@ -4,11 +4,8 @@ import {
   Input,
   NgZone,
   OnChanges,
-  // computed,
-  effect,
   inject,
   numberAttribute,
-  signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
 
@@ -54,30 +51,11 @@ export class ShellComponent implements OnChanges {
 
   private selectedBuildingTOID = this.spatialQueryService.selectedBuildingTOID;
 
-  detailsPanelOpen = signal(false);
-
   title = 'Energy Performance Viewer';
 
   mapConfig?: MapConfigModel;
 
-  buildingData = this.dataService.buildings;
-
   buildingLayerExpression = this.utilService.currentMapViewExpression;
-
-  // buildingData = computed(() => {
-  //   const buildings = this.dataService.buildings();
-  //   if (buildings && Object.keys(buildings)?.length !== 0) {
-  //     console.log('data loaded');
-  //     // return true;
-  //   }
-  //   // return false;
-  // });
-
-  constructor() {
-    effect(() => {
-      this.buildingData();
-    });
-  }
 
   ngOnChanges(): void {
     const mapConfig: MapConfigModel = {
@@ -89,14 +67,9 @@ export class ShellComponent implements OnChanges {
     this.mapConfig = mapConfig;
   }
 
-  updateMap() {
+  updateBuildingLayerFilter() {
     // create building colour filter expression to style buildings layer
     this.utilService.createBuildingColourFilter();
-    this.mapService.setMapLayerPaint(
-      'OS/TopographicArea_2/Building/1_3D',
-      'fill-extrusion-color',
-      this.buildingLayerExpression()!
-    );
   }
 
   filterLayer(filter: MapLayerFilter) {
@@ -105,7 +78,7 @@ export class ShellComponent implements OnChanges {
 
   setSearchArea(searchArea: GeoJSON.Feature<Polygon>) {
     this.spatialQueryService.selectBuildings(searchArea);
-    this.updateMap();
+    this.updateBuildingLayerFilter();
   }
 
   setSelectedBuildingTOID(TOID: string | null) {
@@ -173,7 +146,7 @@ export class ShellComponent implements OnChanges {
     this.dataService.setSelectedUPRNs(undefined);
     this.dataService.setSelectedUPRN(undefined);
     this.dataService.setSelectedBuilding(undefined);
-    this.updateMap();
+    this.updateBuildingLayerFilter();
   }
 
   setRouteParams(params: MapConfigModel) {
@@ -185,7 +158,7 @@ export class ShellComponent implements OnChanges {
     });
     // if zoom is greater than 15 & there isn't a spatial filter
     if (zoom >= 15 && !this.spatialQueryService.spatialFilterEnabled()) {
-      this.updateMap();
+      this.updateBuildingLayerFilter();
     }
   }
 }
