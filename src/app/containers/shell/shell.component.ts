@@ -154,6 +154,7 @@ export class ShellComponent implements OnChanges {
     this.zone.run(() => {
       this.router.navigate(['/'], {
         queryParams: { bearing, lat: center[1], lng: center[0], pitch, zoom },
+        queryParamsHandling: 'merge',
       });
     });
     // if zoom is greater than 15 & there isn't a spatial filter
