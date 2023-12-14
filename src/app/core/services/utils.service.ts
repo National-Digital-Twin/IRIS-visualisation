@@ -1,4 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+
+import { tap } from 'rxjs';
 
 import { Expression } from 'mapbox-gl';
 import booleanWithin from '@turf/boolean-within';
@@ -25,6 +28,23 @@ export class UtilService {
   private epcColours = this.runtimeConfig.epcColours;
 
   currentMapViewExpression = signal<Expression | undefined>(undefined);
+
+  /**
+   * Watch for when the buildings data is added to the buildings signal
+   * as this indicates first app load.  Then create map layer filter
+   * to colour buildings layer
+   */
+  private buildingData$ = toObservable(this.dataService.buildings).pipe(
+    tap(buildings => {
+      if (buildings) {
+        this.createBuildingColourFilter();
+      }
+    })
+  );
+
+  readOnlyBuildingDetails = toSignal(this.buildingData$, {
+    initialValue: {} as BuildingMap,
+  });
 
   /**
    * Create an array of building TOIDS and colours from buildings
@@ -98,6 +118,15 @@ export class UtilService {
 
   setCurrentMapExpression(expression: Expression) {
     this.currentMapViewExpression.set(expression);
+    this.updateMap();
+  }
+
+  updateMap() {
+    this.mapService.setMapLayerPaint(
+      'OS/TopographicArea_2/Building/1_3D',
+      'fill-extrusion-color',
+      this.currentMapViewExpression()!
+    );
   }
 
   /**
