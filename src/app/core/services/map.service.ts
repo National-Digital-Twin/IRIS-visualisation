@@ -118,7 +118,7 @@ export class MapService {
 
   private createMap(config: MapConfigModel) {
     NgZone.assertNotInAngularZone();
-    const { center, pitch, zoom, style } = config;
+    const { bearing, center, pitch, zoom, style } = config;
 
     const accessToken = environment.mapbox.apiKey;
     const apiKey = environment.os.apiKey;
@@ -129,6 +129,7 @@ export class MapService {
       pitch,
       zoom,
       center,
+      bearing,
       style,
       // append OS api key and srs details to OS VTS requests
       transformRequest: (url: string) => {
