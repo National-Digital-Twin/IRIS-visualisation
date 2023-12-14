@@ -93,6 +93,7 @@ export class MapService {
    * @param value paint colour expression
    */
   setMapLayerPaint(layerId: string, paintProperty: string, value: Expression) {
+    if (value.length <= 3) return;
     this.zone.runOutsideAngular(() => {
       this.mapInstance.setPaintProperty(layerId, paintProperty, value);
     });

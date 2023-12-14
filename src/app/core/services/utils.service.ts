@@ -53,6 +53,7 @@ export class UtilService {
    */
   createBuildingColourFilter() {
     const buildings = this.dataService.buildings();
+    if (!buildings || !Object.keys(buildings).length) return;
     const spatialFilter = this.spatialQueryService.spatialFilterBounds();
     const filteredBuildings = this.filterBuildingsWithinBounds(
       buildings!,
