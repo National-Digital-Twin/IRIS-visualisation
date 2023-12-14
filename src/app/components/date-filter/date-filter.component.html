@@ -1,0 +1,44 @@
+<div class="date-filter__container">
+  <h3>YEAR OF ASSESSMENT</h3>
+  <mat-checkbox [(ngModel)]="range">Select a year range</mat-checkbox>
+  @if (!range) {
+    <mat-form-field>
+      <mat-label>Year of Assessment</mat-label>
+      <input
+        matInput
+        [matDatepicker]="dp"
+        [formControl]="singleYear"
+        aria-label="'Year of Assessment'" />
+      <mat-hint>YYYY</mat-hint>
+      <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
+      <mat-datepicker
+        #dp
+        startView="multi-year"
+        (yearSelected)="setStartYear($event, dp)">
+      </mat-datepicker>
+    </mat-form-field>
+  } @else {
+    <mat-form-field>
+      <mat-label>Enter a date range</mat-label>
+      <mat-date-range-input [rangePicker]="picker">
+        <input
+          matStartDate
+          placeholder="Start date"
+          [formControl]="startYear"
+          aria-label="'Start date'" />
+        <input
+          matEndDate
+          placeholder="End date"
+          [formControl]="endYear"
+          aria-label="'End date'" />
+      </mat-date-range-input>
+      <mat-hint>YYYY – YYYY</mat-hint>
+      <mat-datepicker-toggle
+        matIconSuffix
+        [for]="picker"></mat-datepicker-toggle>
+      <mat-date-range-picker
+        #picker
+        startView="multi-year"></mat-date-range-picker>
+    </mat-form-field>
+  }
+</div>

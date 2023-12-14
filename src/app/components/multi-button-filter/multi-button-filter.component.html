@@ -1,0 +1,14 @@
+<div class="multi-select-filter">
+  <h3>{{ title }}</h3>
+  <mat-button-toggle-group
+    class="filter-buttons"
+    name="title"
+    [attr.aria-label]="title"
+    multiple>
+    @for (option of optionKeys; track option) {
+      <mat-button-toggle [value]="option">{{
+        options[option]
+      }}</mat-button-toggle>
+    }
+  </mat-button-toggle-group>
+</div>

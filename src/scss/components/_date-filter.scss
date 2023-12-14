@@ -1,0 +1,16 @@
+.date-filter {
+  &__container {
+    display: flex;
+    flex-direction: column;
+
+    h3 {
+      text-transform: uppercase;
+      color: $color-primary;
+      font-size: 0.875rem;
+    }
+
+    .mat-mdc-form-field {
+      max-width: 15rem;
+    }
+  }
+}

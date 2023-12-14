@@ -1,6 +1,6 @@
 .panel {
   position: absolute;
-  z-index: 10001;
+  z-index: $panel-z-index;
   background-color: rgb(var(--arc-background-color));
   box-shadow: $box-shadow;
 }

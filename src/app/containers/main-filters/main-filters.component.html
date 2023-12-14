@@ -9,11 +9,11 @@
   <mat-form-field class="epc-filter">
     <mat-label>EPC Rating</mat-label>
     <mat-select multiple>
-      <mat-option><c477-label [epcRating]="'A'" /></mat-option>
-      <mat-option><c477-label [epcRating]="'B'" /></mat-option>
-      <mat-option><c477-label [epcRating]="'C'" /></mat-option>
-      <mat-option><c477-label [epcRating]="'D'" /></mat-option>
-      <mat-option><c477-label [epcRating]="'E'" /></mat-option>
+      @for (rating of epcRatings; track rating) {
+        <mat-option [value]="rating"
+          ><c477-label [epcRating]="rating"
+        /></mat-option>
+      }
     </mat-select>
   </mat-form-field>
   <mat-form-field class="building-type-filter">
@@ -23,7 +23,10 @@
       <mat-option>Flat</mat-option>
     </mat-select>
   </mat-form-field>
-  <button class="filters-button" mat-flat-button>
+  <button
+    class="filters-button"
+    mat-flat-button
+    (click)="openAdvancedFilters()">
     Advanced Filters <mat-icon iconPositionEnd>add</mat-icon>
   </button>
 </div>

@@ -7,10 +7,13 @@
 @import '~@arc-web/components/dist/themes/dark.css';
 
 /* COMPONENT STYLES */
+@import './components/date-filter';
 @import './components/details-panel';
 @import './components/draw-controls';
+@import './components/filter-panel';
 @import './components/label';
 @import './components/main-filters';
+@import './components/multi-button-filter';
 @import './components/results-card';
 @import './components/results-panel';
 @import './components/zoom-controls';

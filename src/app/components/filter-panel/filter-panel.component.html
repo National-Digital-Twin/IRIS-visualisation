@@ -1,1 +1,40 @@
-<p>filter-panel works!</p>
+<section class="advanced-filters-dialog">
+  <h1 mat-dialog-title>Advanced Filters</h1>
+  <div mat-dialog-content [formGroup]="advancedFiltersForm">
+    <mat-accordion
+      class="filter-expansion"
+      [displayMode]="'flat'"
+      [multi]="true">
+      <mat-expansion-panel [expanded]="true">
+        <mat-expansion-panel-header
+          ><h2>General</h2></mat-expansion-panel-header
+        >
+        @for (filter of generalFilters; track filter.title) {
+          <c477-multi-button-filter
+            [title]="filter.title"
+            [options]="filter.data" />
+        }
+        <c477-date-filter />
+      </mat-expansion-panel>
+      @for (panel of otherPanels; track panel.panelTitle) {
+        <mat-expansion-panel>
+          <mat-expansion-panel-header
+            ><h2>{{ panel.panelTitle }}</h2></mat-expansion-panel-header
+          >
+          @for (filter of panel.filters; track filter.title) {
+            <c477-multi-button-filter
+              [title]="filter.title"
+              [options]="filter.data" />
+          }
+        </mat-expansion-panel>
+      }
+    </mat-accordion>
+  </div>
+  <div mat-dialog-actions [align]="'end'">
+    <button mat-button>Clear all</button>
+    <button mat-stroked-button mat-dialog-close>Cancel</button>
+    <button mat-flat-button [color]="'primary'" (click)="onSubmit()">
+      Apply filters
+    </button>
+  </div>
+</section>
