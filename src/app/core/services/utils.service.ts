@@ -8,6 +8,7 @@ import booleanWithin from '@turf/boolean-within';
 import { Polygon } from 'geojson';
 
 import { DataService } from './data.service';
+import { FilterService } from './filter.service';
 import { MapService } from './map.service';
 import { SpatialQueryService } from './spatial-query.service';
 
@@ -21,6 +22,7 @@ import { TableRow } from '@core/models/rdf-data.model';
 })
 export class UtilService {
   private dataService = inject(DataService);
+  private filterService = inject(FilterService);
   private mapService = inject(MapService);
   private spatialQueryService = inject(SpatialQueryService);
   private runtimeConfig = inject(RUNTIME_CONFIGURATION);
@@ -55,9 +57,12 @@ export class UtilService {
     const buildings = this.dataService.buildings();
     if (!buildings || !Object.keys(buildings).length) return;
     const spatialFilter = this.spatialQueryService.spatialFilterBounds();
-    const filteredBuildings = this.filterBuildingsWithinBounds(
+    const spatialFilteredBuildings = this.filterBuildingsWithinBounds(
       buildings!,
       spatialFilter
+    );
+    const filteredBuildings = this.filterService.applyFilters(
+      spatialFilteredBuildings
     );
     // if there is a spatial filter get the UPRNs within the filter area
     // and set in signal to get data from IA to display in filter results

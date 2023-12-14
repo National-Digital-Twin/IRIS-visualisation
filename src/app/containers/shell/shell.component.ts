@@ -16,6 +16,7 @@ import { MapComponent } from '@components/map/map.component';
 import { ResultsPanelComponent } from '@containers/results-panel/results-panel.component';
 
 import { DataService } from '@core/services/data.service';
+import { FilterService } from '@core/services/filter.service';
 import { MapService } from '@core/services/map.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { UtilService } from '@core/services/utils.service';
@@ -40,8 +41,10 @@ export class ShellComponent implements OnChanges {
   @Input({ transform: numberAttribute }) lat: number = 0;
   @Input({ transform: numberAttribute }) lng: number = 0;
   @Input({ transform: numberAttribute }) zoom: number = 0;
+  @Input() filter: string = '';
 
   private dataService = inject(DataService);
+  private filterService = inject(FilterService);
   private mapService = inject(MapService);
   private router = inject(Router);
   private runtimeConfig = inject(RUNTIME_CONFIGURATION);
@@ -65,6 +68,9 @@ export class ShellComponent implements OnChanges {
       center: [this.lat, this.lng],
     };
     this.mapConfig = mapConfig;
+    if (this.filter) {
+      this.filterService.parseFilter(this.filter);
+    }
   }
 
   updateBuildingLayerFilter() {
