@@ -33,5 +33,6 @@ export class DetailsPanelComponent {
 
   @Output() closePanel: EventEmitter<null> = new EventEmitter();
 
-  epcRating = 'B';
+  addressPart1 = this.buildingDetails()?.fullAddress.split(',')[0];
+  addressPart2 = this.buildingDetails()?.fullAddress.split(',')[1];
 }
