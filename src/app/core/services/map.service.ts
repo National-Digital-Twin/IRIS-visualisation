@@ -1,6 +1,6 @@
-import { Injectable, NgZone, inject } from '@angular/core';
+import { Injectable, NgZone, inject, signal } from '@angular/core';
 
-import { AsyncSubject, Observable, Subject } from 'rxjs';
+import { AsyncSubject, Observable } from 'rxjs';
 import { first } from 'rxjs/operators';
 
 // ignore mapbox-gl
@@ -15,13 +15,12 @@ import {
   Source,
 } from 'mapbox-gl';
 
-import { MapLayerFilter } from '@core/models/layer-filter.model';
-
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 
-import { environment } from 'src/environments/environment';
 import { MapConfigModel } from '@core/models/map-configuration.model';
-import { BuildingModel } from '@core/models/building.model';
+import { MapLayerFilter } from '@core/models/layer-filter.model';
+
+import { environment } from 'src/environments/environment';
 
 /**
  * Service for the MapboxGLJS map
@@ -39,10 +38,7 @@ export class MapService {
   private mapCreated = new AsyncSubject<void>();
   private mapLoaded = new AsyncSubject<void>();
 
-  private mapBoundsSubject = new Subject<LngLatBounds | undefined>();
-  mapBounds$ = this.mapBoundsSubject.asObservable();
-
-  private epcColours = this.runtimeConfig.epcColours;
+  currentMapBounds = signal<LngLatBounds | undefined>(undefined);
 
   constructor(private zone: NgZone) {
     this.mapCreated$ = this.mapCreated.asObservable();
@@ -87,7 +83,7 @@ export class MapService {
 
   /** Set the current map bounds */
   setMapBounds(bounds: LngLatBounds) {
-    this.mapBoundsSubject.next(bounds);
+    this.currentMapBounds.set(bounds);
   }
 
   /**
@@ -97,36 +93,32 @@ export class MapService {
    * @param value paint colour expression
    */
   setMapLayerPaint(layerId: string, paintProperty: string, value: Expression) {
+    if (value.length <= 3) return;
     this.zone.runOutsideAngular(() => {
       this.mapInstance.setPaintProperty(layerId, paintProperty, value);
     });
   }
 
-  /**
-   * Create an array of building TOIDS and colours from buildings
-   * @param addresses filtered addresses within map bounds
-   * @returns MapboxGLJS expression
-   */
-  createBuildingColourFilter(addresses: BuildingModel[]) {
-    const matchExpression: Expression = ['match', ['get', 'TOID']];
-    for (const row of addresses) {
-      const colour = this.getEPCColour(row.SAPBand);
-      matchExpression.push(row['TOID'], colour);
-    }
-    matchExpression.push(this.epcColours['default']);
-    return matchExpression;
+  /** Query map features within current map bounds */
+  queryFeatures(): GeoJSON.Feature[] {
+    return this.zone.runOutsideAngular(() => {
+      return this.mapInstance.queryRenderedFeatures({
+        layers: ['OS/TopographicArea_2/Building/1_2D'],
+      });
+    });
   }
 
-  getEPCColour(SAPBand: string) {
-    const color = SAPBand
-      ? this.epcColours[SAPBand]
-      : this.epcColours['default'];
-    return color;
+  queryFeaturesByGeom(bounds: number[]): GeoJSON.Feature[] {
+    return this.zone.runOutsideAngular(() => {
+      return this.mapInstance.queryRenderedFeatures(bounds, {
+        layers: ['OS/TopographicArea_2/Building/1_2D'],
+      });
+    });
   }
 
   private createMap(config: MapConfigModel) {
     NgZone.assertNotInAngularZone();
-    const { center, pitch, zoom, style } = config;
+    const { bearing, center, pitch, zoom, style } = config;
 
     const accessToken = environment.mapbox.apiKey;
     const apiKey = environment.os.apiKey;
@@ -137,6 +129,7 @@ export class MapService {
       pitch,
       zoom,
       center,
+      bearing,
       style,
       // append OS api key and srs details to OS VTS requests
       transformRequest: (url: string) => {
@@ -154,6 +147,28 @@ export class MapService {
     });
   }
 
+  addTerrainLayer() {
+    const config: RasterDemSource = {
+      type: 'raster-dem',
+      url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+      tileSize: 512,
+      maxzoom: 14,
+    };
+    this.addMapSource('mapbox-dem', config);
+  }
+
+  /**
+   * Add the following map layers
+   *  - 2d buildings layer for spatial search
+   *  - 3d buildings layer for extruding
+   *  - 3d buildings layer for highlighting
+   */
+  addLayers() {
+    this.runtimeConfig.mapLayers.forEach((layer: Layer) =>
+      this.addMapLayer(layer)
+    );
+  }
+
   destroyMap() {
     if (this.mapInstance) {
       this.mapInstance.remove();
@@ -162,6 +177,8 @@ export class MapService {
 
   private hookEvents() {
     this.mapInstance.on('load', () => {
+      this.addLayers();
+      this.addTerrainLayer();
       this.mapLoaded.next(undefined);
       this.mapLoaded.complete();
     });

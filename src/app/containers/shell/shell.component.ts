@@ -4,21 +4,11 @@ import {
   Input,
   NgZone,
   OnChanges,
-  OnDestroy,
   inject,
   numberAttribute,
 } from '@angular/core';
 import { Router } from '@angular/router';
 
-import {
-  combineLatest,
-  distinctUntilChanged,
-  tap,
-  map,
-  Subscription,
-} from 'rxjs';
-
-import { LngLatBounds } from 'mapbox-gl';
 import { Polygon } from 'geojson';
 
 import { DetailsPanelComponent } from '@components/details-panel/details-panel.component';
@@ -26,12 +16,13 @@ import { MapComponent } from '@components/map/map.component';
 import { ResultsPanelComponent } from '@containers/results-panel/results-panel.component';
 
 import { DataService } from '@core/services/data.service';
+import { FilterService } from '@core/services/filter.service';
 import { MapService } from '@core/services/map.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
+import { UtilService } from '@core/services/utils.service';
 
-import { BuildingModel } from '@core/models/building.model';
-import { MapLayerFilter } from '@core/models/layer-filter.model';
 import { MapConfigModel } from '@core/models/map-configuration.model';
+import { MapLayerFilter } from '@core/models/layer-filter.model';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 
@@ -43,67 +34,31 @@ import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token'
   styleUrl: './shell.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ShellComponent implements OnDestroy, OnChanges {
+export class ShellComponent implements OnChanges {
   // get map state from route query params
   @Input({ transform: numberAttribute }) pitch: number = 0;
   @Input({ transform: numberAttribute }) bearing: number = 0;
   @Input({ transform: numberAttribute }) lat: number = 0;
   @Input({ transform: numberAttribute }) lng: number = 0;
   @Input({ transform: numberAttribute }) zoom: number = 0;
+  @Input() filter: string = '';
 
   private dataService = inject(DataService);
+  private filterService = inject(FilterService);
   private mapService = inject(MapService);
   private router = inject(Router);
   private runtimeConfig = inject(RUNTIME_CONFIGURATION);
   private spatialQueryService = inject(SpatialQueryService);
+  private utilService = inject(UtilService);
   private zone = inject(NgZone);
 
   private selectedBuildingTOID = this.spatialQueryService.selectedBuildingTOID;
 
-  title = 'C477 Visualisation';
-  dataSubscription!: Subscription;
-  addressesSubscription: Subscription;
-
-  spatialFilterSubscription: Subscription;
+  title = 'Energy Performance Viewer';
 
   mapConfig?: MapConfigModel;
 
-  constructor() {
-    // TODO remove when using real API
-    this.dataSubscription = this.dataService.loadAddressData().subscribe();
-
-    // When map bounds change, refilter data
-    this.addressesSubscription = combineLatest([
-      this.mapService.mapBounds$.pipe(),
-      this.dataService.addresses$.pipe(distinctUntilChanged()),
-    ])
-      .pipe(
-        map(([bounds, addresses]) =>
-          this.dataService.filterAddresses(addresses!, bounds!)
-        ),
-        tap((data: BuildingModel[]) => {
-          const spatialFilterEnabled =
-            this.spatialQueryService.spatialFilterEnabled();
-          if (!spatialFilterEnabled) {
-            this.updateMap(data);
-          }
-        })
-      )
-      .subscribe();
-
-    // when a spatial filter is set, filter map
-    this.spatialFilterSubscription = combineLatest([
-      this.spatialQueryService.spatialFilterBounds$.pipe(),
-      this.dataService.addresses$.pipe(distinctUntilChanged()),
-    ])
-      .pipe(
-        map(([bounds, addresses]) => {
-          return this.dataService.filterAddresses(addresses!, bounds!);
-        }),
-        tap((data: BuildingModel[]) => this.updateMap(data))
-      )
-      .subscribe();
-  }
+  buildingLayerExpression = this.utilService.currentMapViewExpression;
 
   ngOnChanges(): void {
     const mapConfig: MapConfigModel = {
@@ -113,16 +68,14 @@ export class ShellComponent implements OnDestroy, OnChanges {
       center: [this.lat, this.lng],
     };
     this.mapConfig = mapConfig;
+    if (this.filter) {
+      this.filterService.parseFilter(this.filter);
+    }
   }
 
-  updateMap(data: BuildingModel[]) {
+  updateBuildingLayerFilter() {
     // create building colour filter expression to style buildings layer
-    const exp = this.mapService.createBuildingColourFilter(data);
-    this.mapService.setMapLayerPaint(
-      'OS/TopographicArea_2/Building/1_3D',
-      'fill-extrusion-color',
-      exp
-    );
+    this.utilService.createBuildingColourFilter();
   }
 
   filterLayer(filter: MapLayerFilter) {
@@ -131,16 +84,47 @@ export class ShellComponent implements OnDestroy, OnChanges {
 
   setSearchArea(searchArea: GeoJSON.Feature<Polygon>) {
     this.spatialQueryService.selectBuildings(searchArea);
+    this.updateBuildingLayerFilter();
   }
 
   setSelectedBuildingTOID(TOID: string | null) {
+    console.log(TOID);
     const currentTOID = this.selectedBuildingTOID();
     if (TOID && currentTOID !== TOID) {
+      // get uprns for the selected building
+      const uprns = this.dataService.getBuildingUPRNs(TOID);
+      // get building details and open details panel
+      if (uprns.length === 1) {
+        // set many uprns to undefined to
+        // close results panel if it's open
+        this.dataService.setSelectedUPRNs(undefined);
+        this.dataService.setSelectedUPRN(uprns[0]);
+      } else if (uprns.length > 1) {
+        // set individual uprn to undefined to
+        // close details panel if it's open.
+        this.dataService.setSelectedUPRN(undefined);
+        this.dataService.setSelectedUPRNs(uprns);
+      }
       this.spatialQueryService.setSelectedTOID(TOID);
       this.spatialQueryService.selectBuilding(TOID);
     } else {
+      this.dataService.setSelectedUPRNs(undefined);
+      this.dataService.setSelectedUPRN(undefined);
       this.spatialQueryService.setSelectedTOID('');
       this.spatialQueryService.selectBuilding('');
+    }
+  }
+
+  closeDetails() {
+    // if there are building UPRNs then the results
+    // panel is open so only clear selected building
+    // to keep building highlighted on the map
+    if (this.dataService.buildingUPRNs()?.length) {
+      this.dataService.setSelectedBuilding(undefined);
+    } else {
+      this.spatialQueryService.setSelectedTOID('');
+      this.spatialQueryService.selectBuilding('');
+      this.dataService.setSelectedUPRN(undefined);
     }
   }
 
@@ -164,9 +148,11 @@ export class ShellComponent implements OnDestroy, OnChanges {
 
   deleteSpatialFilter() {
     this.spatialQueryService.setSpatialFilter(false);
-  }
-  setMapBounds(bounds: LngLatBounds) {
-    this.mapService.setMapBounds(bounds);
+    this.spatialQueryService.setSpatialFilterBounds(undefined);
+    this.dataService.setSelectedUPRNs(undefined);
+    this.dataService.setSelectedUPRN(undefined);
+    this.dataService.setSelectedBuilding(undefined);
+    this.updateBuildingLayerFilter();
   }
 
   setRouteParams(params: MapConfigModel) {
@@ -174,12 +160,12 @@ export class ShellComponent implements OnDestroy, OnChanges {
     this.zone.run(() => {
       this.router.navigate(['/'], {
         queryParams: { bearing, lat: center[1], lng: center[0], pitch, zoom },
+        queryParamsHandling: 'merge',
       });
     });
-  }
-
-  ngOnDestroy(): void {
-    this.dataSubscription.unsubscribe();
-    this.addressesSubscription.unsubscribe();
+    // if zoom is greater than 15 & there isn't a spatial filter
+    if (zoom >= 15 && !this.spatialQueryService.spatialFilterEnabled()) {
+      this.updateBuildingLayerFilter();
+    }
   }
 }
