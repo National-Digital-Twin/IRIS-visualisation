@@ -46,21 +46,51 @@ import {
 export class FilterPanelComponent {
   advancedFiltersForm: FormGroup;
   generalFilters = [
-    { title: 'Post Code', data: PostCode },
-    { title: 'Build Form', data: BuildForm },
+    { title: 'Post Code', data: PostCode, formControlName: 'postCode' },
+    { title: 'Build Form', data: BuildForm, formControlName: 'builtForm' },
   ];
-  glazingFilters = [{ title: 'Multiple Glazing Type', data: WindowGlazing }];
+  glazingFilters = [
+    {
+      title: 'Multiple Glazing Type',
+      data: WindowGlazing,
+      formControlName: 'multipleGlazingType',
+    },
+  ];
   wallFilters = [
-    { title: 'Wall Construction', data: Wall },
-    { title: 'Wall Insulation', data: WallInsulation },
+    {
+      title: 'Wall Construction',
+      data: Wall,
+      formControlName: 'wallConstruction',
+    },
+    {
+      title: 'Wall Insulation',
+      data: WallInsulation,
+      formControlName: 'wallInsulation',
+    },
   ];
   floorFilters = [
-    { title: 'Floor Construction', data: Floor },
-    { title: 'Floor Insulation', data: FloorInsulation },
+    {
+      title: 'Floor Construction',
+      data: Floor,
+      formControlName: 'floorConstruction',
+    },
+    {
+      title: 'Floor Insulation',
+      data: FloorInsulation,
+      formControlName: 'floorInsulation',
+    },
   ];
   roofFilters = [
-    { title: 'Roof Construction', data: Roof },
-    { title: 'Roof Insulation Location', data: RoofInsulation },
+    {
+      title: 'Roof Construction',
+      data: Roof,
+      formControlName: 'roofConstruction',
+    },
+    {
+      title: 'Roof Insulation Location',
+      data: RoofInsulation,
+      formControlName: 'roofInsulationLocation',
+    },
   ];
   otherPanels = [
     { panelTitle: 'Glazing', filters: this.glazingFilters },
@@ -77,8 +107,6 @@ export class FilterPanelComponent {
       buildingSize: [''],
       renewableEnergyFeatures: [false],
       multipleGlazingType: [''],
-      mainFuelType: [''],
-      mainHeatingCategory: [''],
       wallConstruction: [''],
       wallInsulation: [''],
       floorConstruction: [''],

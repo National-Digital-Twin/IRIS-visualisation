@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { FilterPanelComponent } from '@components/filter-panel/filter-panel.component';
+import { EPCRating, PropertyType } from '@core/enums';
 
 @Component({
   selector: 'c477-main-filters',
@@ -25,9 +26,14 @@ import { FilterPanelComponent } from '@components/filter-panel/filter-panel.comp
   styleUrl: './main-filters.component.css',
 })
 export class MainFiltersComponent {
-  epcRatings = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+  epcRatings: { [key: string]: string } = EPCRating;
+  buildingTypes: { [key: string]: string } = PropertyType;
 
   constructor(public dialog: MatDialog) {}
+  getKeys(options: { [key: string]: string }) {
+    return Object.keys(options);
+  }
+
   openAdvancedFilters() {
     this.dialog.open(FilterPanelComponent, {
       panelClass: 'filter-panel',

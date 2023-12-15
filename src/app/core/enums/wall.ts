@@ -4,8 +4,8 @@ export enum Wall {
   SandstoneOrLimestoneWall = 'Sandstone Or Limestone Wall',
   SolidBrickWall = 'Solid Brick Wall',
   CavityWall = 'Cavity Wall',
-  TimberFrameWall = 'TimberFrameWall',
-  SystemBuiltWall = 'SystemBuiltWall',
-  CobWall = 'CobWall',
-  ParkHomeWall = 'ParkHomeWall',
+  TimberFrameWall = 'Timber Frame Wall',
+  SystemBuiltWall = 'System Built Wall',
+  CobWall = 'Cob Wall',
+  ParkHomeWall = 'Park Home Wall',
 }

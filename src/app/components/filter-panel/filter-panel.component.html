@@ -1,4 +1,4 @@
-<section class="advanced-filters-dialog">
+<section class="advanced-filters-dialog" [formGroup]="advancedFiltersForm">
   <h1 mat-dialog-title>Advanced Filters</h1>
   <div mat-dialog-content [formGroup]="advancedFiltersForm">
     <mat-accordion
@@ -11,6 +11,7 @@
         >
         @for (filter of generalFilters; track filter.title) {
           <c477-multi-button-filter
+            [formControlName]="filter.formControlName"
             [title]="filter.title"
             [options]="filter.data" />
         }
@@ -23,6 +24,7 @@
           >
           @for (filter of panel.filters; track filter.title) {
             <c477-multi-button-filter
+              [formControlName]="filter.formControlName"
               [title]="filter.title"
               [options]="filter.data" />
           }

@@ -1,7 +1,14 @@
 import { Component, Input, OnInit, forwardRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { NG_VALUE_ACCESSOR, NG_VALIDATORS, FormControl } from '@angular/forms';
+import {
+  MatButtonToggleChange,
+  MatButtonToggleModule,
+} from '@angular/material/button-toggle';
+import {
+  NG_VALUE_ACCESSOR,
+  NG_VALIDATORS,
+  ControlValueAccessor,
+} from '@angular/forms';
 
 @Component({
   selector: 'c477-multi-button-filter',
@@ -22,15 +29,54 @@ import { NG_VALUE_ACCESSOR, NG_VALIDATORS, FormControl } from '@angular/forms';
   templateUrl: './multi-button-filter.component.html',
   styleUrl: './multi-button-filter.component.css',
 })
-export class MultiButtonFilterComponent implements OnInit {
+export class MultiButtonFilterComponent
+  implements OnInit, ControlValueAccessor
+{
   @Input() title!: string;
   @Input() options!: {
     [key: string]: string;
   };
   optionKeys: string[] = [];
-  formControl = new FormControl();
+  selectedValues: string[] = [];
+  touched = false;
 
   ngOnInit(): void {
     this.optionKeys = Object.keys(this.options);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onChange = (selectedValues: string[]) => {};
+
+  onTouched = () => {};
+
+  writeValue(value: string[]) {
+    this.selectedValues = value;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  registerOnChange(onChange: any) {
+    this.onChange = onChange;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  registerOnTouched(onTouched: any) {
+    this.onTouched = onTouched;
+  }
+
+  validate(): boolean | null {
+    return true;
+  }
+
+  filterChange(e: MatButtonToggleChange) {
+    this.markAsTouched();
+    this.selectedValues = e.value;
+    this.onChange(this.selectedValues);
+  }
+
+  markAsTouched() {
+    if (!this.touched) {
+      this.onTouched();
+      this.touched = true;
+    }
   }
 }

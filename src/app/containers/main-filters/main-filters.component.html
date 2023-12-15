@@ -9,9 +9,9 @@
   <mat-form-field class="epc-filter">
     <mat-label>EPC Rating</mat-label>
     <mat-select multiple>
-      @for (rating of epcRatings; track rating) {
+      @for (rating of getKeys(epcRatings); track rating) {
         <mat-option [value]="rating"
-          ><c477-label [epcRating]="rating"
+          ><c477-label [epcRating]="epcRatings[rating]"
         /></mat-option>
       }
     </mat-select>
@@ -19,8 +19,9 @@
   <mat-form-field class="building-type-filter">
     <mat-label>Building Type</mat-label>
     <mat-select multiple>
-      <mat-option>House</mat-option>
-      <mat-option>Flat</mat-option>
+      @for (type of getKeys(buildingTypes); track type) {
+        <mat-option [value]="type">{{ buildingTypes[type] }}</mat-option>
+      }
     </mat-select>
   </mat-form-field>
   <button

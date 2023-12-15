@@ -3,6 +3,6 @@ export enum BuildForm {
   EndTerrace = 'End Terrace',
   Detached = 'Detached',
   MidTerrace = 'Mid Terrace',
-  EnclosedMidTerrace = 'EnclosedMidTerrace',
-  EnclosedEndTerrace = 'EnclosedEndTerrace',
+  EnclosedMidTerrace = 'Enclosed Mid Terrace',
+  EnclosedEndTerrace = 'Enclosed End Terrace',
 }

@@ -4,6 +4,7 @@
     class="filter-buttons"
     name="title"
     [attr.aria-label]="title"
+    (change)="filterChange($event)"
     multiple>
     @for (option of optionKeys; track option) {
       <mat-button-toggle [value]="option">{{
