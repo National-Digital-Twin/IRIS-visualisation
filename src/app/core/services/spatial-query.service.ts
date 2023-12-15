@@ -74,11 +74,8 @@ export class SpatialQueryService {
     const bboxPolygon = bbox(geom);
     const southWest = new LngLat(bboxPolygon[0], bboxPolygon[1]);
     const northEast = new LngLat(bboxPolygon[2], bboxPolygon[3]);
-    // const bbBounds = new LngLatBounds(southWest, northEast);
-    // convert to canvas x,y pixel coordinates
     const nePointPixel = this.mapService.mapInstance.project(northEast);
     const swPointPixel = this.mapService.mapInstance.project(southWest);
     return [swPointPixel, nePointPixel];
-    // return bbBounds;
   }
 }
