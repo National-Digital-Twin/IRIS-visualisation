@@ -17,12 +17,11 @@ export class Queries {
       (?parent_building_toid_id AS ?parentToid)
       (REPLACE(STR(?property_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?propertyType)
       (REPLACE(STR(?build_form_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?buildForm)
-        (?inspection_date_literal AS ?inspectionDate)
-        (REPLACE(STR(?epc_rating), "http://gov.uk/government/organisations/department-for-levelling-up-housing-and-communities/ontology/epc#BuildingWithEnergyRatingOf", "") AS ?epc)
-        (?line_of_address_literal AS ?fullAddress)
-      ?postcode_literal
-        (?sap_points AS ?sapPoints)
-        (GROUP_CONCAT(DISTINCT ?part; SEPARATOR="; ") AS ?parts)
+      (?inspection_date_literal AS ?inspectionDate)
+      (REPLACE(STR(?epc_rating), "http://gov.uk/government/organisations/department-for-levelling-up-housing-and-communities/ontology/epc#BuildingWithEnergyRatingOf", "") AS ?epc)
+      (?line_of_address_literal AS ?fullAddress)
+      (?sap_points AS ?sapPoints)
+      (SUBSTR(?postcode_literal, 0, 5) AS ?postCode)
   WHERE {{
       ?building ies:isIdentifiedBy ?uprn .
       ?uprn ies:representationValue "${uprn}" .
@@ -65,17 +64,17 @@ export class Queries {
       }}
   }}
   GROUP BY
-        ?uprn
-        ?property_type
-        ?build_form_type
-        ?postcode_literal
-      ?building
-      ?inspection_date_literal
-      ?epc_rating
-      ?sap_points
-      ?line_of_address_literal
-        ?building_toid_id
-        ?parent_building_toid_id
+    ?uprn
+    ?property_type
+    ?build_form_type
+    ?postcode_literal
+    ?building
+    ?inspection_date_literal
+    ?epc_rating
+    ?sap_points
+    ?line_of_address_literal
+    ?building_toid_id
+    ?parent_building_toid_id
   `;
   }
 
@@ -230,6 +229,7 @@ export class Queries {
         (REPLACE(STR(?property_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?propertyType)
         (REPLACE(STR(?build_form_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?buildForm)
         (?line_of_address_literal AS ?fullAddress)
+        (SUBSTR(?postcode_literal, 0, 5) AS ?postCode)
     WHERE {
         ?building ies:inLocation ?address .
 
@@ -248,6 +248,10 @@ export class Queries {
         ?address ies:isIdentifiedBy ?line_of_address .
         ?line_of_address rdf:type ies:FirstLineOfAddress .
         ?line_of_address ies:representationValue ?line_of_address_literal .
+
+        ?address ies:isIdentifiedBy ?postcode .
+        ?postcode rdf:type ies:PostalCode .
+        ?postcode ies:representationValue ?postcode_literal .
 
         OPTIONAL {
             ?building ies:isIdentifiedBy ?building_toid .
@@ -270,6 +274,7 @@ export class Queries {
         ?line_of_address_literal
         ?property_type
         ?build_form_type
+        ?postcode_literal
     `;
   }
 }
