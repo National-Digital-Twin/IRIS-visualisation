@@ -1,16 +1,19 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+
 import { BuildingMap } from '@core/models/building.model';
 import { TableRow } from '@core/models/rdf-data.model';
-// import { BuildingMap } from '@core/models/building.model';
+
+import { DataService } from './data.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FilterService {
+  private dataService = inject(DataService);
   private filterProps: { [key: string]: string[] } = {};
   /**
    *
-   * @param filter 'epc-C:epc-G:building_type-SemiDetached:property_type-Bungalow'
+   * @param filter 'epc-C:epc-G:buildingType-SemiDetached:propertyType-Bungalow'
    */
   parseFilter(filter: string) {
     filter.split(':').forEach((val: string) => {
@@ -21,35 +24,26 @@ export class FilterService {
         this.filterProps[k[0]] = [k[1]];
       }
     });
+    console.log(this.filterProps);
   }
 
   applyFilters(buildings: BuildingMap) {
+    // if there are no filters, do nothing and return
     if (Object.keys(this.filterProps).length === 0) return buildings;
+
+    // convert building object to array to ease filtering
+    const buildingsArray = Array.from(Object.values(buildings).flat());
     const filterKeys = Object.keys(this.filterProps);
-    const filteredBuildings: BuildingMap = {};
-    // iterate through buildings object
-    Object.keys(buildings).forEach((toid: string) => {
-      // iterate the buildings associated with a toid.
-      // could be one or many
-      buildings[toid].forEach((building: TableRow) => {
-        // check if filter keus
-        filterKeys.every((key: string) => {
-          //ignore empty filter
-          if (!this.filterProps[key].length) return;
-          // check if building matches filter
-          const keepBuilding = this.filterProps[key].find(
-            filter => filter.toUpperCase() === building[key]
-          );
-          if (keepBuilding) {
-            if (filteredBuildings[toid]) {
-              filteredBuildings[toid].push(building);
-            } else {
-              filteredBuildings[toid] = [building];
-            }
-          }
-        });
-      });
-    });
+    // filter buildings
+    const filtered = buildingsArray.filter((building: TableRow) =>
+      filterKeys.every((key: string) => {
+        if (!this.filterProps[key].length) return true;
+        return this.filterProps[key].includes(building[key]);
+      })
+    );
+    // convert filtered array of buildings back to object
+    const filteredBuildings: BuildingMap =
+      this.dataService.mapBuildings(filtered);
     return filteredBuildings;
   }
 }
