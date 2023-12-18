@@ -1,4 +1,5 @@
 export * from './build-form';
+export * from './dwelling-size';
 export * from './epc-rating';
 export * from './floor-insulation';
 export * from './floor';

@@ -14,6 +14,7 @@ import { MultiButtonFilterComponent } from '@components/multi-button-filter/mult
 import { ReactiveFormsModule, FormGroup, FormBuilder } from '@angular/forms';
 import {
   BuildForm,
+  DwellingSize,
   Floor,
   FloorInsulation,
   PostCode,
@@ -49,6 +50,11 @@ export class FilterPanelComponent {
   generalFilters = [
     { title: 'Post Code', data: PostCode, formControlName: 'postCode' },
     { title: 'Build Form', data: BuildForm, formControlName: 'builtForm' },
+    {
+      title: 'Dwelling Size',
+      data: DwellingSize,
+      formControlName: 'dwellingSize',
+    },
   ];
   glazingFilters = [
     {
@@ -110,7 +116,7 @@ export class FilterPanelComponent {
       postCode: [''],
       builtForm: [''],
       yearOfAssessment: [''],
-      buildingSize: [''],
+      dwellingSize: [''],
       multipleGlazingType: [''],
       wallConstruction: [''],
       wallInsulation: [''],
@@ -123,7 +129,6 @@ export class FilterPanelComponent {
   }
 
   onSubmit() {
-    console.log('form submitted');
     console.log(this.advancedFiltersForm.value);
   }
 }
