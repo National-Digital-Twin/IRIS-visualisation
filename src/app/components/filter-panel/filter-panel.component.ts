@@ -19,6 +19,7 @@ import {
   PostCode,
   Roof,
   RoofInsulation,
+  RoofInsulationThickness,
   WindowGlazing,
   Wall,
   WallInsulation,
@@ -91,6 +92,11 @@ export class FilterPanelComponent {
       data: RoofInsulation,
       formControlName: 'roofInsulationLocation',
     },
+    {
+      title: 'Roof Insulation Thickness',
+      data: RoofInsulationThickness,
+      formControlName: 'roofInsulationThickness',
+    },
   ];
   otherPanels = [
     { panelTitle: 'Glazing', filters: this.glazingFilters },
@@ -105,7 +111,6 @@ export class FilterPanelComponent {
       builtForm: [''],
       yearOfAssessment: [''],
       buildingSize: [''],
-      renewableEnergyFeatures: [false],
       multipleGlazingType: [''],
       wallConstruction: [''],
       wallInsulation: [''],

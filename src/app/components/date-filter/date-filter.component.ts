@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, forwardRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
   MatDatepickerModule,
   MatDatepicker,
+  DateRange,
 } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import {
@@ -19,7 +20,16 @@ import {
 } from '@angular/material/core';
 import * as _moment from 'moment';
 import { default as _rollupMoment, Moment } from 'moment';
-import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
+import {
+  ControlValueAccessor,
+  FormsModule,
+  ReactiveFormsModule,
+  NG_VALUE_ACCESSOR,
+  NG_VALIDATORS,
+  FormBuilder,
+  FormGroup,
+} from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 const moment = _rollupMoment || _moment;
 export const MY_FORMATS = {
@@ -33,6 +43,11 @@ export const MY_FORMATS = {
     yearA11yLabel: 'YYYY',
   },
 };
+interface DateForm {
+  singleYear: string;
+  startYear: string;
+  endYear: string;
+}
 
 @Component({
   selector: 'c477-date-filter',
@@ -54,31 +69,92 @@ export const MY_FORMATS = {
       deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS],
     },
     { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS },
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => DateFilterComponent),
+      multi: true,
+    },
+    {
+      provide: NG_VALIDATORS,
+      useExisting: forwardRef(() => DateFilterComponent),
+      multi: true,
+    },
   ],
   templateUrl: './date-filter.component.html',
   styleUrl: './date-filter.component.css',
 })
-export class DateFilterComponent {
-  singleYear = new FormControl(moment());
-  startYear = new FormControl(moment());
-  endYear = new FormControl(moment());
+export class DateFilterComponent implements ControlValueAccessor {
   range: boolean = false;
+  dateForm: FormGroup;
+  yearClick = 0;
+  subscriptions: Subscription[] = [];
 
-  setStartYear(normalizedYear: Moment, datepicker: MatDatepicker<Moment>) {
-    const ctrlValue = this.startYear.value ?? moment();
-    ctrlValue.year(normalizedYear.year());
-    this.startYear.setValue(ctrlValue);
-    if (!this.range) {
-      datepicker.close();
+  get value(): DateForm {
+    return this.dateForm.value;
+  }
+
+  set value(value: DateForm) {
+    this.dateForm.setValue(value);
+    this.onChange(value);
+    this.onTouched();
+  }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onChange = (value: DateForm) => {};
+  onTouched = () => {};
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  registerOnTouched(fn: any): void {
+    this.onTouched = fn;
+  }
+
+  writeValue(value: DateForm): void {
+    if (value) {
+      this.value = value;
     }
   }
 
-  setEndYear(normalizedYear: Moment, datepicker: MatDatepicker<Moment>) {
-    const ctrlValue = this.endYear.value ?? null;
-    if (ctrlValue) {
-      ctrlValue.year(normalizedYear.year());
+  validate(): object | null {
+    return this.dateForm.valid ? null : { dateForm: { valid: false } };
+  }
+
+  constructor(private fb: FormBuilder) {
+    this.dateForm = this.fb.group({
+      singleYear: [],
+      startYear: [],
+      endYear: [],
+    });
+
+    this.subscriptions.push(
+      this.dateForm.valueChanges.subscribe((value: DateForm) => {
+        this.onChange(value);
+        this.onTouched();
+      })
+    );
+  }
+
+  setYear(
+    normalizedYear: Moment,
+    datepicker: MatDatepicker<Moment> | MatDatepicker<DateRange<Moment>>
+  ) {
+    let selectedYear = 'singleYear';
+    if (this.range) {
+      if (this.yearClick === 0) {
+        selectedYear = 'startYear';
+        this.yearClick++;
+      } else if (this.yearClick === 1) {
+        selectedYear = 'endYear';
+        this.yearClick = 0;
+      }
     }
-    this.endYear.setValue(ctrlValue);
+    const ctrlValue = this.dateForm.value[selectedYear] ?? moment();
+    ctrlValue.year(normalizedYear.year());
+    this.dateForm.controls[selectedYear].setValue(ctrlValue);
+
     datepicker.close();
   }
 }

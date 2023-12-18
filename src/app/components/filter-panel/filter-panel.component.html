@@ -15,7 +15,7 @@
             [title]="filter.title"
             [options]="filter.data" />
         }
-        <c477-date-filter />
+        <c477-date-filter formControlName="yearOfAssessment" />
       </mat-expansion-panel>
       @for (panel of otherPanels; track panel.panelTitle) {
         <mat-expansion-panel>

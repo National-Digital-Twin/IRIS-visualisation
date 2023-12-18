@@ -5,6 +5,7 @@ export * from './floor';
 export * from './post-code';
 export * from './property-type';
 export * from './roof-insulation';
+export * from './roof-insulation-thickness';
 export * from './roof';
 export * from './wall-insulation';
 export * from './wall';
