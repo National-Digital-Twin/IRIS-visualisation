@@ -1,18 +1,18 @@
-@if (signalsService.detailsPanelOpen()) {
+@if (buildingDetails()) {
   <div class="panel details-panel">
     <div class="details-panel__header">
       <h1>Property 2</h1>
-      <button
-        mat-icon-button
-        (click)="signalsService.detailsPanelOpen.set(false)">
+      <button mat-icon-button (click)="closePanel.emit()">
         <mat-icon>close</mat-icon>
       </button>
     </div>
     <div class="details-panel__overview">
-      <p class="address">Number 23, Street Address, Newport PO10 4BC</p>
+      <p class="address">{{ buildingDetails()?.fullAddress }}</p>
       <div class="labels">
-        <c477-label [epcRating]="epcRating"></c477-label>
-        <c477-label>Apartment</c477-label>
+        <c477-label [epcRating]="buildingDetails()?.epc">{{
+          buildingDetails()?.sapPoints
+        }}</c477-label>
+        <c477-label>{{ buildingDetails()?.buildingTypes }}</c477-label>
       </div>
     </div>
     <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
@@ -20,34 +20,37 @@
         <div class="details-panel__tab details-panel__tab--overview">
           <div class="about">
             <h2>About</h2>
-            <p><span class="field">Number of flats:</span> <span>3</span></p>
-            <p><span class="field">Built form:</span><span>N/A</span></p>
+            <p><span class="field">Number of flats:</span> <span></span></p>
+            <p>
+              <span class="field">Built form:</span
+              ><span>{{ buildingDetails()?.buildingTypes }}</span>
+            </p>
             <p>
               <span class="field">Inspection date:</span>
-              <span>01-02-2023</span>
+              <span>{{ buildingDetails()?.inspectionDate | date }}</span>
             </p>
           </div>
           <div class="specification">
             <h2>Specifcation</h2>
             <p>
               <span class="field">Floor construction:</span>
-              <span>Another dwelling below</span>
+              <span></span>
             </p>
             <p>
               <span class="field">Floor insulation:</span>
-              <span>Limited insulation</span>
+              <span></span>
             </p>
             <p>
               <span class="field">Roof construction:</span>
-              <span>Another dwelling above</span>
+              <span></span>
             </p>
             <p>
               <span class="field">Roof insulation location:</span>
-              <span>Thatched with additional insulation</span>
+              <span></span>
             </p>
             <p>
               <span class="field">Roof insulation thickness:</span>
-              <span>300+ mm</span>
+              <span></span>
             </p>
             <p>
               <span class="field">Wall construction:</span> Sandstone or

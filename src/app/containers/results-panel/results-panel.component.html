@@ -1,31 +1,39 @@
-<div class="panel results-panel">
-  <section>
-    <div class="results-panel__header">
-      <p class="results-panel__number">132 results</p>
-      <mat-slide-toggle [color]="'primary'" [(ngModel)]="selectMultiple"
-        >Select multiple</mat-slide-toggle
-      >
-    </div>
-    <div class="results-panel__header">
-      <button mat-flat-button disabled class="results-panel__button">
-        <img src="assets/icons/FlagPennant.svg" alt="" /> Flag selected
-      </button>
-      <button mat-flat-button [color]="'primary'" class="results-panel__button">
-        <img src="assets/icons/FileArrowDown_white.svg" alt="" />Download all
-      </button>
-    </div>
-  </section>
-  <section class="results-panel__cards-container">
-    @for (card of cardData; track card.name) {
-      @if (!card.dwellings) {
+@if (buildingSelection()?.length) {
+  <div class="panel results-panel">
+    <section>
+      <div class="results-panel__header">
+        <p class="results-panel__number">
+          {{ buildingSelection()?.length }} results
+        </p>
+        <mat-slide-toggle [color]="'primary'" [(ngModel)]="selectMultiple"
+          >Select multiple</mat-slide-toggle
+        >
+      </div>
+      <div class="results-panel__header">
+        <button mat-flat-button disabled class="results-panel__button">
+          <img src="assets/icons/FlagPennant.svg" alt="" /> Flag selected
+        </button>
+        <button
+          mat-flat-button
+          [color]="'primary'"
+          class="results-panel__button">
+          <img src="assets/icons/FileArrowDown_white.svg" alt="" />Download all
+        </button>
+      </div>
+    </section>
+    <section class="results-panel__cards-container">
+      @for (building of buildingSelection(); track building.name) {
+        <!-- @if (!card.dwellings) { -->
         <c477-results-card
-          [card]="card"
+          (viewDetails)="viewDetails($event)"
+          [card]="building"
           [select]="selectMultiple"></c477-results-card>
-      } @else {
-        <c477-results-card-expandable
-          [card]="card"
-          [select]="selectMultiple"></c477-results-card-expandable>
+        <!-- } @else { -->
+        <!-- <c477-results-card-expandable
+            [card]="card"
+            [select]="selectMultiple"></c477-results-card-expandable> -->
       }
-    }
-  </section>
-</div>
+      <!-- } -->
+    </section>
+  </div>
+}

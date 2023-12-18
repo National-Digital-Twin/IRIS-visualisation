@@ -1,11 +1,10 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { LabelComponent } from '@components/label/label.component';
-import { SignalsService } from '@core/services/signals.service';
-import { ResultsCard } from '@core/models/result-card.model';
+import { TableRow } from '@core/models/rdf-data.model';
 
 @Component({
   selector: 'c477-results-card',
@@ -21,12 +20,7 @@ import { ResultsCard } from '@core/models/result-card.model';
   styleUrl: './results-card.component.css',
 })
 export class ResultsCardComponent {
-  @Input() card!: ResultsCard;
+  @Input() card!: TableRow;
   @Input() select: boolean = false;
-  private signalsService = inject(SignalsService);
-
-  viewDetails(event: Event) {
-    event.stopPropagation();
-    this.signalsService.detailsPanelOpen.set(true);
-  }
+  @Output() viewDetails: EventEmitter<TableRow> = new EventEmitter<TableRow>();
 }

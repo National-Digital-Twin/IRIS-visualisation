@@ -24,6 +24,7 @@ export const mapStateGuard: CanActivateFn = route => {
   ) {
     router.navigate(['/'], {
       queryParams: { bearing, lat, lng, pitch, zoom },
+      queryParamsHandling: 'merge',
     });
     return false;
   }

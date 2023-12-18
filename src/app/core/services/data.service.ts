@@ -1,26 +1,24 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {
   Observable,
-  Subject,
   Subscriber,
   catchError,
-  tap,
   map,
+  of,
+  switchMap,
+  tap,
   throwError,
 } from 'rxjs';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 
-import { Papa } from 'ngx-papaparse';
-
-import { LngLat, LngLatBounds } from 'mapbox-gl';
+import { LngLatBounds } from 'mapbox-gl';
 
 import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
-import { SPARQLReturn } from '@core/models/rdf-data.model';
-import { BuildingModel } from '@core/models/building.model';
+import { SPARQLReturn, TableRow } from '@core/models/rdf-data.model';
+import { BuildingMap } from '@core/models/building.model';
 
-export interface TableRow {
-  [key: string]: string;
-}
+import { Queries } from './Queries';
 
 @Injectable({
   providedIn: 'root',
@@ -29,35 +27,133 @@ export class DataService {
   private readonly http: HttpClient = inject(HttpClient);
   private readonly searchEndpoint: string = inject(SEARCH_ENDPOINT);
 
-  private addressesSubject = new Subject<BuildingModel[] | undefined>();
-  addresses$ = this.addressesSubject.asObservable();
+  private queries = new Queries();
 
-  constructor(private papa: Papa) {}
+  // single uprn
+  selectedUPRN = signal<number | undefined>(undefined);
+  selectedBuilding = signal<TableRow | undefined>(undefined);
+  // multiple uprns
+  buildingUPRNs = signal<number[]>([]);
+  buildingsSelection = signal<TableRow[] | undefined>(undefined);
+  private buildingData = signal<BuildingMap | undefined>(undefined);
+  /**
+   * Get UPRNs, EPC ratings, addresses
+   * @returns
+   */
+  buildings$ = this.selectTable(this.queries.getAllData()).pipe(
+    map(rawData => this.mapBuildings(rawData))
+  );
+  private buildingResults = toSignal(this.buildings$, {
+    initialValue: undefined,
+  });
+  buildings = computed(() => this.buildingResults());
 
-  getUPRNs$() {
-    const selectString = `
-      PREFIX data: <http://nationaldigitaltwin.gov.uk/data#>
-      PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
-      PREFIX qudt: <http://qudt.org/2.1/schema/qudt/>
-      PREFIX ndt: <http://nationaldigitaltwin.gov.uk/ontology#>
-      PREFIX iesuncertainty: <http://ies.data.gov.uk/ontology/ies_uncertainty_proposal/v2.0#>
-      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-      SELECT ?uprn_id ?current_energy_rating ?lat_literal ?lon_literal
-      WHERE {
-        ?building a ndt:House .
-        ?building ies:isIdentifiedBy/ies:representationValue ?uprn_id .
-        ?state ies:isStateOf ?building .
-        ?state a ?current_energy_rating .
-        ?building ies:inLocation ?geopoint .
-        ?geopoint rdf:type ies:GeoPoint .
-        ?geopoint ies:isIdentifiedBy ?lat .
-        ?lat rdf:type ies:Latitude .
-        ?lat ies:representationValue ?lat_literal .
-        ?geopoint ies:isIdentifiedBy ?lon .
-        ?lon rdf:type ies:Longitude .
-        ?lon ies:representationValue ?lon_literal .
-      }
-    `;
+  /**
+   * Create observable from selectedUPRN signal
+   * React to emissions, piping the UPRN through an observable
+   * pipeline.
+   * Use switchmap to get the data
+   * Use toSignal to automatically subscribe & unsubscribe
+   */
+  private buildingDetails$ = toObservable(this.selectedUPRN).pipe(
+    switchMap(uprn =>
+      this.getBuildingDetails(uprn!).pipe(
+        tap(details => {
+          this.setSelectedBuilding(details);
+        }),
+        catchError(() => of([] as TableRow[]))
+      )
+    )
+  );
+  readOnlyBuildingDetails = toSignal(this.buildingDetails$, {
+    initialValue: [] as TableRow[],
+  });
+
+  private getBuildingsList$ = toObservable(this.buildingUPRNs).pipe(
+    switchMap(uprns =>
+      this.getBuildingListDetails(uprns!).pipe(
+        tap(buildings => {
+          this.setSelectedBuildings(buildings);
+        }),
+        catchError(() => of([] as TableRow[]))
+      )
+    )
+  );
+
+  readOnlyBuildingsList = toSignal(this.getBuildingsList$, {
+    initialValue: [] as TableRow[],
+  });
+
+  setSelectedUPRN(uprn: number | undefined) {
+    this.selectedUPRN.set(uprn);
+  }
+
+  /**
+   * Set individual building
+   * @param building individual building
+   */
+  setSelectedBuilding(building: TableRow[] | undefined) {
+    this.selectedBuilding.set(building ? building[0] : undefined);
+  }
+
+  /**
+   * Set multiple buildings
+   * @param building buildings
+   */
+  setSelectedBuildings(buildings: TableRow[] | undefined) {
+    this.buildingsSelection.set(buildings ? buildings : undefined);
+  }
+
+  setSelectedUPRNs(uprns: number[] | undefined) {
+    this.buildingUPRNs.set(uprns ? uprns : []);
+  }
+
+  setBuildingData(buildings: BuildingMap) {
+    this.buildingData.set(buildings);
+  }
+
+  /**
+   * Find building UPRNs based on TOID
+   * @param toid toid of building
+   * @returns array of uprns for the building
+   */
+  getBuildingUPRNs(toid: string): number[] {
+    const allBuildings = this.buildings();
+    const buildings = allBuildings![toid];
+    if (buildings) {
+      return buildings.map(building => +building.uprnId);
+    }
+    return [];
+  }
+
+  /**
+   * Get building EPC values within map bounds
+   * @param bounds map bounds
+   * @returns
+   */
+  getEPCWithinBounds$(bounds: LngLatBounds) {
+    const selectString = this.queries.getEPCWithinBounds(bounds);
+    return this.selectTable(selectString);
+  }
+
+  /**
+   * Return building details for an individual building
+   * @param uprn UPRN of building to get details
+   * @returns
+   */
+  getBuildingDetails(uprn: number) {
+    const selectString = this.queries.getBuildingDetails(uprn);
+    return this.selectTable(selectString);
+  }
+
+  /**
+   * Return an array of building details to use in filter
+   * results list
+   * @param uprns array of uprns to get details for
+   * @returns
+   */
+  getBuildingListDetails(uprns: number[]) {
+    const selectString = this.queries.getBuildingListDetails(uprns);
     return this.selectTable(selectString);
   }
 
@@ -66,7 +162,7 @@ export class DataService {
    * @param query SPARQL query
    * @returns observable of parsed data
    */
-  private selectTable(query: string) {
+  selectTable(query: string) {
     let newTable: Array<TableRow>;
     const uri = encodeURIComponent(query);
     const httpOptions = {
@@ -117,42 +213,24 @@ export class DataService {
     return table;
   }
 
-  loadAddressData() {
-    return (
-      this.http
-        // TODO remove when using real API
-        .get('assets/data/combined_address_profile_unique.csv', {
-          responseType: 'text',
-        })
-        .pipe(
-          map(res => this.csvToArray(res)),
-          tap(addresses => this.setAddressData(addresses.data)),
-          catchError(this.handleError)
-        )
-    );
-  }
-
-  setAddressData(addresses: BuildingModel[]) {
-    this.addressesSubject.next(addresses);
-  }
-
-  filterAddresses(addresses: BuildingModel[], bounds: LngLatBounds) {
-    const addressesInBounds = addresses.filter(address =>
-      bounds.contains(new LngLat(+address.Longitude, +address.Latitude))
-    );
-    return addressesInBounds;
-  }
   /**
-   * Convert csv file into an array of objects
-   * @param csv csv file
-   * @returns Array csv rows
+   * An object where UPRNs are keys, and values is the epc
+   * and addresses of a building or dwelling
+   * @param buildings array of epcs, toids, uprns and addresses
+   * @returns an object with uprn as key, and object with epc,
+   * address etc
    */
-  csvToArray(csv: string) {
-    return this.papa.parse(csv, {
-      quoteChar: '"',
-      header: true,
-      dynamicTyping: true,
+  mapBuildings(buildings: TableRow[]) {
+    const buildingMap: BuildingMap = {};
+    buildings.forEach((row: TableRow) => {
+      const toid = row.toid ? row.toid : row.parentToid;
+      if (toid && buildingMap[toid]) {
+        buildingMap[toid].push(row);
+      } else {
+        buildingMap[toid] = [row];
+      }
     });
+    return buildingMap;
   }
 
   /**

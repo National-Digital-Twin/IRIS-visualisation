@@ -1,3 +1,7 @@
+export interface TableRow {
+  [key: string]: string;
+}
+
 export interface RDFObject {
   type: string;
   value: string;
