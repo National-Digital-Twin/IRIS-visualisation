@@ -21,10 +21,12 @@ export class SettingService {
   constructor() {
     const settings = this.storage.getItem(this.storageKey);
     if (settings) {
-      this.settings.update(current => ({
-        ...current,
-        ...JSON.parse(settings),
-      }));
+      try {
+        const parsedSettings = JSON.parse(settings);
+        this.settings.update(current => ({ ...current, ...parsedSettings }));
+      } catch (e) {
+        console.error(e);
+      }
     }
   }
 
@@ -33,7 +35,12 @@ export class SettingService {
     if (key in settings) {
       settings[key] = value;
       this.settings.update(current => ({ ...current, ...settings }));
-      this.storage.setItem(this.storageKey, JSON.stringify(settings));
+      try {
+        const settingString = JSON.stringify(settings);
+        this.storage.setItem(this.storageKey, settingString);
+      } catch (e) {
+        console.error(e);
+      }
     }
   }
 }
