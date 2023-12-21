@@ -25,6 +25,7 @@ import {
   Wall,
   WallInsulation,
 } from '@core/enums';
+import { AdvancedFiltersFormModel } from '@core/models/advance-filters-form.model';
 
 @Component({
   selector: 'c477-filter-panel',
@@ -112,19 +113,19 @@ export class FilterPanelComponent {
   ];
 
   constructor(private fb: FormBuilder) {
-    this.advancedFiltersForm = this.fb.group({
-      postCode: [''],
-      builtForm: [''],
-      yearOfAssessment: [''],
-      dwellingSize: [''],
-      multipleGlazingType: [''],
-      wallConstruction: [''],
-      wallInsulation: [''],
-      floorConstruction: [''],
-      floorInsulation: [''],
-      roofConstruction: [''],
-      roofInsulationLocation: [''],
-      roofInsulationThickness: [''],
+    this.advancedFiltersForm = this.fb.group<AdvancedFiltersFormModel>({
+      postCode: [],
+      builtForm: [],
+      yearOfAssessment: null,
+      dwellingSize: [],
+      multipleGlazingType: [],
+      wallConstruction: [],
+      wallInsulation: [],
+      floorConstruction: [],
+      floorInsulation: [],
+      roofConstruction: [],
+      roofInsulationLocation: [],
+      roofInsulationThickness: [],
     });
   }
 

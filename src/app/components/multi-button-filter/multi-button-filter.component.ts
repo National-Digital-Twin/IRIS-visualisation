@@ -9,6 +9,34 @@ import {
   NG_VALIDATORS,
   ControlValueAccessor,
 } from '@angular/forms';
+import {
+  BuildForm,
+  DwellingSize,
+  Floor,
+  FloorInsulation,
+  PostCode,
+  Roof,
+  RoofInsulation,
+  RoofInsulationThickness,
+  WindowGlazing,
+  Wall,
+  WallInsulation,
+} from '@core/enums';
+
+type AdvancedFilters =
+  | BuildForm
+  | DwellingSize
+  | Floor
+  | FloorInsulation
+  | PostCode
+  | Roof
+  | RoofInsulation
+  | RoofInsulationThickness
+  | WindowGlazing
+  | Wall
+  | WallInsulation;
+
+type MultiFilterControlValue<T extends AdvancedFilters> = T[] | null;
 
 @Component({
   selector: 'c477-multi-button-filter',
@@ -29,7 +57,7 @@ import {
   templateUrl: './multi-button-filter.component.html',
   styleUrl: './multi-button-filter.component.css',
 })
-export class MultiButtonFilterComponent
+export class MultiButtonFilterComponent<T extends AdvancedFilters>
   implements OnInit, ControlValueAccessor
 {
   @Input() title!: string;
@@ -37,7 +65,7 @@ export class MultiButtonFilterComponent
     [key: string]: string;
   };
   optionKeys: string[] = [];
-  selectedValues: string[] = [];
+  selectedValues: MultiFilterControlValue<T> = [];
   touched = false;
 
   ngOnInit(): void {
@@ -45,21 +73,23 @@ export class MultiButtonFilterComponent
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onChange = (selectedValues: string[]) => {};
+  onChange = (selectedValues: MultiFilterControlValue<T>) => {};
 
   onTouched = () => {};
 
-  writeValue(value: string[]) {
-    this.selectedValues = value;
+  writeValue(value: MultiFilterControlValue<T> | null) {
+    if (value) {
+      this.selectedValues = value;
+    } else {
+      this.selectedValues = [];
+    }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  registerOnChange(onChange: any) {
+  registerOnChange(onChange: (value: MultiFilterControlValue<T>) => void) {
     this.onChange = onChange;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  registerOnTouched(onTouched: any) {
+  registerOnTouched(onTouched: () => void) {
     this.onTouched = onTouched;
   }
 

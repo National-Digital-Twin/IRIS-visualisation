@@ -18,6 +18,7 @@ import {
   MAT_DATE_FORMATS,
   MAT_DATE_LOCALE,
 } from '@angular/material/core';
+import { DateFormModel } from '@core/models/advance-filters-form.model';
 import * as _moment from 'moment';
 import { default as _rollupMoment, Moment } from 'moment';
 import {
@@ -43,11 +44,6 @@ export const MY_FORMATS = {
     yearA11yLabel: 'YYYY',
   },
 };
-interface DateForm {
-  singleYear: string;
-  startYear: string;
-  endYear: string;
-}
 
 @Component({
   selector: 'c477-date-filter',
@@ -89,17 +85,17 @@ export class DateFilterComponent implements ControlValueAccessor {
   yearClick = 0;
   subscriptions: Subscription[] = [];
 
-  get value(): DateForm {
+  get value(): DateFormModel {
     return this.dateForm.value;
   }
 
-  set value(value: DateForm) {
+  set value(value: DateFormModel) {
     this.dateForm.setValue(value);
     this.onChange(value);
     this.onTouched();
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onChange = (value: DateForm) => {};
+  onChange = (value: DateFormModel) => {};
   onTouched = () => {};
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -112,9 +108,11 @@ export class DateFilterComponent implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
-  writeValue(value: DateForm): void {
+  writeValue(value: DateFormModel | null): void {
     if (value) {
       this.value = value;
+    } else {
+      this.dateForm.reset();
     }
   }
 
@@ -124,13 +122,13 @@ export class DateFilterComponent implements ControlValueAccessor {
 
   constructor(private fb: FormBuilder) {
     this.dateForm = this.fb.group({
-      singleYear: [],
-      startYear: [],
-      endYear: [],
+      singleYear: null,
+      startYear: null,
+      endYear: null,
     });
 
     this.subscriptions.push(
-      this.dateForm.valueChanges.subscribe((value: DateForm) => {
+      this.dateForm.valueChanges.subscribe((value: DateFormModel) => {
         this.onChange(value);
         this.onTouched();
       })
