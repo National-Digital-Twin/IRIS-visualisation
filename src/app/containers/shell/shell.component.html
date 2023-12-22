@@ -1,7 +1,25 @@
-<arc-container fullscreen="true">
-  <arc-navbar slot="nav" tabs="0">
+<arc-container #container fullscreen="true">
+  <arc-navbar
+    slot="nav"
+    tabs="0"
+    (arc-show-accessibility)="handleShowAccessibility($event)">
     <span slot="name">{{ title }}</span>
   </arc-navbar>
+
+  <arc-accessibility #accessibility slot="accessibility">
+    <div slot="options" class="accessibility__options">
+      <div class="accessibility__label">
+        <span>Color Blind Mode</span>
+        <arc-icon name="accessibility"></arc-icon>
+      </div>
+      <arc-switch
+        #colorBlindSwitch
+        (arc-change)="handleColorBlindSwitchChange($event)">
+        Enable
+      </arc-switch>
+    </div>
+  </arc-accessibility>
+
   <div class="content">
     <c477-main-filters></c477-main-filters>
     <c477-results-panel></c477-results-panel>
@@ -20,4 +38,13 @@
         (setSelectedBuildingTOID)="setSelectedBuildingTOID($event)"></c477-map>
     </div>
   </div>
+
+  <arc-bottombar slot="bottom">
+    <arc-icon-button
+      name="accessibility"
+      label="Accessibility"
+      (click)="handleShowAccessibility($event)">
+      Accessibility
+    </arc-icon-button>
+  </arc-bottombar>
 </arc-container>

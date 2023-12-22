@@ -1,14 +1,11 @@
 @use '@angular/material' as mat;
-@include mat.core();
 
 $c477-dark-theme: mat.define-dark-theme(
-  mat.define-palette($c477-primary-palette),
-  mat.define-palette($c477-accent-palette),
+  mat.define-palette($c477-primary-palette, 500, 300, 700),
+  mat.define-palette($c477-accent-palette, 500, 300, 700),
   mat.define-palette(mat.$red-palette)
 );
 
-:root,
-:host,
 arc-container[theme='dark'] {
   @include mat.core-theme($c477-dark-theme);
   @include mat.all-component-themes($c477-dark-theme);

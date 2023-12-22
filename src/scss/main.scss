@@ -23,4 +23,7 @@
 @import './layout/main';
 @import './layout/panel';
 
+/* THEME STYLES */
+@import './themes/base.scss';
 @import './themes/light.scss';
+@import './themes/dark.scss';
