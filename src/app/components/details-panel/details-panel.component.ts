@@ -32,6 +32,4 @@ export class DetailsPanelComponent {
   buildingDetails = this.dataService.selectedBuilding;
 
   @Output() closePanel: EventEmitter<null> = new EventEmitter();
-
-  epcRating = 'B';
 }

@@ -19,6 +19,8 @@ import { SPARQLReturn, TableRow } from '@core/models/rdf-data.model';
 import { BuildingMap } from '@core/models/building.model';
 
 import { Queries } from './Queries';
+import { QueryFields } from '@core/enums';
+import { MainFiltersFormModel } from '@core/models/filters.model';
 
 @Injectable({
   providedIn: 'root',
@@ -36,12 +38,24 @@ export class DataService {
   buildingUPRNs = signal<number[]>([]);
   buildingsSelection = signal<TableRow[] | undefined>(undefined);
   private buildingData = signal<BuildingMap | undefined>(undefined);
+  // filters
+  filters = signal<MainFiltersFormModel | undefined>(undefined);
   /**
    * Get UPRNs, EPC ratings, addresses
    * @returns
    */
-  buildings$ = this.selectTable(this.queries.getAllData()).pipe(
-    map(rawData => this.mapBuildings(rawData))
+  // buildings$ = this.selectTable(this.constructAllDataQuery()).pipe(
+  //   map(rawData => this.mapBuildings(rawData))
+  // );
+  buildings$ = toObservable(this.filters).pipe(
+    switchMap(filters => {
+      console.log('FILTERS', filters);
+      const query = this.constructAllDataQuery(filters);
+
+      return this.selectTable(query).pipe(
+        map(rawData => this.mapBuildings(rawData))
+      );
+    })
   );
   private buildingResults = toSignal(this.buildings$, {
     initialValue: undefined,
@@ -88,6 +102,27 @@ export class DataService {
     this.selectedUPRN.set(uprn);
   }
 
+  constructAllDataQuery(filters: MainFiltersFormModel | undefined) {
+    let queryFilterStatements = '';
+    if (filters) {
+      queryFilterStatements = Object.entries(filters)
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        .filter(([key, value]) => value && value.length > 0)
+        .map(([key, value]) => {
+          return this.queries.valuesStatement(
+            QueryFields[key as keyof typeof QueryFields],
+            value
+          );
+        })
+        .join(' ');
+    }
+    const query =
+      this.queries.getAllDataPrefixesSelectWhere() +
+      queryFilterStatements +
+      this.queries.getAllDataGroupBy();
+    return query;
+  }
+
   /**
    * Set individual building
    * @param building individual building
@@ -110,6 +145,14 @@ export class DataService {
 
   setBuildingData(buildings: BuildingMap) {
     this.buildingData.set(buildings);
+  }
+
+  /**
+   * Set filters
+   * @param filter Filters
+   */
+  setFilters(filter: MainFiltersFormModel | undefined) {
+    this.filters.set(filter);
   }
 
   /**

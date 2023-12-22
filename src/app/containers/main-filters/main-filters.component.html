@@ -1,4 +1,4 @@
-<div class="main-filters">
+<div class="main-filters" [formGroup]="mainFiltersForm">
   <mat-form-field class="search">
     <mat-label>Search by address, postcode</mat-label>
     <input matInput type="text" aria-label="Search by address, postcode" />
@@ -8,7 +8,7 @@
   </mat-form-field>
   <mat-form-field class="epc-filter">
     <mat-label>EPC Rating</mat-label>
-    <mat-select multiple>
+    <mat-select multiple formControlName="epc">
       @for (rating of getKeys(epcRatings); track rating) {
         <mat-option [value]="rating"
           ><c477-label [epcRating]="epcRatings[rating]"
@@ -18,7 +18,7 @@
   </mat-form-field>
   <mat-form-field class="building-type-filter">
     <mat-label>Building Type</mat-label>
-    <mat-select multiple>
+    <mat-select multiple formControlName="propertyType">
       @for (type of getKeys(buildingTypes); track type) {
         <mat-option [value]="type">{{ buildingTypes[type] }}</mat-option>
       }
