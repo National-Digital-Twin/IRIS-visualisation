@@ -59,7 +59,7 @@
   &__type {
     border-color: $color-type;
     background-color: $color-type;
-    color: $color-primary;
+    color: rgb(var(--arc-white-000));
     padding-left: 1rem;
   }
 }

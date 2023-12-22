@@ -1,0 +1,22 @@
+.filter-panel {
+  position: absolute !important;
+  left: 28.5rem;
+  top: 9rem;
+  width: calc(100vw - 28.5rem - 4.5rem);
+  max-height: calc(100vh - 10rem) !important;
+}
+.advanced-filters-dialog {
+  h1 {
+    height: 0;
+  }
+  .filter-expansion {
+    .mat-expansion-panel:not([class*='mat-elevation-z']) {
+      box-shadow: none;
+      border-bottom: 1px solid $color-line;
+    }
+  }
+
+  .mdc-dialog__content {
+    padding: 0 !important;
+  }
+}

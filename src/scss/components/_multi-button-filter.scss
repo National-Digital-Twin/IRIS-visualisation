@@ -1,0 +1,28 @@
+.multi-select-filter {
+  h3 {
+    text-transform: uppercase;
+    color: $color-primary;
+    font-size: 0.875rem;
+  }
+  .mat-button-toggle-group {
+    border: none;
+    gap: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+
+    .mat-button-toggle {
+      border-radius: 0.25rem;
+      border: 1px solid $color-line;
+    }
+
+    .mat-button-toggle-appearance-standard .mat-button-toggle-label-content {
+      line-height: 2.5;
+    }
+
+    .mat-button-toggle-checked {
+      background-color: $color-primary;
+      color: rgb(var(--arc-white-000));
+      box-shadow: 1px 4px 6px 0px rgba(81, 64, 108, 0.1);
+    }
+  }
+}
