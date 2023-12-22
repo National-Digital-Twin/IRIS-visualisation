@@ -13,6 +13,19 @@ import {
   WallInsulation,
 } from '@core/enums';
 
+export type AdvancedFilter =
+  | typeof BuildForm
+  | typeof DwellingSize
+  | typeof Floor
+  | typeof FloorInsulation
+  | typeof PostCode
+  | typeof Roof
+  | typeof RoofInsulation
+  | typeof RoofInsulationThickness
+  | typeof WindowGlazing
+  | typeof Wall
+  | typeof WallInsulation;
+
 export interface DateFormModel {
   singleYear: Moment | null;
   startYear: Moment | null;
@@ -31,4 +44,10 @@ export interface AdvancedFiltersFormModel {
   roofConstruction: Roof[] | null;
   roofInsulationLocation: RoofInsulation[] | null;
   roofInsulationThickness: RoofInsulationThickness[] | null;
+}
+
+export interface MultiButtonFilterOption {
+  title: string;
+  data: AdvancedFilter;
+  formControlName: keyof AdvancedFiltersFormModel;
 }

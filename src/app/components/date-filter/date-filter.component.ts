@@ -18,7 +18,7 @@ import {
   MAT_DATE_FORMATS,
   MAT_DATE_LOCALE,
 } from '@angular/material/core';
-import { DateFormModel } from '@core/models/advance-filters-form.model';
+import { DateFormModel } from '@core/models/advanced-filters.model';
 import * as _moment from 'moment';
 import { default as _rollupMoment, Moment } from 'moment';
 import {

@@ -25,7 +25,15 @@ import {
   Wall,
   WallInsulation,
 } from '@core/enums';
-import { AdvancedFiltersFormModel } from '@core/models/advance-filters-form.model';
+import {
+  AdvancedFiltersFormModel,
+  MultiButtonFilterOption,
+} from '@core/models/advanced-filters.model';
+
+interface PanelData {
+  panelTitle: string;
+  filters: MultiButtonFilterOption[];
+}
 
 @Component({
   selector: 'c477-filter-panel',
@@ -48,7 +56,7 @@ import { AdvancedFiltersFormModel } from '@core/models/advance-filters-form.mode
 })
 export class FilterPanelComponent {
   advancedFiltersForm: FormGroup;
-  generalFilters = [
+  generalFilters: MultiButtonFilterOption[] = [
     { title: 'Post Code', data: PostCode, formControlName: 'postCode' },
     { title: 'Build Form', data: BuildForm, formControlName: 'builtForm' },
     {
@@ -57,14 +65,14 @@ export class FilterPanelComponent {
       formControlName: 'dwellingSize',
     },
   ];
-  glazingFilters = [
+  glazingFilters: MultiButtonFilterOption[] = [
     {
       title: 'Multiple Glazing Type',
       data: WindowGlazing,
       formControlName: 'multipleGlazingType',
     },
   ];
-  wallFilters = [
+  wallFilters: MultiButtonFilterOption[] = [
     {
       title: 'Wall Construction',
       data: Wall,
@@ -76,7 +84,7 @@ export class FilterPanelComponent {
       formControlName: 'wallInsulation',
     },
   ];
-  floorFilters = [
+  floorFilters: MultiButtonFilterOption[] = [
     {
       title: 'Floor Construction',
       data: Floor,
@@ -88,7 +96,7 @@ export class FilterPanelComponent {
       formControlName: 'floorInsulation',
     },
   ];
-  roofFilters = [
+  roofFilters: MultiButtonFilterOption[] = [
     {
       title: 'Roof Construction',
       data: Roof,
@@ -105,7 +113,7 @@ export class FilterPanelComponent {
       formControlName: 'roofInsulationThickness',
     },
   ];
-  otherPanels = [
+  otherPanels: PanelData[] = [
     { panelTitle: 'Glazing', filters: this.glazingFilters },
     { panelTitle: 'Wall', filters: this.wallFilters },
     { panelTitle: 'Floor', filters: this.floorFilters },
