@@ -3,18 +3,25 @@ import {
   Component,
   Input,
   NgZone,
+  AfterViewInit,
   OnChanges,
+  ViewChild,
+  ElementRef,
   inject,
   numberAttribute,
+  computed,
 } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { Polygon } from 'geojson';
 
+import { ArcAccessibility, ArcContainer, ArcSwitch } from '@arc-web/components';
 import { DetailsPanelComponent } from '@components/details-panel/details-panel.component';
+import { MainFiltersComponent } from '@containers/main-filters/main-filters.component';
 import { MapComponent } from '@components/map/map.component';
 import { ResultsPanelComponent } from '@containers/results-panel/results-panel.component';
 
+import { SettingService } from '@core/services/setting.service';
 import { DataService } from '@core/services/data.service';
 import { FilterService } from '@core/services/filter.service';
 import { MapService } from '@core/services/map.service';
@@ -29,12 +36,17 @@ import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token'
 @Component({
   selector: 'c477-shell',
   standalone: true,
-  imports: [DetailsPanelComponent, MapComponent, ResultsPanelComponent],
+  imports: [
+    DetailsPanelComponent,
+    MainFiltersComponent,
+    MapComponent,
+    ResultsPanelComponent,
+  ],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ShellComponent implements OnChanges {
+export class ShellComponent implements AfterViewInit, OnChanges {
   // get map state from route query params
   @Input({ transform: numberAttribute }) pitch: number = 0;
   @Input({ transform: numberAttribute }) bearing: number = 0;
@@ -42,6 +54,18 @@ export class ShellComponent implements OnChanges {
   @Input({ transform: numberAttribute }) lng: number = 0;
   @Input({ transform: numberAttribute }) zoom: number = 0;
   @Input() filter: string = '';
+
+  private readonly settingService = inject(SettingService);
+  private readonly colorBlindMode = computed(
+    () => this.settingService.settings()['colorBlindMode'] as boolean
+  );
+
+  @ViewChild('container')
+  public container!: ElementRef<ArcContainer>;
+  @ViewChild('accessibility')
+  public accessibility?: ElementRef<ArcAccessibility>;
+  @ViewChild('colorBlindSwitch')
+  public colorBlindSwitch!: ElementRef<ArcSwitch>;
 
   private dataService = inject(DataService);
   private filterService = inject(FilterService);
@@ -60,6 +84,15 @@ export class ShellComponent implements OnChanges {
 
   buildingLayerExpression = this.utilService.currentMapViewExpression;
 
+  public ngAfterViewInit(): void {
+    const colorBlindMode = this.colorBlindMode();
+    this.container.nativeElement.setAttribute(
+      'color-blind-mode',
+      colorBlindMode ? 'true' : 'false'
+    );
+    this.colorBlindSwitch.nativeElement.checked = colorBlindMode;
+  }
+
   ngOnChanges(): void {
     const mapConfig: MapConfigModel = {
       bearing: this.bearing,
@@ -73,8 +106,21 @@ export class ShellComponent implements OnChanges {
     }
   }
 
+  public handleShowAccessibility(event: Event): void {
+    event.preventDefault();
+    this.accessibility?.nativeElement.show();
+  }
+
+  public handleColorBlindSwitchChange(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.container.nativeElement.setAttribute(
+      'color-blind-mode',
+      checked ? 'true' : 'false'
+    );
+    this.settingService.set('colorBlindMode', checked);
+  }
+
   updateBuildingLayerFilter() {
-    // create building colour filter expression to style buildings layer
     this.utilService.createBuildingColourFilter();
   }
 

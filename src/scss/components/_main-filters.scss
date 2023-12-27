@@ -1,6 +1,6 @@
 .main-filters {
   position: absolute;
-  z-index: 10001;
+  z-index: $panel-z-index;
   left: var(--arc-spacing-normal);
   top: 4.5rem;
   display: flex;

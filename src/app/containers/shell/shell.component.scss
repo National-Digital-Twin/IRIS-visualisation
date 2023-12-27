@@ -1,0 +1,15 @@
+arc-accessibility {
+  z-index: 1002;
+
+  div.accessibility__options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--arc-spacing-small);
+
+    div.accessibility__label {
+      display: flex;
+      align-items: center;
+      gap: var(--arc-spacing-small);
+    }
+  }
+}

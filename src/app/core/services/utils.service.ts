@@ -1,12 +1,13 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 
-import { tap } from 'rxjs';
+import { tap, combineLatest } from 'rxjs';
 
 import { Expression } from 'mapbox-gl';
 import booleanWithin from '@turf/boolean-within';
 import { Polygon } from 'geojson';
 
+import { SettingService } from './setting.service';
 import { DataService } from './data.service';
 import { FilterService } from './filter.service';
 import { MapService } from './map.service';
@@ -21,6 +22,11 @@ import { TableRow } from '@core/models/rdf-data.model';
   providedIn: 'root',
 })
 export class UtilService {
+  private readonly settingService = inject(SettingService);
+  private readonly colorBlindMode = computed(
+    () => this.settingService.settings()['colorBlindMode'] as boolean
+  );
+
   private dataService = inject(DataService);
   private filterService = inject(FilterService);
   private mapService = inject(MapService);
@@ -28,6 +34,7 @@ export class UtilService {
   private runtimeConfig = inject(RUNTIME_CONFIGURATION);
 
   private epcColours = this.runtimeConfig.epcColours;
+  private readonly colorBlindEpcColors = this.runtimeConfig.epcColoursCD;
 
   currentMapViewExpression = signal<Expression | undefined>(undefined);
 
@@ -36,17 +43,18 @@ export class UtilService {
    * as this indicates first app load.  Then create map layer filter
    * to colour buildings layer
    */
-  private buildingData$ = toObservable(this.dataService.buildings).pipe(
-    tap(buildings => {
+  private buildingData$ = combineLatest([
+    toObservable(this.dataService.buildings),
+    toObservable(this.colorBlindMode),
+  ]).pipe(
+    tap(([buildings]) => {
       if (buildings) {
         this.createBuildingColourFilter();
       }
     })
   );
 
-  readOnlyBuildingDetails = toSignal(this.buildingData$, {
-    initialValue: {} as BuildingMap,
-  });
+  readOnlyBuildingDetails = toSignal(this.buildingData$, {} as BuildingMap);
 
   /**
    * Create an array of building TOIDS and colours from buildings
@@ -166,11 +174,11 @@ export class UtilService {
     return meanEPC;
   }
 
-  getEPCColour(SAPBand: string) {
-    const color = SAPBand
-      ? this.epcColours[SAPBand]
-      : this.epcColours['default'];
-    return color;
+  getEPCColour(SAPBand: string): string {
+    const colorBlindMode = this.colorBlindMode();
+    return this[colorBlindMode ? 'colorBlindEpcColors' : 'epcColours'][
+      SAPBand ? SAPBand : 'default'
+    ];
   }
 
   filterBuildingsWithinBounds(
