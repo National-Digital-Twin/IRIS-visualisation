@@ -65,12 +65,9 @@ export class UtilService {
     const buildings = this.dataService.buildings();
     if (!buildings || !Object.keys(buildings).length) return;
     const spatialFilter = this.spatialQueryService.spatialFilterBounds();
-    const spatialFilteredBuildings = this.filterBuildingsWithinBounds(
+    const filteredBuildings = this.filterBuildingsWithinBounds(
       buildings!,
       spatialFilter
-    );
-    const filteredBuildings = this.filterService.applyFilters(
-      spatialFilteredBuildings
     );
     // if there is a spatial filter get the UPRNs within the filter area
     // and set in signal to get data from IA to display in filter results
