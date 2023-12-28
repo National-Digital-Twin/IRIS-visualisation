@@ -50,4 +50,36 @@ export interface MultiButtonFilterOption {
   title: string;
   data: AdvancedFilter;
   formControlName: keyof AdvancedFiltersFormModel;
+  selectedValues?: string[];
 }
+
+export interface FilterProps {
+  BuildForm?: string[];
+  DwellingSize?: string[];
+  EPC?: string[];
+  Floor?: string[];
+  FloorInsulation?: string[];
+  PostCode?: string[];
+  PropertyType?: string[];
+  Roof?: string[];
+  RoofInsulation?: string[];
+  RoofInsulationThickness?: string[];
+  Wall?: string[];
+  WallInsulation?: string[];
+  WindowGlazing?: string[];
+}
+
+export type FilterKeys =
+  | 'BuildForm'
+  | 'DwellingSize'
+  | 'EPC'
+  | 'Floor'
+  | 'FloorInsulation'
+  | 'PostCode'
+  | 'PropertyType'
+  | 'Roof'
+  | 'RoofInsulation'
+  | 'RoofInsulationThickness'
+  | 'Wall'
+  | 'WallInsulation'
+  | 'WindowGlazing';
