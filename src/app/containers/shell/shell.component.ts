@@ -53,6 +53,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   @Input({ transform: numberAttribute }) lat: number = 0;
   @Input({ transform: numberAttribute }) lng: number = 0;
   @Input({ transform: numberAttribute }) zoom: number = 0;
+  // get filters from route query params
   @Input() filter: string = '';
 
   private readonly settingService = inject(SettingService);
