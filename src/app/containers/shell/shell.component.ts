@@ -28,7 +28,7 @@ import { MapService } from '@core/services/map.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { UtilService } from '@core/services/utils.service';
 
-import { MapConfigModel } from '@core/models/map-configuration.model';
+import { URLStateModel } from '@core/models/url-state.model';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
@@ -81,7 +81,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
 
   title = 'Energy Performance Viewer';
 
-  mapConfig?: MapConfigModel;
+  mapConfig?: URLStateModel;
 
   buildingLayerExpression = this.utilService.currentMapViewExpression;
 
@@ -95,7 +95,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   }
 
   ngOnChanges(): void {
-    const mapConfig: MapConfigModel = {
+    const mapConfig: URLStateModel = {
       bearing: this.bearing,
       pitch: this.pitch,
       zoom: this.zoom,

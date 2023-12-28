@@ -1,4 +1,4 @@
-import { MapConfigModel } from './map-configuration.model';
+import { URLStateModel } from './url-state.model';
 import { Layer } from 'mapbox-gl';
 
 export interface MapConfig {
@@ -17,7 +17,7 @@ export interface RuntimeConfigurationModel {
   /* IA API URL */
   apiURL: string;
   /* Mapbox map config */
-  map: MapConfigModel;
+  map: URLStateModel;
   /* Mapbox map layers */
   mapLayers: Layer[];
   /** EPC Colours */
