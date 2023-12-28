@@ -1,49 +1,43 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
-import { BuildingMap } from '@core/models/building.model';
-import { TableRow } from '@core/models/rdf-data.model';
-
-import { DataService } from './data.service';
+import { FilterKeys, FilterProps } from '@core/models/advanced-filters.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FilterService {
-  private dataService = inject(DataService);
-  private filterProps: { [key: string]: string[] } = {};
+  filters = signal<FilterProps>({});
   /**
    *
-   * @param filter 'epc-C:epc-G:buildingType-SemiDetached:propertyType-Bungalow'
+   * @param filter 'EPC-C-G:BuildForm-SemiDetached-EndTerrace:PropertyType-Bungalow'
    */
   parseFilter(filter: string) {
+    const filterProps: FilterProps = {};
+    // split filter string by filter type
     filter.split(':').forEach((val: string) => {
+      // split filter type to individual filter values
       const k = val.split('-');
-      if (this.filterProps[k[0]]) {
-        this.filterProps[k[0]].push(k[1]);
+      // get first value as filter name
+      const key = k[0] as FilterKeys;
+      // remove filter name to get values
+      let values = k.slice(1);
+      // add prefix to EPC ratings
+      if (key === 'EPC') {
+        values = this.addEPCPrefix(values);
+      }
+      if (filterProps[key]) {
+        values.forEach((v: string) => filterProps[key]!.push(v));
       } else {
-        this.filterProps[k[0]] = [k[1]];
+        filterProps[key] = [...values];
       }
     });
-    console.log(this.filterProps);
+    console.log(filterProps);
+    this.filters.set(filterProps);
   }
 
-  applyFilters(buildings: BuildingMap) {
-    // if there are no filters, do nothing and return
-    if (Object.keys(this.filterProps).length === 0) return buildings;
-
-    // convert building object to array to ease filtering
-    const buildingsArray = Array.from(Object.values(buildings).flat());
-    const filterKeys = Object.keys(this.filterProps);
-    // filter buildings
-    const filtered = buildingsArray.filter((building: TableRow) =>
-      filterKeys.every((key: string) => {
-        if (!this.filterProps[key].length) return true;
-        return this.filterProps[key].includes(building[key]);
-      })
-    );
-    // convert filtered array of buildings back to object
-    const filteredBuildings: BuildingMap =
-      this.dataService.mapBuildings(filtered);
-    return filteredBuildings;
+  addEPCPrefix(epcRatings?: string[]) {
+    return epcRatings
+      ? epcRatings.map(r => `BuildingWithEnergyRatingOf${r}`)
+      : [];
   }
 }
