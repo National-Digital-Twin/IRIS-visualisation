@@ -9,7 +9,6 @@ import { Polygon } from 'geojson';
 
 import { SettingService } from './setting.service';
 import { DataService } from './data.service';
-import { FilterService } from './filter.service';
 import { MapService } from './map.service';
 import { SpatialQueryService } from './spatial-query.service';
 
@@ -28,7 +27,6 @@ export class UtilService {
   );
 
   private dataService = inject(DataService);
-  private filterService = inject(FilterService);
   private mapService = inject(MapService);
   private spatialQueryService = inject(SpatialQueryService);
   private runtimeConfig = inject(RUNTIME_CONFIGURATION);
@@ -228,5 +226,11 @@ export class UtilService {
       filteredUPRNs = filteredUPRNs.concat(uprns);
     });
     return filteredUPRNs;
+  }
+
+  addEPCPrefix(epcRatings?: string[]) {
+    return epcRatings
+      ? epcRatings.map(r => `BuildingWithEnergyRatingOf${r}`)
+      : [];
   }
 }
