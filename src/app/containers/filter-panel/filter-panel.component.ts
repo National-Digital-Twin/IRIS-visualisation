@@ -1,4 +1,4 @@
-import { Component, Inject, inject } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DateFilterComponent } from '@components/date-filter/date-filter.component';
 import { MatButtonModule } from '@angular/material/button';
@@ -32,8 +32,6 @@ import {
   MultiButtonFilterOption,
 } from '@core/models/advanced-filters.model';
 
-import { FilterService } from '@core/services/filter.service';
-
 interface PanelData {
   panelTitle: string;
   filters: MultiButtonFilterOption[];
@@ -59,9 +57,6 @@ interface PanelData {
   styleUrl: './filter-panel.component.css',
 })
 export class FilterPanelComponent {
-  private filterService = inject(FilterService);
-  filterProps = this.filterService.filters;
-
   advancedFiltersForm: FormGroup;
   generalFilters: MultiButtonFilterOption[] = [
     {
