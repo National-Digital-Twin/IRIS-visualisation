@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, Inject, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DateFilterComponent } from '@components/date-filter/date-filter.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import {
+  MAT_DIALOG_DATA,
   MatDialogActions,
   MatDialogClose,
   MatDialogContent,
@@ -27,6 +28,7 @@ import {
 } from '@core/enums';
 import {
   AdvancedFiltersFormModel,
+  FilterProps,
   MultiButtonFilterOption,
 } from '@core/models/advanced-filters.model';
 
@@ -66,19 +68,19 @@ export class FilterPanelComponent {
       title: 'Post Code',
       data: PostCode,
       formControlName: 'postCode',
-      selectedValues: this.filterProps().PostCode,
+      selectedValues: this.data.filterProps.PostCode,
     },
     {
       title: 'Build Form',
       data: BuildForm,
       formControlName: 'builtForm',
-      selectedValues: this.filterProps().BuildForm,
+      selectedValues: this.data.filterProps.BuildForm,
     },
     {
       title: 'Dwelling Size',
       data: DwellingSize,
       formControlName: 'dwellingSize',
-      selectedValues: this.filterProps().DwellingSize,
+      selectedValues: this.data.filterProps.DwellingSize,
     },
   ];
   glazingFilters: MultiButtonFilterOption[] = [
@@ -86,7 +88,7 @@ export class FilterPanelComponent {
       title: 'Multiple Glazing Type',
       data: WindowGlazing,
       formControlName: 'multipleGlazingType',
-      selectedValues: this.filterProps().WindowGlazing,
+      selectedValues: this.data.filterProps.WindowGlazing,
     },
   ];
   wallFilters: MultiButtonFilterOption[] = [
@@ -94,13 +96,13 @@ export class FilterPanelComponent {
       title: 'Wall Construction',
       data: Wall,
       formControlName: 'wallConstruction',
-      selectedValues: this.filterProps().Wall,
+      selectedValues: this.data.filterProps.Wall,
     },
     {
       title: 'Wall Insulation',
       data: WallInsulation,
       formControlName: 'wallInsulation',
-      selectedValues: this.filterProps().WallInsulation,
+      selectedValues: this.data.filterProps.WallInsulation,
     },
   ];
   floorFilters: MultiButtonFilterOption[] = [
@@ -108,13 +110,13 @@ export class FilterPanelComponent {
       title: 'Floor Construction',
       data: Floor,
       formControlName: 'floorConstruction',
-      selectedValues: this.filterProps().Floor,
+      selectedValues: this.data.filterProps.Floor,
     },
     {
       title: 'Floor Insulation',
       data: FloorInsulation,
       formControlName: 'floorInsulation',
-      selectedValues: this.filterProps().FloorInsulation,
+      selectedValues: this.data.filterProps.FloorInsulation,
     },
   ];
   roofFilters: MultiButtonFilterOption[] = [
@@ -122,19 +124,19 @@ export class FilterPanelComponent {
       title: 'Roof Construction',
       data: Roof,
       formControlName: 'roofConstruction',
-      selectedValues: this.filterProps().Roof,
+      selectedValues: this.data.filterProps.Roof,
     },
     {
       title: 'Roof Insulation Location',
       data: RoofInsulation,
       formControlName: 'roofInsulationLocation',
-      selectedValues: this.filterProps().RoofInsulation,
+      selectedValues: this.data.filterProps.RoofInsulation,
     },
     {
       title: 'Roof Insulation Thickness',
       data: RoofInsulationThickness,
       formControlName: 'roofInsulationThickness',
-      selectedValues: this.filterProps().RoofInsulationThickness,
+      selectedValues: this.data.filterProps.RoofInsulationThickness,
     },
   ];
   otherPanels: PanelData[] = [
@@ -144,31 +146,34 @@ export class FilterPanelComponent {
     { panelTitle: 'Roof', filters: this.roofFilters },
   ];
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    @Inject(MAT_DIALOG_DATA) public data: { filterProps: FilterProps }
+  ) {
     this.advancedFiltersForm = this.fb.group<AdvancedFiltersFormModel>({
-      postCode: [this.filterProps().PostCode as unknown as PostCode],
-      builtForm: [this.filterProps().BuildForm as unknown as BuildForm],
+      postCode: [this.data.filterProps.PostCode as unknown as PostCode],
+      builtForm: [this.data.filterProps.BuildForm as unknown as BuildForm],
       yearOfAssessment: null,
       dwellingSize: [
-        this.filterProps().DwellingSize as unknown as DwellingSize,
+        this.data.filterProps.DwellingSize as unknown as DwellingSize,
       ],
       multipleGlazingType: [
-        this.filterProps().WindowGlazing as unknown as WindowGlazing,
+        this.data.filterProps.WindowGlazing as unknown as WindowGlazing,
       ],
-      wallConstruction: [this.filterProps().Wall as unknown as Wall],
+      wallConstruction: [this.data.filterProps.Wall as unknown as Wall],
       wallInsulation: [
-        this.filterProps().WallInsulation as unknown as WallInsulation,
+        this.data.filterProps.WallInsulation as unknown as WallInsulation,
       ],
-      floorConstruction: [this.filterProps().Floor as unknown as Floor],
+      floorConstruction: [this.data.filterProps.Floor as unknown as Floor],
       floorInsulation: [
-        this.filterProps().FloorInsulation as unknown as FloorInsulation,
+        this.data.filterProps.FloorInsulation as unknown as FloorInsulation,
       ],
-      roofConstruction: [this.filterProps().Roof as unknown as Roof],
+      roofConstruction: [this.data.filterProps.Roof as unknown as Roof],
       roofInsulationLocation: [
-        this.filterProps().RoofInsulation as unknown as RoofInsulation,
+        this.data.filterProps.RoofInsulation as unknown as RoofInsulation,
       ],
       roofInsulationThickness: [
-        this.filterProps()
+        this.data.filterProps
           .RoofInsulationThickness as unknown as RoofInsulationThickness,
       ],
     });

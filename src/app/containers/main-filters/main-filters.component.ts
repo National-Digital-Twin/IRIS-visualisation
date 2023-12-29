@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -11,9 +11,8 @@ import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { FilterPanelComponent } from '@containers/filter-panel/filter-panel.component';
 import { LabelComponent } from '@components/label/label.component';
 
-import { FilterService } from '@core/services/filter.service';
-
 import { EPCRating, PropertyType } from '@core/enums';
+import { FilterProps } from '@core/models/advanced-filters.model';
 
 @Component({
   selector: 'c477-main-filters',
@@ -31,9 +30,9 @@ import { EPCRating, PropertyType } from '@core/enums';
   styleUrl: './main-filters.component.css',
 })
 export class MainFiltersComponent {
-  private filterService = inject(FilterService);
-
-  filterProps = this.filterService.filters;
+  @Input() filterProps?: FilterProps;
+  @Output() setRouteParams: EventEmitter<{ [key: string]: string[] }> =
+    new EventEmitter<{ [key: string]: string[] }>();
 
   epcRatings: { [key: string]: string } = EPCRating;
   propertyTypes: { [key: string]: string } = PropertyType;
@@ -47,14 +46,17 @@ export class MainFiltersComponent {
   openAdvancedFilters() {
     this.dialog.open(FilterPanelComponent, {
       panelClass: 'filter-panel',
+      data: {
+        filterProps: this.filterProps,
+      },
     });
   }
 
   propertyTypeChange(e: MatSelectChange) {
-    console.log(e);
+    this.setRouteParams.emit({ PropertyType: e.value });
   }
 
   ratingChange(e: MatSelectChange) {
-    console.log(e);
+    this.setRouteParams.emit({ EPC: e.value.map((r: string) => r.slice(-1)) });
   }
 }

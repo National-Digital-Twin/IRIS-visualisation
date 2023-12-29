@@ -10,7 +10,7 @@
     <mat-label>EPC Rating</mat-label>
     <mat-select
       multiple
-      [value]="filterProps().EPC"
+      [value]="filterProps?.EPC"
       (selectionChange)="ratingChange($event)">
       @for (rating of getKeys(epcRatings); track rating) {
         <mat-option [value]="rating"
@@ -23,7 +23,7 @@
     <mat-label>Building Type</mat-label>
     <mat-select
       multiple
-      [value]="filterProps().PropertyType"
+      [value]="filterProps?.PropertyType"
       (selectionChange)="propertyTypeChange($event)">
       @for (type of getKeys(propertyTypes); track type) {
         <mat-option [value]="type">{{ propertyTypes[type] }}</mat-option>
