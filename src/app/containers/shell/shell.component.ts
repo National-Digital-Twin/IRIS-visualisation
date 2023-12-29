@@ -11,7 +11,7 @@ import {
   numberAttribute,
   computed,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { Params, Router } from '@angular/router';
 
 import { Polygon } from 'geojson';
 
@@ -28,6 +28,7 @@ import { MapService } from '@core/services/map.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { UtilService } from '@core/services/utils.service';
 
+import { FilterKeys, FilterProps } from '@core/models/advanced-filters.model';
 import { URLStateModel } from '@core/models/url-state.model';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
 
@@ -54,7 +55,11 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   @Input({ transform: numberAttribute }) lng: number = 0;
   @Input({ transform: numberAttribute }) zoom: number = 0;
   // get filters from route query params
-  @Input() filter: string = '';
+  @Input() set filter(filter: string) {
+    if (filter) {
+      this.filterProps = this.filterService.parseFilterString(filter);
+    }
+  }
 
   private readonly settingService = inject(SettingService);
   private readonly colorBlindMode = computed(
@@ -85,6 +90,8 @@ export class ShellComponent implements AfterViewInit, OnChanges {
 
   buildingLayerExpression = this.utilService.currentMapViewExpression;
 
+  filterProps?: FilterProps;
+
   public ngAfterViewInit(): void {
     const colorBlindMode = this.colorBlindMode();
     this.container.nativeElement.setAttribute(
@@ -102,9 +109,6 @@ export class ShellComponent implements AfterViewInit, OnChanges {
       center: [this.lat, this.lng],
     };
     this.mapConfig = mapConfig;
-    if (this.filter) {
-      this.filterService.parseFilter(this.filter);
-    }
   }
 
   public handleShowAccessibility(event: Event): void {
@@ -202,16 +206,49 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     this.updateBuildingLayerFilter();
   }
 
-  setRouteParams(params: MapConfigModel) {
+  setFilterParams(filter: { [key: string]: string[] }) {
+    // if filter that is being updated exists in current
+    // filters, remove it so that it can be replaced with its new filter
+    Object.keys(filter).forEach((key: string) => {
+      if (this.filterProps && this.filterProps[key as FilterKeys]) {
+        delete this.filterProps[key as FilterKeys];
+      }
+    });
+    const filterString = this.filterService.createFilterString(
+      filter,
+      this.filterProps
+    );
+    const queryParams = {
+      filter: filterString !== '' ? filterString : undefined,
+    };
+    this.navigate(queryParams);
+  }
+
+  setRouteMapParams(params: URLStateModel) {
     const { bearing, center, pitch, zoom } = params;
+    const queryParams = {
+      bearing,
+      lat: center[1],
+      lng: center[0],
+      pitch,
+      zoom,
+    };
+    this.navigate(queryParams);
+  }
+
+  navigate(queryParams: Params) {
     this.zone.run(() => {
       this.router.navigate(['/'], {
-        queryParams: { bearing, lat: center[1], lng: center[0], pitch, zoom },
+        queryParams,
         queryParamsHandling: 'merge',
       });
     });
     // if zoom is greater than 15 & there isn't a spatial filter
-    if (zoom >= 15 && !this.spatialQueryService.spatialFilterEnabled()) {
+    if (
+      queryParams.zoom &&
+      queryParams.zoom >= 15 &&
+      !this.spatialQueryService.spatialFilterEnabled()
+    ) {
       this.updateBuildingLayerFilter();
     }
   }
