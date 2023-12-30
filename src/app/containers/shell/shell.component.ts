@@ -28,7 +28,11 @@ import { MapService } from '@core/services/map.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { UtilService } from '@core/services/utils.service';
 
-import { FilterKeys, FilterProps } from '@core/models/advanced-filters.model';
+import {
+  AdvancedFiltersFormModel,
+  FilterKeys,
+  FilterProps,
+} from '@core/models/advanced-filters.model';
 import { URLStateModel } from '@core/models/url-state.model';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
 
@@ -206,21 +210,20 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     this.updateBuildingLayerFilter();
   }
 
-  setFilterParams(filter: { [key: string]: string[] }) {
-    // if filter that is being updated exists in current
-    // filters, remove it so that it can be replaced with its new filter
-    Object.keys(filter).forEach((key: string) => {
-      if (this.filterProps && this.filterProps[key as FilterKeys]) {
-        delete this.filterProps[key as FilterKeys];
+  setAdvancedFilters(filter: AdvancedFiltersFormModel) {
+    for (const [key, value] of Object.entries(filter)) {
+      if (value === null) {
+        delete filter[key as keyof AdvancedFiltersFormModel];
       }
-    });
-    const filterString = this.filterService.createFilterString(
-      filter,
-      this.filterProps
+    }
+    const queryParams = this.createQueryParams(
+      filter as unknown as { [key: string]: string[] }
     );
-    const queryParams = {
-      filter: filterString !== '' ? filterString : undefined,
-    };
+    this.navigate(queryParams);
+  }
+
+  setFilterParams(filter: { [key: string]: string[] }) {
+    const queryParams = this.createQueryParams(filter);
     this.navigate(queryParams);
   }
 
@@ -236,7 +239,23 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     this.navigate(queryParams);
   }
 
-  navigate(queryParams: Params) {
+  private createQueryParams(filter: { [key: string]: string[] }) {
+    Object.keys(filter).forEach((key: string) => {
+      if (this.filterProps && this.filterProps[key as FilterKeys]) {
+        delete this.filterProps[key as FilterKeys];
+      }
+    });
+    const filterString = this.filterService.createFilterString(
+      filter,
+      this.filterProps
+    );
+    const queryParams = {
+      filter: filterString !== '' ? filterString : undefined,
+    };
+    return queryParams;
+  }
+
+  private navigate(queryParams: Params) {
     this.zone.run(() => {
       this.router.navigate(['/'], {
         queryParams,

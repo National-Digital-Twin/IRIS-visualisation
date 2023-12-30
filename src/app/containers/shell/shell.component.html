@@ -23,7 +23,8 @@
   <div class="content">
     <c477-main-filters
       [filterProps]="filterProps"
-      (setRouteParams)="setFilterParams($event)"></c477-main-filters>
+      (setRouteParams)="setFilterParams($event)"
+      (setAdvancedFilters)="setAdvancedFilters($event)"></c477-main-filters>
     <c477-results-panel></c477-results-panel>
 
     <c477-details-panel (closePanel)="closeDetails()"></c477-details-panel>
