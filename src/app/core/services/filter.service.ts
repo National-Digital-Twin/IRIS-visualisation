@@ -72,7 +72,6 @@ export class FilterService {
         filterProps[key] = [...values];
       }
     });
-    console.log(filterProps);
     return filterProps;
   }
 
