@@ -59,6 +59,7 @@ export class DataService {
     switchMap(uprn =>
       this.getBuildingDetails(uprn!).pipe(
         tap(details => {
+          console.log(details);
           this.setSelectedBuilding(details);
         }),
         catchError(() => of([] as TableRow[]))
