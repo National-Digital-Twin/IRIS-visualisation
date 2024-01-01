@@ -32,6 +32,7 @@ export class DataService {
   // single uprn
   selectedUPRN = signal<number | undefined>(undefined);
   selectedBuilding = signal<TableRow | undefined>(undefined);
+  selectedBuildingParts = signal<TableRow | undefined>(undefined);
   // multiple uprns
   buildingUPRNs = signal<number[]>([]);
   buildingsSelection = signal<TableRow[] | undefined>(undefined);
@@ -70,6 +71,29 @@ export class DataService {
     initialValue: [] as TableRow[],
   });
 
+  /**
+   * Create observable from selectedBuilding signal
+   * React to emissions, piping the building through an observable
+   * pipeline.
+   * Use switchmap to get the data
+   * Use toSignal to automatically subscribe & unsubscribe
+   */
+  private buildingParts$ = toObservable(this.selectedBuilding).pipe(
+    switchMap(selectedBuilding =>
+      this.getBuildingParts(selectedBuilding!.parts.split(';')).pipe(
+        tap(parts => {
+          console.log(parts);
+          this.setSelectedBuildingParts(parts);
+        }),
+        catchError(() => of([] as TableRow[]))
+      )
+    )
+  );
+
+  readOnlyBuildingParts = toSignal(this.buildingParts$, {
+    initialValue: [] as TableRow[],
+  });
+
   private getBuildingsList$ = toObservable(this.buildingUPRNs).pipe(
     switchMap(uprns =>
       this.getBuildingListDetails(uprns!).pipe(
@@ -95,6 +119,15 @@ export class DataService {
    */
   setSelectedBuilding(building: TableRow[] | undefined) {
     this.selectedBuilding.set(building ? building[0] : undefined);
+  }
+
+  /**
+   * Set individual building parts
+   * @param parts building parts
+   */
+  setSelectedBuildingParts(parts: TableRow[] | undefined) {
+    console.log(parts);
+    this.selectedBuildingParts.set(parts ? parts[0] : undefined);
   }
 
   /**
@@ -144,6 +177,16 @@ export class DataService {
    */
   getBuildingDetails(uprn: number) {
     const selectString = this.queries.getBuildingDetails(uprn);
+    return this.selectTable(selectString);
+  }
+
+  /**
+   * Return building parts
+   * @param partURIs Building part URIs
+   * @returns
+   */
+  getBuildingParts(partURIs: string[]) {
+    const selectString = this.queries.getBuildingParts(partURIs);
     return this.selectTable(selectString);
   }
 
