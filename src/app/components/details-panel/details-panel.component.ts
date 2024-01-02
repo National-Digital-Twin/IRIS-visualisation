@@ -34,5 +34,7 @@ export class DetailsPanelComponent {
 
   @Output() closePanel: EventEmitter<null> = new EventEmitter();
 
-  epcRating = 'B';
+  insertSpace(part: string) {
+    return part.replace(/([a-z])([A-Z])/g, '$1 $2');
+  }
 }

@@ -30,32 +30,70 @@
               <span>{{ buildingDetails()?.inspectionDate | date }}</span>
             </p>
           </div>
-          @if (buildingParts()) {
+          @if (buildingParts() !== undefined) {
             <div class="specification">
               <h2>Specifcation</h2>
               <p>
                 <span class="field">Floor construction:</span>
-                <span></span>
+                @if (buildingParts()?.Floor?.PartType !== '') {
+                  <span>{{
+                    insertSpace(buildingParts()!.Floor!.PartType)
+                  }}</span>
+                } @else {
+                  <span>No data</span>
+                }
               </p>
               <p>
                 <span class="field">Floor insulation:</span>
-                <span></span>
+                @if (buildingParts()?.Floor?.PartInsulationType !== '') {
+                  <span>{{
+                    insertSpace(buildingParts()!.Floor!.PartInsulationType)
+                  }}</span>
+                } @else {
+                  <span>No data</span>
+                }
               </p>
               <p>
                 <span class="field">Roof construction:</span>
-                <span></span>
+                @if (buildingParts()?.Roof?.PartType !== '') {
+                  <span>{{
+                    insertSpace(buildingParts()!.Roof!.PartType)
+                  }}</span>
+                } @else {
+                  <span>No data</span>
+                }
               </p>
               <p>
                 <span class="field">Roof insulation location:</span>
-                <span></span>
+                @if (buildingParts()?.Roof?.PartInsulationType !== '') {
+                  <span>{{
+                    insertSpace(buildingParts()!.Roof!.PartInsulationType)
+                  }}</span>
+                } @else {
+                  <span>No data</span>
+                }
               </p>
               <p>
                 <span class="field">Roof insulation thickness:</span>
-                <span></span>
+                @if (buildingParts()?.Roof?.InsulationThickness !== '') {
+                  <span
+                    >{{
+                      insertSpace(buildingParts()!.Roof!.InsulationThickness)
+                    }}mm</span
+                  >
+                } @else {
+                  <span>No data</span>
+                }
               </p>
               <p>
-                <span class="field">Wall construction:</span> Sandstone or
-                Limestone
+                <span class="field">Wall construction:</span>
+                @if (buildingParts()?.Wall?.PartType !== '') {
+                  <span>{{
+                    insertSpace(buildingParts()!.Wall!.PartType)
+                  }}</span>
+                } @else {
+                  <span>No data</span>
+                }
               </p>
             </div>
           }
