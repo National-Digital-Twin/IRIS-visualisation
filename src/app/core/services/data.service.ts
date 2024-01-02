@@ -4,6 +4,7 @@ import {
   Observable,
   Subscriber,
   catchError,
+  filter,
   map,
   of,
   switchMap,
@@ -16,7 +17,7 @@ import { LngLatBounds } from 'mapbox-gl';
 
 import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
 import { SPARQLReturn, TableRow } from '@core/models/rdf-data.model';
-import { BuildingMap } from '@core/models/building.model';
+import { BuildingMap, BuildingPart } from '@core/models/building.model';
 
 import { Queries } from './Queries';
 
@@ -32,7 +33,6 @@ export class DataService {
   // single uprn
   selectedUPRN = signal<number | undefined>(undefined);
   selectedBuilding = signal<TableRow | undefined>(undefined);
-  selectedBuildingParts = signal<TableRow | undefined>(undefined);
   // multiple uprns
   buildingUPRNs = signal<number[]>([]);
   buildingsSelection = signal<TableRow[] | undefined>(undefined);
@@ -72,27 +72,20 @@ export class DataService {
   });
 
   /**
-   * Create observable from selectedBuilding signal
-   * React to emissions, piping the building through an observable
-   * pipeline.
-   * Use switchmap to get the data
-   * Use toSignal to automatically subscribe & unsubscribe
+   * Get the related building parts for the selected building
    */
   private buildingParts$ = toObservable(this.selectedBuilding).pipe(
+    filter(selectedBuilding => selectedBuilding !== undefined),
     switchMap(selectedBuilding =>
       this.getBuildingParts(selectedBuilding!.parts.split(';')).pipe(
-        tap(parts => {
-          console.log(parts);
-          this.setSelectedBuildingParts(parts);
-        }),
+        map(p => p as unknown as BuildingPart[]),
         catchError(() => of([] as TableRow[]))
       )
     )
   );
 
-  readOnlyBuildingParts = toSignal(this.buildingParts$, {
-    initialValue: [] as TableRow[],
-  });
+  private buildingParts = toSignal(this.buildingParts$);
+  parts = computed(() => this.buildingParts());
 
   private getBuildingsList$ = toObservable(this.buildingUPRNs).pipe(
     switchMap(uprns =>
@@ -119,15 +112,6 @@ export class DataService {
    */
   setSelectedBuilding(building: TableRow[] | undefined) {
     this.selectedBuilding.set(building ? building[0] : undefined);
-  }
-
-  /**
-   * Set individual building parts
-   * @param parts building parts
-   */
-  setSelectedBuildingParts(parts: TableRow[] | undefined) {
-    console.log(parts);
-    this.selectedBuildingParts.set(parts ? parts[0] : undefined);
   }
 
   /**
