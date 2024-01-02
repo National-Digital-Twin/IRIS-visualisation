@@ -11,6 +11,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { LabelComponent } from '@components/label/label.component';
 import { DataService } from '@core/services/data.service';
+import {
+  Floor,
+  FloorInsulation,
+  Roof,
+  RoofInsulation,
+  Wall,
+} from '@core/enums';
 
 @Component({
   selector: 'c477-details-panel',
@@ -29,12 +36,14 @@ import { DataService } from '@core/services/data.service';
 export class DetailsPanelComponent {
   dataService = inject(DataService);
 
+  @Output() closePanel: EventEmitter<null> = new EventEmitter();
+
   buildingDetails = this.dataService.selectedBuilding;
   buildingParts = this.dataService.parts;
 
-  @Output() closePanel: EventEmitter<null> = new EventEmitter();
-
-  insertSpace(part: string) {
-    return part.replace(/([a-z])([A-Z])/g, '$1 $2');
-  }
+  floor: { [key: string]: string } = Floor;
+  floorInsulation: { [key: string]: string } = FloorInsulation;
+  roof: { [key: string]: string } = Roof;
+  roofInsulation: { [key: string]: string } = RoofInsulation;
+  wall: { [key: string]: string } = Wall;
 }

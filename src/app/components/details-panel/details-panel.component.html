@@ -32,13 +32,11 @@
           </div>
           @if (buildingParts() !== undefined) {
             <div class="specification">
-              <h2>Specifcation</h2>
+              <h2>Specification</h2>
               <p>
                 <span class="field">Floor construction:</span>
                 @if (buildingParts()?.Floor?.PartType !== '') {
-                  <span>{{
-                    insertSpace(buildingParts()!.Floor!.PartType)
-                  }}</span>
+                  <span>{{ floor[buildingParts()!.Floor!.PartType] }}</span>
                 } @else {
                   <span>No data</span>
                 }
@@ -47,7 +45,7 @@
                 <span class="field">Floor insulation:</span>
                 @if (buildingParts()?.Floor?.PartInsulationType !== '') {
                   <span>{{
-                    insertSpace(buildingParts()!.Floor!.PartInsulationType)
+                    floorInsulation[buildingParts()!.Floor!.PartInsulationType]
                   }}</span>
                 } @else {
                   <span>No data</span>
@@ -56,9 +54,7 @@
               <p>
                 <span class="field">Roof construction:</span>
                 @if (buildingParts()?.Roof?.PartType !== '') {
-                  <span>{{
-                    insertSpace(buildingParts()!.Roof!.PartType)
-                  }}</span>
+                  <span>{{ roof[buildingParts()!.Roof!.PartType] }}</span>
                 } @else {
                   <span>No data</span>
                 }
@@ -67,7 +63,7 @@
                 <span class="field">Roof insulation location:</span>
                 @if (buildingParts()?.Roof?.PartInsulationType !== '') {
                   <span>{{
-                    insertSpace(buildingParts()!.Roof!.PartInsulationType)
+                    roofInsulation[buildingParts()!.Roof!.PartInsulationType]
                   }}</span>
                 } @else {
                   <span>No data</span>
@@ -77,9 +73,7 @@
                 <span class="field">Roof insulation thickness:</span>
                 @if (buildingParts()?.Roof?.InsulationThickness !== '') {
                   <span
-                    >{{
-                      insertSpace(buildingParts()!.Roof!.InsulationThickness)
-                    }}mm</span
+                    >{{ buildingParts()!.Roof!.InsulationThickness }}mm</span
                   >
                 } @else {
                   <span>No data</span>
@@ -88,9 +82,7 @@
               <p>
                 <span class="field">Wall construction:</span>
                 @if (buildingParts()?.Wall?.PartType !== '') {
-                  <span>{{
-                    insertSpace(buildingParts()!.Wall!.PartType)
-                  }}</span>
+                  <span>{{ wall[buildingParts()!.Wall!.PartType] }}</span>
                 } @else {
                   <span>No data</span>
                 }
