@@ -1,6 +1,6 @@
 @import '../abstracts/_variables.scss';
 
-arc-container {
+* {
   --c477-color--epc-a: #{$color-epc-a};
   --c477-color--epc-b: #{$color-epc-b};
   --c477-color--epc-c: #{$color-epc-c};
@@ -10,7 +10,7 @@ arc-container {
   --c477-color--epc-g: #{$color-epc-g};
 }
 
-arc-container[color-blind-mode='true'] {
+body[color-blind-mode='true'] * {
   --c477-color--epc-a: #{$color-cb-epc-a};
   --c477-color--epc-b: #{$color-cb-epc-b};
   --c477-color--epc-c: #{$color-cb-epc-c};
