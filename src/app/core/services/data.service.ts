@@ -4,6 +4,7 @@ import {
   Observable,
   Subscriber,
   catchError,
+  filter,
   map,
   of,
   switchMap,
@@ -16,7 +17,7 @@ import { LngLatBounds } from 'mapbox-gl';
 
 import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
 import { SPARQLReturn, TableRow } from '@core/models/rdf-data.model';
-import { BuildingMap } from '@core/models/building.model';
+import { BuildingMap, BuildingPart } from '@core/models/building.model';
 
 import { Queries } from './Queries';
 
@@ -70,6 +71,22 @@ export class DataService {
   readOnlyBuildingDetails = toSignal(this.buildingDetails$, {
     initialValue: [] as TableRow[],
   });
+
+  /**
+   * Get the related building parts for the selected building
+   */
+  private buildingParts$ = toObservable(this.selectedBuilding).pipe(
+    filter(selectedBuilding => selectedBuilding !== undefined),
+    switchMap(selectedBuilding =>
+      this.getBuildingParts(selectedBuilding!.parts.split(';')).pipe(
+        map(p => p as unknown as BuildingPart[]),
+        catchError(() => of([] as TableRow[]))
+      )
+    )
+  );
+
+  private buildingParts = toSignal(this.buildingParts$);
+  parts = computed(() => this.buildingParts());
 
   private getBuildingsList$ = toObservable(this.buildingUPRNs).pipe(
     switchMap(uprns =>
@@ -145,6 +162,16 @@ export class DataService {
    */
   getBuildingDetails(uprn: number) {
     const selectString = this.queries.getBuildingDetails(uprn);
+    return this.selectTable(selectString);
+  }
+
+  /**
+   * Return building parts
+   * @param partURIs Building part URIs
+   * @returns
+   */
+  getBuildingParts(partURIs: string[]) {
+    const selectString = this.queries.getBuildingParts(partURIs);
     return this.selectTable(selectString);
   }
 

@@ -27,3 +27,12 @@ export interface BuildingSpecificationModel {
 export interface BuildingMap {
   [key: string]: TableRow[];
 }
+
+export interface BuildingPart {
+  PartType: string;
+  PartSuperType: string;
+  PartInsulationType: string;
+  PartInsulationThickness: string;
+  InsulationThickness: string;
+  InsulationThicknessLowerBound: string;
+}

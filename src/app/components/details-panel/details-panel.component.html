@@ -33,33 +33,35 @@
               <span>{{ buildingDetails()?.inspectionDate | date }}</span>
             </p>
           </div>
-          <div class="specification">
-            <h2>Specifcation</h2>
-            <p>
-              <span class="field">Floor construction:</span>
-              <span></span>
-            </p>
-            <p>
-              <span class="field">Floor insulation:</span>
-              <span></span>
-            </p>
-            <p>
-              <span class="field">Roof construction:</span>
-              <span></span>
-            </p>
-            <p>
-              <span class="field">Roof insulation location:</span>
-              <span></span>
-            </p>
-            <p>
-              <span class="field">Roof insulation thickness:</span>
-              <span></span>
-            </p>
-            <p>
-              <span class="field">Wall construction:</span> Sandstone or
-              Limestone
-            </p>
-          </div>
+          @if (buildingParts()) {
+            <div class="specification">
+              <h2>Specifcation</h2>
+              <p>
+                <span class="field">Floor construction:</span>
+                <span></span>
+              </p>
+              <p>
+                <span class="field">Floor insulation:</span>
+                <span></span>
+              </p>
+              <p>
+                <span class="field">Roof construction:</span>
+                <span></span>
+              </p>
+              <p>
+                <span class="field">Roof insulation location:</span>
+                <span></span>
+              </p>
+              <p>
+                <span class="field">Roof insulation thickness:</span>
+                <span></span>
+              </p>
+              <p>
+                <span class="field">Wall construction:</span> Sandstone or
+                Limestone
+              </p>
+            </div>
+          }
         </div>
       </mat-tab>
       <mat-tab label="Flag">*Flag information*</mat-tab>

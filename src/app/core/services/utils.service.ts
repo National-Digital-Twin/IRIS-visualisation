@@ -52,7 +52,7 @@ export class UtilService {
     })
   );
 
-  readOnlyBuildingDetails = toSignal(this.buildingData$, {} as BuildingMap);
+  readOnlyBuildingData = toSignal(this.buildingData$, {} as BuildingMap);
 
   /**
    * Create an array of building TOIDS and colours from buildings
