@@ -41,7 +41,7 @@ export class MultiButtonFilterComponent<T extends AdvancedFilter>
     [key: string]: string;
   };
   optionKeys: string[] = [];
-  @Input() selectedValues?: string[];
+  selectedValues?: string[];
   touched = false;
 
   ngOnInit(): void {
