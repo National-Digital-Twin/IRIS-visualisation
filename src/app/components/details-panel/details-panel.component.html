@@ -35,7 +35,7 @@
               <h2>Specification</h2>
               <p>
                 <span class="field">Floor construction:</span>
-                @if (buildingParts()?.Floor?.PartType !== '') {
+                @if (floor[buildingParts()!.Floor!.PartType]) {
                   <span>{{ floor[buildingParts()!.Floor!.PartType] }}</span>
                 } @else {
                   <span>No data</span>
@@ -43,7 +43,9 @@
               </p>
               <p>
                 <span class="field">Floor insulation:</span>
-                @if (buildingParts()?.Floor?.PartInsulationType !== '') {
+                @if (
+                  floorInsulation[buildingParts()!.Floor!.PartInsulationType]
+                ) {
                   <span>{{
                     floorInsulation[buildingParts()!.Floor!.PartInsulationType]
                   }}</span>
@@ -53,7 +55,7 @@
               </p>
               <p>
                 <span class="field">Roof construction:</span>
-                @if (buildingParts()?.Roof?.PartType !== '') {
+                @if (roof[buildingParts()!.Roof!.PartType]) {
                   <span>{{ roof[buildingParts()!.Roof!.PartType] }}</span>
                 } @else {
                   <span>No data</span>
@@ -61,7 +63,9 @@
               </p>
               <p>
                 <span class="field">Roof insulation location:</span>
-                @if (buildingParts()?.Roof?.PartInsulationType !== '') {
+                @if (
+                  roofInsulation[buildingParts()!.Roof!.PartInsulationType]
+                ) {
                   <span>{{
                     roofInsulation[buildingParts()!.Roof!.PartInsulationType]
                   }}</span>
@@ -81,7 +85,7 @@
               </p>
               <p>
                 <span class="field">Wall construction:</span>
-                @if (buildingParts()?.Wall?.PartType !== '') {
+                @if (wall[buildingParts()!.Wall!.PartType]) {
                   <span>{{ wall[buildingParts()!.Wall!.PartType] }}</span>
                 } @else {
                   <span>No data</span>
