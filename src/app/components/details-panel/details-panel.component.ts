@@ -30,6 +30,7 @@ export class DetailsPanelComponent {
   dataService = inject(DataService);
 
   buildingDetails = this.dataService.selectedBuilding;
+  buildingParts = this.dataService.parts;
 
   @Output() closePanel: EventEmitter<null> = new EventEmitter();
 

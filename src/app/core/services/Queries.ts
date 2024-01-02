@@ -156,35 +156,6 @@ export class Queries {
     `;
   }
 
-  getBuildingTypes() {
-    return `
-      PREFIX data: <http://nationaldigitaltwin.gov.uk/data#>
-      PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
-      PREFIX epc: <http://gov.uk/government/organisations/department-for-levelling-up-housing-and-communities/ontology/epc#>
-      PREFIX building: <http://nationaldigitaltwin.gov.uk/ontology#>
-
-      SELECT DISTINCT ?building_type
-      WHERE {
-        ?building a ?building_type .
-          FILTER(isUri(?building_type) && STRSTARTS(STR(?building_type), STR(building:)))
-      }
-    `;
-  }
-
-  getEPCs() {
-    return `
-      PREFIX data: <http://nationaldigitaltwin.gov.uk/data#>
-      PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
-      PREFIX epc: <http://gov.uk/government/organisations/department-for-levelling-up-housing-and-communities/ontology/epc#>
-
-      SELECT DISTINCT ?epc
-      WHERE {
-        ?state a ?epc .
-          FILTER(isUri(?epc) && STRSTARTS(STR(?epc), STR(epc:)))
-      }
-    `;
-  }
-
   getAllData() {
     return `
     PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -233,6 +204,53 @@ export class Queries {
         ?parent_building_toid_id
         ?current_energy_rating
         ?line_of_address_literal
+    `;
+  }
+
+  getBuildingParts(partURIs: string[]) {
+    const parts = partURIs
+      .map(p =>
+        p.trim().replace('http://nationaldigitaltwin.gov.uk/data#', 'p:')
+      )
+      .join(' ');
+    return `
+      PREFIX data: <http://nationaldigitaltwin.gov.uk/data#>
+      PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
+      PREFIX qudt: <http://qudt.org/2.1/schema/qudt/>
+      PREFIX ndt: <http://nationaldigitaltwin.gov.uk/ontology#>
+      PREFIX iesuncertainty: <http://ies.data.gov.uk/ontology/ies_uncertainty_proposal/v2.0#>
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      PREFIX p: <http://nationaldigitaltwin.gov.uk/data#>
+      SELECT
+      (REPLACE(STR(?part_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?PartType)
+      (REPLACE(STR(?part_supertype), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?PartSuperType)
+      (REPLACE(STR(?insulation_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?PartInsulationType)
+      (REPLACE(STR(?insulation_thickness_mm), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?InsulationThickness)
+      (REPLACE(STR(?insulation_thickness_mm_lowerbound), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?InsulationThicknessLowerBound)
+      WHERE {{
+          VALUES ?part {${parts}} .
+          ?set_of_fused_things ndt:fusedInto ?part .
+          ?set_of_fused_things rdfs:subClassOf ?part_type .
+          ?part_type rdfs:subClassOf ?part_supertype .
+
+          OPTIONAL {{
+              ?insulation_fusion ies:isPartOf ?part .
+              ?set_of_fused_insulation ndt:fusedInto ?insulation_fusion .
+              ?set_of_fused_insulation rdfs:subClassOf ?insulation_type .
+          }}
+
+          OPTIONAL {{
+              ?insulation_fusion ies:isPartOf ?part .
+              ?insulation_fusion ies:hasCharacteristic ?quantity .
+              OPTIONAL {{
+                  ?quantity qudt:value ?insulation_thickness_mm .
+              }}
+              OPTIONAL {{
+                  ?quantity qudt:lowerBound ?insulation_thickness_mm_lowerbound .
+              }}
+          }}
+      }}
     `;
   }
 }
