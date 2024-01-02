@@ -12,12 +12,10 @@ import {
   computed,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { DOCUMENT } from '@angular/common';
 
 import { Polygon } from 'geojson';
 
-import { ArcAccessibility, ArcSwitch } from '@arc-web/components';
-import { UserPreferences } from '@arc-web/components/dist/components/accessibility/ArcAccessibility';
+import { ArcAccessibility, ArcContainer, ArcSwitch } from '@arc-web/components';
 import { DetailsPanelComponent } from '@components/details-panel/details-panel.component';
 import { MainFiltersComponent } from '@containers/main-filters/main-filters.component';
 import { MapComponent } from '@components/map/map.component';
@@ -62,11 +60,12 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     () => this.settingService.settings()['colorBlindMode'] as boolean
   );
 
+  @ViewChild('container')
+  public container!: ElementRef<ArcContainer>;
   @ViewChild('accessibility')
   public accessibility?: ElementRef<ArcAccessibility>;
   @ViewChild('colorBlindSwitch')
-  public colorBlindSwitch?: ElementRef<ArcSwitch>;
-  private readonly document = inject(DOCUMENT);
+  public colorBlindSwitch!: ElementRef<ArcSwitch>;
 
   private dataService = inject(DataService);
   private filterService = inject(FilterService);
@@ -87,10 +86,11 @@ export class ShellComponent implements AfterViewInit, OnChanges {
 
   public ngAfterViewInit(): void {
     const colorBlindMode = this.colorBlindMode();
-    this.setColorBlindMode(colorBlindMode);
-    if (this.colorBlindSwitch) {
-      this.colorBlindSwitch.nativeElement.checked = colorBlindMode;
-    }
+    this.container.nativeElement.setAttribute(
+      'color-blind-mode',
+      colorBlindMode ? 'true' : 'false'
+    );
+    this.colorBlindSwitch.nativeElement.checked = colorBlindMode;
   }
 
   ngOnChanges(): void {
@@ -112,22 +112,12 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   }
 
   public handleColorBlindSwitchChange(event: Event): void {
-    const colorBlindMode = (event.target as HTMLInputElement).checked;
-    this.setColorBlindMode(colorBlindMode);
-    this.settingService.set('colorBlindMode', colorBlindMode);
-  }
-
-  public handleAccessibilityChange(event: Event): void {
-    const theme = (event as CustomEvent<{ preferences: UserPreferences }>)
-      .detail.preferences.theme;
-    this.document?.body?.setAttribute('theme', theme);
-  }
-
-  private setColorBlindMode(colorBlindMode: boolean): void {
-    this.document?.body?.setAttribute(
+    const checked = (event.target as HTMLInputElement).checked;
+    this.container.nativeElement.setAttribute(
       'color-blind-mode',
-      colorBlindMode.toString()
+      checked ? 'true' : 'false'
     );
+    this.settingService.set('colorBlindMode', checked);
   }
 
   updateBuildingLayerFilter() {

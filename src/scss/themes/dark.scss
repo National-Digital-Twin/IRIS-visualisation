@@ -6,7 +6,7 @@ $c477-dark-theme: mat.define-dark-theme(
   mat.define-palette(mat.$red-palette)
 );
 
-body[theme='dark'] * {
+arc-container[theme='dark'] {
   @include mat.core-theme($c477-dark-theme);
   @include mat.all-component-themes($c477-dark-theme);
 }

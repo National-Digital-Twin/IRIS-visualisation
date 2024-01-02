@@ -7,8 +7,7 @@ $c477-light-theme: mat.define-light-theme(
   mat.define-palette(mat.$red-palette)
 );
 
-arc-container[theme='light'] *,
-div.cdk-overlay-container * {
+arc-container[theme='light'] {
   @include mat.core-theme($c477-light-theme);
   @include mat.all-component-themes($c477-light-theme);
 
