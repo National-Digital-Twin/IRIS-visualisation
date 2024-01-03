@@ -36,3 +36,7 @@ export interface BuildingPart {
   InsulationThickness: string;
   InsulationThicknessLowerBound: string;
 }
+
+export interface BuildingPartMap {
+  [key: string]: BuildingPart;
+}
