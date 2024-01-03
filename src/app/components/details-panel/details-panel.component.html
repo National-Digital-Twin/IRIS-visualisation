@@ -77,7 +77,11 @@
               } @else if (
                 buildingParts()?.Roof?.InsulationThicknessLowerBound !== ''
               ) {
-                <span>{{ buildingParts()!.Roof!.InsulationThickness }}mm</span>
+                <span
+                  >{{
+                    buildingParts()!.Roof!.InsulationThicknessLowerBound
+                  }}mm+</span
+                >
               } @else {
                 <span>No data</span>
               }
