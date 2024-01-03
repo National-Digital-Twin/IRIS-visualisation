@@ -1,9 +1,9 @@
 export enum EPCRating {
-  A = 'A',
-  B = 'B',
-  C = 'C',
-  D = 'D',
-  E = 'E',
-  F = 'F',
-  G = 'G',
+  BuildingWithEnergyRatingOfA = 'A',
+  BuildingWithEnergyRatingOfB = 'B',
+  BuildingWithEnergyRatingOfC = 'C',
+  BuildingWithEnergyRatingOfD = 'D',
+  BuildingWithEnergyRatingOfE = 'E',
+  BuildingWithEnergyRatingOfF = 'F',
+  BuildingWithEnergyRatingOfG = 'G',
 }

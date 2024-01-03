@@ -30,7 +30,7 @@ import {
   AdvancedFiltersFormModel,
   FilterProps,
 } from '@core/models/advanced-filters.model';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'c477-main-filters',
@@ -43,7 +43,6 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
     MatIconModule,
     MatInputModule,
     MatSelectModule,
-    ReactiveFormsModule,
   ],
   templateUrl: './main-filters.component.html',
   styleUrl: './main-filters.component.css',
