@@ -26,7 +26,7 @@ export class AddressSearchService {
           this.runtimeConfiguration.placesAPIURL
         }/find?query=${encodeURIComponent(
           queryString
-        )}&maxresults=10&output_srs=EPSG:3857&key=${environment.os.apiKey}`
+        )}&maxresults=10&output_srs=EPSG:4326&key=${environment.os.apiKey}`
       )
       .pipe(
         map((res: AddressSearchResponse) => res.results.map(r => r.DPA)),

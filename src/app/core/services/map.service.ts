@@ -169,6 +169,20 @@ export class MapService {
     );
   }
 
+  zoomToCoords(
+    center: number[],
+    zoom: number = 19.5,
+    pitch: number = 0,
+    bearing: number = 0
+  ) {
+    this.mapInstance.flyTo({
+      center,
+      zoom,
+      pitch,
+      bearing,
+    });
+  }
+
   destroyMap() {
     if (this.mapInstance) {
       this.mapInstance.remove();

@@ -6,12 +6,23 @@
         matInput
         type="text"
         aria-label="Search by address"
-        formControlName="address" />
+        formControlName="address"
+        [matAutocomplete]="addressHints" />
+      <mat-autocomplete #addressHints="matAutocomplete">
+        @for (result of results$ | async; track result.UPRN) {
+          <mat-option
+            [value]="result.ADDRESS"
+            (onSelectionChange)="selectAddress(result)"
+            >{{ removePostCode(result.ADDRESS) | titlecase }}
+            {{ result.POSTCODE }}</mat-option
+          >
+        }
+      </mat-autocomplete>
       <button
         matSuffix
         mat-icon-button
         aria-label="Search"
-        (click)="zoomToAddress()">
+        (click)="selectAddress()">
         <mat-icon>search</mat-icon>
       </button>
     </mat-form-field>
