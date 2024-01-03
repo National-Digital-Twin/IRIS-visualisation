@@ -61,6 +61,7 @@ export class DataService {
    * Use toSignal to automatically subscribe & unsubscribe
    */
   private buildingDetails$ = toObservable(this.selectedUPRN).pipe(
+    tap(uprn => console.log('getting details for uprn ', uprn)),
     switchMap(uprn =>
       this.getBuildingDetails(uprn!).pipe(
         tap(details => {

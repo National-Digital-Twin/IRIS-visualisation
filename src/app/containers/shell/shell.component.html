@@ -24,7 +24,10 @@
   </arc-accessibility>
 
   <div class="content">
-    <c477-main-filters></c477-main-filters>
+    <c477-main-filters
+      [filterProps]="filterProps"
+      (setRouteParams)="setFilterParams($event)"
+      (setAdvancedFilters)="setAdvancedFilters($event)"></c477-main-filters>
     <c477-results-panel></c477-results-panel>
 
     <c477-details-panel (closePanel)="closeDetails()"></c477-details-panel>
@@ -32,7 +35,7 @@
     <div class="content__map-container">
       <c477-map
         [mapConfig]="mapConfig"
-        (setRouteParams)="setRouteParams($event)"
+        (setRouteParams)="setRouteMapParams($event)"
         (deleteSpatialFilter)="deleteSpatialFilter()"
         (resetMapView)="resetMapView()"
         (zoomIn)="zoomIn()"

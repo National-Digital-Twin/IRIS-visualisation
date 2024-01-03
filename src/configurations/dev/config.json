@@ -3,7 +3,7 @@
   "env": "dev",
   "apiURL": "https://thirdp-test.telicent.live",
   "map": {
-    "style": "https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Greyscale.json",
+    "style": "https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Light.json",
     "zoom": 16,
     "pitch": 64.9,
     "center": [-1.30303, 50.7561],
@@ -22,7 +22,7 @@
   "epcColoursCD": {
     "A": "#0051F2",
     "B": "#377CF6",
-    "C": "#377CF6",
+    "C": "#6DA7FB",
     "D": "#DAFFA5",
     "E": "#FFD173",
     "F": "#D9963A",

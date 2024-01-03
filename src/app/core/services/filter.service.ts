@@ -1,55 +1,83 @@
-import { Injectable } from '@angular/core';
-import { BuildingMap } from '@core/models/building.model';
-import { TableRow } from '@core/models/rdf-data.model';
-// import { BuildingMap } from '@core/models/building.model';
+import { Injectable, inject } from '@angular/core';
+
+import { FilterKeys, FilterProps } from '@core/models/advanced-filters.model';
+import { UtilService } from './utils.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FilterService {
-  private filterProps: { [key: string]: string[] } = {};
+  private utilsService = inject(UtilService);
+
   /**
-   *
-   * @param filter 'epc-C:epc-G:building_type-SemiDetached:property_type-Bungalow'
+   * Create a filter string from new and existing
+   * filter objects
+   * @param filter filter that is being set
+   * @param currentFilters existing filters
+   * @returns filter string URL param
    */
-  parseFilter(filter: string) {
-    filter.split(':').forEach((val: string) => {
-      const k = val.split('-');
-      if (this.filterProps[k[0]]) {
-        this.filterProps[k[0]].push(k[1]);
-      } else {
-        this.filterProps[k[0]] = [k[1]];
+  createFilterString(
+    filter: { [key: string]: string[] },
+    currentFilters?: FilterProps
+  ) {
+    // format EPC rating
+    if (currentFilters && currentFilters['EPC']) {
+      currentFilters['EPC'] = currentFilters['EPC'].map(rating =>
+        rating.slice(-1)
+      );
+    }
+    const combinedFilters = [filter];
+    if (currentFilters) {
+      combinedFilters.push(currentFilters as { [key: string]: string[] });
+    }
+    // combine new filters with existing filters into a single object
+    // of unique filters and filter values
+    const keys = combinedFilters.map((o: object) => Object.keys(o)).flat();
+    const merged = keys.reduce((result: { [key: string]: string[] }, key) => {
+      const values = [
+        ...new Set(combinedFilters.map(o => o[key]).flat()),
+      ].filter((prop: string) => prop !== undefined);
+      if (values.length) {
+        result[key] = values;
       }
-    });
+      return result;
+    }, {});
+    // convert the filter object into a string to apply
+    // as a URL query param
+    const filterString = this.filterObjToString(merged);
+    return filterString;
   }
 
-  applyFilters(buildings: BuildingMap) {
-    if (Object.keys(this.filterProps).length === 0) return buildings;
-    const filterKeys = Object.keys(this.filterProps);
-    const filteredBuildings: BuildingMap = {};
-    // iterate through buildings object
-    Object.keys(buildings).forEach((toid: string) => {
-      // iterate the buildings associated with a toid.
-      // could be one or many
-      buildings[toid].forEach((building: TableRow) => {
-        // check if filter keus
-        filterKeys.every((key: string) => {
-          //ignore empty filter
-          if (!this.filterProps[key].length) return;
-          // check if building matches filter
-          const keepBuilding = this.filterProps[key].find(
-            filter => filter.toUpperCase() === building[key]
-          );
-          if (keepBuilding) {
-            if (filteredBuildings[toid]) {
-              filteredBuildings[toid].push(building);
-            } else {
-              filteredBuildings[toid] = [building];
-            }
-          }
-        });
-      });
+  /**
+   *
+   * @param filter 'EPC-C-G:BuildForm-SemiDetached-EndTerrace:PropertyType-Bungalow'
+   */
+  parseFilterString(filter: string) {
+    const filterProps: FilterProps = {};
+    // split filter string by filter type
+    filter.split(':').forEach((val: string) => {
+      // split filter type to individual filter values
+      const k = val.split('-');
+      // get first value as filter name
+      const key = k[0] as FilterKeys;
+      // remove filter name to get values
+      let values = k.slice(1);
+      // add prefix to EPC ratings
+      if (key === 'EPC') {
+        values = this.utilsService.addEPCPrefix(values);
+      }
+      if (filterProps[key]) {
+        values.forEach((v: string) => filterProps[key]!.push(v));
+      } else {
+        filterProps[key] = [...values];
+      }
     });
-    return filteredBuildings;
+    return filterProps;
+  }
+
+  filterObjToString(filter: FilterProps) {
+    return Object.keys(filter)
+      .map(key => `${key}-${filter[key as FilterKeys]!.join('-')}`)
+      .join(':');
   }
 }

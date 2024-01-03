@@ -8,7 +8,7 @@ export interface BuildingModel {
 }
 
 export interface BuildingDetailsModel extends BuildingModel {
-  builtForm: string;
+  buildForm: string;
   propertyType: string;
   sapPoints: string;
   inspectionDate: string;

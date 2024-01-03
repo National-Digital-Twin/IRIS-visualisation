@@ -10,7 +10,7 @@
   --c477-color--epc-g: #{$color-epc-g};
 }
 
-body[color-blind-mode="true"] * {
+body[color-blind-mode='true'] * {
   --c477-color--epc-a: #{$color-cb-epc-a};
   --c477-color--epc-b: #{$color-cb-epc-b};
   --c477-color--epc-c: #{$color-cb-epc-c};
