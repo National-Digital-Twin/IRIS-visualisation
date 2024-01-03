@@ -17,7 +17,11 @@ import { LngLatBounds } from 'mapbox-gl';
 
 import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
 import { SPARQLReturn, TableRow } from '@core/models/rdf-data.model';
-import { BuildingMap, BuildingPart } from '@core/models/building.model';
+import {
+  BuildingMap,
+  BuildingPart,
+  BuildingPartMap,
+} from '@core/models/building.model';
 
 import { Queries } from './Queries';
 
@@ -60,7 +64,6 @@ export class DataService {
     switchMap(uprn =>
       this.getBuildingDetails(uprn!).pipe(
         tap(details => {
-          console.log(details);
           this.setSelectedBuilding(details);
         }),
         catchError(() => of([] as TableRow[]))
@@ -78,8 +81,8 @@ export class DataService {
     filter(selectedBuilding => selectedBuilding !== undefined),
     switchMap(selectedBuilding =>
       this.getBuildingParts(selectedBuilding!.parts.split(';')).pipe(
-        map(p => p as unknown as BuildingPart[]),
-        catchError(() => of([] as TableRow[]))
+        map(p => this.mapBuildingParts(p as unknown as BuildingPart[])),
+        catchError(() => of({} as BuildingPartMap))
       )
     )
   );
@@ -259,6 +262,21 @@ export class DataService {
       }
     });
     return buildingMap;
+  }
+
+  /**
+   * Maps part types to parts details
+   *
+   * @param parts building parts
+   * @returns object with key as part name
+   * and details as value
+   */
+  mapBuildingParts(parts: BuildingPart[]) {
+    const buildingPartMap: BuildingPartMap = {};
+    parts.forEach((part: BuildingPart) => {
+      buildingPartMap[part.PartSuperType] = part;
+    });
+    return buildingPartMap;
   }
 
   /**
