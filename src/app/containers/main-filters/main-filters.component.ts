@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { switchMap } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -30,7 +31,13 @@ import {
   AdvancedFiltersFormModel,
   FilterProps,
 } from '@core/models/advanced-filters.model';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { AddressSearchService } from '@core/services/address-search.service';
 
 @Component({
   selector: 'c477-main-filters',
@@ -43,6 +50,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    ReactiveFormsModule,
   ],
   templateUrl: './main-filters.component.html',
   styleUrl: './main-filters.component.css',
@@ -54,16 +62,27 @@ export class MainFiltersComponent {
   @Output() setAdvancedFilters: EventEmitter<AdvancedFiltersFormModel> =
     new EventEmitter<AdvancedFiltersFormModel>();
 
-  constructor(public dialog: MatDialog) {}
   private fb: FormBuilder = inject(FormBuilder);
+  private addressSearchService = inject(AddressSearchService);
   epcRatings: { [key: string]: string } = EPCRating;
   propertyTypes: { [key: string]: string } = PropertyType;
-
+  addressSearch = new FormControl('');
+  addressForm = this.fb.group({ address: this.addressSearch });
   advancedFiltersForm?: FormGroup;
+
+  constructor(public dialog: MatDialog) {
+    this.addressSearch.valueChanges
+      .pipe(
+        switchMap(value => this.addressSearchService.getAddresses(value ?? ''))
+      )
+      .subscribe();
+  }
 
   getKeys(options: { [key: string]: string }) {
     return Object.keys(options);
   }
+
+  zoomToAddress() {}
 
   openAdvancedFilters() {
     const dialogRef = this.dialog.open(FilterPanelComponent, {

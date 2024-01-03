@@ -1,11 +1,21 @@
 <div class="main-filters">
-  <mat-form-field class="search">
-    <mat-label>Search by address, postcode</mat-label>
-    <input matInput type="text" aria-label="Search by address, postcode" />
-    <button matSuffix mat-icon-button aria-label="Search">
-      <mat-icon>search</mat-icon>
-    </button>
-  </mat-form-field>
+  <form [formGroup]="addressForm">
+    <mat-form-field class="search">
+      <mat-label>Search by address, postcode</mat-label>
+      <input
+        matInput
+        type="text"
+        aria-label="Search by address"
+        formControlName="address" />
+      <button
+        matSuffix
+        mat-icon-button
+        aria-label="Search"
+        (click)="zoomToAddress()">
+        <mat-icon>search</mat-icon>
+      </button>
+    </mat-form-field>
+  </form>
   <mat-form-field class="epc-filter">
     <mat-label>EPC Rating</mat-label>
     <mat-select

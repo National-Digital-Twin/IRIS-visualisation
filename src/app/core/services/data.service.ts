@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import {
   Observable,
   Subscriber,
@@ -9,7 +9,6 @@ import {
   of,
   switchMap,
   tap,
-  throwError,
 } from 'rxjs';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 
@@ -278,22 +277,5 @@ export class DataService {
       buildingPartMap[part.PartSuperType] = part;
     });
     return buildingPartMap;
-  }
-
-  /**
-   * Error handler
-   * @param err Http error response
-   * @returns error
-   */
-  private handleError(err: HttpErrorResponse): Observable<never> {
-    let errorMessage = '';
-    if (err.error instanceof ErrorEvent) {
-      // A client-side or network error occurred. Handle it accordingly.
-      errorMessage = `An error occurred: ${err.error.message}`;
-    } else {
-      errorMessage = `Server returned code: ${err.status}, error message is: ${err.message}`;
-    }
-    console.error(errorMessage);
-    return throwError(() => new Error(errorMessage));
   }
 }
