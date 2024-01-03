@@ -74,6 +74,10 @@
               <span class="field">Roof insulation thickness:</span>
               @if (buildingParts()?.Roof?.InsulationThickness !== '') {
                 <span>{{ buildingParts()!.Roof!.InsulationThickness }}mm</span>
+              } @else if (
+                buildingParts()?.Roof?.InsulationThicknessLowerBound !== ''
+              ) {
+                <span>{{ buildingParts()!.Roof!.InsulationThickness }}mm</span>
               } @else {
                 <span>No data</span>
               }
