@@ -41,7 +41,7 @@ export class MultiButtonFilterComponent<T extends AdvancedFilter>
     [key: string]: string;
   };
   optionKeys: string[] = [];
-  selectedValues: MultiFilterControlValue<T> = [];
+  selectedValues?: string[];
   touched = false;
 
   ngOnInit(): void {
@@ -55,7 +55,7 @@ export class MultiButtonFilterComponent<T extends AdvancedFilter>
 
   writeValue(value: MultiFilterControlValue<T> | null) {
     if (value) {
-      this.selectedValues = value;
+      this.selectedValues = value as unknown as string[];
     } else {
       this.selectedValues = [];
     }
@@ -76,7 +76,7 @@ export class MultiButtonFilterComponent<T extends AdvancedFilter>
   filterChange(e: MatButtonToggleChange) {
     this.markAsTouched();
     this.selectedValues = e.value;
-    this.onChange(this.selectedValues);
+    this.onChange(this.selectedValues as unknown as MultiFilterControlValue<T>);
   }
 
   markAsTouched() {

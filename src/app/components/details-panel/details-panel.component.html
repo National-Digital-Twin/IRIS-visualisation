@@ -1,7 +1,10 @@
 @if (buildingDetails()) {
   <div class="panel details-panel">
     <div class="details-panel__header">
-      <h1>Property 2</h1>
+      <h1>
+        {{ addressPart1 }}
+        {{ addressPart2 }}
+      </h1>
       <button mat-icon-button (click)="closePanel.emit()">
         <mat-icon>close</mat-icon>
       </button>
@@ -12,7 +15,7 @@
         <c477-label [epcRating]="buildingDetails()?.epc">{{
           buildingDetails()?.sapPoints
         }}</c477-label>
-        <c477-label>{{ buildingDetails()?.buildingTypes }}</c477-label>
+        <c477-label>{{ buildingDetails()?.propertyType }}</c477-label>
       </div>
     </div>
     <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
@@ -23,7 +26,7 @@
             <p><span class="field">Number of flats:</span> <span></span></p>
             <p>
               <span class="field">Built form:</span
-              ><span>{{ buildingDetails()?.buildingTypes }}</span>
+              ><span>{{ buildingDetails()?.buildForm }}</span>
             </p>
             <p>
               <span class="field">Inspection date:</span>
@@ -31,30 +34,68 @@
             </p>
           </div>
           <div class="specification">
-            <h2>Specifcation</h2>
+            <h2>Specification</h2>
             <p>
               <span class="field">Floor construction:</span>
-              <span></span>
+              @if (floor[buildingParts()!.Floor!.PartType]) {
+                <span>{{ floor[buildingParts()!.Floor!.PartType] }}</span>
+              } @else {
+                <span>No data</span>
+              }
             </p>
             <p>
               <span class="field">Floor insulation:</span>
-              <span></span>
+              @if (
+                floorInsulation[buildingParts()!.Floor!.PartInsulationType]
+              ) {
+                <span>{{
+                  floorInsulation[buildingParts()!.Floor!.PartInsulationType]
+                }}</span>
+              } @else {
+                <span>No data</span>
+              }
             </p>
             <p>
               <span class="field">Roof construction:</span>
-              <span></span>
+              @if (roof[buildingParts()!.Roof!.PartType]) {
+                <span>{{ roof[buildingParts()!.Roof!.PartType] }}</span>
+              } @else {
+                <span>No data</span>
+              }
             </p>
             <p>
               <span class="field">Roof insulation location:</span>
-              <span></span>
+              @if (roofInsulation[buildingParts()!.Roof!.PartInsulationType]) {
+                <span>{{
+                  roofInsulation[buildingParts()!.Roof!.PartInsulationType]
+                }}</span>
+              } @else {
+                <span>No data</span>
+              }
             </p>
             <p>
               <span class="field">Roof insulation thickness:</span>
-              <span></span>
+              @if (buildingParts()?.Roof?.InsulationThickness !== '') {
+                <span>{{ buildingParts()!.Roof!.InsulationThickness }}mm</span>
+              } @else if (
+                buildingParts()?.Roof?.InsulationThicknessLowerBound !== ''
+              ) {
+                <span
+                  >{{
+                    buildingParts()!.Roof!.InsulationThicknessLowerBound
+                  }}+mm</span
+                >
+              } @else {
+                <span>No data</span>
+              }
             </p>
             <p>
-              <span class="field">Wall construction:</span> Sandstone or
-              Limestone
+              <span class="field">Wall construction:</span>
+              @if (wall[buildingParts()!.Wall!.PartType]) {
+                <span>{{ wall[buildingParts()!.Wall!.PartType] }}</span>
+              } @else {
+                <span>No data</span>
+              }
             </p>
           </div>
         </div>

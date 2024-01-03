@@ -7,9 +7,11 @@
     (change)="filterChange($event)"
     multiple>
     @for (option of optionKeys; track option) {
-      <mat-button-toggle [value]="option">{{
-        options[option]
-      }}</mat-button-toggle>
+      <mat-button-toggle
+        [value]="option"
+        [checked]="selectedValues?.includes(option)"
+        >{{ options[option] }}</mat-button-toggle
+      >
     }
   </mat-button-toggle-group>
 </div>

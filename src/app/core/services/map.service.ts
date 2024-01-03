@@ -17,8 +17,8 @@ import {
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 
-import { MapConfigModel } from '@core/models/map-configuration.model';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
+import { URLStateModel } from '@core/models/url-state.model';
 
 import { environment } from 'src/environments/environment';
 
@@ -45,7 +45,7 @@ export class MapService {
     this.mapLoaded$ = this.mapLoaded.asObservable();
   }
 
-  setup(config: MapConfigModel) {
+  setup(config: URLStateModel) {
     // Need onStable to wait for a potential @angular/route transition to end
     this.zone.onStable.pipe(first()).subscribe(() => {
       this.createMap(config);
@@ -116,7 +116,7 @@ export class MapService {
     });
   }
 
-  private createMap(config: MapConfigModel) {
+  private createMap(config: URLStateModel) {
     NgZone.assertNotInAngularZone();
     const { bearing, center, pitch, zoom, style } = config;
 

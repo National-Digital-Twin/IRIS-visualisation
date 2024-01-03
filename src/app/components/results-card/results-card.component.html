@@ -1,9 +1,13 @@
 <div class="results-card">
   <div class="results-card__header">
     @if (select) {
-      <mat-checkbox [color]="'primary'">{{ card.name }}</mat-checkbox>
+      <mat-checkbox [color]="'primary'">
+        {{ card.fullAddress!.split(',')[0] }}
+      </mat-checkbox>
     } @else {
-      <p class="card-title">{{ card.name }}</p>
+      <p class="card-title">
+        {{ card.fullAddress!.split(',')[0] }}
+      </p>
     }
     <button mat-button (click)="viewDetails.emit(card)">
       View details <mat-icon iconPositionEnd>arrow_right_alt</mat-icon>
@@ -18,7 +22,7 @@
       </p>
       <div class="results-card__labels">
         <c477-label [epcRating]="card.epc"></c477-label>
-        <c477-label>{{ card.buildingTypes }}</c477-label>
+        <c477-label>{{ card.propertyType }}</c477-label>
       </div>
     </div>
     <div class="results-card__buttons">

@@ -32,22 +32,54 @@ export interface DateFormModel {
   endYear: Moment | null;
 }
 export interface AdvancedFiltersFormModel {
-  postCode: PostCode[] | null;
-  builtForm: BuildForm[] | null;
-  yearOfAssessment: DateFormModel | null;
-  dwellingSize: DwellingSize[] | null;
-  multipleGlazingType: WindowGlazing[] | null;
-  wallConstruction: Wall[] | null;
-  wallInsulation: WallInsulation[] | null;
-  floorConstruction: Floor[] | null;
-  floorInsulation: FloorInsulation[] | null;
-  roofConstruction: Roof[] | null;
-  roofInsulationLocation: RoofInsulation[] | null;
-  roofInsulationThickness: RoofInsulationThickness[] | null;
+  PostCode: PostCode[] | null;
+  BuildForm: BuildForm[] | null;
+  YearOfAssessment: DateFormModel | null;
+  DwellingSize: DwellingSize[] | null;
+  MultipleGlazingType: WindowGlazing[] | null;
+  WallConstruction: Wall[] | null;
+  WallInsulation: WallInsulation[] | null;
+  FloorConstruction: Floor[] | null;
+  FloorInsulation: FloorInsulation[] | null;
+  RoofConstruction: Roof[] | null;
+  RoofInsulationLocation: RoofInsulation[] | null;
+  RoofInsulationThickness: RoofInsulationThickness[] | null;
 }
 
 export interface MultiButtonFilterOption {
   title: string;
   data: AdvancedFilter;
   formControlName: keyof AdvancedFiltersFormModel;
+  selectedValues?: string[];
 }
+
+export interface FilterProps {
+  BuildForm?: string[];
+  DwellingSize?: string[];
+  EPC?: string[];
+  FloorConstruction?: string[];
+  FloorInsulation?: string[];
+  PostCode?: string[];
+  PropertyType?: string[];
+  RoofConstruction?: string[];
+  RoofInsulationLocation?: string[];
+  RoofInsulationThickness?: string[];
+  WallConstruction?: string[];
+  WallInsulation?: string[];
+  MultipleGlazingType?: string[];
+}
+
+export type FilterKeys =
+  | 'BuildForm'
+  | 'DwellingSize'
+  | 'EPC'
+  | 'FloorConstruction'
+  | 'FloorInsulation'
+  | 'PostCode'
+  | 'PropertyType'
+  | 'RoofConstruction'
+  | 'RoofInsulationLocation'
+  | 'RoofInsulationThickness'
+  | 'WallConstruction'
+  | 'WallInsulation'
+  | 'MultipleGlazingType';

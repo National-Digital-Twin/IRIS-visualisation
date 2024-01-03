@@ -20,7 +20,7 @@ import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { MapService } from '@core/services/map.service';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
-import { MapConfigModel } from '@core/models/map-configuration.model';
+import { URLStateModel } from '@core/models/url-state.model';
 
 @Component({
   selector: 'c477-map',
@@ -36,7 +36,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private drawControl!: MapboxDraw;
   private mapSubscription!: Subscription;
 
-  @Input() mapConfig!: MapConfigModel | undefined;
+  @Input() mapConfig!: URLStateModel | undefined;
 
   @Output() resetMapView: EventEmitter<null> = new EventEmitter<null>();
   @Output() zoomIn: EventEmitter<null> = new EventEmitter<null>();
@@ -48,13 +48,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   @Output() setSelectedBuildingTOID: EventEmitter<string | null> =
     new EventEmitter<string | null>();
 
-  @Output() setRouteParams: EventEmitter<MapConfigModel> =
-    new EventEmitter<MapConfigModel>();
+  @Output() setRouteParams: EventEmitter<URLStateModel> =
+    new EventEmitter<URLStateModel>();
 
   /** setup map */
   ngAfterViewInit() {
     const { bearing, zoom, pitch } = this.mapConfig!;
-    const config: MapConfigModel = {
+    const config: URLStateModel = {
       style: this.runtimeConfig.map.style!,
       center: [this.mapConfig!.center[0], this.mapConfig!.center[1]],
       bearing,
@@ -179,7 +179,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     const pitch = this.mapService.mapInstance.getPitch();
     const bearing = this.mapService.mapInstance.getBearing();
     const { lng, lat } = this.mapService.mapInstance.getCenter();
-    const mapConfig: MapConfigModel = {
+    const mapConfig: URLStateModel = {
       bearing,
       center: [lat, lng],
       pitch,

@@ -1,4 +1,4 @@
-<arc-container #container fullscreen="true">
+<arc-container fullscreen="true">
   <arc-navbar
     slot="nav"
     tabs="0"
@@ -6,7 +6,10 @@
     <span slot="name">{{ title }}</span>
   </arc-navbar>
 
-  <arc-accessibility #accessibility slot="accessibility">
+  <arc-accessibility
+    #accessibility
+    slot="accessibility"
+    (arc-accessibility-change)="handleAccessibilityChange($event)">
     <div slot="options" class="accessibility__options">
       <div class="accessibility__label">
         <span>Color Blind Mode</span>
@@ -21,7 +24,10 @@
   </arc-accessibility>
 
   <div class="content">
-    <c477-main-filters></c477-main-filters>
+    <c477-main-filters
+      [filterProps]="filterProps"
+      (setRouteParams)="setFilterParams($event)"
+      (setAdvancedFilters)="setAdvancedFilters($event)"></c477-main-filters>
     <c477-results-panel></c477-results-panel>
 
     <c477-details-panel (closePanel)="closeDetails()"></c477-details-panel>
@@ -29,7 +35,7 @@
     <div class="content__map-container">
       <c477-map
         [mapConfig]="mapConfig"
-        (setRouteParams)="setRouteParams($event)"
+        (setRouteParams)="setRouteMapParams($event)"
         (deleteSpatialFilter)="deleteSpatialFilter()"
         (resetMapView)="resetMapView()"
         (zoomIn)="zoomIn()"

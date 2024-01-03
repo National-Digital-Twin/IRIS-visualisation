@@ -11,11 +11,13 @@ import {
   numberAttribute,
   computed,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { Params, Router } from '@angular/router';
+import { DOCUMENT } from '@angular/common';
 
 import { Polygon } from 'geojson';
 
-import { ArcAccessibility, ArcContainer, ArcSwitch } from '@arc-web/components';
+import { ArcAccessibility, ArcSwitch } from '@arc-web/components';
+import { UserPreferences } from '@arc-web/components/dist/components/accessibility/ArcAccessibility';
 import { DetailsPanelComponent } from '@components/details-panel/details-panel.component';
 import { MainFiltersComponent } from '@containers/main-filters/main-filters.component';
 import { MapComponent } from '@components/map/map.component';
@@ -28,7 +30,12 @@ import { MapService } from '@core/services/map.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { UtilService } from '@core/services/utils.service';
 
-import { MapConfigModel } from '@core/models/map-configuration.model';
+import {
+  AdvancedFiltersFormModel,
+  FilterKeys,
+  FilterProps,
+} from '@core/models/advanced-filters.model';
+import { URLStateModel } from '@core/models/url-state.model';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
@@ -53,19 +60,23 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   @Input({ transform: numberAttribute }) lat: number = 0;
   @Input({ transform: numberAttribute }) lng: number = 0;
   @Input({ transform: numberAttribute }) zoom: number = 0;
-  @Input() filter: string = '';
+  // get filters from route query params
+  @Input() set filter(filter: string) {
+    if (filter) {
+      this.filterProps = this.filterService.parseFilterString(filter);
+    }
+  }
 
   private readonly settingService = inject(SettingService);
   private readonly colorBlindMode = computed(
     () => this.settingService.settings()['colorBlindMode'] as boolean
   );
 
-  @ViewChild('container')
-  public container!: ElementRef<ArcContainer>;
   @ViewChild('accessibility')
   public accessibility?: ElementRef<ArcAccessibility>;
   @ViewChild('colorBlindSwitch')
-  public colorBlindSwitch!: ElementRef<ArcSwitch>;
+  public colorBlindSwitch?: ElementRef<ArcSwitch>;
+  private readonly document = inject(DOCUMENT);
 
   private dataService = inject(DataService);
   private filterService = inject(FilterService);
@@ -80,30 +91,28 @@ export class ShellComponent implements AfterViewInit, OnChanges {
 
   title = 'Energy Performance Viewer';
 
-  mapConfig?: MapConfigModel;
+  mapConfig?: URLStateModel;
 
   buildingLayerExpression = this.utilService.currentMapViewExpression;
 
+  filterProps?: FilterProps;
+
   public ngAfterViewInit(): void {
     const colorBlindMode = this.colorBlindMode();
-    this.container.nativeElement.setAttribute(
-      'color-blind-mode',
-      colorBlindMode ? 'true' : 'false'
-    );
-    this.colorBlindSwitch.nativeElement.checked = colorBlindMode;
+    this.setColorBlindMode(colorBlindMode);
+    if (this.colorBlindSwitch) {
+      this.colorBlindSwitch.nativeElement.checked = colorBlindMode;
+    }
   }
 
   ngOnChanges(): void {
-    const mapConfig: MapConfigModel = {
+    const mapConfig: URLStateModel = {
       bearing: this.bearing,
       pitch: this.pitch,
       zoom: this.zoom,
       center: [this.lat, this.lng],
     };
     this.mapConfig = mapConfig;
-    if (this.filter) {
-      this.filterService.parseFilter(this.filter);
-    }
   }
 
   public handleShowAccessibility(event: Event): void {
@@ -112,12 +121,22 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   }
 
   public handleColorBlindSwitchChange(event: Event): void {
-    const checked = (event.target as HTMLInputElement).checked;
-    this.container.nativeElement.setAttribute(
+    const colorBlindMode = (event.target as HTMLInputElement).checked;
+    this.setColorBlindMode(colorBlindMode);
+    this.settingService.set('colorBlindMode', colorBlindMode);
+  }
+
+  public handleAccessibilityChange(event: Event): void {
+    const theme = (event as CustomEvent<{ preferences: UserPreferences }>)
+      .detail.preferences.theme;
+    this.document?.body?.setAttribute('theme', theme);
+  }
+
+  private setColorBlindMode(colorBlindMode: boolean): void {
+    this.document?.body?.setAttribute(
       'color-blind-mode',
-      checked ? 'true' : 'false'
+      colorBlindMode.toString()
     );
-    this.settingService.set('colorBlindMode', checked);
   }
 
   updateBuildingLayerFilter() {
@@ -201,16 +220,64 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     this.updateBuildingLayerFilter();
   }
 
-  setRouteParams(params: MapConfigModel) {
+  setAdvancedFilters(filter: AdvancedFiltersFormModel) {
+    for (const [key, value] of Object.entries(filter)) {
+      if (value === null) {
+        delete filter[key as keyof AdvancedFiltersFormModel];
+      }
+    }
+    const queryParams = this.createQueryParams(
+      filter as unknown as { [key: string]: string[] }
+    );
+    this.navigate(queryParams);
+  }
+
+  setFilterParams(filter: { [key: string]: string[] }) {
+    const queryParams = this.createQueryParams(filter);
+    this.navigate(queryParams);
+  }
+
+  setRouteMapParams(params: URLStateModel) {
     const { bearing, center, pitch, zoom } = params;
+    const queryParams = {
+      bearing,
+      lat: center[1],
+      lng: center[0],
+      pitch,
+      zoom,
+    };
+    this.navigate(queryParams);
+  }
+
+  private createQueryParams(filter: { [key: string]: string[] }) {
+    Object.keys(filter).forEach((key: string) => {
+      if (this.filterProps && this.filterProps[key as FilterKeys]) {
+        delete this.filterProps[key as FilterKeys];
+      }
+    });
+    const filterString = this.filterService.createFilterString(
+      filter,
+      this.filterProps
+    );
+    const queryParams = {
+      filter: filterString !== '' ? filterString : undefined,
+    };
+    return queryParams;
+  }
+
+  private navigate(queryParams: Params) {
     this.zone.run(() => {
       this.router.navigate(['/'], {
-        queryParams: { bearing, lat: center[1], lng: center[0], pitch, zoom },
+        queryParams,
         queryParamsHandling: 'merge',
       });
     });
     // if zoom is greater than 15 & there isn't a spatial filter
-    if (zoom >= 15 && !this.spatialQueryService.spatialFilterEnabled()) {
+    if (
+      queryParams.zoom &&
+      queryParams.zoom >= 15 &&
+      !this.spatialQueryService.spatialFilterEnabled()
+    ) {
       this.updateBuildingLayerFilter();
     }
   }

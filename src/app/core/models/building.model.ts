@@ -8,7 +8,7 @@ export interface BuildingModel {
 }
 
 export interface BuildingDetailsModel extends BuildingModel {
-  builtForm: string;
+  buildForm: string;
   propertyType: string;
   sapPoints: string;
   inspectionDate: string;
@@ -26,4 +26,17 @@ export interface BuildingSpecificationModel {
 
 export interface BuildingMap {
   [key: string]: TableRow[];
+}
+
+export interface BuildingPart {
+  PartType: string;
+  PartSuperType: string;
+  PartInsulationType: string;
+  PartInsulationThickness: string;
+  InsulationThickness: string;
+  InsulationThicknessLowerBound: string;
+}
+
+export interface BuildingPartMap {
+  [key: string]: BuildingPart;
 }

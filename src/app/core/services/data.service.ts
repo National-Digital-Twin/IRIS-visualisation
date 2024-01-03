@@ -4,6 +4,7 @@ import {
   Observable,
   Subscriber,
   catchError,
+  filter,
   map,
   of,
   switchMap,
@@ -16,7 +17,11 @@ import { LngLatBounds } from 'mapbox-gl';
 
 import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
 import { SPARQLReturn, TableRow } from '@core/models/rdf-data.model';
-import { BuildingMap } from '@core/models/building.model';
+import {
+  BuildingMap,
+  BuildingPart,
+  BuildingPartMap,
+} from '@core/models/building.model';
 
 import { Queries } from './Queries';
 import { QueryFields } from '@core/enums';
@@ -70,6 +75,7 @@ export class DataService {
    * Use toSignal to automatically subscribe & unsubscribe
    */
   private buildingDetails$ = toObservable(this.selectedUPRN).pipe(
+    tap(uprn => console.log('getting details for uprn ', uprn)),
     switchMap(uprn =>
       this.getBuildingDetails(uprn!).pipe(
         tap(details => {
@@ -82,6 +88,22 @@ export class DataService {
   readOnlyBuildingDetails = toSignal(this.buildingDetails$, {
     initialValue: [] as TableRow[],
   });
+
+  /**
+   * Get the related building parts for the selected building
+   */
+  private buildingParts$ = toObservable(this.selectedBuilding).pipe(
+    filter(selectedBuilding => selectedBuilding !== undefined),
+    switchMap(selectedBuilding =>
+      this.getBuildingParts(selectedBuilding!.parts.split(';')).pipe(
+        map(p => this.mapBuildingParts(p as unknown as BuildingPart[])),
+        catchError(() => of({} as BuildingPartMap))
+      )
+    )
+  );
+
+  private buildingParts = toSignal(this.buildingParts$);
+  parts = computed(() => this.buildingParts());
 
   private getBuildingsList$ = toObservable(this.buildingUPRNs).pipe(
     switchMap(uprns =>
@@ -190,6 +212,16 @@ export class DataService {
   }
 
   /**
+   * Return building parts
+   * @param partURIs Building part URIs
+   * @returns
+   */
+  getBuildingParts(partURIs: string[]) {
+    const selectString = this.queries.getBuildingParts(partURIs);
+    return this.selectTable(selectString);
+  }
+
+  /**
    * Return an array of building details to use in filter
    * results list
    * @param uprns array of uprns to get details for
@@ -274,6 +306,21 @@ export class DataService {
       }
     });
     return buildingMap;
+  }
+
+  /**
+   * Maps part types to parts details
+   *
+   * @param parts building parts
+   * @returns object with key as part name
+   * and details as value
+   */
+  mapBuildingParts(parts: BuildingPart[]) {
+    const buildingPartMap: BuildingPartMap = {};
+    parts.forEach((part: BuildingPart) => {
+      buildingPartMap[part.PartSuperType] = part;
+    });
+    return buildingPartMap;
   }
 
   /**
