@@ -87,7 +87,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     /** Select building event */
     this.mapService.mapInstance.on(
       'click',
-      'OS/TopographicArea_2/Building/1_3D',
+      'OS/TopographicArea_2/Building/1_3D-Single-Dwelling',
+      this.setSelectedTOID
+    );
+    this.mapService.mapInstance.on(
+      'click',
+      'OS/TopographicArea_2/Building/1_3D-Multi-Dwelling',
       this.setSelectedTOID
     );
     /** Change mouse cursor on building hover */
