@@ -5,6 +5,11 @@
   line-height: var(--arc-line-height-dense);
   border: 1px solid;
 
+  &__text {
+    display: flex;
+    justify-content: space-between;
+  }
+
   &__epc {
     display: grid;
     grid-template-columns: 1fr 2fr;
@@ -52,6 +57,20 @@
       border-color: var(--c477-color--epc-g);
       div {
         background-color: var(--c477-color--epc-g);
+      }
+    }
+    &--none {
+      border-color: $color-epc-none;
+      div {
+        background-color: $color-epc-none;
+      }
+    }
+    &--avg {
+      border-color: black;
+      div {
+        background-color: black;
+        background-image: url('/assets/icons/Spots.svg');
+        background-repeat: repeat;
       }
     }
   }
