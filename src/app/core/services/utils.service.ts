@@ -15,11 +15,13 @@ import { SpatialQueryService } from './spatial-query.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 
 import { BuildingMap, BuildingModel } from '@core/models/building.model';
+import { FilterProps } from '@core/models/advanced-filters.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UtilService {
+  filterProps = signal<FilterProps>({});
   private readonly settingService = inject(SettingService);
   private readonly colorBlindMode = computed(
     () => this.settingService.settings()['colorBlindMode'] as boolean
@@ -53,18 +55,36 @@ export class UtilService {
 
   readOnlyBuildingData = toSignal(this.buildingData$, {} as BuildingMap);
 
+  setFilters(filters: FilterProps) {
+    this.filterProps.set(filters);
+  }
+
   /**
    * Create an array of building TOIDS and colours from buildings
    * @param addresses filtered addresses within map bounds
    * @returns MapboxGLJS expression
    */
   createBuildingColourFilter() {
-    const buildings = this.dataService.buildings();
-    if (!buildings || !Object.keys(buildings).length) return;
+    let buildings = this.dataService.buildings();
+    if (!buildings || !Object.keys(buildings).length) {
+      console.log('no data, returning');
+      return;
+    }
+    console.log('orig building count ', Object.keys(buildings).length);
+    buildings = this.filterBuildingsByMainFilters(buildings);
+    console.log(
+      'building count after attribute filtering ',
+      Object.keys(buildings).length
+    );
+
     const spatialFilter = this.spatialQueryService.spatialFilterBounds();
     const filteredBuildings = this.filterBuildingsWithinBounds(
       buildings!,
       spatialFilter
+    );
+    console.log(
+      'filtered withing bounds building count ',
+      Object.keys(filteredBuildings).length
     );
     // if there is a spatial filter get the UPRNs within the filter area
     // and set in signal to get data from IA to display in filter results
@@ -212,6 +232,38 @@ export class UtilService {
     return filteredToids;
   }
 
+  filterBuildingsByMainFilters(buildings: BuildingMap): BuildingMap {
+    console.log('filtering buildings with ', this.filterProps());
+    // console.log(Object.keys(buildings).length);
+    // const epcFilters = this.epcFilters();
+    // const propertyTypeFilters = this.propertyTypeFilters();
+    // const filterProps = {
+    //   EPC: epcFilters,
+    //   PropertyType: propertyTypeFilters,
+    // };
+    // console.log(filterProps);
+    // // if there are no filters, do nothing and return
+    // if (Object.keys(filterProps).length === 0) return buildings;
+
+    // // convert building object to array to ease filtering
+    // const buildingsArray = Array.from(Object.values(buildings).flat());
+    // const filterKeys = Object.keys(filterProps);
+    // // filter buildings
+    // const filtered = buildingsArray.filter((building: BuildingModel) =>
+    //   filterKeys.every((key: string) => {
+    //     // @ts-ignore
+    //     if (!filterProps[key].length) return true;
+    //     // @ts-ignore
+    //     return filterProps[key].includes(building[key]);
+    //   })
+    // );
+    // // convert filtered array of buildings back to object
+    // const filteredBuildings: BuildingMap =
+    //   this.dataService.mapBuildings(filtered);
+    // console.log(Object.keys(filteredBuildings).length);
+    return buildings;
+  }
+
   /**
    * Get the UPRNs for the buildings within the spatial
    * filter
@@ -225,11 +277,5 @@ export class UtilService {
       filteredUPRNs = filteredUPRNs.concat(uprns);
     });
     return filteredUPRNs;
-  }
-
-  addEPCPrefix(epcRatings?: string[]) {
-    return epcRatings
-      ? epcRatings.map(r => `BuildingWithEnergyRatingOf${r}`)
-      : [];
   }
 }
