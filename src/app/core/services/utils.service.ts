@@ -234,34 +234,28 @@ export class UtilService {
 
   filterBuildingsByMainFilters(buildings: BuildingMap): BuildingMap {
     console.log('filtering buildings with ', this.filterProps());
-    // console.log(Object.keys(buildings).length);
-    // const epcFilters = this.epcFilters();
-    // const propertyTypeFilters = this.propertyTypeFilters();
-    // const filterProps = {
-    //   EPC: epcFilters,
-    //   PropertyType: propertyTypeFilters,
-    // };
-    // console.log(filterProps);
-    // // if there are no filters, do nothing and return
-    // if (Object.keys(filterProps).length === 0) return buildings;
+    const filterProps = this.filterProps();
+    if (Object.keys(filterProps).length === 0) return buildings;
 
-    // // convert building object to array to ease filtering
-    // const buildingsArray = Array.from(Object.values(buildings).flat());
-    // const filterKeys = Object.keys(filterProps);
-    // // filter buildings
-    // const filtered = buildingsArray.filter((building: BuildingModel) =>
-    //   filterKeys.every((key: string) => {
-    //     // @ts-ignore
-    //     if (!filterProps[key].length) return true;
-    //     // @ts-ignore
-    //     return filterProps[key].includes(building[key]);
-    //   })
-    // );
-    // // convert filtered array of buildings back to object
-    // const filteredBuildings: BuildingMap =
-    //   this.dataService.mapBuildings(filtered);
-    // console.log(Object.keys(filteredBuildings).length);
-    return buildings;
+    // convert building object to array to ease filtering
+    const buildingsArray = Array.from(Object.values(buildings).flat());
+    const filterKeys = Object.keys(filterProps);
+    // filter buildings
+    const filtered = buildingsArray.filter((building: BuildingModel) =>
+      filterKeys.every(key => {
+        if (!filterProps[key as keyof FilterProps]?.length) return true;
+
+        return filterProps[key as keyof FilterProps]?.includes(
+          // eslint-disable-next-line
+          // @ts-ignore
+          building[key as keyof BuildingModel]
+        );
+      })
+    );
+    // convert filtered array of buildings back to object
+    const filteredBuildings: BuildingMap =
+      this.dataService.mapBuildings(filtered);
+    return filteredBuildings;
   }
 
   /**
