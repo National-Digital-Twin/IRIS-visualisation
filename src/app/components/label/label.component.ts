@@ -10,4 +10,5 @@ import { CommonModule } from '@angular/common';
 })
 export class LabelComponent {
   @Input() epcRating?: string;
+  @Input() sapPoints?: string;
 }

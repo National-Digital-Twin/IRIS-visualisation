@@ -3,7 +3,18 @@
   class="label label__epc"
   [ngClass]="'label__epc--' + epcRating.toLowerCase()">
   <div></div>
-  <p>EPC: {{ epcRating }}</p>
+  @if (epcRating !== 'none' && epcRating !== 'avg') {
+    <p class="label__text">
+      <span>EPC: {{ epcRating }}</span>
+      @if (sapPoints) {
+        <span> {{ sapPoints }}</span>
+      }
+    </p>
+  } @else if (epcRating == 'none') {
+    <p>No EPC</p>
+  } @else if (epcRating == 'avg') {
+    <p>Averaged EPC</p>
+  }
 </div>
 <ng-template #BuildingType>
   <p class="label label__type">
