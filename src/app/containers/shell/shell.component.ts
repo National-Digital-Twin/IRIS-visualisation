@@ -36,7 +36,6 @@ import {
   FilterProps,
 } from '@core/models/advanced-filters.model';
 import { URLStateModel } from '@core/models/url-state.model';
-import { MapLayerFilter } from '@core/models/layer-filter.model';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 
@@ -143,10 +142,6 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     this.utilService.createBuildingColourFilter();
   }
 
-  filterLayer(filter: MapLayerFilter) {
-    this.mapService.filterMapLayer(filter);
-  }
-
   setSearchArea(searchArea: GeoJSON.Feature<Polygon>) {
     this.spatialQueryService.selectBuildings(searchArea);
     this.updateBuildingLayerFilter();
@@ -175,6 +170,8 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     } else {
       this.dataService.setSelectedUPRNs(undefined);
       this.dataService.setSelectedUPRN(undefined);
+      this.dataService.setSelectedBuilding(undefined);
+      this.dataService.setSelectedBuildings(undefined);
       this.spatialQueryService.setSelectedTOID('');
       this.spatialQueryService.selectBuilding('');
     }
@@ -184,9 +181,10 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     // if there are building UPRNs then the results
     // panel is open so only clear selected building
     // to keep building highlighted on the map
-    if (this.dataService.buildingUPRNs()?.length) {
+    if (this.dataService.buildingUPRNs()) {
       this.dataService.setSelectedBuilding(undefined);
     } else {
+      this.dataService.setSelectedBuilding(undefined);
       this.spatialQueryService.setSelectedTOID('');
       this.spatialQueryService.selectBuilding('');
       this.dataService.setSelectedUPRN(undefined);
