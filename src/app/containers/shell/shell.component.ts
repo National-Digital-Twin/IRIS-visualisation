@@ -89,7 +89,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
 
   private selectedBuildingTOID = this.spatialQueryService.selectedBuildingTOID;
 
-  title = 'Energy Performance Viewer';
+  title = 'IRIS';
 
   mapConfig?: URLStateModel;
 
