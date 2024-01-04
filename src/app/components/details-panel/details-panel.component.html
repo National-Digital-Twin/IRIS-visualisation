@@ -2,8 +2,8 @@
   <div class="panel details-panel">
     <div class="details-panel__header">
       <h1>
-        {{ addressPart1 }}
-        {{ addressPart2 }}
+        {{ getAddressSegment(0) }}
+        {{ getAddressSegment(1) }}
       </h1>
       <button mat-icon-button (click)="closePanel.emit()">
         <mat-icon>close</mat-icon>
@@ -23,21 +23,32 @@
         <div class="details-panel__tab details-panel__tab--overview">
           <div class="about">
             <h2>About</h2>
-            <p><span class="field">Number of flats:</span> <span></span></p>
             <p>
-              <span class="field">Built form:</span
-              ><span>{{ buildingDetails()?.buildForm }}</span>
+              <span class="field">Build form:</span>
+              @if (
+                buildingDetails()?.buildForm &&
+                buildForm[buildingDetails()!.buildForm]
+              ) {
+                <span>{{ buildForm[buildingDetails()!.buildForm] }}</span>
+              }
             </p>
             <p>
               <span class="field">Inspection date:</span>
               <span>{{ buildingDetails()?.inspectionDate | date }}</span>
+            </p>
+            <p>
+              <span class="field">UPRN:</span>
+              <span>{{ buildingDetails()?.uprnId }}</span>
             </p>
           </div>
           <div class="specification">
             <h2>Specification</h2>
             <p>
               <span class="field">Floor construction:</span>
-              @if (floor[buildingParts()!.Floor!.PartType]) {
+              @if (
+                buildingParts()?.Floor?.PartType &&
+                floor[buildingParts()!.Floor!.PartType]
+              ) {
                 <span>{{ floor[buildingParts()!.Floor!.PartType] }}</span>
               } @else {
                 <span>No data</span>
@@ -46,6 +57,7 @@
             <p>
               <span class="field">Floor insulation:</span>
               @if (
+                buildingParts()?.Floor?.PartInsulationType &&
                 floorInsulation[buildingParts()!.Floor!.PartInsulationType]
               ) {
                 <span>{{
@@ -57,7 +69,10 @@
             </p>
             <p>
               <span class="field">Roof construction:</span>
-              @if (roof[buildingParts()!.Roof!.PartType]) {
+              @if (
+                buildingParts()?.Roof?.PartType &&
+                roof[buildingParts()!.Roof!.PartType]
+              ) {
                 <span>{{ roof[buildingParts()!.Roof!.PartType] }}</span>
               } @else {
                 <span>No data</span>
@@ -65,7 +80,10 @@
             </p>
             <p>
               <span class="field">Roof insulation location:</span>
-              @if (roofInsulation[buildingParts()!.Roof!.PartInsulationType]) {
+              @if (
+                buildingParts()?.Roof?.PartInsulationType &&
+                roofInsulation[buildingParts()!.Roof!.PartInsulationType]
+              ) {
                 <span>{{
                   roofInsulation[buildingParts()!.Roof!.PartInsulationType]
                 }}</span>
@@ -75,10 +93,14 @@
             </p>
             <p>
               <span class="field">Roof insulation thickness:</span>
-              @if (buildingParts()?.Roof?.InsulationThickness !== '') {
+              @if (
+                buildingParts()?.Roof?.InsulationThickness &&
+                buildingParts()!.Roof!.InsulationThickness !== ''
+              ) {
                 <span>{{ buildingParts()!.Roof!.InsulationThickness }}mm</span>
               } @else if (
-                buildingParts()?.Roof?.InsulationThicknessLowerBound !== ''
+                buildingParts()?.Roof?.InsulationThicknessLowerBound &&
+                buildingParts()!.Roof!.InsulationThicknessLowerBound !== ''
               ) {
                 <span
                   >{{
@@ -91,7 +113,10 @@
             </p>
             <p>
               <span class="field">Wall construction:</span>
-              @if (wall[buildingParts()!.Wall!.PartType]) {
+              @if (
+                buildingParts()?.Wall?.PartType &&
+                wall[buildingParts()!.Wall!.PartType]
+              ) {
                 <span>{{ wall[buildingParts()!.Wall!.PartType] }}</span>
               } @else {
                 <span>No data</span>
