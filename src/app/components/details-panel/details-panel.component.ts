@@ -41,8 +41,6 @@ export class DetailsPanelComponent {
   buildingDetails = this.dataService.selectedBuilding;
   buildingParts = this.dataService.parts;
 
-  addressPart1 = this.buildingDetails()?.FullAddress.split(',')[0];
-  addressPart2 = this.buildingDetails()?.FullAddress.split(',')[1];
   floor: { [key: string]: string } = Floor;
   floorInsulation: { [key: string]: string } = FloorInsulation;
   roof: { [key: string]: string } = Roof;

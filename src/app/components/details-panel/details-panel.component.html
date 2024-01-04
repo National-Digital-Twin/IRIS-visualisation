@@ -2,8 +2,8 @@
   <div class="panel details-panel">
     <div class="details-panel__header">
       <h1>
-        {{ addressPart1 }}
-        {{ addressPart2 }}
+        {{ this.buildingDetails()?.FullAddress!.split(',')[0] }}
+        {{ this.buildingDetails()?.FullAddress!.split(',')[1] }}
       </h1>
       <button mat-icon-button (click)="closePanel.emit()">
         <mat-icon>close</mat-icon>
