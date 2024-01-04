@@ -12,13 +12,14 @@ export class Queries {
 
     SELECT
         ?building
-        (GROUP_CONCAT(DISTINCT REPLACE(STR(?building_type), "http://nationaldigitaltwin.gov.uk/ontology#", ""); SEPARATOR="; ") AS ?buildingTypes)
+        (REPLACE(STR(?build_form_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?buildForm)
         (?inspection_date_literal AS ?inspectionDate)
         (REPLACE(STR(?epc_rating), "http://gov.uk/government/organisations/department-for-levelling-up-housing-and-communities/ontology/epc#BuildingWithEnergyRatingOf", "") AS ?epc)
         ?counterpart
         (?line_of_address_literal AS ?fullAddress)
         (?sap_points AS ?sapPoints)
         (GROUP_CONCAT(DISTINCT ?part; SEPARATOR="; ") AS ?parts)
+        (REPLACE(STR(?uprn), "http://nationaldigitaltwin.gov.uk/data#uprn_", "") AS ?uprnId)
   WHERE {{
       ?building ies:isIdentifiedBy ?uprn .
       ?uprn ies:representationValue "${uprn}" .
@@ -26,6 +27,9 @@ export class Queries {
       ?building rdf:type ?building_type.
 
       ?building ies:inLocation ?address .
+
+      ?building rdf:type ?build_form_type .
+        ?build_form_type ies:powertype ndt:BuildFormClass .
 
       ?address ies:isIdentifiedBy ?line_of_address .
       ?line_of_address rdf:type ies:FirstLineOfAddress .
@@ -48,11 +52,13 @@ export class Queries {
   GROUP BY
       ?building
       ?inspection_date_literal
+      ?build_form_type
       ?epc_rating
       ?sap_points
       ?counterpart
       ?line_of_address_literal
-  `;
+      ?uprn
+      `;
   }
 
   getBuildingListDetails(uprns: number[]) {
