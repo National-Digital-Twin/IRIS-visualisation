@@ -63,6 +63,9 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   @Input() set filter(filter: string) {
     if (filter) {
       this.filterProps = this.filterService.parseFilterString(filter);
+      this.utilService.setFilters(this.filterProps);
+    } else {
+      this.utilService.setFilters({});
     }
   }
 
@@ -112,6 +115,18 @@ export class ShellComponent implements AfterViewInit, OnChanges {
       center: [this.lat, this.lng],
     };
     this.mapConfig = mapConfig;
+
+    /**
+     * Trigger a update of building color
+     * whenever an input changes.
+     * This should be done on any map
+     * or filter related change.
+     * However if @Input()'s are added
+     * which are unrelated to the map
+     * or filters, a condition statement
+     * will need to be added
+     */
+    this.updateBuildingLayerColour();
   }
 
   public handleShowAccessibility(event: Event): void {
@@ -138,13 +153,19 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     );
   }
 
-  updateBuildingLayerFilter() {
-    this.utilService.createBuildingColourFilter();
+  updateBuildingLayerColour() {
+    if (
+      this.mapConfig?.zoom &&
+      this.mapConfig?.zoom >= 15 &&
+      !this.spatialQueryService.spatialFilterEnabled()
+    ) {
+      this.utilService.createBuildingColourFilter();
+    }
   }
 
   setSearchArea(searchArea: GeoJSON.Feature<Polygon>) {
     this.spatialQueryService.selectBuildings(searchArea);
-    this.updateBuildingLayerFilter();
+    this.utilService.createBuildingColourFilter();
   }
 
   setSelectedBuildingTOID(TOID: string | null) {
@@ -215,7 +236,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     this.dataService.setSelectedUPRNs(undefined);
     this.dataService.setSelectedUPRN(undefined);
     this.dataService.setSelectedBuilding(undefined);
-    this.updateBuildingLayerFilter();
+    this.updateBuildingLayerColour();
   }
 
   setAdvancedFilters(filter: AdvancedFiltersFormModel) {
@@ -270,13 +291,5 @@ export class ShellComponent implements AfterViewInit, OnChanges {
         queryParamsHandling: 'merge',
       });
     });
-    // if zoom is greater than 15 & there isn't a spatial filter
-    if (
-      queryParams.zoom &&
-      queryParams.zoom >= 15 &&
-      !this.spatialQueryService.spatialFilterEnabled()
-    ) {
-      this.updateBuildingLayerFilter();
-    }
   }
 }
