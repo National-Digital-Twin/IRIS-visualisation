@@ -9,72 +9,60 @@ export class Queries {
     PREFIX ndt: <http://nationaldigitaltwin.gov.uk/ontology#>
     PREFIX iesuncertainty: <http://ies.data.gov.uk/ontology/ies_uncertainty_proposal/v2.0#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-      PREFIX geoplace: <https://www.geoplace.co.uk/addresses-streets/location-data/the-uprn#>
+    PREFIX geoplace: <https://www.geoplace.co.uk/addresses-streets/location-data/the-uprn#>
 
     SELECT
-      (REPLACE(STR(?uprn), "http://nationaldigitaltwin.gov.uk/data#uprn_", "") as ?uprnId)
-      (?building_toid_id AS ?toid)
-      (?parent_building_toid_id AS ?parentToid)
-      (REPLACE(STR(?property_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?propertyType)
-      (REPLACE(STR(?build_form_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?buildForm)
-      (?inspection_date_literal AS ?inspectionDate)
-      (REPLACE(STR(?epc_rating), "http://gov.uk/government/organisations/department-for-levelling-up-housing-and-communities/ontology/epc#BuildingWithEnergyRatingOf", "") AS ?epc)
-      (?line_of_address_literal AS ?fullAddress)
-      (?sap_points AS ?sapPoints)
-      (SUBSTR(?postcode_literal, 0, 5) AS ?postCode)
-  WHERE {{
-      ?building ies:isIdentifiedBy ?uprn .
-      ?uprn ies:representationValue "${uprn}" .
-      ?building rdf:type ?property_type .
-      ?property_type ies:powertype ndt:PropertyClass .
-      ?building rdf:type ?build_form_type .
-      ?build_form_type ies:powertype ndt:BuildFormClass .
+        (REPLACE(STR(?uprn), "http://nationaldigitaltwin.gov.uk/data#uprn_", "") as ?UPRN)
+        (REPLACE(STR(?property_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?PropertyType)
+        (REPLACE(STR(?build_form_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?BuildForm)
+        (?inspection_date_literal AS ?InspectionDate)
+        (REPLACE(STR(?epc_rating), "http://gov.uk/government/organisations/department-for-levelling-up-housing-and-communities/ontology/epc#BuildingWithEnergyRatingOf", "") AS ?EPC)
+        (?line_of_address_literal AS ?FullAddress)
+        (SUBSTR(?postcode_literal, 0, 5) AS ?PostCode)
+        (?sap_points AS ?SAPPoints)
+        (GROUP_CONCAT(DISTINCT ?part; SEPARATOR="; ") AS ?parts)
+    WHERE {{
+        ?building ies:isIdentifiedBy ?uprn .
+        ?uprn ies:representationValue "${uprn}" .
+        ?building rdf:type ?property_type .
+        ?property_type ies:powertype ndt:PropertyClass .
+        ?building rdf:type ?build_form_type .
+        ?build_form_type ies:powertype ndt:BuildFormClass .
 
-      ?building ies:inLocation ?address .
+        ?building ies:inLocation ?address .
 
-      ?address ies:isIdentifiedBy ?postcode .
-      ?postcode rdf:type ies:PostalCode .
-      ?postcode ies:representationValue ?postcode_literal .
+        ?address ies:isIdentifiedBy ?postcode .
+        ?postcode rdf:type ies:PostalCode .
+        ?postcode ies:representationValue ?postcode_literal .
 
-      ?address ies:isIdentifiedBy ?line_of_address .
-      ?line_of_address rdf:type ies:FirstLineOfAddress .
-      ?line_of_address ies:representationValue ?line_of_address_literal .
+        ?address ies:isIdentifiedBy ?line_of_address .
+        ?line_of_address rdf:type ies:FirstLineOfAddress .
+        ?line_of_address ies:representationValue ?line_of_address_literal .
 
-      ?state ies:isStateOf ?building .
-      ?state ies:inPeriod ?inspection_date .
-      ?inspection_date ies:iso8601PeriodRepresentation ?inspection_date_literal .
+        ?state ies:isStateOf ?building .
+        ?state ies:inPeriod ?inspection_date .
+        ?inspection_date ies:iso8601PeriodRepresentation ?inspection_date_literal .
 
-      ?state a ?epc_rating .
-      OPTIONAL {{
-      ?part ies:isPartOf ?state .
-      }}
+        ?state a ?epc_rating .
+        OPTIONAL {{
+            ?part ies:isPartOf ?state .
+        }}
 
-      ?state ies:hasCharacteristic ?quantity .
-      ?quantity qudt:value ?sap_points .
-      OPTIONAL {{
-          ?building ies:isIdentifiedBy ?building_toid .
-          ?building_toid rdf:type ies:TOID .
-          ?building_toid ies:representationValue ?building_toid_id .
-      }}
-      OPTIONAL {{
-          ?building ies:isPartOf ?parent_building .
-          ?parent_building ies:isIdentifiedBy ?parent_building_toid .
-          ?parent_building_toid ies:representationValue ?parent_building_toid_id .
-          ?parent_building_toid rdf:type ies:TOID .
-      }}
-  }}
-  GROUP BY
-    ?uprn
-    ?property_type
-    ?build_form_type
-    ?postcode_literal
-    ?building
-    ?inspection_date_literal
-    ?epc_rating
-    ?sap_points
-    ?line_of_address_literal
-    ?building_toid_id
-    ?parent_building_toid_id
+        ?state ies:hasCharacteristic ?quantity .
+        ?quantity qudt:value ?sap_points .
+    }}
+    GROUP BY
+        ?uprn
+        ?property_type
+        ?build_form_type
+        ?postcode_literal
+        ?building
+        ?inspection_date_literal
+        ?epc_rating
+        ?sap_points
+        ?line_of_address_literal
+        ?building_toid_id
+        ?parent_building_toid_id
   `;
   }
 
@@ -89,24 +77,18 @@ export class Queries {
     PREFIX geoplace: <https://www.geoplace.co.uk/addresses-streets/location-data/the-uprn#>
 
     SELECT
-        (?uprnValue AS ?uprnId)
-        (?building_toid_id AS ?toid)
-        (?parent_building_toid_id AS ?parentToid)
-        (REPLACE(STR(?property_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?propertyType)
-        (REPLACE(STR(?build_form_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?buildForm)
-        (?inspection_date_literal AS ?inspectionDate)
-        (REPLACE(STR(?epc_rating), "http://gov.uk/government/organisations/department-for-levelling-up-housing-and-communities/ontology/epc#BuildingWithEnergyRatingOf", "") AS ?epc)
-        (?line_of_address_literal AS ?fullAddress)
-        (?sap_points AS ?sapPoints)
-        (GROUP_CONCAT(DISTINCT ?part; SEPARATOR="; ") AS ?parts)
+      (?uprnValue AS ?UPRN)
+      (?building_toid_id AS ?TOID)
+      (?parent_building_toid_id AS ?ParentTOID)
+      (REPLACE(STR(?property_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?PropertyType)
+      (REPLACE(STR(?epc_rating), "http://gov.uk/government/organisations/department-for-levelling-up-housing-and-communities/ontology/epc#BuildingWithEnergyRatingOf", "") AS ?EPC)
+      (?line_of_address_literal AS ?FullAddress)
     WHERE {{
         ?building ies:isIdentifiedBy ?uprn .
         ?uprn ies:representationValue ?uprnValue .
         VALUES ?uprnValue {"${uprns.join('" "')}"} .
         ?building rdf:type ?property_type .
         ?property_type ies:powertype ndt:PropertyClass .
-        ?building rdf:type ?build_form_type .
-        ?build_form_type ies:powertype ndt:BuildFormClass .
 
         ?building ies:inLocation ?address .
 
@@ -115,39 +97,29 @@ export class Queries {
         ?line_of_address ies:representationValue ?line_of_address_literal .
 
         ?state ies:isStateOf ?building .
-        ?state ies:inPeriod ?inspection_date .
-        ?inspection_date ies:iso8601PeriodRepresentation ?inspection_date_literal .
 
         ?state a ?epc_rating .
+
         OPTIONAL {{
-        ?part ies:isPartOf ?state .
-        }}
-        ?state ies:hasCharacteristic ?quantity .
-        ?quantity qudt:value ?sap_points .
-        OPTIONAL {{
-          ?building ies:isIdentifiedBy ?building_toid .
-          ?building_toid rdf:type ies:TOID .
-          ?building_toid ies:representationValue ?building_toid_id .
+            ?building ies:isIdentifiedBy ?building_toid .
+            ?building_toid rdf:type ies:TOID .
+            ?building_toid ies:representationValue ?building_toid_id .
         }}
         OPTIONAL {{
-          ?building ies:isPartOf ?parent_building .
-          ?parent_building ies:isIdentifiedBy ?parent_building_toid .
-          ?parent_building_toid ies:representationValue ?parent_building_toid_id .
-          ?parent_building_toid rdf:type ies:TOID .
+            ?building ies:isPartOf ?parent_building .
+            ?parent_building ies:isIdentifiedBy ?parent_building_toid .
+            ?parent_building_toid ies:representationValue ?parent_building_toid_id .
+            ?parent_building_toid rdf:type ies:TOID .
         }}
     }}
     GROUP BY
-        ?uprnValue
-        ?building
-        ?inspection_date_literal
-        ?epc_rating
-        ?sap_points
-        ?counterpart
-        ?line_of_address_literal
-        ?building_toid_id
-        ?parent_building_toid_id
-        ?property_type
-        ?build_form_type
+      ?uprnValue
+      ?building
+      ?epc_rating
+      ?line_of_address_literal
+      ?building_toid_id
+      ?parent_building_toid_id
+      ?property_type
     `;
   }
 
@@ -358,17 +330,39 @@ export class Queries {
         BIND(REPLACE(STR(?build_form_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?buildFormBound) .`;
   }
 
-  getAllDataGroupBy() {
-    return `}
-      GROUP BY
-          ?uprn_id
-          ?building_toid_id
-          ?parent_building_toid_id
-          ?epcBound
-          ?line_of_address_literal
-          ?postCodeBound
-          ?propertyTypeBound
-          ?buildFormBound
+  prefixes() {
+    return `
+      PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+      PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX ndt: <http://nationaldigitaltwin.gov.uk/ontology#>
+      PREFIX geoplace: <https://www.geoplace.co.uk/addresses-streets/location-data/the-uprn#>
+      PREFIX epc: <http://gov.uk/government/organisations/department-for-levelling-up-housing-and-communities/ontology/epc#BuildingWithEnergyRatingOf>
+    `;
+  }
+
+  selectStatement() {
+    return `
+      SELECT
+        (?uprn_id AS ?UPRN)
+        (?building_toid_id AS ?TOID)
+        (?parent_building_toid_id AS ?ParentTOID)
+        (REPLACE(STR(?current_energy_rating), "http://gov.uk/government/organisations/department-for-levelling-up-housing-and-communities/ontology/epc#BuildingWithEnergyRatingOf", "") AS ?EPC)
+        (REPLACE(STR(?property_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?PropertyType)
+    `;
+  }
+
+  whereStatement() {
+    return `
+      ?state ies:isStateOf ?building .
+      ?state a ?current_energy_rating .
+
+      ?building ies:isIdentifiedBy ?uprn .
+      ?uprn ies:representationValue ?uprn_id .
+      ?uprn rdf:type geoplace:UniquePropertyReferenceNumber .
+
+      ?building rdf:type ?property_type .
+      ?property_type ies:powertype ndt:PropertyClass .
     `;
   }
 
@@ -376,6 +370,42 @@ export class Queries {
     const formattedValues = "'" + values.join("' '") + "'";
     return `
       VALUES ${fieldName} {${formattedValues}} .
+    `;
+  }
+
+  optionalStatement() {
+    return `
+      OPTIONAL {
+        ?building ies:isIdentifiedBy ?building_toid .
+        ?building_toid rdf:type ies:TOID .
+        ?building_toid ies:representationValue ?building_toid_id .
+      }
+      OPTIONAL {
+          ?building ies:isPartOf ?parent_building .
+          ?parent_building ies:isIdentifiedBy ?parent_building_toid .
+          ?parent_building_toid ies:representationValue ?parent_building_toid_id .
+          ?parent_building_toid rdf:type ies:TOID .
+      }
+    `;
+  }
+
+  filterStatement() {
+    return `
+      FILTER( ?current_energy_rating IN (epc:A))
+      FILTER (?property_type IN (ndt:House))
+      FILTER (?build_form_type IN (ndt:SemiDetached))
+      FILTER (?postcode IN (ies:PO30))
+    `;
+  }
+
+  groupByStatement() {
+    return `
+      GROUP BY
+        ?uprn_id
+        ?building_toid_id
+        ?parent_building_toid_id
+        ?current_energy_rating
+        ?property_type
     `;
   }
 }
