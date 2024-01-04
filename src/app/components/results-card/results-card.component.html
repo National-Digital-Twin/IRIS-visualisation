@@ -2,11 +2,11 @@
   <div class="results-card__header">
     @if (select) {
       <mat-checkbox [color]="'primary'">
-        {{ card.fullAddress!.split(',')[0] }}
+        {{ card.FullAddress!.split(',')[0] }}
       </mat-checkbox>
     } @else {
       <p class="card-title">
-        {{ card.fullAddress!.split(',')[0] }}
+        {{ card.FullAddress!.split(',')[0] }}
       </p>
     }
     <button mat-button (click)="viewDetails.emit(card)">
@@ -18,11 +18,11 @@
     [ngClass]="{ 'results-card__details--select': select }">
     <div>
       <p class="results-card__address">
-        {{ card.fullAddress }}
+        {{ card.FullAddress }}
       </p>
       <div class="results-card__labels">
-        <c477-label [epcRating]="card.epc"></c477-label>
-        <c477-label>{{ card.propertyType }}</c477-label>
+        <c477-label [epcRating]="card.EPC"></c477-label>
+        <c477-label>{{ card.PropertyType }}</c477-label>
       </div>
     </div>
     <div class="results-card__buttons">
@@ -32,7 +32,7 @@
           alt="download the data for this dwelling" />
       </button>
       <button mat-icon-button>
-        @if (card.flagged) {
+        @if (card.Flagged) {
           <img
             src="assets/icons/FlagPennant_red.svg"
             alt="Toggle the flag status of this property" />

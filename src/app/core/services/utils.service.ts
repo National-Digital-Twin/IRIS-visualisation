@@ -14,8 +14,7 @@ import { SpatialQueryService } from './spatial-query.service';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 
-import { BuildingMap } from '@core/models/building.model';
-import { TableRow } from '@core/models/rdf-data.model';
+import { BuildingMap, BuildingModel } from '@core/models/building.model';
 
 @Injectable({
   providedIn: 'root',
@@ -80,10 +79,10 @@ export class UtilService {
     Object.keys(filteredBuildings).forEach((key: string) => {
       const toid = key;
       // get the uprns for the corresponding toid
-      const buildings: TableRow[] = filteredBuildings[key];
+      const buildings: BuildingModel[] = filteredBuildings[key];
       /* One UPRN for a TOID */
       if (buildings.length === 1) {
-        const epc = buildings[0].epc;
+        const epc = buildings[0].EPC;
         if (epc) {
           const colour = this.getEPCColour(epc);
           matchExpression.push(toid, colour);
@@ -99,7 +98,7 @@ export class UtilService {
          */
         const buildingEPCs: string[] = [];
         buildings.forEach(building => {
-          const epc = building.epc;
+          const epc = building.EPC;
           if (epc) {
             buildingEPCs.push(epc);
           }

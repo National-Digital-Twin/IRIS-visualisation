@@ -18,13 +18,15 @@ import { LngLatBounds } from 'mapbox-gl';
 import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
 import { SPARQLReturn, TableRow } from '@core/models/rdf-data.model';
 import {
+  BuildingDetailsModel,
+  BuildingListModel,
   BuildingMap,
+  BuildingModel,
   BuildingPart,
   BuildingPartMap,
 } from '@core/models/building.model';
 
 import { Queries } from './Queries';
-import { QueryFields } from '@core/enums';
 import { MainFiltersFormModel } from '@core/models/filters.model';
 
 @Injectable({
@@ -38,10 +40,10 @@ export class DataService {
 
   // single uprn
   selectedUPRN = signal<number | undefined>(undefined);
-  selectedBuilding = signal<TableRow | undefined>(undefined);
+  selectedBuilding = signal<BuildingDetailsModel | undefined>(undefined);
   // multiple uprns
-  buildingUPRNs = signal<number[]>([]);
-  buildingsSelection = signal<TableRow[] | undefined>(undefined);
+  buildingUPRNs = signal<number[] | undefined>(undefined);
+  buildingsSelection = signal<BuildingListModel[] | undefined>(undefined);
   private buildingData = signal<BuildingMap | undefined>(undefined);
   // filters
   filters = signal<MainFiltersFormModel | undefined>(undefined);
@@ -49,19 +51,20 @@ export class DataService {
    * Get UPRNs, EPC ratings, addresses
    * @returns
    */
-  // buildings$ = this.selectTable(this.constructAllDataQuery()).pipe(
-  //   map(rawData => this.mapBuildings(rawData))
-  // );
-  buildings$ = toObservable(this.filters).pipe(
-    switchMap(filters => {
-      console.log('FILTERS', filters);
-      const query = this.constructAllDataQuery(filters);
-
-      return this.selectTable(query).pipe(
-        map(rawData => this.mapBuildings(rawData))
-      );
-    })
+  buildings$ = this.selectTable(this.constructAllDataQuery()).pipe(
+    map(rawData => rawData as unknown as BuildingModel[]),
+    map(rawData => this.mapBuildings(rawData))
   );
+  // buildings$ = toObservable(this.filters).pipe(
+  //   switchMap(filters => {
+  //     console.log('FILTERS', filters);
+  //     const query = this.constructAllDataQuery(filters);
+
+  //     return this.selectTable(query).pipe(
+  //       map(rawData => this.mapBuildings(rawData))
+  //     );
+  //   })
+  // );
   private buildingResults = toSignal(this.buildings$, {
     initialValue: undefined,
   });
@@ -75,25 +78,27 @@ export class DataService {
    * Use toSignal to automatically subscribe & unsubscribe
    */
   private buildingDetails$ = toObservable(this.selectedUPRN).pipe(
+    filter(Boolean),
     tap(uprn => console.log('getting details for uprn ', uprn)),
     switchMap(uprn =>
       this.getBuildingDetails(uprn!).pipe(
+        map(details => details[0] as unknown as BuildingDetailsModel),
         tap(details => {
           this.setSelectedBuilding(details);
         }),
-        catchError(() => of([] as TableRow[]))
+        catchError(() => of({} as BuildingDetailsModel))
       )
     )
   );
   readOnlyBuildingDetails = toSignal(this.buildingDetails$, {
-    initialValue: [] as TableRow[],
+    initialValue: undefined,
   });
 
   /**
    * Get the related building parts for the selected building
    */
   private buildingParts$ = toObservable(this.selectedBuilding).pipe(
-    filter(selectedBuilding => selectedBuilding !== undefined),
+    filter(Boolean),
     switchMap(selectedBuilding =>
       this.getBuildingParts(selectedBuilding!.parts.split(';')).pipe(
         map(p => this.mapBuildingParts(p as unknown as BuildingPart[])),
@@ -106,42 +111,48 @@ export class DataService {
   parts = computed(() => this.buildingParts());
 
   private getBuildingsList$ = toObservable(this.buildingUPRNs).pipe(
+    filter(uprns => uprns !== undefined),
     switchMap(uprns =>
       this.getBuildingListDetails(uprns!).pipe(
-        tap(buildings => {
-          this.setSelectedBuildings(buildings);
-        }),
-        catchError(() => of([] as TableRow[]))
+        map(buildings => buildings as unknown as BuildingListModel[]),
+        tap(buildings => this.setSelectedBuildings(buildings)),
+        catchError(() => of([] as BuildingListModel[]))
       )
     )
   );
 
   readOnlyBuildingsList = toSignal(this.getBuildingsList$, {
-    initialValue: [] as TableRow[],
+    initialValue: [],
   });
 
   setSelectedUPRN(uprn: number | undefined) {
     this.selectedUPRN.set(uprn);
   }
 
-  constructAllDataQuery(filters: MainFiltersFormModel | undefined) {
-    let queryFilterStatements = '';
-    if (filters) {
-      queryFilterStatements = Object.entries(filters)
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        .filter(([key, value]) => value && value.length > 0)
-        .map(([key, value]) => {
-          return this.queries.valuesStatement(
-            QueryFields[key as keyof typeof QueryFields],
-            value
-          );
-        })
-        .join(' ');
-    }
+  constructAllDataQuery() {
+    // let queryFilterStatements = '';
+    // if (filters) {
+    //   queryFilterStatements = Object.entries(filters)
+    //     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    //     .filter(([key, value]) => value && value.length > 0)
+    //     .map(([key, value]) => {
+    //       return this.queries.valuesStatement(
+    //         QueryFields[key as keyof typeof QueryFields],
+    //         value
+    //       );
+    //     })
+    //     .join(' ');
+    // }
     const query =
-      this.queries.getAllDataPrefixesSelectWhere() +
-      queryFilterStatements +
-      this.queries.getAllDataGroupBy();
+      this.queries.prefixes() +
+      this.queries.selectStatement() +
+      `WHERE
+        {
+          ${this.queries.whereStatement()}
+      ` +
+      this.queries.optionalStatement() +
+      `}` +
+      this.queries.groupByStatement();
     return query;
   }
 
@@ -149,20 +160,20 @@ export class DataService {
    * Set individual building
    * @param building individual building
    */
-  setSelectedBuilding(building: TableRow[] | undefined) {
-    this.selectedBuilding.set(building ? building[0] : undefined);
+  setSelectedBuilding(building: BuildingDetailsModel | undefined) {
+    this.selectedBuilding.set(building ? building : undefined);
   }
 
   /**
    * Set multiple buildings
    * @param building buildings
    */
-  setSelectedBuildings(buildings: TableRow[] | undefined) {
+  setSelectedBuildings(buildings: BuildingListModel[] | undefined) {
     this.buildingsSelection.set(buildings ? buildings : undefined);
   }
 
   setSelectedUPRNs(uprns: number[] | undefined) {
-    this.buildingUPRNs.set(uprns ? uprns : []);
+    this.buildingUPRNs.set(uprns?.length ? uprns : undefined);
   }
 
   setBuildingData(buildings: BuildingMap) {
@@ -186,7 +197,7 @@ export class DataService {
     const allBuildings = this.buildings();
     const buildings = allBuildings![toid];
     if (buildings) {
-      return buildings.map(building => +building.uprnId);
+      return buildings.map(building => +building.UPRN);
     }
     return [];
   }
@@ -295,14 +306,14 @@ export class DataService {
    * @returns an object with uprn as key, and object with epc,
    * address etc
    */
-  mapBuildings(buildings: TableRow[]) {
+  mapBuildings(buildings: BuildingModel[]) {
     const buildingMap: BuildingMap = {};
-    buildings.forEach((row: TableRow) => {
-      const toid = row.toid ? row.toid : row.parentToid;
+    buildings.forEach((row: BuildingModel) => {
+      const toid = row.TOID ? row.TOID : row.ParentTOID;
       if (toid && buildingMap[toid]) {
         buildingMap[toid].push(row);
       } else {
-        buildingMap[toid] = [row];
+        buildingMap[toid!] = [row];
       }
     });
     return buildingMap;

@@ -1,4 +1,4 @@
-@if (buildingSelection()?.length) {
+@if (buildingSelection()) {
   <div class="panel results-panel">
     <section>
       <div class="results-panel__header">
@@ -22,7 +22,7 @@
       </div>
     </section>
     <section class="results-panel__cards-container">
-      @for (building of buildingSelection(); track building.name) {
+      @for (building of buildingSelection(); track building.UPRN) {
         <!-- @if (!card.dwellings) { -->
         <c477-results-card
           (viewDetails)="viewDetails($event)"

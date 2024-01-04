@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,7 +10,7 @@ import { ResultsCardExpandableComponent } from '@components/results-card-expanda
 
 import { DataService } from '@core/services/data.service';
 
-import { TableRow } from '@core/models/rdf-data.model';
+import { BuildingListModel } from '@core/models/building.model';
 
 @Component({
   selector: 'c477-results-panel',
@@ -30,17 +30,11 @@ import { TableRow } from '@core/models/rdf-data.model';
 export class ResultsPanelComponent {
   dataService = inject(DataService);
 
-  buildingSelection = computed(() => {
-    try {
-      return this.dataService.buildingsSelection();
-    } catch (e) {
-      console.log(e);
-      return [];
-    }
-  });
+  buildingSelection = this.dataService.buildingsSelection;
+
   selectMultiple: boolean = false;
 
-  viewDetails(building: TableRow) {
-    this.dataService.setSelectedBuilding([building]);
+  viewDetails(building: BuildingListModel) {
+    this.dataService.setSelectedUPRN(+building.UPRN);
   }
 }
