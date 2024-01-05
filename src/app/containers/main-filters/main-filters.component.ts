@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Observable, switchMap, tap, of } from 'rxjs';
 
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -30,7 +32,15 @@ import {
   AdvancedFiltersFormModel,
   FilterProps,
 } from '@core/models/advanced-filters.model';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { AddressSearchService } from '@core/services/address-search.service';
+import { AddressSearchData } from '@core/models/address-search-results.model';
+import { MapService } from '@core/services/map.service';
 
 @Component({
   selector: 'c477-main-filters',
@@ -38,11 +48,13 @@ import { FormBuilder, FormGroup } from '@angular/forms';
   imports: [
     CommonModule,
     LabelComponent,
+    MatAutocompleteModule,
     MatButtonModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    ReactiveFormsModule,
   ],
   templateUrl: './main-filters.component.html',
   styleUrl: './main-filters.component.css',
@@ -54,15 +66,62 @@ export class MainFiltersComponent {
   @Output() setAdvancedFilters: EventEmitter<AdvancedFiltersFormModel> =
     new EventEmitter<AdvancedFiltersFormModel>();
 
-  constructor(public dialog: MatDialog) {}
   private fb: FormBuilder = inject(FormBuilder);
+  private addressSearchService = inject(AddressSearchService);
+  private mapService = inject(MapService);
   epcRatings: { [key: string]: string } = EPCRating;
   propertyTypes: { [key: string]: string } = PropertyType;
-
+  addressSearch = new FormControl('');
+  addressForm = this.fb.group({ address: this.addressSearch });
   advancedFiltersForm?: FormGroup;
+  results$: Observable<AddressSearchData[]>;
+  firstAddress?: AddressSearchData;
+
+  constructor(public dialog: MatDialog) {
+    this.results$ = this.addressSearch.valueChanges.pipe(
+      switchMap(value => {
+        if (value !== '') {
+          return this.addressSearchService.getAddresses(value ?? '');
+        } else {
+          this.firstAddress = undefined;
+          return of([]);
+        }
+      }),
+      tap(results => (this.firstAddress = results[0]))
+    );
+  }
 
   getKeys(options: { [key: string]: string }) {
     return Object.keys(options);
+  }
+
+  /**
+   * Remove postcode from address string
+   * to prevent titlecase applying
+   * @param address string
+   * @returns substring without last item
+   */
+  removePostCode(address: string): string {
+    const lastIndex = address.lastIndexOf(',');
+    return address.substring(0, lastIndex);
+  }
+
+  /**
+   * if the address has been selected in the autocomplete
+   * zoom to that, otherwise zoom to first matching address
+   * @param result AddressSearchData (optional)
+   * @returns substring without last item
+   */
+  selectAddress(result?: AddressSearchData) {
+    let coords;
+    if (result) {
+      coords = [result.LNG, result.LAT];
+    } else if (this.firstAddress) {
+      coords = [this.firstAddress.LNG, this.firstAddress.LAT];
+    }
+    if (coords) {
+      this.mapService.zoomToCoords(coords);
+    }
   }
 
   openAdvancedFilters() {

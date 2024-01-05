@@ -21,6 +21,8 @@ export interface RuntimeConfigurationModel {
   env: 'local' | 'dev' | 'prod';
   /* IA API URL */
   apiURL: string;
+  /* OS PLACES API URL */
+  placesAPIURL: string;
   /* Mapbox map config */
   map: URLStateModel;
   /* Mapbox map layers */

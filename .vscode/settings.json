@@ -1,3 +1,9 @@
 {
-  "conventionalCommits.scopes": ["Results", "Details Panel", "Filters", "Map"]
+  "conventionalCommits.scopes": [
+    "Results",
+    "Details Panel",
+    "Filters",
+    "Map",
+    "AddressSearch"
+  ]
 }

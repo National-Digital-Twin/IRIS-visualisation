@@ -2,6 +2,7 @@
   "production": false,
   "env": "dev",
   "apiURL": "https://thirdp-test.telicent.live",
+  "placesAPIURL": "https://api.os.uk/search/places/v1",
   "map": {
     "style": "https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Light.json",
     "zoom": 16,
