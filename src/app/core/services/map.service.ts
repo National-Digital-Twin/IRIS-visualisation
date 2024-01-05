@@ -171,15 +171,17 @@ export class MapService {
 
   zoomToCoords(
     center: number[],
-    zoom: number = 19.5,
+    zoom: number = 18,
     pitch: number = 0,
     bearing: number = 0
   ) {
-    this.mapInstance.flyTo({
-      center,
-      zoom,
-      pitch,
-      bearing,
+    this.zone.runOutsideAngular(() => {
+      this.mapInstance.flyTo({
+        center,
+        zoom,
+        pitch,
+        bearing,
+      });
     });
   }
 
