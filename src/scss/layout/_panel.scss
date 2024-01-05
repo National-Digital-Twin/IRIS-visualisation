@@ -1,6 +1,13 @@
-.panel {
+.panel-container {
   position: absolute;
   z-index: $panel-z-index;
-  background-color: rgb(var(--arc-background-color));
-  box-shadow: $box-shadow;
+  left: 1rem;
+  bottom: 1rem;
+  display: flex;
+  height: calc(100vh - 10rem);
+
+  .panel {
+    background-color: rgb(var(--arc-background-color));
+    box-shadow: $box-shadow;
+  }
 }

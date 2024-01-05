@@ -9,11 +9,9 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-
 import { Subscription, tap } from 'rxjs';
 
 import { Polygon } from 'geojson';
-
 import { MapLayerMouseEvent } from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
@@ -21,11 +19,12 @@ import { MapService } from '@core/services/map.service';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { URLStateModel } from '@core/models/url-state.model';
+import { LegendComponent } from '@components/legend/legend.component';
 
 @Component({
   selector: 'c477-map',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule],
+  imports: [LegendComponent, MatButtonModule, MatIconModule],
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
 })
@@ -35,6 +34,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   private drawControl!: MapboxDraw;
   private mapSubscription!: Subscription;
+
+  showLegend: boolean = false;
 
   @Input() mapConfig!: URLStateModel | undefined;
 
@@ -86,7 +87,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     /** Select building event */
     this.mapService.mapInstance.on(
       'click',
-      'OS/TopographicArea_2/Building/1_3D',
+      'OS/TopographicArea_2/Building/1_3D-Single-Dwelling',
+      this.setSelectedTOID
+    );
+    this.mapService.mapInstance.on(
+      'click',
+      'OS/TopographicArea_2/Building/1_3D-Multi-Dwelling',
       this.setSelectedTOID
     );
     /** Change mouse cursor on building hover */

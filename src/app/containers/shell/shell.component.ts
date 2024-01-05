@@ -89,11 +89,9 @@ export class ShellComponent implements AfterViewInit, OnChanges {
 
   private selectedBuildingTOID = this.spatialQueryService.selectedBuildingTOID;
 
-  title = 'Energy Performance Viewer';
+  title = 'IRIS';
 
   mapConfig?: URLStateModel;
-
-  buildingLayerExpression = this.utilService.currentMapViewExpression;
 
   filterProps?: FilterProps;
 
@@ -148,35 +146,39 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   }
 
   setSearchArea(searchArea: GeoJSON.Feature<Polygon>) {
+    this.dataService.setSelectedUPRNs(undefined);
+    this.dataService.setSelectedUPRN(undefined);
+    this.spatialQueryService.setSelectedTOID('');
+    this.spatialQueryService.selectBuilding('', true);
+    this.spatialQueryService.selectBuilding('', false);
     this.spatialQueryService.selectBuildings(searchArea);
     this.updateBuildingLayerFilter();
   }
 
   setSelectedBuildingTOID(TOID: string | null) {
-    console.log(TOID);
     const currentTOID = this.selectedBuildingTOID();
     if (TOID && currentTOID !== TOID) {
-      // get uprns for the selected building
+      /** Get building UPRNs */
       const uprns = this.dataService.getBuildingUPRNs(TOID);
-      // get building details and open details panel
       if (uprns.length === 1) {
-        // set many uprns to undefined to
-        // close results panel if it's open
+        /** Single dwelling */
         this.dataService.setSelectedUPRNs(undefined);
         this.dataService.setSelectedUPRN(uprns[0]);
       } else if (uprns.length > 1) {
-        // set individual uprn to undefined to
-        // close details panel if it's open.
+        /* Multiple dwellings */
         this.dataService.setSelectedUPRN(undefined);
         this.dataService.setSelectedUPRNs(uprns);
       }
+
       this.spatialQueryService.setSelectedTOID(TOID);
-      this.spatialQueryService.selectBuilding(TOID);
+      this.spatialQueryService.selectBuilding(TOID, uprns.length > 1);
+      this.spatialQueryService.selectBuilding('', uprns.length === 1);
     } else {
       this.dataService.setSelectedUPRNs(undefined);
       this.dataService.setSelectedUPRN(undefined);
       this.spatialQueryService.setSelectedTOID('');
-      this.spatialQueryService.selectBuilding('');
+      this.spatialQueryService.selectBuilding('', true);
+      this.spatialQueryService.selectBuilding('', false);
     }
   }
 

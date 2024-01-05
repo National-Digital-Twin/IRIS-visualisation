@@ -12,6 +12,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { LabelComponent } from '@components/label/label.component';
 import { DataService } from '@core/services/data.service';
 import {
+  BuildForm,
   Floor,
   FloorInsulation,
   Roof,
@@ -41,11 +42,14 @@ export class DetailsPanelComponent {
   buildingDetails = this.dataService.selectedBuilding;
   buildingParts = this.dataService.parts;
 
-  addressPart1 = this.buildingDetails()?.fullAddress.split(',')[0];
-  addressPart2 = this.buildingDetails()?.fullAddress.split(',')[1];
+  buildForm: { [key: string]: string } = BuildForm;
   floor: { [key: string]: string } = Floor;
   floorInsulation: { [key: string]: string } = FloorInsulation;
   roof: { [key: string]: string } = Roof;
   roofInsulation: { [key: string]: string } = RoofInsulation;
   wall: { [key: string]: string } = Wall;
+
+  getAddressSegment(index: number) {
+    return this.buildingDetails()?.fullAddress.split(',')[index];
+  }
 }

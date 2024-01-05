@@ -1,0 +1,16 @@
+.legend {
+  background-color: #ffffff;
+  border-radius: 0.25rem;
+  padding: 1.5rem;
+  box-shadow: $box-shadow;
+  width: 15.5rem;
+  h1 {
+    font-size: var(--arc-font-size-large);
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+
+  &__items > * {
+    margin-bottom: 0.5rem;
+  }
+}

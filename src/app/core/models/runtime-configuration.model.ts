@@ -1,5 +1,10 @@
-import { URLStateModel } from './url-state.model';
-import { Layer } from 'mapbox-gl';
+import { URLStateModel } from '@core/models/url-state.model';
+import { MapLayerFilter } from '@core/models/layer-filter.model';
+import { MapLayerId } from '@core/types/map-layer-id';
+
+import { Layer as MapboxLayer } from 'mapbox-gl';
+
+type Layer = MapboxLayer & { filter: MapLayerFilter & { layerId: MapLayerId } };
 
 export interface MapConfig {
   style: string;
