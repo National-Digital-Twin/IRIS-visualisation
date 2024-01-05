@@ -24,8 +24,12 @@
           <div class="about">
             <h2>About</h2>
             <p>
-              <span class="field">Built form:</span
-              ><span>{{ buildingDetails()?.BuildForm }}</span>
+              <span class="field">Built form:</span>
+              @if (buildingDetails()?.BuildForm) {
+                <span>{{ buildingDetails()?.BuildForm }}</span>
+              } @else {
+                <span>No data</span>
+              }
             </p>
             <p>
               <span class="field">Inspection date:</span>

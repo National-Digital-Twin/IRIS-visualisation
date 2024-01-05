@@ -26,8 +26,10 @@ export class Queries {
         ?uprn ies:representationValue "${uprn}" .
         ?building rdf:type ?property_type .
         ?property_type ies:powertype ndt:PropertyClass .
+        OPTIONAL {
         ?building rdf:type ?build_form_type .
         ?build_form_type ies:powertype ndt:BuildFormClass .
+        }
 
         ?building ies:inLocation ?address .
 
