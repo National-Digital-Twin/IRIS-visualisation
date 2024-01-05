@@ -32,9 +32,11 @@ export class SpatialQueryService {
   }
 
   /** Filter map to show selected building */
-  selectBuilding(TOID: string) {
-    const filter: MapLayerFilter = {
-      layerId: 'OS/TopographicArea_2/Building/1_3D-selected',
+  selectBuilding(TOID: string, multiDwelling: boolean = false) {
+    const filter = <MapLayerFilter>{
+      layerId: multiDwelling
+        ? 'OS/TopographicArea_2/Building/1_3D-Multi-Dwelling-Selected'
+        : 'OS/TopographicArea_2/Building/1_3D-Single-Dwelling-Selected',
       expression: ['all', ['==', '_symbol', 4], ['in', 'TOID', TOID]],
     };
     this.mapService.filterMapLayer(filter);
