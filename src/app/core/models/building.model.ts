@@ -1,23 +1,23 @@
-import { BuildForm, EPCRating, PropertyType } from '@core/enums';
+import { BuildForm, EPCRating, PostCode, PropertyType } from '@core/enums';
 
 export interface BuildingModel {
-  UPRN: string;
-  TOID: string;
-  ParentTOID?: string;
+  BuildForm: BuildForm;
   EPC: EPCRating;
+  FullAddress: string;
+  InspectionDate: string;
+  ParentTOID?: string;
+  PostCode: PostCode;
   PropertyType: PropertyType;
+  TOID?: string;
+  UPRN: string;
 }
 
 export interface BuildingDetailsModel extends BuildingModel {
-  BuildForm: BuildForm;
   SAPPoints: string;
-  FullAddress: string;
-  InspectionDate: string;
   parts: string;
 }
 
 export interface BuildingListModel extends BuildingModel {
-  FullAddress: string;
   Flagged: string;
 }
 

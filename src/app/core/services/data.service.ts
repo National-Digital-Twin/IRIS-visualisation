@@ -55,16 +55,7 @@ export class DataService {
     map(rawData => rawData as unknown as BuildingModel[]),
     map(rawData => this.mapBuildings(rawData))
   );
-  // buildings$ = toObservable(this.filters).pipe(
-  //   switchMap(filters => {
-  //     console.log('FILTERS', filters);
-  //     const query = this.constructAllDataQuery(filters);
 
-  //     return this.selectTable(query).pipe(
-  //       map(rawData => this.mapBuildings(rawData))
-  //     );
-  //   })
-  // );
   private buildingResults = toSignal(this.buildings$, {
     initialValue: undefined,
   });
@@ -82,6 +73,7 @@ export class DataService {
     tap(uprn => console.log('getting details for uprn ', uprn)),
     switchMap(uprn =>
       this.getBuildingDetails(uprn!).pipe(
+        tap(details => console.log(details)),
         map(details => details[0] as unknown as BuildingDetailsModel),
         tap(details => {
           this.setSelectedBuilding(details);
@@ -130,19 +122,6 @@ export class DataService {
   }
 
   constructAllDataQuery() {
-    // let queryFilterStatements = '';
-    // if (filters) {
-    //   queryFilterStatements = Object.entries(filters)
-    //     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    //     .filter(([key, value]) => value && value.length > 0)
-    //     .map(([key, value]) => {
-    //       return this.queries.valuesStatement(
-    //         QueryFields[key as keyof typeof QueryFields],
-    //         value
-    //       );
-    //     })
-    //     .join(' ');
-    // }
     const query =
       this.queries.prefixes() +
       this.queries.selectStatement() +
@@ -153,6 +132,7 @@ export class DataService {
       this.queries.optionalStatement() +
       `}` +
       this.queries.groupByStatement();
+    // const query = this.queries.getAllData();
     return query;
   }
 
@@ -329,8 +309,17 @@ export class DataService {
   mapBuildingParts(parts: BuildingPart[]) {
     const buildingPartMap: BuildingPartMap = {};
     parts.forEach((part: BuildingPart) => {
-      buildingPartMap[part.PartSuperType] = part;
+      /**
+       * if PartSuperType === 'PartOfBuiling'
+       * the source data value is 'Other'
+       */
+      const key =
+        part.PartSuperType === 'PartOfBuilding'
+          ? part.PartType
+          : part.PartSuperType;
+      buildingPartMap[key] = part;
     });
+    console.log(buildingPartMap);
     return buildingPartMap;
   }
 

@@ -6,4 +6,5 @@ export enum Roof {
   ParkHomeRoof = 'Park Home Roof',
   ThatchedRoof = 'Thatched Roof',
   RoofWithRooms = 'Roof With Rooms',
+  Roof = 'Other', //replaces PartOfBuilding
 }

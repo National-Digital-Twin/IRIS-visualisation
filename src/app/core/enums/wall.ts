@@ -8,4 +8,5 @@ export enum Wall {
   SystemBuiltWall = 'System Built Wall',
   CobWall = 'Cob Wall',
   ParkHomeWall = 'Park Home Wall',
+  Wall = 'Other', //replaces PartOfBuilding
 }
