@@ -84,7 +84,7 @@ export class UtilService {
     if (!buildings || !Object.keys(buildings).length) {
       return;
     }
-    buildings = this.filterBuildingsByMainFilters(buildings);
+    buildings = this.filterBuildings(buildings);
 
     const spatialFilter = this.spatialQueryService.spatialFilterBounds();
     const filteredBuildings = this.filterBuildingsWithinBounds(
@@ -311,7 +311,13 @@ export class UtilService {
     return filteredToids;
   }
 
-  filterBuildingsByMainFilters(buildings: BuildingMap): BuildingMap {
+  /**
+   * This filters the building data by the user selected
+   * filters
+   * @param buildings all buildings data
+   * @returns BuildingMap of filtered buildings
+   */
+  filterBuildings(buildings: BuildingMap): BuildingMap {
     const filterProps = this.filterProps();
     if (Object.keys(filterProps).length === 0) return buildings;
 
