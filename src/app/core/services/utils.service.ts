@@ -82,24 +82,14 @@ export class UtilService {
   createBuildingColourFilter() {
     let buildings = this.dataService.buildings();
     if (!buildings || !Object.keys(buildings).length) {
-      console.log('no data, returning');
       return;
     }
-    console.log('orig building count ', Object.keys(buildings).length);
     buildings = this.filterBuildingsByMainFilters(buildings);
-    console.log(
-      'building count after attribute filtering ',
-      Object.keys(buildings).length
-    );
 
     const spatialFilter = this.spatialQueryService.spatialFilterBounds();
     const filteredBuildings = this.filterBuildingsWithinBounds(
       buildings!,
       spatialFilter
-    );
-    console.log(
-      'filtered withing bounds building count ',
-      Object.keys(filteredBuildings).length
     );
     // if there is a spatial filter get the UPRNs within the filter area
     // and set in signal to get data from IA to display in filter results
@@ -322,7 +312,6 @@ export class UtilService {
   }
 
   filterBuildingsByMainFilters(buildings: BuildingMap): BuildingMap {
-    console.log('filtering buildings with ', this.filterProps());
     const filterProps = this.filterProps();
     if (Object.keys(filterProps).length === 0) return buildings;
 

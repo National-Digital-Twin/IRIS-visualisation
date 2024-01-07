@@ -73,7 +73,6 @@ export class DataService {
     tap(uprn => console.log('getting details for uprn ', uprn)),
     switchMap(uprn =>
       this.getBuildingDetails(uprn!).pipe(
-        tap(details => console.log(details)),
         map(details => details[0] as unknown as BuildingDetailsModel),
         tap(details => {
           this.setSelectedBuilding(details);
@@ -319,7 +318,6 @@ export class DataService {
           : part.PartSuperType;
       buildingPartMap[key] = part;
     });
-    console.log(buildingPartMap);
     return buildingPartMap;
   }
 
