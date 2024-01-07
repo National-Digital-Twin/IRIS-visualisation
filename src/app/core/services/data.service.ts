@@ -121,17 +121,7 @@ export class DataService {
   }
 
   constructAllDataQuery() {
-    const query =
-      this.queries.prefixes() +
-      this.queries.selectStatement() +
-      `WHERE
-        {
-          ${this.queries.whereStatement()}
-      ` +
-      this.queries.optionalStatement() +
-      `}` +
-      this.queries.groupByStatement();
-    // const query = this.queries.getAllData();
+    const query = this.queries.getAllData();
     return query;
   }
 
@@ -287,14 +277,21 @@ export class DataService {
    */
   mapBuildings(buildings: BuildingModel[]) {
     const buildingMap: BuildingMap = {};
+    const missingTOIDS: number[] = [];
     buildings.forEach((row: BuildingModel) => {
       const toid = row.TOID ? row.TOID : row.ParentTOID;
+      if (!toid) {
+        missingTOIDS.push(+row.UPRN);
+        return;
+      }
       if (toid && buildingMap[toid]) {
         buildingMap[toid].push(row);
       } else {
         buildingMap[toid!] = [row];
       }
     });
+    // TODO remove, but leaving for now to debug data
+    console.log('UPRNS with no TOIDs ', missingTOIDS);
     return buildingMap;
   }
 
