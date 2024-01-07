@@ -1,8 +1,5 @@
 import { Component } from '@angular/core';
-
 import { RouterOutlet } from '@angular/router';
-
-import '@arc-web/components';
 
 @Component({
   selector: 'c477-root',
