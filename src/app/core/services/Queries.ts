@@ -174,6 +174,7 @@ export class Queries {
           (REPLACE(STR(?property_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?PropertyType)
           (REPLACE(STR(?build_form_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?BuildForm)
           (?inspection_date_literal AS ?InspectionDate)
+          (?line_of_address_literal AS ?FullAddress)
           (SUBSTR(?postcode_literal, 0, 5) AS ?PostCode)
           #(GROUP_CONCAT(?part; SEPARATOR="; ") as ?parts)
           (GROUP_CONCAT(DISTINCT REPLACE(STR(?part_type), "http://nationaldigitaltwin.gov.uk/ontology#", ""); SEPARATOR="; ") as ?part_types)
@@ -198,6 +199,11 @@ export class Queries {
           }
 
           ?building ies:inLocation ?address .
+
+          ?address ies:isIdentifiedBy ?line_of_address .
+          ?line_of_address rdf:type ies:FirstLineOfAddress .
+          ?line_of_address ies:representationValue ?line_of_address_literal .
+
           ?address ies:isIdentifiedBy ?postcode .
           ?postcode rdf:type ies:PostalCode .
           ?postcode ies:representationValue ?postcode_literal .
@@ -246,6 +252,7 @@ export class Queries {
           ?property_type
           ?build_form_type
           ?postcode_literal
+          ?line_of_address_literal
           ?inspection_date_literal
     `;
   }
