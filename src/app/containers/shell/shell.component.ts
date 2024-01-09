@@ -10,6 +10,7 @@ import {
   inject,
   numberAttribute,
   computed,
+  signal,
 } from '@angular/core';
 import { Params, Router } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
@@ -41,6 +42,7 @@ import type { UserPreferences } from '@arc-web/components/src/components/accessi
 import type { ArcAccessibility, ArcSwitch } from '@arc-web/components';
 import '@arc-web/components/src/components/container/arc-container';
 import '@arc-web/components/src/components/switch/arc-switch';
+import { ContainerTheme } from '@arc-web/components/src/components/container/constants/ContainerConstants';
 
 @Component({
   selector: 'c477-shell',
@@ -77,6 +79,15 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   private readonly colorBlindMode = computed(
     () => this.settingService.settings()['colorBlindMode'] as boolean
   );
+
+  private readonly theme = signal<ContainerTheme | undefined>(undefined);
+
+  public readonly companyLogoSrc = computed(() => {
+    const theme = this.theme();
+    if (!theme) return '';
+    const imageSrc = this.runtimeConfig.companyLogo[theme];
+    return imageSrc ? imageSrc : '';
+  });
 
   @ViewChild('accessibility')
   public accessibility?: ElementRef<ArcAccessibility>;
@@ -143,9 +154,14 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   }
 
   public handleAccessibilityChange(event: Event): void {
-    const theme = (event as CustomEvent<{ preferences: UserPreferences }>)
-      .detail.preferences.theme;
+    type IEvent = CustomEvent<{ preferences: UserPreferences }>;
+    let { theme } = (event as IEvent).detail.preferences;
+    if (theme === 'auto') {
+      const { matches } = window.matchMedia('(prefers-color-scheme: dark)');
+      theme = matches ? 'dark' : 'light';
+    }
     this.document?.body?.setAttribute('theme', theme);
+    this.theme.set(theme);
   }
 
   private setColorBlindMode(colorBlindMode: boolean): void {

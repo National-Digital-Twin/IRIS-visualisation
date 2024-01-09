@@ -1,6 +1,7 @@
 import { URLStateModel } from '@core/models/url-state.model';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
 import { MapLayerId } from '@core/types/map-layer-id';
+import { ContainerTheme } from '@arc-web/components/src/components/container/constants/ContainerConstants';
 
 import { Layer as MapboxLayer } from 'mapbox-gl';
 
@@ -31,4 +32,6 @@ export interface RuntimeConfigurationModel {
   epcColours: { [key: string]: string };
   /** EPC Colours - Colour Deficient*/
   epcColoursCD: { [key: string]: string };
+  /* Company logo */
+  companyLogo: Record<ContainerTheme, string>;
 }
