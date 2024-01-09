@@ -11,4 +11,3 @@ export * from './roof';
 export * from './wall-insulation';
 export * from './wall';
 export * from './window-glazing';
-export * from './query-fields';
