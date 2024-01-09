@@ -1,12 +1,12 @@
 import { Injectable, inject, signal } from '@angular/core';
 
 import bbox from '@turf/bbox';
+import { LngLat, LngLatBounds } from 'mapbox-gl';
+import { Polygon } from 'geojson';
 
 import { MapService } from './map.service';
-import { Polygon } from 'geojson';
-import { LngLat, LngLatBounds } from 'mapbox-gl';
+
 import { MapLayerFilter } from '@core/models/layer-filter.model';
-import { SignalsService } from './signals.service';
 
 /**
  * Service for selecting and filtering buildings
@@ -17,7 +17,6 @@ import { SignalsService } from './signals.service';
 })
 export class SpatialQueryService {
   private mapService = inject(MapService);
-  private signalsService = inject(SignalsService);
 
   /** pixel coordinates of the spatial filter bounding box */
   spatialFilterBounds = signal<number[] | undefined>(undefined);
@@ -42,8 +41,6 @@ export class SpatialQueryService {
       expression: ['all', ['==', '_symbol', 4], ['in', 'TOID', TOID]],
     };
     this.mapService.filterMapLayer(filter);
-    const panelOpen = TOID ? true : false;
-    this.signalsService.detailsPanelOpen.set(panelOpen);
   }
 
   setSpatialFilter(enabled: boolean) {
