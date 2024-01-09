@@ -1,5 +1,3 @@
-import { LngLatBounds } from 'mapbox-gl';
-
 export class Queries {
   getBuildingDetails(uprn: number) {
     return `
@@ -66,95 +64,6 @@ export class Queries {
         ?building_toid_id
         ?parent_building_toid_id
   `;
-  }
-
-  getBuildingListDetails(uprns: number[]) {
-    return `
-    PREFIX data: <http://nationaldigitaltwin.gov.uk/data#>
-    PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
-    PREFIX qudt: <http://qudt.org/2.1/schema/qudt/>
-    PREFIX ndt: <http://nationaldigitaltwin.gov.uk/ontology#>
-    PREFIX iesuncertainty: <http://ies.data.gov.uk/ontology/ies_uncertainty_proposal/v2.0#>
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    PREFIX geoplace: <https://www.geoplace.co.uk/addresses-streets/location-data/the-uprn#>
-
-    SELECT
-      (?uprnValue AS ?UPRN)
-      (?building_toid_id AS ?TOID)
-      (?parent_building_toid_id AS ?ParentTOID)
-      (REPLACE(STR(?property_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?PropertyType)
-      (REPLACE(STR(?epc_rating), "http://gov.uk/government/organisations/department-for-levelling-up-housing-and-communities/ontology/epc#BuildingWithEnergyRatingOf", "") AS ?EPC)
-      (?line_of_address_literal AS ?FullAddress)
-    WHERE {{
-        ?building ies:isIdentifiedBy ?uprn .
-        ?uprn ies:representationValue ?uprnValue .
-        VALUES ?uprnValue {"${uprns.join('" "')}"} .
-        ?building rdf:type ?property_type .
-        ?property_type ies:powertype ndt:PropertyClass .
-
-        ?building ies:inLocation ?address .
-
-        ?address ies:isIdentifiedBy ?line_of_address .
-        ?line_of_address rdf:type ies:FirstLineOfAddress .
-        ?line_of_address ies:representationValue ?line_of_address_literal .
-
-        ?state ies:isStateOf ?building .
-
-        ?state a ?epc_rating .
-
-        OPTIONAL {{
-            ?building ies:isIdentifiedBy ?building_toid .
-            ?building_toid rdf:type ies:TOID .
-            ?building_toid ies:representationValue ?building_toid_id .
-        }}
-        OPTIONAL {{
-            ?building ies:isPartOf ?parent_building .
-            ?parent_building ies:isIdentifiedBy ?parent_building_toid .
-            ?parent_building_toid ies:representationValue ?parent_building_toid_id .
-            ?parent_building_toid rdf:type ies:TOID .
-        }}
-    }}
-    GROUP BY
-      ?uprnValue
-      ?building
-      ?epc_rating
-      ?line_of_address_literal
-      ?building_toid_id
-      ?parent_building_toid_id
-      ?property_type
-    `;
-  }
-
-  getEPCWithinBounds(bounds: LngLatBounds) {
-    // _sw.lat <= building.lat && building.lat <= _ne.lat && _sw.lng <= building.lng && building.lng <= _ne.lng
-    const { _ne, _sw } = bounds;
-    return `
-    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-    PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    SELECT ?uprn_id ?current_energy_rating (GROUP_CONCAT(DISTINCT ?type; SEPARATOR="; ") AS ?types)
-    WHERE {
-      ?building a ?type .
-      ?building ies:isIdentifiedBy/ies:representationValue ?uprn_id .
-      ?building ies:inLocation ?geopoint .
-
-      ?state ies:isStateOf ?building .
-      ?state a ?current_energy_rating .
-
-      ?geopoint rdf:type ies:GeoPoint .
-      ?geopoint ies:isIdentifiedBy ?lat .
-      ?lat rdf:type ies:Latitude .
-      ?lat ies:representationValue ?lat_literal .
-      ?geopoint ies:isIdentifiedBy ?lon .
-      ?lon rdf:type ies:Longitude .
-      ?lon ies:representationValue ?lon_literal .
-
-      FILTER (${_sw.lat} <= xsd:float(?lat_literal) && xsd:float(?lat_literal) <= ${_ne.lat} && ${_sw.lng} <= xsd:float(?lon_literal) && xsd:float(?lon_literal) <= ${_ne.lng}) .
-    }
-    GROUP BY
-      ?uprn_id
-      ?current_energy_rating
-    `;
   }
 
   getAllData() {
