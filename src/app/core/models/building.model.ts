@@ -10,15 +10,12 @@ export interface BuildingModel {
   PropertyType: PropertyType;
   TOID?: string;
   UPRN: string;
+  Flagged: string;
 }
 
 export interface BuildingDetailsModel extends BuildingModel {
   SAPPoints: string;
   parts: string;
-}
-
-export interface BuildingListModel extends BuildingModel {
-  Flagged: string;
 }
 
 export interface BuildingSpecificationModel {

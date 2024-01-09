@@ -69,6 +69,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
       this.utilService.setFilters(this.filterProps);
     } else {
       this.utilService.setFilters({});
+      this.closeResults();
     }
   }
 
@@ -155,51 +156,66 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   }
 
   updateBuildingLayerColour() {
-    if (
-      this.mapConfig?.zoom &&
-      this.mapConfig?.zoom >= 15 &&
-      !this.spatialQueryService.spatialFilterEnabled()
-    ) {
+    if (this.mapConfig?.zoom && this.mapConfig?.zoom >= 15) {
       this.utilService.createBuildingColourFilter();
     }
   }
 
   setSearchArea(searchArea: GeoJSON.Feature<Polygon>) {
-    this.dataService.setSelectedUPRNs(undefined);
     this.dataService.setSelectedUPRN(undefined);
+    this.dataService.setSelectedBuilding(undefined);
     this.spatialQueryService.setSelectedTOID('');
+
+    /** clear building layer selections */
     this.spatialQueryService.selectBuilding('', true);
     this.spatialQueryService.selectBuilding('', false);
-    this.spatialQueryService.selectBuildings(searchArea);
-    this.utilService.createBuildingColourFilter();
+    this.spatialQueryService.setSpatialGeom(searchArea);
+    /**
+     * need to run this in zone otherwise change detection
+     * isn't triggered and results panel won't open
+     */
+    this.zone.run(() => {
+      this.utilService.createBuildingColourFilter();
+    });
   }
 
   setSelectedBuildingTOID(TOID: string | null) {
+    /**
+     * if there are filters results panel is
+     * open so don't allow selection from map
+     */
+    const filters = this.utilService.filterProps();
+    if (Object.keys(filters).length) {
+      return;
+    }
     const currentTOID = this.selectedBuildingTOID();
     if (TOID && currentTOID !== TOID) {
       /** Get building UPRNs */
-      const uprns = this.dataService.getBuildingUPRNs(TOID);
-      if (uprns.length === 1) {
+      const buildings = this.utilService.getBuildings(TOID);
+      if (buildings.length === 1) {
         /** Single dwelling */
-        this.dataService.setSelectedUPRNs(undefined);
-        this.dataService.setSelectedUPRN(uprns[0]);
-      } else if (uprns.length > 1) {
+        this.dataService.setSelectedBuildings(undefined);
+        this.dataService.setSelectedUPRN(+buildings[0].UPRN);
+      } else if (buildings.length > 1) {
         /* Multiple dwellings */
-        this.dataService.setSelectedUPRN(undefined);
-        this.dataService.setSelectedUPRNs(uprns);
+        this.zone.run(() => {
+          this.dataService.setSelectedUPRN(undefined);
+          this.dataService.setSelectedBuildings(buildings);
+        });
       }
 
       this.spatialQueryService.setSelectedTOID(TOID);
-      this.spatialQueryService.selectBuilding(TOID, uprns.length > 1);
-      this.spatialQueryService.selectBuilding('', uprns.length === 1);
+      this.spatialQueryService.selectBuilding(TOID, buildings.length > 1);
+      this.spatialQueryService.selectBuilding('', buildings.length === 1);
     } else {
-      this.dataService.setSelectedUPRNs(undefined);
-      this.dataService.setSelectedUPRN(undefined);
-      this.dataService.setSelectedBuilding(undefined);
-      this.dataService.setSelectedBuildings(undefined);
-      this.spatialQueryService.setSelectedTOID('');
-      this.spatialQueryService.selectBuilding('', true);
-      this.spatialQueryService.selectBuilding('', false);
+      this.zone.run(() => {
+        this.dataService.setSelectedUPRN(undefined);
+        this.dataService.setSelectedBuilding(undefined);
+        this.dataService.setSelectedBuildings(undefined);
+        this.spatialQueryService.setSelectedTOID('');
+        this.spatialQueryService.selectBuilding('', true);
+        this.spatialQueryService.selectBuilding('', false);
+      });
     }
   }
 
@@ -207,13 +223,20 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     // if there are building UPRNs then the results
     // panel is open so only clear selected building
     // to keep building highlighted on the map
-    if (this.dataService.buildingUPRNs()) {
+    if (this.dataService.buildingsSelection()) {
       this.dataService.setSelectedBuilding(undefined);
     } else {
       this.dataService.setSelectedBuilding(undefined);
       this.spatialQueryService.setSelectedTOID('');
       this.spatialQueryService.selectBuilding('');
       this.dataService.setSelectedUPRN(undefined);
+    }
+  }
+
+  closeResults() {
+    /** if there is no spatial filter close results panel */
+    if (!this.spatialQueryService.spatialFilterEnabled()) {
+      this.dataService.setSelectedBuildings(undefined);
     }
   }
 
@@ -238,7 +261,6 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   deleteSpatialFilter() {
     this.spatialQueryService.setSpatialFilter(false);
     this.spatialQueryService.setSpatialFilterBounds(undefined);
-    this.dataService.setSelectedUPRNs(undefined);
     this.dataService.setSelectedUPRN(undefined);
     this.dataService.setSelectedBuilding(undefined);
     this.dataService.setSelectedBuildings(undefined);

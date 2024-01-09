@@ -1,10 +1,15 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
+
 import { LabelComponent } from '@components/label/label.component';
-import { BuildingListModel } from '@core/models/building.model';
+
+import { UtilService } from '@core/services/utils.service';
+
+import { BuildingModel } from '@core/models/building.model';
 
 @Component({
   selector: 'c477-results-card',
@@ -20,8 +25,14 @@ import { BuildingListModel } from '@core/models/building.model';
   styleUrl: './results-card.component.css',
 })
 export class ResultsCardComponent {
-  @Input() card!: BuildingListModel;
+  private utilService = inject(UtilService);
+
+  @Input() card!: BuildingModel;
   @Input() select: boolean = false;
-  @Output() viewDetails: EventEmitter<BuildingListModel> =
-    new EventEmitter<BuildingListModel>();
+  @Output() viewDetails: EventEmitter<BuildingModel> =
+    new EventEmitter<BuildingModel>();
+
+  getAddressSegment(index: number) {
+    return this.utilService.splitAddress(index, this.card?.FullAddress);
+  }
 }

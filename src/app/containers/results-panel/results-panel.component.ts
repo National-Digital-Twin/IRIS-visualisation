@@ -10,7 +10,7 @@ import { ResultsCardExpandableComponent } from '@components/results-card-expanda
 
 import { DataService } from '@core/services/data.service';
 
-import { BuildingListModel } from '@core/models/building.model';
+import { BuildingModel } from '@core/models/building.model';
 
 @Component({
   selector: 'c477-results-panel',
@@ -28,13 +28,13 @@ import { BuildingListModel } from '@core/models/building.model';
   styleUrl: './results-panel.component.scss',
 })
 export class ResultsPanelComponent {
-  dataService = inject(DataService);
+  private dataService = inject(DataService);
 
   buildingSelection = this.dataService.buildingsSelection;
 
   selectMultiple: boolean = false;
 
-  viewDetails(building: BuildingListModel) {
+  viewDetails(building: BuildingModel) {
     this.dataService.setSelectedUPRN(+building.UPRN);
   }
 }

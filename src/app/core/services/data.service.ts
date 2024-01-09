@@ -12,13 +12,10 @@ import {
 } from 'rxjs';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 
-import { LngLatBounds } from 'mapbox-gl';
-
 import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
 import { SPARQLReturn, TableRow } from '@core/models/rdf-data.model';
 import {
   BuildingDetailsModel,
-  BuildingListModel,
   BuildingMap,
   BuildingModel,
   BuildingPart,
@@ -26,7 +23,6 @@ import {
 } from '@core/models/building.model';
 
 import { Queries } from './Queries';
-import { MainFiltersFormModel } from '@core/models/filters.model';
 
 @Injectable({
   providedIn: 'root',
@@ -40,12 +36,9 @@ export class DataService {
   // single uprn
   selectedUPRN = signal<number | undefined>(undefined);
   selectedBuilding = signal<BuildingDetailsModel | undefined>(undefined);
-  // multiple uprns
-  buildingUPRNs = signal<number[] | undefined>(undefined);
-  buildingsSelection = signal<BuildingListModel[] | undefined>(undefined);
-  private buildingData = signal<BuildingMap | undefined>(undefined);
-  // filters
-  filters = signal<MainFiltersFormModel | undefined>(undefined);
+  // multiple buildings
+  buildingsSelection = signal<BuildingModel[] | undefined>(undefined);
+
   /**
    * Get UPRNs, EPC ratings, addresses
    * @returns
@@ -100,21 +93,6 @@ export class DataService {
   private buildingParts = toSignal(this.buildingParts$);
   parts = computed(() => this.buildingParts());
 
-  private getBuildingsList$ = toObservable(this.buildingUPRNs).pipe(
-    filter(uprns => uprns !== undefined),
-    switchMap(uprns =>
-      this.getBuildingListDetails(uprns!).pipe(
-        map(buildings => buildings as unknown as BuildingListModel[]),
-        tap(buildings => this.setSelectedBuildings(buildings)),
-        catchError(() => of([] as BuildingListModel[]))
-      )
-    )
-  );
-
-  readOnlyBuildingsList = toSignal(this.getBuildingsList$, {
-    initialValue: [],
-  });
-
   setSelectedUPRN(uprn: number | undefined) {
     this.selectedUPRN.set(uprn);
   }
@@ -131,48 +109,8 @@ export class DataService {
    * Set multiple buildings
    * @param building buildings
    */
-  setSelectedBuildings(buildings: BuildingListModel[] | undefined) {
+  setSelectedBuildings(buildings: BuildingModel[] | undefined) {
     this.buildingsSelection.set(buildings ? buildings : undefined);
-  }
-
-  setSelectedUPRNs(uprns: number[] | undefined) {
-    this.buildingUPRNs.set(uprns?.length ? uprns : undefined);
-  }
-
-  setBuildingData(buildings: BuildingMap) {
-    this.buildingData.set(buildings);
-  }
-
-  /**
-   * Set filters
-   * @param filter Filters
-   */
-  setFilters(filter: MainFiltersFormModel | undefined) {
-    this.filters.set(filter);
-  }
-
-  /**
-   * Find building UPRNs based on TOID
-   * @param toid toid of building
-   * @returns array of uprns for the building
-   */
-  getBuildingUPRNs(toid: string): number[] {
-    const allBuildings = this.buildings();
-    const buildings = allBuildings![toid];
-    if (buildings) {
-      return buildings.map(building => +building.UPRN);
-    }
-    return [];
-  }
-
-  /**
-   * Get building EPC values within map bounds
-   * @param bounds map bounds
-   * @returns
-   */
-  getEPCWithinBounds$(bounds: LngLatBounds) {
-    const selectString = this.queries.getEPCWithinBounds(bounds);
-    return this.selectTable(selectString);
   }
 
   /**
@@ -192,17 +130,6 @@ export class DataService {
    */
   getBuildingParts(partURIs: string[]) {
     const selectString = this.queries.getBuildingParts(partURIs);
-    return this.selectTable(selectString);
-  }
-
-  /**
-   * Return an array of building details to use in filter
-   * results list
-   * @param uprns array of uprns to get details for
-   * @returns
-   */
-  getBuildingListDetails(uprns: number[]) {
-    const selectString = this.queries.getBuildingListDetails(uprns);
     return this.selectTable(selectString);
   }
 
