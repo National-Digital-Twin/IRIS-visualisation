@@ -40,7 +40,7 @@ export class DataService {
   // single uprn
   selectedUPRN = signal<number | undefined>(undefined);
   selectedBuilding = signal<BuildingDetailsModel | undefined>(undefined);
-  // multiple uprns
+  // multiple buildings
   buildingsSelection = signal<BuildingModel[] | undefined>(undefined);
 
   // filters
