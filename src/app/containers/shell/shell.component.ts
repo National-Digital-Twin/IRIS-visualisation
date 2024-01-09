@@ -16,8 +16,6 @@ import { DOCUMENT } from '@angular/common';
 
 import { Polygon } from 'geojson';
 
-import { ArcAccessibility, ArcSwitch } from '@arc-web/components';
-import { UserPreferences } from '@arc-web/components/dist/components/accessibility/ArcAccessibility';
 import { DetailsPanelComponent } from '@components/details-panel/details-panel.component';
 import { MainFiltersComponent } from '@containers/main-filters/main-filters.component';
 import { MapComponent } from '@components/map/map.component';
@@ -38,6 +36,11 @@ import {
 import { URLStateModel } from '@core/models/url-state.model';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
+
+import type { UserPreferences } from '@arc-web/components/src/components/accessibility/ArcAccessibility';
+import type { ArcAccessibility, ArcSwitch } from '@arc-web/components';
+import '@arc-web/components/src/components/container/arc-container';
+import '@arc-web/components/src/components/switch/arc-switch';
 
 @Component({
   selector: 'c477-shell',

@@ -181,6 +181,22 @@ export class MapService {
     );
   }
 
+  zoomToCoords(
+    center: number[],
+    zoom: number = 18,
+    pitch: number = 0,
+    bearing: number = 0
+  ) {
+    this.zone.runOutsideAngular(() => {
+      this.mapInstance.flyTo({
+        center,
+        zoom,
+        pitch,
+        bearing,
+      });
+    });
+  }
+
   destroyMap() {
     if (this.mapInstance) {
       this.mapInstance.remove();

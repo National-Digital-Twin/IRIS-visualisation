@@ -1,6 +1,9 @@
 import { bootstrapApplication } from '@angular/platform-browser';
+import { ErrorHandler } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideHttpClient } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient } from '@angular/common/http';
+import { ExceptionService } from '@core/services/exception.service';
+import { HandleHttpErrorInterceptor } from '@core/interceptors/handle-http-error.interceptor';
 
 import { AppComponent } from './app/app.component';
 import { appConfig } from './app/app.config';
@@ -14,6 +17,12 @@ fetch('configuration/config.json')
       providers: [
         ...appConfig.providers,
         { provide: RUNTIME_CONFIGURATION, useValue: config },
+        {
+          provide: HTTP_INTERCEPTORS,
+          useClass: HandleHttpErrorInterceptor,
+          multi: true,
+        },
+        { provide: ErrorHandler, useClass: ExceptionService },
         provideHttpClient(),
         provideAnimations(),
       ],
