@@ -50,7 +50,7 @@ export class DataService {
    * Get UPRNs, EPC ratings, addresses
    * @returns
    */
-  buildings$ = this.selectTable(this.constructAllDataQuery()).pipe(
+  buildings$ = this.selectTable(this.queries.getAllData()).pipe(
     map(rawData => rawData as unknown as BuildingModel[]),
     map(rawData => this.mapBuildings(rawData))
   );
@@ -117,11 +117,6 @@ export class DataService {
 
   setSelectedUPRN(uprn: number | undefined) {
     this.selectedUPRN.set(uprn);
-  }
-
-  constructAllDataQuery() {
-    const query = this.queries.getAllData();
-    return query;
   }
 
   /**
@@ -276,11 +271,9 @@ export class DataService {
    */
   mapBuildings(buildings: BuildingModel[]) {
     const buildingMap: BuildingMap = {};
-    const missingTOIDS: number[] = [];
     buildings.forEach((row: BuildingModel) => {
       const toid = row.TOID ? row.TOID : row.ParentTOID;
       if (!toid) {
-        missingTOIDS.push(+row.UPRN);
         return;
       }
       if (toid && buildingMap[toid]) {
@@ -289,8 +282,6 @@ export class DataService {
         buildingMap[toid!] = [row];
       }
     });
-    // TODO remove, but leaving for now to debug data
-    console.log('UPRNS with no TOIDs ', missingTOIDS);
     return buildingMap;
   }
 
