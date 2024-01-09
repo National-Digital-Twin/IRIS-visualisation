@@ -4,7 +4,7 @@ import bbox from '@turf/bbox';
 
 import { MapService } from './map.service';
 import { Polygon } from 'geojson';
-import { LngLat } from 'mapbox-gl';
+import { LngLat, LngLatBounds } from 'mapbox-gl';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
 import { SignalsService } from './signals.service';
 
@@ -19,8 +19,10 @@ export class SpatialQueryService {
   private mapService = inject(MapService);
   private signalsService = inject(SignalsService);
 
+  /** pixel coordinates of the spatial filter bounding box */
   spatialFilterBounds = signal<number[] | undefined>(undefined);
 
+  /** user drawn spatial filter geometry */
   spatialFilterGeom = signal<GeoJSON.Feature<Polygon> | undefined>(undefined);
 
   spatialFilterEnabled = signal<boolean>(false);
@@ -56,7 +58,7 @@ export class SpatialQueryService {
    * Filter map to show selection of multiple buildings
    * @param geom user drawn geometry
    */
-  selectBuildings(geom: GeoJSON.Feature<Polygon>) {
+  setSpatialGeom(geom: GeoJSON.Feature<Polygon>) {
     this.spatialFilterGeom.set(geom);
     // get bounding box of drawn geometry as this
     // is the input required by mapbox to query
@@ -76,8 +78,19 @@ export class SpatialQueryService {
     const bboxPolygon = bbox(geom);
     const southWest = new LngLat(bboxPolygon[0], bboxPolygon[1]);
     const northEast = new LngLat(bboxPolygon[2], bboxPolygon[3]);
-    const nePointPixel = this.mapService.mapInstance.project(northEast);
-    const swPointPixel = this.mapService.mapInstance.project(southWest);
-    return [swPointPixel, nePointPixel];
+    const latlngBounds = new LngLatBounds(southWest, northEast);
+    const pixelCoords = this.latlngToPixels(latlngBounds);
+    return pixelCoords;
+  }
+
+  /**
+   *
+   * @param latlngBounds bounding box in lat lng
+   * @returns bounding box in pixel coordinates
+   */
+  latlngToPixels(latlngBounds: LngLatBounds) {
+    const sw = this.mapService.mapInstance.project(latlngBounds._sw);
+    const ne = this.mapService.mapInstance.project(latlngBounds._ne);
+    return [sw, ne];
   }
 }
