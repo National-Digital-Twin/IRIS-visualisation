@@ -26,7 +26,7 @@
             <p>
               <span class="field">Built form:</span>
               @if (buildingDetails()?.BuildForm) {
-                <span>{{ buildingDetails()?.BuildForm }}</span>
+                <span>{{ buildForm[buildingDetails()!.BuildForm] }}</span>
               } @else {
                 <span>No data</span>
               }
