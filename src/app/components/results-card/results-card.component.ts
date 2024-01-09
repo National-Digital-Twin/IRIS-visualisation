@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  HostListener,
+  Input,
+  Output,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -27,12 +34,30 @@ import { BuildingModel } from '@core/models/building.model';
 export class ResultsCardComponent {
   private utilService = inject(UtilService);
 
+  @HostListener('click', ['$event'])
+  onClick($event: MouseEvent) {
+    $event.stopPropagation();
+    this.selectCard();
+  }
+
   @Input() card!: BuildingModel;
+  @Input() buildingUPRN?: number;
   @Input() select: boolean = false;
-  @Output() viewDetails: EventEmitter<BuildingModel> =
+  @Output() emitViewDetails: EventEmitter<BuildingModel> =
+    new EventEmitter<BuildingModel>();
+  @Output() selectBuilding: EventEmitter<BuildingModel> =
     new EventEmitter<BuildingModel>();
 
   getAddressSegment(index: number) {
     return this.utilService.splitAddress(index, this.card?.FullAddress);
+  }
+
+  selectCard() {
+    this.selectBuilding.emit(this.card);
+  }
+
+  viewDetails($event: Event) {
+    $event.stopPropagation();
+    this.emitViewDetails.emit(this.card);
   }
 }
