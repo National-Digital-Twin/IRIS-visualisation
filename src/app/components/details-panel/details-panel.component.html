@@ -10,12 +10,12 @@
       </button>
     </div>
     <div class="details-panel__overview">
-      <p class="address">{{ buildingDetails()?.fullAddress }}</p>
+      <p class="address">{{ buildingDetails()?.FullAddress }}</p>
       <div class="labels">
-        <c477-label [epcRating]="buildingDetails()?.epc">{{
-          buildingDetails()?.sapPoints
+        <c477-label [epcRating]="buildingDetails()?.EPC">{{
+          buildingDetails()?.SAPPoints
         }}</c477-label>
-        <c477-label>{{ buildingDetails()?.propertyType }}</c477-label>
+        <c477-label>{{ buildingDetails()?.PropertyType }}</c477-label>
       </div>
     </div>
     <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
@@ -24,21 +24,20 @@
           <div class="about">
             <h2>About</h2>
             <p>
-              <span class="field">Build form:</span>
-              @if (
-                buildingDetails()?.buildForm &&
-                buildForm[buildingDetails()!.buildForm]
-              ) {
-                <span>{{ buildForm[buildingDetails()!.buildForm] }}</span>
+              <span class="field">Built form:</span>
+              @if (buildingDetails()?.BuildForm) {
+                <span>{{ buildForm[buildingDetails()!.BuildForm] }}</span>
+              } @else {
+                <span>No data</span>
               }
             </p>
             <p>
               <span class="field">Inspection date:</span>
-              <span>{{ buildingDetails()?.inspectionDate | date }}</span>
+              <span>{{ buildingDetails()?.InspectionDate | date }}</span>
             </p>
             <p>
               <span class="field">UPRN:</span>
-              <span>{{ buildingDetails()?.uprnId }}</span>
+              <span>{{ buildingDetails()?.UPRN }}</span>
             </p>
           </div>
           <div class="specification">

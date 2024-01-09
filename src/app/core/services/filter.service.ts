@@ -1,14 +1,11 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 
 import { FilterKeys, FilterProps } from '@core/models/advanced-filters.model';
-import { UtilService } from './utils.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FilterService {
-  private utilsService = inject(UtilService);
-
   /**
    * Create a filter string from new and existing
    * filter objects
@@ -61,11 +58,7 @@ export class FilterService {
       // get first value as filter name
       const key = k[0] as FilterKeys;
       // remove filter name to get values
-      let values = k.slice(1);
-      // add prefix to EPC ratings
-      if (key === 'EPC') {
-        values = this.utilsService.addEPCPrefix(values);
-      }
+      const values = k.slice(1);
       if (filterProps[key]) {
         values.forEach((v: string) => filterProps[key]!.push(v));
       } else {

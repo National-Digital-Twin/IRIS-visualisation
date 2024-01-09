@@ -1,18 +1,24 @@
-import { TableRow } from './rdf-data.model';
+import { BuildForm, EPCRating, PostCode, PropertyType } from '@core/enums';
 
 export interface BuildingModel {
-  uprnId: string;
-  toid?: string;
-  fullAddress: string;
-  epc: string;
+  BuildForm: BuildForm;
+  EPC: EPCRating;
+  FullAddress: string;
+  InspectionDate: string;
+  ParentTOID?: string;
+  PostCode: PostCode;
+  PropertyType: PropertyType;
+  TOID?: string;
+  UPRN: string;
 }
 
 export interface BuildingDetailsModel extends BuildingModel {
-  buildForm: string;
-  propertyType: string;
-  sapPoints: string;
-  inspectionDate: string;
+  SAPPoints: string;
   parts: string;
+}
+
+export interface BuildingListModel extends BuildingModel {
+  Flagged: string;
 }
 
 export interface BuildingSpecificationModel {
@@ -25,7 +31,7 @@ export interface BuildingSpecificationModel {
 }
 
 export interface BuildingMap {
-  [key: string]: TableRow[];
+  [key: string]: BuildingModel[];
 }
 
 export interface BuildingPart {

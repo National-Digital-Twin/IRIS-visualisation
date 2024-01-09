@@ -15,8 +15,8 @@ import { SpatialQueryService } from './spatial-query.service';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 
-import { BuildingMap } from '@core/models/building.model';
-import { TableRow } from '@core/models/rdf-data.model';
+import { BuildingMap, BuildingModel } from '@core/models/building.model';
+import { FilterProps } from '@core/models/advanced-filters.model';
 
 import { MapLayerId } from '@core/types/map-layer-id';
 
@@ -36,6 +36,7 @@ type CurrentExpressions = Record<
   providedIn: 'root',
 })
 export class UtilService {
+  filterProps = signal<FilterProps>({});
   private readonly settingService = inject(SettingService);
   private readonly colorBlindMode = computed(
     () => this.settingService.settings()['colorBlindMode'] as boolean
@@ -69,14 +70,21 @@ export class UtilService {
 
   readOnlyBuildingData = toSignal(this.buildingData$, {} as BuildingMap);
 
+  setFilters(filters: FilterProps) {
+    this.filterProps.set(filters);
+  }
+
   /**
    * Create an array of building TOIDS and colours from buildings
    * @param addresses filtered addresses within map bounds
    * @returns MapboxGLJS expression
    */
   createBuildingColourFilter() {
-    const buildings = this.dataService.buildings();
-    if (!buildings || !Object.keys(buildings).length) return;
+    let buildings = this.dataService.buildings();
+    if (!buildings || !Object.keys(buildings).length) {
+      return;
+    }
+    buildings = this.filterBuildings(buildings);
 
     const spatialFilter = this.spatialQueryService.spatialFilterBounds();
     const filteredBuildings = this.filterBuildingsWithinBounds(
@@ -147,7 +155,7 @@ export class UtilService {
     /** Iterate through the filtered toids */
     Object.keys(filteredBuildings).forEach((toid: string) => {
       /** Get the buildings UPRN's for a TOID */
-      const buildings: TableRow[] = filteredBuildings[toid];
+      const buildings: BuildingModel[] = filteredBuildings[toid];
 
       if (buildings.length === 0) {
         /** No UPRNs for a TOID */
@@ -156,19 +164,19 @@ export class UtilService {
       } else if (buildings.length === 1) {
         /* One UPRN for a TOID */
 
-        const { epc } = buildings[0];
+        const { EPC } = buildings[0];
         addTooExpression(
           'fill-extrusion-color',
           toid,
-          epc ? this.getEPCColour(epc) : defaultPattern
+          EPC ? this.getEPCColour(EPC) : defaultPattern
         );
       } else if (buildings.length > 1) {
         /* Multiple UPRNs for a TOID */
 
         const buildingEPCs: string[] = [];
-        buildings.forEach(({ epc }) => {
-          if (epc) {
-            buildingEPCs.push(epc);
+        buildings.forEach(({ EPC }) => {
+          if (EPC) {
+            buildingEPCs.push(EPC);
           }
         });
 
@@ -304,6 +312,37 @@ export class UtilService {
   }
 
   /**
+   * This filters the building data by the user selected
+   * filters
+   * @param buildings all buildings data
+   * @returns BuildingMap of filtered buildings
+   */
+  filterBuildings(buildings: BuildingMap): BuildingMap {
+    const filterProps = this.filterProps();
+    if (Object.keys(filterProps).length === 0) return buildings;
+
+    // convert building object to array to ease filtering
+    const buildingsArray = Array.from(Object.values(buildings).flat());
+    const filterKeys = Object.keys(filterProps);
+    // filter buildings
+    const filtered = buildingsArray.filter((building: BuildingModel) =>
+      filterKeys.every(key => {
+        if (!filterProps[key as keyof FilterProps]?.length) return true;
+
+        return filterProps[key as keyof FilterProps]?.includes(
+          // eslint-disable-next-line
+          // @ts-ignore
+          building[key as keyof BuildingModel]
+        );
+      })
+    );
+    // convert filtered array of buildings back to object
+    const filteredBuildings: BuildingMap =
+      this.dataService.mapBuildings(filtered);
+    return filteredBuildings;
+  }
+
+  /**
    * Get the UPRNs for the buildings within the spatial
    * filter
    * @param filteredToids toids with spatial filter area
@@ -316,11 +355,5 @@ export class UtilService {
       filteredUPRNs = filteredUPRNs.concat(uprns);
     });
     return filteredUPRNs;
-  }
-
-  addEPCPrefix(epcRatings?: string[]) {
-    return epcRatings
-      ? epcRatings.map(r => `BuildingWithEnergyRatingOf${r}`)
-      : [];
   }
 }

@@ -50,6 +50,6 @@ export class DetailsPanelComponent {
   wall: { [key: string]: string } = Wall;
 
   getAddressSegment(index: number) {
-    return this.buildingDetails()?.fullAddress.split(',')[index];
+    return this.buildingDetails()?.FullAddress.split(',')[index];
   }
 }

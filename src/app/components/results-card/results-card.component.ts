@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { LabelComponent } from '@components/label/label.component';
-import { TableRow } from '@core/models/rdf-data.model';
+import { BuildingListModel } from '@core/models/building.model';
 
 @Component({
   selector: 'c477-results-card',
@@ -20,7 +20,8 @@ import { TableRow } from '@core/models/rdf-data.model';
   styleUrl: './results-card.component.css',
 })
 export class ResultsCardComponent {
-  @Input() card!: TableRow;
+  @Input() card!: BuildingListModel;
   @Input() select: boolean = false;
-  @Output() viewDetails: EventEmitter<TableRow> = new EventEmitter<TableRow>();
+  @Output() viewDetails: EventEmitter<BuildingListModel> =
+    new EventEmitter<BuildingListModel>();
 }

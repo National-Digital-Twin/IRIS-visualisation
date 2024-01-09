@@ -34,7 +34,6 @@ import {
   FilterProps,
 } from '@core/models/advanced-filters.model';
 import { URLStateModel } from '@core/models/url-state.model';
-import { MapLayerFilter } from '@core/models/layer-filter.model';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 
@@ -67,6 +66,9 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   @Input() set filter(filter: string) {
     if (filter) {
       this.filterProps = this.filterService.parseFilterString(filter);
+      this.utilService.setFilters(this.filterProps);
+    } else {
+      this.utilService.setFilters({});
     }
   }
 
@@ -114,6 +116,18 @@ export class ShellComponent implements AfterViewInit, OnChanges {
       center: [this.lat, this.lng],
     };
     this.mapConfig = mapConfig;
+
+    /**
+     * Trigger a update of building color
+     * whenever an input changes.
+     * This should be done on any map
+     * or filter related change.
+     * However if @Input()'s are added
+     * which are unrelated to the map
+     * or filters, a condition statement
+     * will need to be added
+     */
+    this.updateBuildingLayerColour();
   }
 
   public handleShowAccessibility(event: Event): void {
@@ -140,12 +154,14 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     );
   }
 
-  updateBuildingLayerFilter() {
-    this.utilService.createBuildingColourFilter();
-  }
-
-  filterLayer(filter: MapLayerFilter) {
-    this.mapService.filterMapLayer(filter);
+  updateBuildingLayerColour() {
+    if (
+      this.mapConfig?.zoom &&
+      this.mapConfig?.zoom >= 15 &&
+      !this.spatialQueryService.spatialFilterEnabled()
+    ) {
+      this.utilService.createBuildingColourFilter();
+    }
   }
 
   setSearchArea(searchArea: GeoJSON.Feature<Polygon>) {
@@ -155,7 +171,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     this.spatialQueryService.selectBuilding('', true);
     this.spatialQueryService.selectBuilding('', false);
     this.spatialQueryService.selectBuildings(searchArea);
-    this.updateBuildingLayerFilter();
+    this.utilService.createBuildingColourFilter();
   }
 
   setSelectedBuildingTOID(TOID: string | null) {
@@ -179,6 +195,8 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     } else {
       this.dataService.setSelectedUPRNs(undefined);
       this.dataService.setSelectedUPRN(undefined);
+      this.dataService.setSelectedBuilding(undefined);
+      this.dataService.setSelectedBuildings(undefined);
       this.spatialQueryService.setSelectedTOID('');
       this.spatialQueryService.selectBuilding('', true);
       this.spatialQueryService.selectBuilding('', false);
@@ -189,9 +207,10 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     // if there are building UPRNs then the results
     // panel is open so only clear selected building
     // to keep building highlighted on the map
-    if (this.dataService.buildingUPRNs()?.length) {
+    if (this.dataService.buildingUPRNs()) {
       this.dataService.setSelectedBuilding(undefined);
     } else {
+      this.dataService.setSelectedBuilding(undefined);
       this.spatialQueryService.setSelectedTOID('');
       this.spatialQueryService.selectBuilding('');
       this.dataService.setSelectedUPRN(undefined);
@@ -222,7 +241,8 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     this.dataService.setSelectedUPRNs(undefined);
     this.dataService.setSelectedUPRN(undefined);
     this.dataService.setSelectedBuilding(undefined);
-    this.updateBuildingLayerFilter();
+    this.dataService.setSelectedBuildings(undefined);
+    this.updateBuildingLayerColour();
   }
 
   setAdvancedFilters(filter: AdvancedFiltersFormModel) {
@@ -277,13 +297,5 @@ export class ShellComponent implements AfterViewInit, OnChanges {
         queryParamsHandling: 'merge',
       });
     });
-    // if zoom is greater than 15 & there isn't a spatial filter
-    if (
-      queryParams.zoom &&
-      queryParams.zoom >= 15 &&
-      !this.spatialQueryService.spatialFilterEnabled()
-    ) {
-      this.updateBuildingLayerFilter();
-    }
   }
 }
