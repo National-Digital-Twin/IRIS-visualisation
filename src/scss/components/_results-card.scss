@@ -2,6 +2,13 @@
   padding: 1rem 0 1rem 2rem;
   width: 100%;
   border-bottom: 1px solid $color-line;
+  &:hover {
+    cursor: pointer;
+    background-color: rgb(var(--arc-grey-000));
+  }
+  &--select {
+    background-color: rgb(var(--arc-grey-000));
+  }
 
   &__header {
     display: flex;

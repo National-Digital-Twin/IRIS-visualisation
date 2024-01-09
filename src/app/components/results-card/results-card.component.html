@@ -1,4 +1,4 @@
-<div class="results-card">
+<div class="results-card" [ngClass]="{ 'results-card--select': cardSelected }">
   <div class="results-card__header">
     @if (select) {
       <mat-checkbox [color]="'primary'">
@@ -11,7 +11,7 @@
         {{ getAddressSegment(1) }}
       </p>
     }
-    <button mat-button (click)="viewDetails.emit(card)">
+    <button mat-button (click)="viewDetails($event)">
       View details <mat-icon iconPositionEnd>arrow_right_alt</mat-icon>
     </button>
   </div>
