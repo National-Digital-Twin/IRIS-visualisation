@@ -18,7 +18,7 @@ import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
 import { SPARQLReturn, TableRow } from '@core/models/rdf-data.model';
 import {
   BuildingDetailsModel,
-  BuildingListModel,
+  // BuildingListModel,
   BuildingMap,
   BuildingModel,
   BuildingPart,
@@ -41,9 +41,8 @@ export class DataService {
   selectedUPRN = signal<number | undefined>(undefined);
   selectedBuilding = signal<BuildingDetailsModel | undefined>(undefined);
   // multiple uprns
-  buildingUPRNs = signal<number[] | undefined>(undefined);
-  buildingsSelection = signal<BuildingListModel[] | undefined>(undefined);
-  private buildingData = signal<BuildingMap | undefined>(undefined);
+  buildingsSelection = signal<BuildingModel[] | undefined>(undefined);
+
   // filters
   filters = signal<MainFiltersFormModel | undefined>(undefined);
   /**
@@ -100,21 +99,6 @@ export class DataService {
   private buildingParts = toSignal(this.buildingParts$);
   parts = computed(() => this.buildingParts());
 
-  private getBuildingsList$ = toObservable(this.buildingUPRNs).pipe(
-    filter(uprns => uprns !== undefined),
-    switchMap(uprns =>
-      this.getBuildingListDetails(uprns!).pipe(
-        map(buildings => buildings as unknown as BuildingListModel[]),
-        tap(buildings => this.setSelectedBuildings(buildings)),
-        catchError(() => of([] as BuildingListModel[]))
-      )
-    )
-  );
-
-  readOnlyBuildingsList = toSignal(this.getBuildingsList$, {
-    initialValue: [],
-  });
-
   setSelectedUPRN(uprn: number | undefined) {
     this.selectedUPRN.set(uprn);
   }
@@ -131,16 +115,8 @@ export class DataService {
    * Set multiple buildings
    * @param building buildings
    */
-  setSelectedBuildings(buildings: BuildingListModel[] | undefined) {
+  setSelectedBuildings(buildings: BuildingModel[] | undefined) {
     this.buildingsSelection.set(buildings ? buildings : undefined);
-  }
-
-  setSelectedUPRNs(uprns: number[] | undefined) {
-    this.buildingUPRNs.set(uprns?.length ? uprns : undefined);
-  }
-
-  setBuildingData(buildings: BuildingMap) {
-    this.buildingData.set(buildings);
   }
 
   /**
