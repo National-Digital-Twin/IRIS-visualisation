@@ -358,4 +358,18 @@ export class UtilService {
     }
     return [];
   }
+
+  /**
+   * Splits a full address and returns part
+   * of the address
+   * @param address full address string
+   * @param index index of address part to return after
+   * address is split
+   * @returns address part
+   */
+  splitAddress(index: number, fullAddress?: string) {
+    if (!fullAddress) return;
+
+    return fullAddress.split(',')[index];
+  }
 }
