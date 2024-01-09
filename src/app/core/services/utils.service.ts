@@ -91,14 +91,6 @@ export class UtilService {
       buildings!,
       spatialFilter
     );
-    // if there is a spatial filter get the UPRNs within the filter area
-    // and set in signal to get data from IA to display in filter results
-    if (spatialFilter) {
-      const uprns = this.getUPRNsWithSpatialFilter(filteredBuildings);
-      uprns.length === 1
-        ? this.dataService.setSelectedUPRN(uprns[0])
-        : this.dataService.setSelectedUPRNs(uprns);
-    }
 
     /**
      * Get the default colors and patterns
@@ -198,7 +190,18 @@ export class UtilService {
     expressions['fill-extrusion-color'].expression.push(defaultColor);
     expressions['fill-extrusion-pattern'].expression.push(defaultPattern);
 
+    /** apply the expression to update map layers */
     this.setCurrentMapExpression(expressions);
+
+    /**
+     * if there are filters set filtered buildings to
+     * display results
+     */
+    if (Object.keys(this.filterProps()).length || spatialFilter) {
+      this.dataService.setSelectedBuildings(
+        Object.values(filteredBuildings).flat()
+      );
+    }
   }
 
   /**
@@ -278,19 +281,15 @@ export class UtilService {
     buildings: BuildingMap,
     spatialQueryBounds?: number[]
   ) {
-    // if there is a spatial filter get features
-    // within it's bounding box, else get features
-    // within map extent
-    const currentFeatures = spatialQueryBounds
-      ? this.mapService.queryFeaturesByGeom(spatialQueryBounds)
-      : this.mapService.queryFeatures();
+    /** get all features within current map bounds */
+    const currentMapFeatures = this.mapService.queryFeatures();
 
     // check if there is a user drawn spatial filter
     const spatialFilter = spatialQueryBounds
       ? this.spatialQueryService.spatialFilterGeom()
       : undefined;
     const filteredToids: BuildingMap = {};
-    currentFeatures
+    currentMapFeatures
       .filter(feature =>
         // if there is a spatial filter
         // remove any features outside of
@@ -302,6 +301,7 @@ export class UtilService {
             )
           : feature
       )
+      .sort((a, b) => (a.properties!.TOID < b.properties!.TOID ? -1 : 1))
       .forEach(feature => {
         const building = buildings[feature.properties!.TOID];
         if (building) {
@@ -343,17 +343,19 @@ export class UtilService {
   }
 
   /**
-   * Get the UPRNs for the buildings within the spatial
-   * filter
-   * @param filteredToids toids with spatial filter area
-   * @returns array of uprns
+   * Find buildings based on TOID
+   * @param toid toid of building
+   * @returns array of buildings associated with toid
    */
-  getUPRNsWithSpatialFilter(filteredToids: BuildingMap): number[] {
-    let filteredUPRNs: number[] = [];
-    Object.keys(filteredToids).forEach((toid: string) => {
-      const uprns = this.dataService.getBuildingUPRNs(toid);
-      filteredUPRNs = filteredUPRNs.concat(uprns);
-    });
-    return filteredUPRNs;
+  getBuildings(toid: string): BuildingModel[] {
+    const allBuildings = this.dataService.buildings();
+    if (!allBuildings) {
+      return [];
+    }
+    const buildings = allBuildings[toid];
+    if (buildings) {
+      return buildings.flat();
+    }
+    return [];
   }
 }
