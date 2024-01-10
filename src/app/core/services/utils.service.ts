@@ -488,6 +488,17 @@ export class UtilService {
     this.multiDwelling.set('');
   }
 
+  setSpatialFilter(searchArea: GeoJSON.Feature<Polygon>) {
+    this.dataService.setSelectedUPRN(undefined);
+    this.dataService.setSelectedBuilding(undefined);
+    this.spatialQueryService.setSelectedTOID('');
+
+    /** clear building layer selections */
+    this.spatialQueryService.selectBuilding('', true);
+    this.spatialQueryService.selectBuilding('', false);
+    this.spatialQueryService.setSpatialGeom(searchArea);
+  }
+
   /**
    * Handle deleting spatial filter
    */
@@ -541,7 +552,7 @@ export class UtilService {
     /** only open results panel if there are no filters */
     const filterProps = this.filterProps();
     const spatialFilter = this.spatialQueryService.spatialFilterEnabled();
-    if (!spatialFilter || !Object.keys(filterProps).length) {
+    if (!spatialFilter && !Object.keys(filterProps).length) {
       const buildings = this.getBuildings(TOID);
       this.openResultsPanel(buildings);
     }
@@ -558,7 +569,7 @@ export class UtilService {
     /** if filtered data then results panel open */
     const filterProps = this.filterProps();
     const spatialFilter = this.spatialQueryService.spatialFilterEnabled();
-    if (!spatialFilter || !Object.keys(filterProps).length) {
+    if (!spatialFilter && !Object.keys(filterProps).length) {
       this.closeBuildingDetails();
       this.zone.run(() => this.closeResultsPanel());
     }

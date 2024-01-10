@@ -178,14 +178,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   }
 
   setSearchArea(searchArea: GeoJSON.Feature<Polygon>) {
-    this.dataService.setSelectedUPRN(undefined);
-    this.dataService.setSelectedBuilding(undefined);
-    this.spatialQueryService.setSelectedTOID('');
-
-    /** clear building layer selections */
-    this.spatialQueryService.selectBuilding('', true);
-    this.spatialQueryService.selectBuilding('', false);
-    this.spatialQueryService.setSpatialGeom(searchArea);
+    this.utilService.setSpatialFilter(searchArea);
     /**
      * need to run this in zone otherwise change detection
      * isn't triggered and results panel won't open
