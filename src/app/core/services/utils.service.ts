@@ -429,9 +429,14 @@ export class UtilService {
    */
   closeDetailsButtonClick() {
     this.closeBuildingDetails();
-    /** if not filtered data also clear map */
+    /** if not filtered data or spatial selection also clear map */
     const filterProps = this.filterProps();
-    if (!Object.keys(filterProps).length && this.multiDwelling() === '') {
+    const spatialFilter = this.spatialQueryService.spatialFilterEnabled();
+    if (
+      !spatialFilter &&
+      !Object.keys(filterProps).length &&
+      this.multiDwelling() === ''
+    ) {
       this.deselectSingleDwellingOnMap();
     }
   }
@@ -446,7 +451,8 @@ export class UtilService {
     this.viewBuildingDetails(UPRN);
     /** if filtered data then results panel open so select card */
     const filterProps = this.filterProps();
-    if (Object.keys(filterProps).length) {
+    const spatialFilter = this.spatialQueryService.spatialFilterEnabled();
+    if (spatialFilter || Object.keys(filterProps).length) {
       this.selectResultsCard(UPRN);
     }
   }
@@ -458,8 +464,9 @@ export class UtilService {
     this.deselectSingleDwellingOnMap();
     this.closeBuildingDetails();
     /** if filtered data then results panel open so deselect card*/
+    const spatialFilter = this.spatialQueryService.spatialFilterEnabled();
     const filterProps = this.filterProps();
-    if (Object.keys(filterProps).length) {
+    if (spatialFilter || Object.keys(filterProps).length) {
       this.deselectResultsCard();
     }
   }
@@ -479,6 +486,17 @@ export class UtilService {
     this.deselectMultiDwellingOnMap();
     this.deselectResultsCard();
     this.multiDwelling.set('');
+  }
+
+  /**
+   * Handle deleting spatial filter
+   */
+  deleteSpatialFilter() {
+    this.singleDwellingDeselected();
+    this.multiDwellingDeselected();
+    this.spatialQueryService.setSpatialFilter(false);
+    this.spatialQueryService.setSpatialFilterBounds(undefined);
+    this.zone.run(() => this.closeResultsPanel());
   }
 
   /**
@@ -522,7 +540,8 @@ export class UtilService {
 
     /** only open results panel if there are no filters */
     const filterProps = this.filterProps();
-    if (!Object.keys(filterProps).length) {
+    const spatialFilter = this.spatialQueryService.spatialFilterEnabled();
+    if (!spatialFilter || !Object.keys(filterProps).length) {
       const buildings = this.getBuildings(TOID);
       this.openResultsPanel(buildings);
     }
@@ -536,9 +555,10 @@ export class UtilService {
   }
 
   deselectMultiDwellingOnMap() {
-    /** if filter props then results panel open */
+    /** if filtered data then results panel open */
     const filterProps = this.filterProps();
-    if (!Object.keys(filterProps).length) {
+    const spatialFilter = this.spatialQueryService.spatialFilterEnabled();
+    if (!spatialFilter || !Object.keys(filterProps).length) {
       this.closeBuildingDetails();
       this.zone.run(() => this.closeResultsPanel());
     }

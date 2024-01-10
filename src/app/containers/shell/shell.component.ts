@@ -252,11 +252,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   }
 
   deleteSpatialFilter() {
-    this.spatialQueryService.setSpatialFilter(false);
-    this.spatialQueryService.setSpatialFilterBounds(undefined);
-    this.dataService.setSelectedUPRN(undefined);
-    this.dataService.setSelectedBuilding(undefined);
-    this.dataService.setSelectedBuildings(undefined);
+    this.utilService.deleteSpatialFilter();
     this.updateBuildingLayerColour();
   }
 
