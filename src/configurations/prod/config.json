@@ -3,6 +3,10 @@
   "env": "prod",
   "apiURL": "https://thirdp.telicent.live",
   "placesAPIURL": "https://api.os.uk/search/places/v1",
+  "companyLogo": {
+    "light": "assets/NDTP-HM-02-highres.png",
+    "dark": "assets/NDTP-HM-04-highres.png"
+  },
   "map": {
     "style": "https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Light.json",
     "zoom": 15,
