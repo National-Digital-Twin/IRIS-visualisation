@@ -45,7 +45,7 @@ export class ResultsCardComponent {
   @Input() select: boolean = false;
   @Output() emitViewDetails: EventEmitter<BuildingModel> =
     new EventEmitter<BuildingModel>();
-  @Output() selectBuilding: EventEmitter<BuildingModel> =
+  @Output() cardSelected: EventEmitter<BuildingModel> =
     new EventEmitter<BuildingModel>();
 
   getAddressSegment(index: number) {
@@ -53,7 +53,7 @@ export class ResultsCardComponent {
   }
 
   selectCard() {
-    this.selectBuilding.emit(this.card);
+    this.cardSelected.emit(this.card);
   }
 
   viewDetails($event: Event) {
