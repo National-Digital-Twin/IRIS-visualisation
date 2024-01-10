@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 
 import bbox from '@turf/bbox';
 import { LngLat, LngLatBounds } from 'mapbox-gl';
-import { Polygon } from 'geojson';
+import { BBox, Polygon } from 'geojson';
 
 import { MapService } from './map.service';
 
@@ -66,18 +66,38 @@ export class SpatialQueryService {
   }
 
   /**
-   * Get the bounding box coordinates of a geometry
+   * Query map source layer to get feature geometry
+   * @param TOID TOID of required geometry
+   * @returns bounding box of geometry
+   */
+  getFeatureGeomBB(TOID: string) {
+    const feature = this.mapService.mapInstance.querySourceFeatures('esri', {
+      sourceLayer: 'TopographicArea_2',
+      filter: ['all', ['==', '_symbol', 4], ['in', 'TOID', TOID]],
+    });
+    const geomBB = bbox(feature[0]);
+    const latlngBounds = this.getLngLatBounds(geomBB);
+    return latlngBounds;
+  }
+
+  /**
+   * Get the bounding box pixel coordinates of a geometry
    * @param geom geometry to get bounding box of
    * @returns bounding box pixel coordinates of
    * user drawn area
    */
   private getBBox(geom: GeoJSON.Feature): number[] {
     const bboxPolygon = bbox(geom);
+    const latlngBounds = this.getLngLatBounds(bboxPolygon);
+    const pixelCoords = this.latlngToPixels(latlngBounds);
+    return pixelCoords;
+  }
+
+  private getLngLatBounds(bboxPolygon: BBox): LngLatBounds {
     const southWest = new LngLat(bboxPolygon[0], bboxPolygon[1]);
     const northEast = new LngLat(bboxPolygon[2], bboxPolygon[3]);
     const latlngBounds = new LngLatBounds(southWest, northEast);
-    const pixelCoords = this.latlngToPixels(latlngBounds);
-    return pixelCoords;
+    return latlngBounds;
   }
 
   /**
