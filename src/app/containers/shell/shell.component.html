@@ -3,6 +3,7 @@
     slot="nav"
     (arc-show-accessibility)="handleShowAccessibility($event)">
     <span slot="name">{{ title }}</span>
+    <img slot="company-logo" alt="Company Logo" [src]="companyLogoSrc()" />
   </arc-navbar>
 
   <arc-accessibility

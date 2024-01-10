@@ -12,6 +12,7 @@
   --c477-color--epc-g: #{$color-epc-g};
   @include mat.core-theme($c477-light-theme);
   @include mat.all-component-themes($c477-light-theme);
+  --arc-background-color: var(--arc-white-000);
 }
 
 body[color-blind-mode='true'] * {

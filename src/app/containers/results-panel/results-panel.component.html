@@ -3,7 +3,7 @@
     <section>
       <div class="results-panel__header">
         <p class="results-panel__number">
-          {{ buildingSelection()?.length }} results
+          {{ buildingSelection()?.length }} results in view
         </p>
         <mat-slide-toggle [color]="'primary'" [(ngModel)]="selectMultiple"
           >Select multiple</mat-slide-toggle
@@ -25,7 +25,9 @@
       @for (building of buildingSelection(); track building.UPRN) {
         <!-- @if (!card.dwellings) { -->
         <c477-results-card
-          (viewDetails)="viewDetails($event)"
+          [buildingUPRN]="selectedBuildingUPRN"
+          (selectBuilding)="selectBuilding($event)"
+          (emitViewDetails)="viewDetails($event)"
           [card]="building"
           [select]="selectMultiple"></c477-results-card>
         <!-- } @else { -->
