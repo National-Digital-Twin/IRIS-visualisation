@@ -7,8 +7,10 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
+import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
 import { LabelComponent } from '@components/label/label.component';
 import { DataService } from '@core/services/data.service';
 import {
@@ -49,7 +51,13 @@ export class DetailsPanelComponent {
   roofInsulation: { [key: string]: string } = RoofInsulation;
   wall: { [key: string]: string } = Wall;
 
+  constructor(public dialog: MatDialog) {}
+
   getAddressSegment(index: number) {
     return this.buildingDetails()?.FullAddress.split(',')[index];
+  }
+
+  openDownloadWarning() {
+    this.dialog.open(DownloadWarningComponent, { panelClass: 'data-download' });
   }
 }
