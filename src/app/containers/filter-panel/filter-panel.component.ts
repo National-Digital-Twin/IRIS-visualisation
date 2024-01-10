@@ -12,7 +12,7 @@ import {
 } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MultiButtonFilterComponent } from '@components/multi-button-filter/multi-button-filter.component';
-import { ReactiveFormsModule, FormGroup, FormBuilder } from '@angular/forms';
+import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import {
   BuildForm,
   DwellingSize,
@@ -141,7 +141,6 @@ export class FilterPanelComponent {
   ];
 
   constructor(
-    private fb: FormBuilder,
     @Inject(MAT_DIALOG_DATA)
     public data: {
       filterProps?: FilterProps;

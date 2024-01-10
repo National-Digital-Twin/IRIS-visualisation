@@ -130,7 +130,10 @@
       <button mat-flat-button [color]="'primary'">
         <img src="assets/icons/FlagPennant_white.svg" alt="" />Add a flag
       </button>
-      <button mat-flat-button [color]="'primary'">
+      <button
+        mat-flat-button
+        [color]="'primary'"
+        (click)="openDownloadWarning()">
         <img src="assets/icons/FileArrowDown_white.svg" alt="" />Download
       </button>
     </div>

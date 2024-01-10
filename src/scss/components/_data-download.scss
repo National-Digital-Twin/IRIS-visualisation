@@ -1,0 +1,27 @@
+.data-download {
+  &__modal {
+    max-width: 50rem;
+    padding: 5rem;
+    h1 {
+      color: $color-warn !important;
+      line-height: var(--arc-line-height-dense) !important;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .mdc-dialog__title::before {
+      display: none !important;
+    }
+  }
+  &__list {
+    margin: 3rem 0 !important;
+    display: flex;
+    li {
+      list-style-type: none;
+    }
+
+    p {
+      text-wrap: nowrap;
+    }
+  }
+}

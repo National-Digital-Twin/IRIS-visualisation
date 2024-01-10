@@ -10,8 +10,10 @@ import { CommonModule } from '@angular/common';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 
+import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
 import { LabelComponent } from '@components/label/label.component';
 
 import { UtilService } from '@core/services/utils.service';
@@ -48,8 +50,19 @@ export class ResultsCardComponent {
   @Output() cardSelected: EventEmitter<BuildingModel> =
     new EventEmitter<BuildingModel>();
 
+  constructor(public dialog: MatDialog) {}
+
   getAddressSegment(index: number) {
     return this.utilService.splitAddress(index, this.card?.FullAddress);
+  }
+
+  openDownloadWarning() {
+    this.dialog.open(DownloadWarningComponent, {
+      panelClass: 'data-download',
+      data: {
+        addresses: [this.card?.FullAddress],
+      },
+    });
   }
 
   selectCard() {
