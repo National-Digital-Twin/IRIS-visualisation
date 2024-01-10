@@ -88,14 +88,10 @@ export class ResultsPanelComponent {
   zoomToBuilding(TOID: string) {
     const geomBB = this.spatialQueryService.getFeatureGeomBB(TOID);
     if (geomBB) {
-      this.mapService.mapInstance.easeTo({
-        center: [geomBB.getCenter().lng - 0.0005, geomBB.getCenter().lat],
-        zoom: 18,
-        speed: 0.2,
-        curve: 1,
-        duration: 1000,
-        padding: 300,
-      });
+      this.mapService.zoomToCoords([
+        geomBB.getCenter().lng - 0.0005,
+        geomBB.getCenter().lat,
+      ]);
     }
   }
 }
