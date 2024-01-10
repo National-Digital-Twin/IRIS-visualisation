@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { Injectable, inject, signal, computed, NgZone } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 
 import { tap, combineLatest } from 'rxjs';
@@ -37,6 +37,7 @@ type CurrentExpressions = Record<
 })
 export class UtilService {
   filterProps = signal<FilterProps>({});
+  private zone = inject(NgZone);
   private readonly settingService = inject(SettingService);
   private readonly colorBlindMode = computed(
     () => this.settingService.settings()['colorBlindMode'] as boolean
@@ -369,7 +370,188 @@ export class UtilService {
    */
   splitAddress(index: number, fullAddress?: string) {
     if (!fullAddress) return;
-
     return fullAddress.split(',')[index];
+  }
+
+  /**
+   * Handle selecting of results card in results list
+   * @param TOID
+   * @param UPRN
+   */
+  resultsCardSelected(TOID: string, UPRN: number) {
+    this.selectResultsCard(UPRN);
+    /** if its not multi dwelling select on map */
+    if (this.multiDwelling() === '') {
+      this.selectSingleDwellingOnMap(TOID);
+    }
+  }
+
+  /**
+   * Handle deselecting results card in results list
+   */
+  resultsCardDeselected() {
+    /**
+     * if multi-dwelling don't deselect
+     * building on map
+     */
+    if (this.multiDwelling() !== '') {
+      this.deselectResultsCard();
+      this.closeBuildingDetails();
+    } else {
+      this.deselectResultsCard();
+      this.closeBuildingDetails();
+      this.deselectSingleDwellingOnMap();
+    }
+  }
+
+  /**
+   * Handle clicking 'View Details' button
+   * @param TOID
+   * @param UPRN
+   * @param mapCenter
+   */
+  viewDetailsButtonClick(TOID: string, UPRN: number, mapCenter: number[]) {
+    /** if its not viewing details for a multi dwelling select on map */
+    if (this.multiDwelling() === '') {
+      this.selectSingleDwellingOnMap(TOID);
+    }
+    this.selectResultsCard(UPRN);
+    this.viewBuildingDetails(UPRN);
+    /** if filtered data also zoom map */
+    const filterProps = this.filterProps();
+    if (Object.keys(filterProps).length) {
+      this.mapService.zoomToCoords(mapCenter);
+    }
+  }
+
+  /**
+   * Handle 'View Details' close button click
+   */
+  closeDetailsButtonClick() {
+    this.closeBuildingDetails();
+    /** if not filtered data also clear map */
+    const filterProps = this.filterProps();
+    if (!Object.keys(filterProps).length && this.multiDwelling() === '') {
+      this.deselectSingleDwellingOnMap();
+    }
+  }
+
+  /**
+   * Handle clicking a single dwelling building on the map
+   * @param TOID
+   * @param UPRN
+   */
+  singleDwellingSelectedOnMap(TOID: string, UPRN: number) {
+    this.selectSingleDwellingOnMap(TOID);
+    this.viewBuildingDetails(UPRN);
+    /** if filtered data then results panel open so select card */
+    const filterProps = this.filterProps();
+    if (Object.keys(filterProps).length) {
+      this.selectResultsCard(UPRN);
+    }
+  }
+
+  /**
+   * Handle deselecting a single dwelling building on the map
+   */
+  singleDwellingDeselected() {
+    this.deselectSingleDwellingOnMap();
+    this.closeBuildingDetails();
+    /** if filtered data then results panel open so deselect card*/
+    const filterProps = this.filterProps();
+    if (Object.keys(filterProps).length) {
+      this.deselectResultsCard();
+    }
+  }
+
+  /**
+   * Handle selecting a multi-dwelling building on the map
+   * @param TOID
+   */
+  multipleDwellingSelectedOnMap(TOID: string) {
+    this.selectMultiDwellingOnMap(TOID);
+  }
+
+  /**
+   * Handle deselecting a multi-dwelling building on the map
+   */
+  multiDwellingDeselected() {
+    this.deselectMultiDwellingOnMap();
+    this.deselectResultsCard();
+    this.multiDwelling.set('');
+  }
+
+  /**
+   * HELPER METHODS - DON'T CALL THESE DIRECTLY
+   */
+
+  /** set the UPRN of the selected results card */
+  selectedCardUPRN = signal<number | undefined>(undefined);
+  selectResultsCard(UPRN: number) {
+    this.selectedCardUPRN.set(UPRN);
+  }
+
+  deselectResultsCard() {
+    this.selectedCardUPRN.set(undefined);
+    this.closeBuildingDetails();
+  }
+
+  viewBuildingDetails(UPRN: number) {
+    this.dataService.setSelectedUPRN(UPRN);
+  }
+
+  closeBuildingDetails() {
+    this.dataService.setSelectedUPRN(undefined);
+    this.dataService.setSelectedBuilding(undefined);
+  }
+
+  selectSingleDwellingOnMap(TOID: string) {
+    this.spatialQueryService.setSelectedTOID(TOID);
+    /** single dwelling building */
+    this.spatialQueryService.selectBuilding(TOID, false);
+    this.spatialQueryService.selectBuilding('', true);
+  }
+
+  multiDwelling = signal<string>('');
+  selectMultiDwellingOnMap(TOID: string) {
+    this.multiDwelling.set(TOID);
+    this.spatialQueryService.setSelectedTOID(TOID);
+    /** multi-dwelling building */
+    this.spatialQueryService.selectBuilding('', false);
+    this.spatialQueryService.selectBuilding(TOID, true);
+
+    /** only open results panel if there are no filters */
+    const filterProps = this.filterProps();
+    if (!Object.keys(filterProps).length) {
+      const buildings = this.getBuildings(TOID);
+      this.openResultsPanel(buildings);
+    }
+    //TODO - handle multi dwelling building selection for filtered data
+  }
+
+  deselectSingleDwellingOnMap() {
+    this.spatialQueryService.setSelectedTOID('');
+    /** single-dwelling building */
+    this.spatialQueryService.selectBuilding('', false);
+  }
+
+  deselectMultiDwellingOnMap() {
+    /** if filter props then results panel open */
+    const filterProps = this.filterProps();
+    if (!Object.keys(filterProps).length) {
+      this.closeBuildingDetails();
+      this.zone.run(() => this.closeResultsPanel());
+    }
+    this.spatialQueryService.setSelectedTOID('');
+    /** multi-dwelling building */
+    this.spatialQueryService.selectBuilding('', true);
+  }
+
+  openResultsPanel(buildings: BuildingModel[]) {
+    this.dataService.setSelectedBuildings(buildings);
+  }
+
+  closeResultsPanel() {
+    this.dataService.setSelectedBuildings(undefined);
   }
 }
