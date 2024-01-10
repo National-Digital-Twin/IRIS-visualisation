@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import {
+  MAT_DIALOG_DATA,
   MatDialogActions,
   MatDialogClose,
   MatDialogContent,
@@ -24,4 +25,6 @@ import { MatIconModule } from '@angular/material/icon';
   templateUrl: './download-warning.component.html',
   styleUrl: './download-warning.component.css',
 })
-export class DownloadWarningComponent {}
+export class DownloadWarningComponent {
+  constructor(@Inject(MAT_DIALOG_DATA) public data: { addresses: string[] }) {}
+}

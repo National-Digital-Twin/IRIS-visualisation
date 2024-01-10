@@ -15,5 +15,13 @@
   }
   &__list {
     margin: 3rem 0 !important;
+    display: flex;
+    li {
+      list-style-type: none;
+    }
+
+    p {
+      text-wrap: nowrap;
+    }
   }
 }

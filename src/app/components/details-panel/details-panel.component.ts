@@ -67,6 +67,11 @@ export class DetailsPanelComponent {
   }
 
   openDownloadWarning() {
-    this.dialog.open(DownloadWarningComponent, { panelClass: 'data-download' });
+    this.dialog.open(DownloadWarningComponent, {
+      panelClass: 'data-download',
+      data: {
+        addresses: [this.buildingDetails()?.FullAddress],
+      },
+    });
   }
 }
