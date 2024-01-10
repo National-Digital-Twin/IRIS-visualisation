@@ -1,4 +1,6 @@
+@use '@angular/material' as mat;
 @import '../abstracts/_variables.scss';
+@import './light.scss';
 
 * {
   --c477-color--epc-a: #{$color-epc-a};
@@ -8,6 +10,8 @@
   --c477-color--epc-e: #{$color-epc-e};
   --c477-color--epc-f: #{$color-epc-f};
   --c477-color--epc-g: #{$color-epc-g};
+  @include mat.core-theme($c477-light-theme);
+  @include mat.all-component-themes($c477-light-theme);
   --arc-background-color: var(--arc-white-000);
 }
 
