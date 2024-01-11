@@ -446,7 +446,9 @@ export class UtilService {
    * @param TOID
    * @param UPRN
    */
+  selectedUPRN = signal<number | undefined>(undefined);
   singleDwellingSelectedOnMap(TOID: string, UPRN: number) {
+    this.selectedUPRN.set(UPRN);
     this.selectSingleDwellingOnMap(TOID);
     this.viewBuildingDetails(UPRN);
     /** if filtered data then results panel open so select card */
@@ -461,6 +463,7 @@ export class UtilService {
    * Handle deselecting a single dwelling building on the map
    */
   singleDwellingDeselected() {
+    this.selectedUPRN.set(undefined);
     this.deselectSingleDwellingOnMap();
     this.closeBuildingDetails();
     /** if filtered data then results panel open so deselect card*/

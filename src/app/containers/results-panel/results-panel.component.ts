@@ -1,10 +1,13 @@
-import { Component, inject } from '@angular/core';
+import { Component, ViewChild, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { ScrollingModule } from '@angular/cdk/scrolling';
+import {
+  CdkVirtualScrollViewport,
+  ScrollingModule,
+} from '@angular/cdk/scrolling';
 
 import { ResultsCardComponent } from '@components/results-card/results-card.component';
 import { ResultsCardExpandableComponent } from '@components/results-card-expandable/results-card-expandable.component';
@@ -32,6 +35,8 @@ import { BuildingModel } from '@core/models/building.model';
   styleUrl: './results-panel.component.scss',
 })
 export class ResultsPanelComponent {
+  @ViewChild(CdkVirtualScrollViewport) viewPort?: CdkVirtualScrollViewport;
+
   private dataService = inject(DataService);
   private spatialQueryService = inject(SpatialQueryService);
   private utilService = inject(UtilService);
@@ -42,6 +47,21 @@ export class ResultsPanelComponent {
 
   selectMultiple: boolean = false;
 
+  constructor() {
+    /** listen for UPRN set from map click */
+    effect(() => {
+      const selectedUPRN = this.utilService.selectedUPRN();
+      if (selectedUPRN) {
+        const idx = this.buildingSelection()?.findIndex(
+          building => +building.UPRN === selectedUPRN
+        );
+        if (idx! > -1) {
+          /** scroll to index, offset due to panel height */
+          this.viewPort?.scrollToIndex(idx! - 3);
+        }
+      }
+    });
+  }
   /**
    * View Details button handler
    * @param building selected building
