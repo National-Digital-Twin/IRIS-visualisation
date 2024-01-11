@@ -128,6 +128,12 @@ export class MapService {
     });
   }
 
+  public setStyle(style: string) {
+    this.zone.runOutsideAngular(() => {
+      this.mapInstance.setStyle(style);
+    });
+  }
+
   private createMap(config: URLStateModel) {
     NgZone.assertNotInAngularZone();
     const { bearing, center, pitch, zoom, style } = config;

@@ -74,7 +74,6 @@ export class DataService {
    */
   private buildingDetails$ = toObservable(this.selectedUPRN).pipe(
     filter(Boolean),
-    tap(uprn => console.log('getting details for uprn ', uprn)),
     map(uprn => {
       const epc = this.getEPCByUPRN(uprn);
       if (epc === EPCRating.none) {

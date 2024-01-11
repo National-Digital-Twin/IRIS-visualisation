@@ -8,7 +8,10 @@
     "dark": "assets/NDTP-HM-04-highres.png"
   },
   "map": {
-    "style": "https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Light.json",
+    "style": {
+      "light": "https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Light.json",
+      "dark": "https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Dark.json"
+    },
     "zoom": 15,
     "pitch": 58,
     "center": [-1.29512, 50.69523],
