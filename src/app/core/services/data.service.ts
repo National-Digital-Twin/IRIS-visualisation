@@ -1,6 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {
+  EMPTY,
   Observable,
   Subscriber,
   catchError,
@@ -101,12 +102,13 @@ export class DataService {
    */
   private buildingParts$ = toObservable(this.selectedBuilding).pipe(
     filter(Boolean),
-    switchMap(selectedBuilding =>
-      this.getBuildingParts(selectedBuilding!.parts.split(';')).pipe(
+    switchMap(selectedBuilding => {
+      if (selectedBuilding.EPC === EPCRating.none) return EMPTY;
+      return this.getBuildingParts(selectedBuilding!.parts.split(';')).pipe(
         map(p => this.mapBuildingParts(p as unknown as BuildingPart[])),
         catchError(() => of({} as BuildingPartMap))
-      )
-    )
+      );
+    })
   );
 
   private buildingParts = toSignal(this.buildingParts$);
