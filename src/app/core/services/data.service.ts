@@ -5,6 +5,7 @@ import {
   Subscriber,
   catchError,
   filter,
+  forkJoin,
   map,
   of,
   switchMap,
@@ -23,6 +24,8 @@ import {
 } from '@core/models/building.model';
 
 import { Queries } from './Queries';
+
+import { EPCRating } from '@core/enums';
 
 @Injectable({
   providedIn: 'root',
@@ -43,17 +46,26 @@ export class DataService {
    * Get UPRNs, EPC ratings, addresses
    * @returns
    */
-  buildingsEPC$ = this.selectTable(this.queries.getEPCData()).pipe(
-    map(rawData => rawData as unknown as BuildingModel[]),
-    map(rawData => this.mapBuildings(rawData))
+  // buildingsEPC$ = this.selectTable(this.queries.getEPCData()).pipe(
+  //   map(rawData => rawData as unknown as BuildingModel[]),
+  //   map(rawData => this.mapBuildings(rawData))
+  // );
+  buildingsEPC$ = this.selectTable(this.queries.getEPCData());
+  buildingsNoEPC$ = this.selectTable(this.queries.getNoEPCData()).pipe();
+
+  allData$ = forkJoin([this.buildingsEPC$, this.buildingsNoEPC$]).pipe(
+    map(([epc, noEPC]) => {
+      const epcBuildings = epc as unknown as BuildingModel[];
+      const noEPCBuildings = noEPC as unknown as BuildingModel[];
+      return epcBuildings.concat(noEPCBuildings);
+    }),
+    map(allRawData => this.mapBuildings(allRawData))
   );
 
-  private buildingResults = toSignal(this.buildingsEPC$, {
+  private buildingResults = toSignal(this.allData$, {
     initialValue: undefined,
   });
   buildings = computed(() => this.buildingResults());
-
-  buildingsNoEPC$ = this.selectTable(this.queries.getNoEPCData()).pipe();
 
   /**
    * Create observable from selectedUPRN signal
@@ -201,6 +213,9 @@ export class DataService {
   mapBuildings(buildings: BuildingModel[]) {
     const buildingMap: BuildingMap = {};
     buildings.forEach((row: BuildingModel) => {
+      if (row.EPC === undefined) {
+        row.EPC = EPCRating.NoEPC;
+      }
       const toid = row.TOID ? row.TOID : row.ParentTOID;
       if (!toid) {
         return;

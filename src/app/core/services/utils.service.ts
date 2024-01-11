@@ -157,6 +157,9 @@ export class UtilService {
         /* One UPRN for a TOID */
 
         const { EPC } = buildings[0];
+        if (EPC === 'No EPC') {
+          console.log(EPC);
+        }
         addTooExpression(
           'fill-extrusion-color',
           toid,
@@ -255,6 +258,7 @@ export class UtilService {
       E: 5,
       F: 6,
       G: 7,
+      'No EPC': 0,
     };
     const scores: number[] = [];
     // get the weighting for each epc value
@@ -270,10 +274,10 @@ export class UtilService {
     return meanEPC;
   }
 
-  getEPCColour(SAPBand: string): string {
+  getEPCColour(epcRating: string): string {
     const colorBlindMode = this.colorBlindMode();
     return this[colorBlindMode ? 'colorBlindEpcColors' : 'epcColours'][
-      SAPBand ? SAPBand : 'default'
+      epcRating ? epcRating : 'default'
     ];
   }
 
