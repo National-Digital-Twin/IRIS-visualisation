@@ -22,19 +22,31 @@
       </div>
     </section>
     <section class="results-panel__cards-container">
-      @for (building of buildingSelection(); track building.UPRN) {
-        <!-- @if (!card.dwellings) { -->
+      <cdk-virtual-scroll-viewport class="viewport" itemSize="200">
         <c477-results-card
+          *cdkVirtualFor="
+            let building of buildingSelection();
+            templateCacheSize: 0
+          "
           [buildingUPRN]="selectedCardUPRN()"
           (cardSelected)="cardSelected($event)"
           (emitViewDetails)="viewDetails($event)"
           [card]="building"
           [select]="selectMultiple"></c477-results-card>
-        <!-- } @else { -->
-        <!-- <c477-results-card-expandable
+      </cdk-virtual-scroll-viewport>
+      <!-- @for (building of buildingSelection(); track building.UPRN) { -->
+      <!-- @if (!card.dwellings) { -->
+      <!-- <c477-results-card
+          [buildingUPRN]="selectedCardUPRN()"
+          (cardSelected)="cardSelected($event)"
+          (emitViewDetails)="viewDetails($event)"
+          [card]="building"
+          [select]="selectMultiple"></c477-results-card> -->
+      <!-- } @else { -->
+      <!-- <c477-results-card-expandable
             [card]="card"
             [select]="selectMultiple"></c477-results-card-expandable> -->
-      }
+      <!-- } -->
       <!-- } -->
     </section>
   </div>

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import { ResultsCardComponent } from '@components/results-card/results-card.component';
 import { ResultsCardExpandableComponent } from '@components/results-card-expandable/results-card-expandable.component';
@@ -25,6 +26,7 @@ import { BuildingModel } from '@core/models/building.model';
     MatSlideToggleModule,
     ResultsCardComponent,
     ResultsCardExpandableComponent,
+    ScrollingModule,
   ],
   templateUrl: './results-panel.component.html',
   styleUrl: './results-panel.component.scss',
