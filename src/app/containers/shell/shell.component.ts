@@ -178,14 +178,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   }
 
   setSearchArea(searchArea: GeoJSON.Feature<Polygon>) {
-    this.dataService.setSelectedUPRN(undefined);
-    this.dataService.setSelectedBuilding(undefined);
-    this.spatialQueryService.setSelectedTOID('');
-
-    /** clear building layer selections */
-    this.spatialQueryService.selectBuilding('', true);
-    this.spatialQueryService.selectBuilding('', false);
-    this.spatialQueryService.setSpatialGeom(searchArea);
+    this.utilService.setSpatialFilter(searchArea);
     /**
      * need to run this in zone otherwise change detection
      * isn't triggered and results panel won't open
@@ -195,64 +188,43 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     });
   }
 
+  /**
+   * (Map) building click handler
+   * @param TOID TOID of building selected on the map
+   */
   setSelectedBuildingTOID(TOID: string | null) {
-    /**
-     * if there are filters results panel is
-     * open so don't allow selection from map
-     */
-    const filters = this.utilService.filterProps();
-    if (Object.keys(filters).length) {
-      return;
-    }
     const currentTOID = this.selectedBuildingTOID();
+    /** new selection on map */
     if (TOID && currentTOID !== TOID) {
       /** Get building UPRNs */
       const buildings = this.utilService.getBuildings(TOID);
+      /** single dwelling */
       if (buildings.length === 1) {
-        /** Single dwelling */
-        this.dataService.setSelectedBuildings(undefined);
-        this.dataService.setSelectedUPRN(+buildings[0].UPRN);
+        this.utilService.singleDwellingSelectedOnMap(TOID, +buildings[0].UPRN);
       } else if (buildings.length > 1) {
-        /* Multiple dwellings */
-        this.zone.run(() => {
-          this.dataService.setSelectedUPRN(undefined);
-          this.dataService.setSelectedBuildings(buildings);
-        });
+        /** multiple dwelling */
+        this.zone.run(() =>
+          this.utilService.multipleDwellingSelectedOnMap(TOID)
+        );
       }
-
-      this.spatialQueryService.setSelectedTOID(TOID);
-      this.spatialQueryService.selectBuilding(TOID, buildings.length > 1);
-      this.spatialQueryService.selectBuilding('', buildings.length === 1);
     } else {
-      this.zone.run(() => {
-        this.dataService.setSelectedUPRN(undefined);
-        this.dataService.setSelectedBuilding(undefined);
-        this.dataService.setSelectedBuildings(undefined);
-        this.spatialQueryService.setSelectedTOID('');
-        this.spatialQueryService.selectBuilding('', true);
-        this.spatialQueryService.selectBuilding('', false);
-      });
+      /** deselecting current map selection */
+      if (this.utilService.multiDwelling() === '') {
+        this.utilService.singleDwellingDeselected();
+      } else {
+        this.utilService.multiDwellingDeselected();
+      }
     }
   }
 
   closeDetails() {
-    // if there are building UPRNs then the results
-    // panel is open so only clear selected building
-    // to keep building highlighted on the map
-    if (this.dataService.buildingsSelection()) {
-      this.dataService.setSelectedBuilding(undefined);
-    } else {
-      this.dataService.setSelectedBuilding(undefined);
-      this.spatialQueryService.setSelectedTOID('');
-      this.spatialQueryService.selectBuilding('');
-      this.dataService.setSelectedUPRN(undefined);
-    }
+    this.utilService.closeDetailsButtonClick();
   }
 
   closeResults() {
     /** if there is no spatial filter close results panel */
     if (!this.spatialQueryService.spatialFilterEnabled()) {
-      this.dataService.setSelectedBuildings(undefined);
+      this.utilService.closeResultsPanel();
     }
   }
 
@@ -275,11 +247,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   }
 
   deleteSpatialFilter() {
-    this.spatialQueryService.setSpatialFilter(false);
-    this.spatialQueryService.setSpatialFilterBounds(undefined);
-    this.dataService.setSelectedUPRN(undefined);
-    this.dataService.setSelectedBuilding(undefined);
-    this.dataService.setSelectedBuildings(undefined);
+    this.utilService.deleteSpatialFilter();
     this.updateBuildingLayerColour();
   }
 
