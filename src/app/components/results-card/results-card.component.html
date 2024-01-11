@@ -26,7 +26,9 @@
       </p>
       <div class="results-card__labels">
         <c477-label [epcRating]="card.EPC"></c477-label>
-        <c477-label>{{ card.PropertyType }}</c477-label>
+        @if (card.PropertyType) {
+          <c477-label>{{ card.PropertyType }}</c477-label>
+        }
       </div>
     </div>
     <div class="results-card__buttons">
