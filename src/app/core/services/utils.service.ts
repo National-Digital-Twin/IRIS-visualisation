@@ -158,9 +158,6 @@ export class UtilService {
         /* One UPRN for a TOID */
 
         const { EPC } = buildings[0];
-        if (EPC === 'No EPC') {
-          console.log(EPC);
-        }
         addTooExpression(
           'fill-extrusion-color',
           toid,
@@ -259,7 +256,7 @@ export class UtilService {
       E: 5,
       F: 6,
       G: 7,
-      'No EPC': 0,
+      none: 0,
     };
     const scores: number[] = [];
     // get the weighting for each epc value
@@ -526,10 +523,6 @@ export class UtilService {
 
   selectedCardUPRN = signal<number | undefined>(undefined);
   multiDwelling = signal<string>('');
-
-  /**
-   * HELPER METHODS - DON'T CALL THESE DIRECTLY
-   */
 
   /** set the UPRN of the selected results card */
   private selectResultsCard(UPRN: number) {
