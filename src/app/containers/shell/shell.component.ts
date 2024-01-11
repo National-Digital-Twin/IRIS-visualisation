@@ -203,7 +203,9 @@ export class ShellComponent implements AfterViewInit, OnChanges {
         this.utilService.singleDwellingSelectedOnMap(TOID, +buildings[0].UPRN);
       } else if (buildings.length > 1) {
         /** multiple dwelling */
-        this.zone.run(() => this.utilService.selectMultiDwellingOnMap(TOID));
+        this.zone.run(() =>
+          this.utilService.multipleDwellingSelectedOnMap(TOID)
+        );
       }
     } else {
       /** deselecting current map selection */

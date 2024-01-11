@@ -514,38 +514,46 @@ export class UtilService {
   }
 
   /**
+   * Handle closing of results panel
+   */
+  closeResultsPanel() {
+    this.dataService.setSelectedBuildings(undefined);
+  }
+
+  selectedCardUPRN = signal<number | undefined>(undefined);
+  multiDwelling = signal<string>('');
+
+  /**
    * HELPER METHODS - DON'T CALL THESE DIRECTLY
    */
 
   /** set the UPRN of the selected results card */
-  selectedCardUPRN = signal<number | undefined>(undefined);
-  selectResultsCard(UPRN: number) {
+  private selectResultsCard(UPRN: number) {
     this.selectedCardUPRN.set(UPRN);
   }
 
-  deselectResultsCard() {
+  private deselectResultsCard() {
     this.selectedCardUPRN.set(undefined);
     this.closeBuildingDetails();
   }
 
-  viewBuildingDetails(UPRN: number) {
+  private viewBuildingDetails(UPRN: number) {
     this.dataService.setSelectedUPRN(UPRN);
   }
 
-  closeBuildingDetails() {
+  private closeBuildingDetails() {
     this.dataService.setSelectedUPRN(undefined);
     this.dataService.setSelectedBuilding(undefined);
   }
 
-  selectSingleDwellingOnMap(TOID: string) {
+  private selectSingleDwellingOnMap(TOID: string) {
     this.spatialQueryService.setSelectedTOID(TOID);
     /** single dwelling building */
     this.spatialQueryService.selectBuilding(TOID, false);
     this.spatialQueryService.selectBuilding('', true);
   }
 
-  multiDwelling = signal<string>('');
-  selectMultiDwellingOnMap(TOID: string) {
+  private selectMultiDwellingOnMap(TOID: string) {
     this.multiDwelling.set(TOID);
     this.spatialQueryService.setSelectedTOID(TOID);
     /** multi-dwelling building */
@@ -562,13 +570,13 @@ export class UtilService {
     //TODO - handle multi dwelling building selection for filtered data
   }
 
-  deselectSingleDwellingOnMap() {
+  private deselectSingleDwellingOnMap() {
     this.spatialQueryService.setSelectedTOID('');
     /** single-dwelling building */
     this.spatialQueryService.selectBuilding('', false);
   }
 
-  deselectMultiDwellingOnMap() {
+  private deselectMultiDwellingOnMap() {
     /** if filtered data then results panel open */
     const filterProps = this.filterProps();
     const spatialFilter = this.spatialQueryService.spatialFilterEnabled();
@@ -581,11 +589,7 @@ export class UtilService {
     this.spatialQueryService.selectBuilding('', true);
   }
 
-  openResultsPanel(buildings: BuildingModel[]) {
+  private openResultsPanel(buildings: BuildingModel[]) {
     this.dataService.setSelectedBuildings(buildings);
-  }
-
-  closeResultsPanel() {
-    this.dataService.setSelectedBuildings(undefined);
   }
 }
