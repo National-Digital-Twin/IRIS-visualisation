@@ -26,6 +26,10 @@ import {
   RoofInsulation,
   Wall,
 } from '@core/enums';
+import {
+  DownloadDataWarningData,
+  DownloadDataWarningResponse,
+} from '@core/models/download-data-warning.model';
 
 @Component({
   selector: 'c477-details-panel',
@@ -68,16 +72,22 @@ export class DetailsPanelComponent {
   }
 
   openDownloadWarning() {
-    const dialogRef = this.dialog.open(DownloadWarningComponent, {
-      panelClass: 'data-download',
-      data: {
-        addresses: [this.buildingDetails()?.FullAddress],
-      },
-    });
-    dialogRef.afterClosed().subscribe(download => {
-      if (download) {
-        this.downloadData.emit();
-      }
-    });
+    this.dialog
+      .open<
+        DownloadWarningComponent,
+        DownloadDataWarningData,
+        DownloadDataWarningResponse
+      >(DownloadWarningComponent, {
+        panelClass: 'data-download',
+        data: {
+          addresses: [this.buildingDetails()?.FullAddress ?? ''],
+        },
+      })
+      .afterClosed()
+      .subscribe(download => {
+        if (download) {
+          this.downloadData.emit();
+        }
+      });
   }
 }
