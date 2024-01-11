@@ -15,7 +15,6 @@ import { LabelComponent } from '@components/label/label.component';
 
 import {
   BuildForm,
-  DwellingSize,
   EPCRating,
   Floor,
   FloorInsulation,
@@ -152,7 +151,6 @@ export class MainFiltersComponent {
       PostCode: [this.filterProps?.PostCode as unknown as PostCode],
       BuildForm: [this.filterProps?.BuildForm as unknown as BuildForm],
       YearOfAssessment: null,
-      DwellingSize: [this.filterProps?.DwellingSize as unknown as DwellingSize],
       MultipleGlazingType: [
         this.filterProps?.MultipleGlazingType as unknown as WindowGlazing,
       ],
