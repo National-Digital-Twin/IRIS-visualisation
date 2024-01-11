@@ -103,11 +103,15 @@ export class DataService {
   private buildingParts$ = toObservable(this.selectedBuilding).pipe(
     filter(Boolean),
     switchMap(selectedBuilding => {
-      if (selectedBuilding.EPC === EPCRating.none) return EMPTY;
-      return this.getBuildingParts(selectedBuilding!.parts.split(';')).pipe(
-        map(p => this.mapBuildingParts(p as unknown as BuildingPart[])),
-        catchError(() => of({} as BuildingPartMap))
-      );
+      /** buildings with no EPC don't have building parts */
+      if (!selectedBuilding.EPC) {
+        return EMPTY;
+      } else {
+        return this.getBuildingParts(selectedBuilding!.parts.split(';')).pipe(
+          map(p => this.mapBuildingParts(p as unknown as BuildingPart[])),
+          catchError(() => of({} as BuildingPartMap))
+        );
+      }
     })
   );
 
