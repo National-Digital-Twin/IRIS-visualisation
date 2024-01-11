@@ -32,6 +32,6 @@
 
 .viewport {
   // set viewport height to display cards
-  height: 1000px;
+  height: calc(100vh - 10rem - 122px);
   width: 410px;
 }
