@@ -19,6 +19,7 @@ import {
   EPCRating,
   Floor,
   FloorInsulation,
+  InspectionDate,
   PostCode,
   PropertyType,
   Roof,
@@ -151,7 +152,9 @@ export class MainFiltersComponent {
     this.advancedFiltersForm = this.fb.group<AdvancedFiltersFormModel>({
       PostCode: [this.filterProps?.PostCode as unknown as PostCode],
       BuildForm: [this.filterProps?.BuildForm as unknown as BuildForm],
-      YearOfAssessment: null,
+      InspectionDate: [
+        this.filterProps?.InspectionDate as unknown as InspectionDate,
+      ],
       DwellingSize: [this.filterProps?.DwellingSize as unknown as DwellingSize],
       MultipleGlazingType: [
         this.filterProps?.MultipleGlazingType as unknown as WindowGlazing,

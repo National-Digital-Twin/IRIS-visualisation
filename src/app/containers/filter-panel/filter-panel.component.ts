@@ -18,6 +18,7 @@ import {
   DwellingSize,
   Floor,
   FloorInsulation,
+  InspectionDate,
   PostCode,
   Roof,
   RoofInsulation,
@@ -75,6 +76,12 @@ export class FilterPanelComponent {
       data: DwellingSize,
       formControlName: 'DwellingSize',
       selectedValues: this.data.filterProps?.DwellingSize,
+    },
+    {
+      title: 'Year of Assessment',
+      data: InspectionDate,
+      formControlName: 'InspectionDate',
+      selectedValues: this.data.filterProps?.InspectionDate,
     },
   ];
   glazingFilters: MultiButtonFilterOption[] = [

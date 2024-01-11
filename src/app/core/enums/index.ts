@@ -3,6 +3,7 @@ export * from './dwelling-size';
 export * from './epc-rating';
 export * from './floor-insulation';
 export * from './floor';
+export * from './inspection-date';
 export * from './post-code';
 export * from './property-type';
 export * from './roof-insulation';
