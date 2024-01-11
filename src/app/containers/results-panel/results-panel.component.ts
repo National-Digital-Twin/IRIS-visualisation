@@ -57,7 +57,7 @@ export class ResultsPanelComponent {
         );
         if (idx! > -1) {
           /** scroll to index, offset due to panel height */
-          this.viewPort?.scrollToIndex(idx! - 3);
+          this.viewPort?.scrollToIndex(idx!);
         }
       }
     });
