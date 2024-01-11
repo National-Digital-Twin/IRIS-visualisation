@@ -43,15 +43,17 @@ export class DataService {
    * Get UPRNs, EPC ratings, addresses
    * @returns
    */
-  buildings$ = this.selectTable(this.queries.getEPCData()).pipe(
+  buildingsEPC$ = this.selectTable(this.queries.getEPCData()).pipe(
     map(rawData => rawData as unknown as BuildingModel[]),
     map(rawData => this.mapBuildings(rawData))
   );
 
-  private buildingResults = toSignal(this.buildings$, {
+  private buildingResults = toSignal(this.buildingsEPC$, {
     initialValue: undefined,
   });
   buildings = computed(() => this.buildingResults());
+
+  buildingsNoEPC$ = this.selectTable(this.queries.getNoEPCData()).pipe();
 
   /**
    * Create observable from selectedUPRN signal
