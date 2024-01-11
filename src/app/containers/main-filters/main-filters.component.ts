@@ -64,6 +64,7 @@ export class MainFiltersComponent {
     new EventEmitter<{ [key: string]: string[] }>();
   @Output() setAdvancedFilters: EventEmitter<AdvancedFiltersFormModel> =
     new EventEmitter<AdvancedFiltersFormModel>();
+  @Output() addressSelected: EventEmitter<string> = new EventEmitter<string>();
 
   private fb: FormBuilder = inject(FormBuilder);
   private addressSearchService = inject(AddressSearchService);
@@ -115,8 +116,10 @@ export class MainFiltersComponent {
     let coords;
     if (result) {
       coords = [result.LNG, result.LAT];
+      this.addressSelected.emit(result.TOPOGRAPHY_LAYER_TOID);
     } else if (this.firstAddress) {
       coords = [this.firstAddress.LNG, this.firstAddress.LAT];
+      this.addressSelected.emit(this.firstAddress.TOPOGRAPHY_LAYER_TOID);
     }
     if (coords) {
       this.mapService.zoomToCoords(coords);
