@@ -9,11 +9,14 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { Subscription, tap } from 'rxjs';
+import { toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { skip, Subscription, tap } from 'rxjs';
 
 import { Polygon } from 'geojson';
 import { MapLayerMouseEvent } from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
+
+import { SETTINGS, SettingsService } from '@core/services/settings.service';
 
 import { MapService } from '@core/services/map.service';
 
@@ -29,6 +32,8 @@ import { LegendComponent } from '@components/legend/legend.component';
   styleUrls: ['./map.component.scss'],
 })
 export class MapComponent implements AfterViewInit, OnDestroy {
+  private readonly theme = inject(SettingsService).get(SETTINGS.Theme);
+  private readonly theme$ = toObservable(this.theme).pipe(takeUntilDestroyed());
   private runtimeConfig = inject(RUNTIME_CONFIGURATION);
   private mapService = inject(MapService);
 
@@ -54,15 +59,23 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   /** setup map */
   ngAfterViewInit() {
-    const { bearing, zoom, pitch } = this.mapConfig!;
-    const config: URLStateModel = {
-      style: this.runtimeConfig.map.style!,
-      center: [this.mapConfig!.center[0], this.mapConfig!.center[1]],
-      bearing,
-      zoom,
-      pitch,
-    };
-    this.mapService.setup(config);
+    if (this.runtimeConfig.map.style) {
+      const theme = this.theme();
+      const style = this.runtimeConfig.map.style[theme];
+      const { bearing, zoom, pitch } = this.mapConfig!;
+      const config: URLStateModel = {
+        center: [this.mapConfig!.center[0], this.mapConfig!.center[1]],
+        style: style,
+        bearing,
+        zoom,
+        pitch,
+      };
+      this.mapService.setup(config);
+    }
+    /* skip first value as we've already set the map style based on theme */
+    this.theme$.pipe(skip(1)).subscribe(theme => {
+      this.mapService.setStyle(this.runtimeConfig.map.style[theme]);
+    });
   }
 
   /** on map loaded, setup layers, controls etc */
@@ -81,6 +94,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
    * Map event listeners
    */
   initMapEvents() {
+    /* If the map style changes, re-add layers */
+    this.mapService.mapInstance.on('style.load', () =>
+      this.mapService.addLayers()
+    );
     /** Spatial search events */
     this.mapService.mapInstance.on('draw.create', this.onDrawCreate);
     this.mapService.mapInstance.on('draw.update', this.onDrawUpdate);

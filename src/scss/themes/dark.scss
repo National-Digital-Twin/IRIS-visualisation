@@ -10,5 +10,5 @@ body[theme='dark'] * {
   @include mat.core-theme($c477-dark-theme);
   @include mat.all-component-themes($c477-dark-theme);
 
-  --c477-container-color: #092242;
+  --arc-container-color: 9, 34, 66;
 }

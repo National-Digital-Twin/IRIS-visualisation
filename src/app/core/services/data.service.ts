@@ -62,7 +62,6 @@ export class DataService {
    */
   private buildingDetails$ = toObservable(this.selectedUPRN).pipe(
     filter(Boolean),
-    tap(uprn => console.log('getting details for uprn ', uprn)),
     switchMap(uprn =>
       this.getBuildingDetails(uprn!).pipe(
         map(details => details[0] as unknown as BuildingDetailsModel),

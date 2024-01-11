@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, computed, NgZone } from '@angular/core';
+import { Injectable, inject, signal, NgZone } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 
 import { tap, combineLatest } from 'rxjs';
@@ -8,7 +8,7 @@ import { Expression } from 'mapbox-gl';
 import booleanWithin from '@turf/boolean-within';
 import { Polygon } from 'geojson';
 
-import { SettingService } from './setting.service';
+import { SettingsService, SETTINGS } from '@core/services/settings.service';
 import { DataService } from './data.service';
 import { MapService } from './map.service';
 import { SpatialQueryService } from './spatial-query.service';
@@ -37,11 +37,10 @@ type CurrentExpressions = Record<
 })
 export class UtilService {
   filterProps = signal<FilterProps>({});
+
   private zone = inject(NgZone);
-  private readonly settingService = inject(SettingService);
-  private readonly colorBlindMode = computed(
-    () => this.settingService.settings()['colorBlindMode'] as boolean
-  );
+  private readonly settings = inject(SettingsService);
+  private readonly colorBlindMode = this.settings.get(SETTINGS.ColorBlindMode);
 
   private dataService = inject(DataService);
   private mapService = inject(MapService);

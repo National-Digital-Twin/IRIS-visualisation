@@ -1,19 +1,11 @@
 import { URLStateModel } from '@core/models/url-state.model';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
 import { MapLayerId } from '@core/types/map-layer-id';
-import { ContainerTheme } from '@arc-web/components/src/components/container/constants/ContainerConstants';
+import { Theme } from '@core/types/theme';
 
 import { Layer as MapboxLayer } from 'mapbox-gl';
 
 type Layer = MapboxLayer & { filter: MapLayerFilter & { layerId: MapLayerId } };
-
-export interface MapConfig {
-  style: string;
-  zoom: number;
-  pitch: number;
-  center: number[];
-  bearing: number;
-}
 
 export interface RuntimeConfigurationModel {
   /* Application is in production */
@@ -25,7 +17,7 @@ export interface RuntimeConfigurationModel {
   /* OS PLACES API URL */
   placesAPIURL: string;
   /* Mapbox map config */
-  map: URLStateModel;
+  map: URLStateModel & { style: Record<Theme, string> };
   /* Mapbox map layers */
   mapLayers: Layer[];
   /** EPC Colours */
@@ -33,5 +25,5 @@ export interface RuntimeConfigurationModel {
   /** EPC Colours - Colour Deficient*/
   epcColoursCD: { [key: string]: string };
   /* Company logo */
-  companyLogo: Record<ContainerTheme, string>;
+  companyLogo: Record<Theme, string>;
 }

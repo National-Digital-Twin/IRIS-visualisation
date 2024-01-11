@@ -10,7 +10,6 @@ import {
   inject,
   numberAttribute,
   computed,
-  signal,
 } from '@angular/core';
 import { Params, Router } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
@@ -22,7 +21,7 @@ import { MainFiltersComponent } from '@containers/main-filters/main-filters.comp
 import { MapComponent } from '@components/map/map.component';
 import { ResultsPanelComponent } from '@containers/results-panel/results-panel.component';
 
-import { SettingService } from '@core/services/setting.service';
+import { SettingsService, SETTINGS } from '@core/services/settings.service';
 import { DataService } from '@core/services/data.service';
 import { FilterService } from '@core/services/filter.service';
 import { MapService } from '@core/services/map.service';
@@ -42,7 +41,6 @@ import type { UserPreferences } from '@arc-web/components/src/components/accessi
 import type { ArcAccessibility, ArcSwitch } from '@arc-web/components';
 import '@arc-web/components/src/components/container/arc-container';
 import '@arc-web/components/src/components/switch/arc-switch';
-import { ContainerTheme } from '@arc-web/components/src/components/container/constants/ContainerConstants';
 
 @Component({
   selector: 'c477-shell',
@@ -75,13 +73,9 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     }
   }
 
-  private readonly settingService = inject(SettingService);
-  private readonly colorBlindMode = computed(
-    () => this.settingService.settings()['colorBlindMode'] as boolean
-  );
-
-  private readonly theme = signal<ContainerTheme | undefined>(undefined);
-
+  private readonly settings = inject(SettingsService);
+  private readonly colorBlindMode = this.settings.get(SETTINGS.ColorBlindMode);
+  private readonly theme = this.settings.get(SETTINGS.Theme);
   public readonly companyLogoSrc = computed(() => {
     const theme = this.theme();
     if (!theme) return '';
@@ -150,7 +144,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   public handleColorBlindSwitchChange(event: Event): void {
     const colorBlindMode = (event.target as HTMLInputElement).checked;
     this.setColorBlindMode(colorBlindMode);
-    this.settingService.set('colorBlindMode', colorBlindMode);
+    this.settings.set(SETTINGS.ColorBlindMode, colorBlindMode);
   }
 
   public handleAccessibilityChange(event: Event): void {
@@ -161,7 +155,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
       theme = matches ? 'dark' : 'light';
     }
     this.document?.body?.setAttribute('theme', theme);
-    this.theme.set(theme);
+    this.settings.set(SETTINGS.Theme, theme);
   }
 
   private setColorBlindMode(colorBlindMode: boolean): void {
