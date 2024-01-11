@@ -30,7 +30,9 @@
 
     <div class="panel-container">
       <c477-results-panel></c477-results-panel>
-      <c477-details-panel (closePanel)="closeDetails()"></c477-details-panel>
+      <c477-details-panel
+        (closePanel)="closeDetails()"
+        (downloadData)="downloadData()"></c477-details-panel>
     </div>
 
     <div class="content__map-container">

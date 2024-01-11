@@ -23,6 +23,7 @@ import { ResultsPanelComponent } from '@containers/results-panel/results-panel.c
 
 import { SettingsService, SETTINGS } from '@core/services/settings.service';
 import { DataService } from '@core/services/data.service';
+import { DataDownloadService } from '@core/services/data-download.service';
 import { FilterService } from '@core/services/filter.service';
 import { MapService } from '@core/services/map.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
@@ -90,6 +91,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   private readonly document = inject(DOCUMENT);
 
   private dataService = inject(DataService);
+  private dataDownloadService = inject(DataDownloadService);
   private filterService = inject(FilterService);
   private mapService = inject(MapService);
   private router = inject(Router);
@@ -213,6 +215,14 @@ export class ShellComponent implements AfterViewInit, OnChanges {
 
   closeDetails() {
     this.utilService.closeDetailsButtonClick();
+  }
+
+  downloadData() {
+    const dataForDownload = this.dataDownloadService.combineDetailsAndParts(
+      this.dataService.selectedBuilding()!,
+      this.dataService.parts()
+    );
+    this.dataDownloadService.downloadData(dataForDownload);
   }
 
   closeResults() {

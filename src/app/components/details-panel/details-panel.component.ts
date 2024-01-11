@@ -46,6 +46,7 @@ export class DetailsPanelComponent {
   private utilService = inject(UtilService);
 
   @Output() closePanel: EventEmitter<null> = new EventEmitter();
+  @Output() downloadData: EventEmitter<null> = new EventEmitter();
 
   buildingDetails = this.dataService.selectedBuilding;
   buildingParts = this.dataService.parts;
@@ -67,11 +68,16 @@ export class DetailsPanelComponent {
   }
 
   openDownloadWarning() {
-    this.dialog.open(DownloadWarningComponent, {
+    const dialogRef = this.dialog.open(DownloadWarningComponent, {
       panelClass: 'data-download',
       data: {
         addresses: [this.buildingDetails()?.FullAddress],
       },
+    });
+    dialogRef.afterClosed().subscribe(download => {
+      if (download) {
+        this.downloadData.emit();
+      }
     });
   }
 }
