@@ -4,14 +4,23 @@ import {
   HttpEvent,
   HttpStatusCode,
 } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { DOCUMENT } from '@angular/common';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 
-import { OperatorFunction, catchError, throwError } from 'rxjs';
+import {
+  EMPTY,
+  OperatorFunction,
+  catchError,
+  throwError,
+  switchMap,
+  tap,
+} from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ExceptionService implements ErrorHandler {
+  private readonly snackBar = inject(MatSnackBar);
   private readonly location = inject(DOCUMENT).location;
   private readonly telicentBaseURL = inject(RUNTIME_CONFIGURATION).apiURL;
 
@@ -52,8 +61,17 @@ export class ExceptionService implements ErrorHandler {
               const newError = new Error(message);
               this.handleError(newError);
 
-              /* browser reload */
-              this.location.reload();
+              /* open snackbar and reload the browsers page once dismissed */
+              return this.snackBar
+                .open('Your session has expired. Please login again.', 'Ok', {
+                  duration: 0,
+                  politeness: 'assertive',
+                })
+                .afterDismissed()
+                .pipe(
+                  tap(() => this.location.reload()),
+                  switchMap(() => throwError(() => EMPTY))
+                );
             }
           }
 
