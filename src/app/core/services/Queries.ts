@@ -66,7 +66,11 @@ export class Queries {
   `;
   }
 
-  getAllData() {
+  /**
+   * Query to get all data for buildings with EPC ratings
+   * @returns query string
+   */
+  getEPCData() {
     return `
       PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
       PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
@@ -163,6 +167,60 @@ export class Queries {
           ?postcode_literal
           ?line_of_address_literal
           ?inspection_date_literal
+    `;
+  }
+
+  /**
+   * Query to get all buildings that don't have EPC ratings
+   */
+  getNoEPCData() {
+    return `
+      PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+      PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX ndt: <http://nationaldigitaltwin.gov.uk/ontology#>
+      PREFIX geoplace: <https://www.geoplace.co.uk/addresses-streets/location-data/the-uprn#>
+      SELECT
+          (?uprn_literal AS ?UPRN)
+          (?building_toid_id AS ?TOID)
+          (?parent_building_toid_id AS ?ParentTOID)
+          (?line_of_address_literal as ?FullAddress)
+          (SUBSTR(?postcode_literal, 0, 5) AS ?PostCode)
+      WHERE {
+          ?building ies:isIdentifiedBy ?uprn .
+          ?uprn ies:representationValue ?uprn_literal .
+          ?uprn a geoplace:UniquePropertyReferenceNumber .
+          FILTER NOT EXISTS { ?epc_state ies:isStateOf ?building . }
+
+          ?building ies:inLocation ?address .
+          ?address ies:isIdentifiedBy ?line_of_address .
+          ?line_of_address rdf:type ies:FirstLineOfAddress .
+          ?line_of_address ies:representationValue ?line_of_address_literal .
+
+          #?building ies:inLocation ?address .
+          ?address ies:isIdentifiedBy ?postcode .
+          ?postcode rdf:type ies:PostalCode .
+          ?postcode ies:representationValue ?postcode_literal .
+
+          OPTIONAL {
+              ?building ies:isIdentifiedBy ?building_toid .
+              ?building_toid rdf:type ies:TOID .
+              ?building_toid ies:representationValue ?building_toid_id .
+          }
+          OPTIONAL {
+              ?building ies:isPartOf ?parent_building .
+              ?parent_building ies:isIdentifiedBy ?parent_building_toid .
+              ?parent_building_toid ies:representationValue ?parent_building_toid_id .
+              ?parent_building_toid rdf:type ies:TOID .
+        }
+
+      }
+      GROUP BY
+          ?uprn_literal
+          ?building_toid_id
+          ?parent_building_toid_id
+          ?line_of_address_literal
+          ?postcode_literal
     `;
   }
 

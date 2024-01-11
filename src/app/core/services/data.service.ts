@@ -43,7 +43,7 @@ export class DataService {
    * Get UPRNs, EPC ratings, addresses
    * @returns
    */
-  buildings$ = this.selectTable(this.queries.getAllData()).pipe(
+  buildings$ = this.selectTable(this.queries.getEPCData()).pipe(
     map(rawData => rawData as unknown as BuildingModel[]),
     map(rawData => this.mapBuildings(rawData))
   );
