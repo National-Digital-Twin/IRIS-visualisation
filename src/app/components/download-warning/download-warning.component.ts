@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import {
@@ -9,6 +9,7 @@ import {
   MatDialogTitle,
 } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { DownloadDataWarningData } from '@core/models/download-data-warning.model';
 
 @Component({
   selector: 'c477-download-warning',
@@ -26,5 +27,5 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './download-warning.component.css',
 })
 export class DownloadWarningComponent {
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { addresses: string[] }) {}
+  readonly data = inject<DownloadDataWarningData>(MAT_DIALOG_DATA);
 }
