@@ -26,6 +26,7 @@ import {
   Wall,
   WallInsulation,
   WindowGlazing,
+  YearOfAssessment,
 } from '@core/enums';
 import {
   AdvancedFiltersFormModel,
@@ -153,7 +154,9 @@ export class MainFiltersComponent {
     this.advancedFiltersForm = this.fb.group<AdvancedFiltersFormModel>({
       PostCode: [this.filterProps?.PostCode as unknown as PostCode],
       BuildForm: [this.filterProps?.BuildForm as unknown as BuildForm],
-      YearOfAssessment: null,
+      YearOfAssessment: [
+        this.filterProps?.YearOfAssessment as unknown as YearOfAssessment,
+      ],
       MultipleGlazingType: [
         this.filterProps?.MultipleGlazingType as unknown as WindowGlazing,
       ],
