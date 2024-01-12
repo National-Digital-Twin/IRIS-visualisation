@@ -11,6 +11,7 @@ export interface BuildingModel {
   TOID?: string;
   UPRN: string;
   Flagged: string;
+  YearOfAssessment: string;
 }
 
 export interface BuildingDetailsModel extends BuildingModel {
