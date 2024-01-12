@@ -26,11 +26,14 @@
     <c477-main-filters
       [filterProps]="filterProps"
       (setRouteParams)="setFilterParams($event)"
-      (setAdvancedFilters)="setAdvancedFilters($event)"></c477-main-filters>
+      (setAdvancedFilters)="setAdvancedFilters($event)"
+      (addressSelected)="setSelectedBuildingTOID($event)"></c477-main-filters>
 
     <div class="panel-container">
       <c477-results-panel></c477-results-panel>
-      <c477-details-panel (closePanel)="closeDetails()"></c477-details-panel>
+      <c477-details-panel
+        (closePanel)="closeDetails()"
+        (downloadData)="downloadData()"></c477-details-panel>
     </div>
 
     <div class="content__map-container">

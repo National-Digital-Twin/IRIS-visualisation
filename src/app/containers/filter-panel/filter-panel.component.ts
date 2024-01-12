@@ -15,7 +15,6 @@ import { MultiButtonFilterComponent } from '@components/multi-button-filter/mult
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import {
   BuildForm,
-  DwellingSize,
   Floor,
   FloorInsulation,
   InspectionDate,
@@ -70,12 +69,6 @@ export class FilterPanelComponent {
       data: BuildForm,
       formControlName: 'BuildForm',
       selectedValues: this.data.filterProps?.BuildForm,
-    },
-    {
-      title: 'Dwelling Size',
-      data: DwellingSize,
-      formControlName: 'DwellingSize',
-      selectedValues: this.data.filterProps?.DwellingSize,
     },
     {
       title: 'Year of Assessment',
