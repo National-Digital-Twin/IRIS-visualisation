@@ -53,7 +53,7 @@ export class ResultsPanelComponent {
       const selectedUPRN = this.utilService.selectedUPRN();
       if (selectedUPRN) {
         const idx = this.buildingSelection()?.findIndex(
-          building => +building.UPRN === selectedUPRN
+          building => +building[0].UPRN === selectedUPRN
         );
         if (idx! > -1) {
           /** scroll to index, offset due to panel height */

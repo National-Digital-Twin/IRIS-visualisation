@@ -45,6 +45,7 @@ export class ResultsCardComponent {
   @Input() card!: BuildingModel;
   @Input() buildingUPRN?: number;
   @Input() select: boolean = false;
+  @Input() parent: boolean = false;
   @Output() emitViewDetails: EventEmitter<BuildingModel> =
     new EventEmitter<BuildingModel>();
   @Output() cardSelected: EventEmitter<BuildingModel> =

@@ -1,17 +1,17 @@
 import { BuildForm, EPCRating, PostCode, PropertyType } from '@core/enums';
 
 export interface BuildingModel {
-  BuildForm: BuildForm;
-  EPC: EPCRating;
+  BuildForm?: BuildForm;
+  EPC: EPCRating | undefined;
   FullAddress: string;
-  InspectionDate: string;
+  InspectionDate?: string;
   ParentTOID?: string;
-  PostCode: PostCode;
-  PropertyType: PropertyType;
+  PostCode: PostCode | undefined;
+  PropertyType?: PropertyType;
   TOID?: string;
   UPRN: string;
   Flagged: string;
-  YearOfAssessment: string;
+  YearOfAssessment?: string;
 }
 
 export interface BuildingDetailsModel extends BuildingModel {
