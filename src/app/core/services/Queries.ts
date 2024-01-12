@@ -89,8 +89,6 @@ export class Queries {
             ?line_of_address rdf:type ies:FirstLineOfAddress .
             ?line_of_address ies:representationValue ?line_of_address_literal .
           }
-
-          #?state ies:isStateOf ?building .
       }}
       GROUP BY
           ?uprn

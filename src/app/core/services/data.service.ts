@@ -54,7 +54,6 @@ export class DataService {
     map(([epc, noEPC]) => {
       const epcBuildings = epc as unknown as BuildingModel[];
       const noEPCBuildings = noEPC as unknown as BuildingModel[];
-      console.log('no epc ', noEPCBuildings.length);
       return epcBuildings.concat(noEPCBuildings);
     }),
     map(allRawData => this.mapBuildings(allRawData))
