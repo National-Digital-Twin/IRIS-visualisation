@@ -5,7 +5,7 @@ import {
   FloorInsulation,
   PostCode,
   RoofConstruction,
-  RoofInsulation,
+  RoofInsulationLocation,
   RoofInsulationThickness,
   WindowGlazing,
   WallConstruction,
@@ -19,7 +19,7 @@ export type AdvancedFilter =
   | typeof FloorInsulation
   | typeof PostCode
   | typeof RoofConstruction
-  | typeof RoofInsulation
+  | typeof RoofInsulationLocation
   | typeof RoofInsulationThickness
   | typeof WindowGlazing
   | typeof WallConstruction
@@ -34,13 +34,13 @@ export interface DateFormModel {
 export interface AdvancedFiltersFormModel {
   PostCode: PostCode[] | null;
   BuildForm: BuildForm[] | null;
-  MultipleGlazingType: WindowGlazing[] | null;
+  WindowGlazing: WindowGlazing[] | null;
   WallConstruction: WallConstruction[] | null;
   WallInsulation: WallInsulation[] | null;
   FloorConstruction: FloorConstruction[] | null;
   FloorInsulation: FloorInsulation[] | null;
   RoofConstruction: RoofConstruction[] | null;
-  RoofInsulationLocation: RoofInsulation[] | null;
+  RoofInsulationLocation: RoofInsulationLocation[] | null;
   RoofInsulationThickness: RoofInsulationThickness[] | null;
   YearOfAssessment: YearOfAssessment[] | null;
 }
@@ -57,7 +57,7 @@ export interface FilterProps {
   EPC?: string[];
   FloorConstruction?: string[];
   FloorInsulation?: string[];
-  MultipleGlazingType?: string[];
+  WindowGlazing?: string[];
   PostCode?: string[];
   PropertyType?: string[];
   RoofConstruction?: string[];
@@ -73,7 +73,7 @@ export type FilterKeys =
   | 'EPC'
   | 'FloorConstruction'
   | 'FloorInsulation'
-  | 'MultipleGlazingType'
+  | 'WindowGlazing'
   | 'PostCode'
   | 'PropertyType'
   | 'RoofConstruction'
