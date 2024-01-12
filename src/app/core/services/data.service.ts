@@ -1,10 +1,12 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {
+  EMPTY,
   Observable,
   Subscriber,
   catchError,
   filter,
+  forkJoin,
   map,
   of,
   switchMap,
@@ -24,6 +26,8 @@ import {
 
 import { Queries } from './Queries';
 
+import { EPCRating } from '@core/enums';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -39,16 +43,23 @@ export class DataService {
   // multiple buildings
   buildingsSelection = signal<BuildingModel[] | undefined>(undefined);
 
+  buildingsEPC$ = this.selectTable(this.queries.getEPCData());
+  buildingsNoEPC$ = this.selectTable(this.queries.getNoEPCData()).pipe();
+
   /**
-   * Get UPRNs, EPC ratings, addresses
-   * @returns
+   * Get all building data
+   * @returns Observable<BuildingMap>
    */
-  buildings$ = this.selectTable(this.queries.getAllData()).pipe(
-    map(rawData => rawData as unknown as BuildingModel[]),
-    map(rawData => this.mapBuildings(rawData))
+  allData$ = forkJoin([this.buildingsEPC$, this.buildingsNoEPC$]).pipe(
+    map(([epc, noEPC]) => {
+      const epcBuildings = epc as unknown as BuildingModel[];
+      const noEPCBuildings = noEPC as unknown as BuildingModel[];
+      return epcBuildings.concat(noEPCBuildings);
+    }),
+    map(allRawData => this.mapBuildings(allRawData))
   );
 
-  private buildingResults = toSignal(this.buildings$, {
+  private buildingResults = toSignal(this.allData$, {
     initialValue: undefined,
   });
   buildings = computed(() => this.buildingResults());
@@ -62,8 +73,16 @@ export class DataService {
    */
   private buildingDetails$ = toObservable(this.selectedUPRN).pipe(
     filter(Boolean),
-    switchMap(uprn =>
-      this.getBuildingDetails(uprn!).pipe(
+    map(uprn => {
+      const epc = this.getEPCByUPRN(uprn);
+      if (epc === EPCRating.none) {
+        return this.queries.getNoEPCBuildingDetails(+uprn);
+      } else {
+        return this.queries.getBuildingDetails(+uprn);
+      }
+    }),
+    switchMap(query =>
+      this.getBuildingDetails(query).pipe(
         map(details => details[0] as unknown as BuildingDetailsModel),
         tap(details => {
           this.setSelectedBuilding(details);
@@ -81,12 +100,17 @@ export class DataService {
    */
   private buildingParts$ = toObservable(this.selectedBuilding).pipe(
     filter(Boolean),
-    switchMap(selectedBuilding =>
-      this.getBuildingParts(selectedBuilding!.parts.split(';')).pipe(
-        map(p => this.mapBuildingParts(p as unknown as BuildingPart[])),
-        catchError(() => of({} as BuildingPartMap))
-      )
-    )
+    switchMap(selectedBuilding => {
+      /** buildings with no EPC don't have building parts */
+      if (!selectedBuilding.EPC) {
+        return EMPTY;
+      } else {
+        return this.getBuildingParts(selectedBuilding!.parts.split(';')).pipe(
+          map(p => this.mapBuildingParts(p as unknown as BuildingPart[])),
+          catchError(() => of({} as BuildingPartMap))
+        );
+      }
+    })
   );
 
   private buildingParts = toSignal(this.buildingParts$);
@@ -114,12 +138,11 @@ export class DataService {
 
   /**
    * Return building details for an individual building
-   * @param uprn UPRN of building to get details
+   * @param query Query string to request data from IA
    * @returns
    */
-  getBuildingDetails(uprn: number) {
-    const selectString = this.queries.getBuildingDetails(uprn);
-    return this.selectTable(selectString);
+  getBuildingDetails(query: string) {
+    return this.selectTable(query);
   }
 
   /**
@@ -198,6 +221,10 @@ export class DataService {
   mapBuildings(buildings: BuildingModel[]) {
     const buildingMap: BuildingMap = {};
     buildings.forEach((row: BuildingModel) => {
+      /** add 'none' for buildings with no EPC rating */
+      if (row.EPC === undefined) {
+        row.EPC = EPCRating.none;
+      }
       const toid = row.TOID ? row.TOID : row.ParentTOID;
       const yearOfAssessment = row.InspectionDate
         ? new Date(row.InspectionDate).getFullYear()
@@ -236,5 +263,12 @@ export class DataService {
       buildingPartMap[key] = part;
     });
     return buildingPartMap;
+  }
+
+  getEPCByUPRN(uprn: number): string {
+    const allBuildings = this.buildings();
+    const flatBuildings: BuildingModel[] = Object.values(allBuildings!).flat();
+    const building = flatBuildings.find(building => +building.UPRN === uprn);
+    return building!.EPC;
   }
 }
