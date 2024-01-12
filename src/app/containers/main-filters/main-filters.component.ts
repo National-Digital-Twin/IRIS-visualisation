@@ -16,14 +16,14 @@ import { LabelComponent } from '@components/label/label.component';
 import {
   BuildForm,
   EPCRating,
-  Floor,
+  FloorConstruction,
   FloorInsulation,
   PostCode,
   PropertyType,
-  Roof,
+  RoofConstruction,
   RoofInsulation,
   RoofInsulationThickness,
-  Wall,
+  WallConstruction,
   WallInsulation,
   WindowGlazing,
   YearOfAssessment,
@@ -160,17 +160,21 @@ export class MainFiltersComponent {
       MultipleGlazingType: [
         this.filterProps?.MultipleGlazingType as unknown as WindowGlazing,
       ],
-      WallConstruction: [this.filterProps?.WallConstruction as unknown as Wall],
+      WallConstruction: [
+        this.filterProps?.WallConstruction as unknown as WallConstruction,
+      ],
       WallInsulation: [
         this.filterProps?.WallInsulation as unknown as WallInsulation,
       ],
       FloorConstruction: [
-        this.filterProps?.FloorConstruction as unknown as Floor,
+        this.filterProps?.FloorConstruction as unknown as FloorConstruction,
       ],
       FloorInsulation: [
         this.filterProps?.FloorInsulation as unknown as FloorInsulation,
       ],
-      RoofConstruction: [this.filterProps?.RoofConstruction as unknown as Roof],
+      RoofConstruction: [
+        this.filterProps?.RoofConstruction as unknown as RoofConstruction,
+      ],
       RoofInsulationLocation: [
         this.filterProps?.RoofInsulationLocation as unknown as RoofInsulation,
       ],

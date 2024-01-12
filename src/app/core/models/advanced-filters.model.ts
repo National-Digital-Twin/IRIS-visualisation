@@ -1,28 +1,28 @@
 import { Moment } from 'moment/moment';
 import {
   BuildForm,
-  Floor,
+  FloorConstruction,
   FloorInsulation,
   PostCode,
-  Roof,
+  RoofConstruction,
   RoofInsulation,
   RoofInsulationThickness,
   WindowGlazing,
-  Wall,
+  WallConstruction,
   WallInsulation,
   YearOfAssessment,
 } from '@core/enums';
 
 export type AdvancedFilter =
   | typeof BuildForm
-  | typeof Floor
+  | typeof FloorConstruction
   | typeof FloorInsulation
   | typeof PostCode
-  | typeof Roof
+  | typeof RoofConstruction
   | typeof RoofInsulation
   | typeof RoofInsulationThickness
   | typeof WindowGlazing
-  | typeof Wall
+  | typeof WallConstruction
   | typeof WallInsulation
   | typeof YearOfAssessment;
 
@@ -35,11 +35,11 @@ export interface AdvancedFiltersFormModel {
   PostCode: PostCode[] | null;
   BuildForm: BuildForm[] | null;
   MultipleGlazingType: WindowGlazing[] | null;
-  WallConstruction: Wall[] | null;
+  WallConstruction: WallConstruction[] | null;
   WallInsulation: WallInsulation[] | null;
-  FloorConstruction: Floor[] | null;
+  FloorConstruction: FloorConstruction[] | null;
   FloorInsulation: FloorInsulation[] | null;
-  RoofConstruction: Roof[] | null;
+  RoofConstruction: RoofConstruction[] | null;
   RoofInsulationLocation: RoofInsulation[] | null;
   RoofInsulationThickness: RoofInsulationThickness[] | null;
   YearOfAssessment: YearOfAssessment[] | null;

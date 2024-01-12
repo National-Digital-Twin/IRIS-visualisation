@@ -20,11 +20,11 @@ import { UtilService } from '@core/services/utils.service';
 
 import {
   BuildForm,
-  Floor,
+  FloorConstruction,
   FloorInsulation,
-  Roof,
+  RoofConstruction,
   RoofInsulation,
-  Wall,
+  WallConstruction,
 } from '@core/enums';
 import {
   DownloadDataWarningData,
@@ -56,11 +56,11 @@ export class DetailsPanelComponent {
   buildingParts = this.dataService.parts;
 
   buildForm: { [key: string]: string } = BuildForm;
-  floor: { [key: string]: string } = Floor;
+  floor: { [key: string]: string } = FloorConstruction;
   floorInsulation: { [key: string]: string } = FloorInsulation;
-  roof: { [key: string]: string } = Roof;
+  roof: { [key: string]: string } = RoofConstruction;
   roofInsulation: { [key: string]: string } = RoofInsulation;
-  wall: { [key: string]: string } = Wall;
+  wall: { [key: string]: string } = WallConstruction;
 
   constructor(public dialog: MatDialog) {}
 

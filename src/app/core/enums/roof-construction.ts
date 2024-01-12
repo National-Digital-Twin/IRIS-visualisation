@@ -1,4 +1,4 @@
-export enum Roof {
+export enum RoofConstruction {
   FlatRoof = 'FlatRoof',
   AnotherDwellingAboveRoof = 'Another Dwelling Above Roof',
   OtherPremisesAboveRoof = 'Other Premises Above Roof',
