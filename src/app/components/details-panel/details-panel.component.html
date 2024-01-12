@@ -37,14 +37,15 @@
                 <span>No data</span>
               }
             </p>
-            <span class="field">Inspection date:</span>
-            @if (buildingDetails()?.InspectionDate) {
-              <p>
+            <p>
+              <span class="field">Inspection date:</span>
+              @if (buildingDetails()?.InspectionDate) {
                 <span>{{ buildingDetails()?.InspectionDate | date }}</span>
-              </p>
-            } @else {
-              <span>No data</span>
-            }
+              } @else {
+                <span>No data</span>
+              }
+            </p>
+
             <p>
               <span class="field">UPRN:</span>
               <span>{{ buildingDetails()?.UPRN }}</span>
