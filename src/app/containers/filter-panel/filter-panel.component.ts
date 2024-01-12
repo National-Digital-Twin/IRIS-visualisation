@@ -1,6 +1,5 @@
 import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DateFilterComponent } from '@components/date-filter/date-filter.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import {
@@ -41,7 +40,6 @@ interface PanelData {
   standalone: true,
   imports: [
     CommonModule,
-    DateFilterComponent,
     MatButtonModule,
     MatButtonToggleModule,
     MatDialogActions,
