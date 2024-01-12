@@ -13,9 +13,9 @@
       <p class="address">{{ buildingDetails()?.FullAddress }}</p>
       @if (buildingDetails()?.EPC) {
         <div class="labels">
-          <c477-label [epcRating]="buildingDetails()?.EPC">{{
-            buildingDetails()?.SAPPoints
-          }}</c477-label>
+          <c477-label
+            [epcRating]="buildingDetails()?.EPC"
+            [sapPoints]="buildingDetails()?.SAPPoints"></c477-label>
           <c477-label>{{ buildingDetails()?.PropertyType }}</c477-label>
         </div>
       } @else {
