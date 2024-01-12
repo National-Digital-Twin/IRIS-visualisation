@@ -17,7 +17,6 @@ import {
   BuildForm,
   Floor,
   FloorInsulation,
-  InspectionDate,
   PostCode,
   Roof,
   RoofInsulation,
@@ -25,6 +24,7 @@ import {
   WindowGlazing,
   Wall,
   WallInsulation,
+  YearOfAssessment,
 } from '@core/enums';
 import {
   FilterProps,
@@ -72,9 +72,9 @@ export class FilterPanelComponent {
     },
     {
       title: 'Year of Assessment',
-      data: InspectionDate,
-      formControlName: 'InspectionDate',
-      selectedValues: this.data.filterProps?.InspectionDate,
+      data: YearOfAssessment,
+      formControlName: 'YearOfAssessment',
+      selectedValues: this.data.filterProps?.YearOfAssessment,
     },
   ];
   glazingFilters: MultiButtonFilterOption[] = [
