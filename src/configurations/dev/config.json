@@ -25,6 +25,7 @@
     "E": "#FFCC99",
     "F": "#E66E23",
     "G": "#B60007",
+    "none": "#BEBEBE",
     "default": "#F2ECDF"
   },
   "epcColoursCD": {
@@ -35,6 +36,7 @@
     "E": "#FFD173",
     "F": "#D9963A",
     "G": "#B35A00",
+    "none": "#BEBEBE",
     "default": "#F2ECDF"
   },
   "mapLayers": [
@@ -57,7 +59,7 @@
       "minzoom": 15,
       "layout": {},
       "paint": {
-        "fill-extrusion-color": "#CCCCCC",
+        "fill-extrusion-color": "#F2ECDF",
         "fill-extrusion-height": [
           "interpolate",
           ["linear"],
@@ -78,6 +80,7 @@
       "minzoom": 15,
       "layout": {},
       "paint": {
+        "fill-extrusion-color": "#F2ECDF",
         "fill-extrusion-height": [
           "interpolate",
           ["linear"],
@@ -97,6 +100,7 @@
       "minzoom": 15,
       "layout": {},
       "paint": {
+        "fill-extrusion-color": "#F2ECDF",
         "fill-extrusion-height": [
           "interpolate",
           ["linear"],

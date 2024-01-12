@@ -6,4 +6,5 @@ export enum EPCRating {
   E = 'E',
   F = 'F',
   G = 'G',
+  none = 'none',
 }
