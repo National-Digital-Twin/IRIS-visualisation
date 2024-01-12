@@ -1,6 +1,5 @@
 import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DateFilterComponent } from '@components/date-filter/date-filter.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import {
@@ -24,6 +23,7 @@ import {
   WindowGlazing,
   Wall,
   WallInsulation,
+  YearOfAssessment,
 } from '@core/enums';
 import {
   FilterProps,
@@ -40,7 +40,6 @@ interface PanelData {
   standalone: true,
   imports: [
     CommonModule,
-    DateFilterComponent,
     MatButtonModule,
     MatButtonToggleModule,
     MatDialogActions,
@@ -68,6 +67,12 @@ export class FilterPanelComponent {
       data: BuildForm,
       formControlName: 'BuildForm',
       selectedValues: this.data.filterProps?.BuildForm,
+    },
+    {
+      title: 'Year of Assessment',
+      data: YearOfAssessment,
+      formControlName: 'YearOfAssessment',
+      selectedValues: this.data.filterProps?.YearOfAssessment,
     },
   ];
   glazingFilters: MultiButtonFilterOption[] = [
