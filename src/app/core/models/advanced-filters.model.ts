@@ -10,6 +10,7 @@ import {
   WindowGlazing,
   Wall,
   WallInsulation,
+  YearOfAssessment,
 } from '@core/enums';
 
 export type AdvancedFilter =
@@ -22,7 +23,8 @@ export type AdvancedFilter =
   | typeof RoofInsulationThickness
   | typeof WindowGlazing
   | typeof Wall
-  | typeof WallInsulation;
+  | typeof WallInsulation
+  | typeof YearOfAssessment;
 
 export interface DateFormModel {
   singleYear: Moment | null;
@@ -32,7 +34,6 @@ export interface DateFormModel {
 export interface AdvancedFiltersFormModel {
   PostCode: PostCode[] | null;
   BuildForm: BuildForm[] | null;
-  YearOfAssessment: DateFormModel | null;
   MultipleGlazingType: WindowGlazing[] | null;
   WallConstruction: Wall[] | null;
   WallInsulation: WallInsulation[] | null;
@@ -41,6 +42,7 @@ export interface AdvancedFiltersFormModel {
   RoofConstruction: Roof[] | null;
   RoofInsulationLocation: RoofInsulation[] | null;
   RoofInsulationThickness: RoofInsulationThickness[] | null;
+  YearOfAssessment: YearOfAssessment[] | null;
 }
 
 export interface MultiButtonFilterOption {
@@ -55,6 +57,7 @@ export interface FilterProps {
   EPC?: string[];
   FloorConstruction?: string[];
   FloorInsulation?: string[];
+  MultipleGlazingType?: string[];
   PostCode?: string[];
   PropertyType?: string[];
   RoofConstruction?: string[];
@@ -62,7 +65,7 @@ export interface FilterProps {
   RoofInsulationThickness?: string[];
   WallConstruction?: string[];
   WallInsulation?: string[];
-  MultipleGlazingType?: string[];
+  YearOfAssessment?: string[];
 }
 
 export type FilterKeys =
@@ -70,6 +73,7 @@ export type FilterKeys =
   | 'EPC'
   | 'FloorConstruction'
   | 'FloorInsulation'
+  | 'MultipleGlazingType'
   | 'PostCode'
   | 'PropertyType'
   | 'RoofConstruction'
@@ -77,4 +81,4 @@ export type FilterKeys =
   | 'RoofInsulationThickness'
   | 'WallConstruction'
   | 'WallInsulation'
-  | 'MultipleGlazingType';
+  | 'YearOfAssessment';
