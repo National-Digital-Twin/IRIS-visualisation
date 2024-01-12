@@ -255,6 +255,7 @@ export class UtilService {
       E: 5,
       F: 6,
       G: 7,
+      none: 0,
     };
     const scores: number[] = [];
     // get the weighting for each epc value
@@ -270,10 +271,10 @@ export class UtilService {
     return meanEPC;
   }
 
-  getEPCColour(SAPBand: string): string {
+  getEPCColour(epcRating: string): string {
     const colorBlindMode = this.colorBlindMode();
     return this[colorBlindMode ? 'colorBlindEpcColors' : 'epcColours'][
-      SAPBand ? SAPBand : 'default'
+      epcRating ? epcRating : 'default'
     ];
   }
 
@@ -524,10 +525,6 @@ export class UtilService {
 
   selectedCardUPRN = signal<number | undefined>(undefined);
   multiDwelling = signal<string>('');
-
-  /**
-   * HELPER METHODS - DON'T CALL THESE DIRECTLY
-   */
 
   /** set the UPRN of the selected results card */
   private selectResultsCard(UPRN: number) {

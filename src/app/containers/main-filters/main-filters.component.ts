@@ -147,7 +147,7 @@ export class MainFiltersComponent {
   }
 
   ratingChange(e: MatSelectChange) {
-    this.setRouteParams.emit({ EPC: e.value.map((r: string) => r.slice(-1)) });
+    this.setRouteParams.emit({ EPC: e.value.map((r: string) => r) });
   }
 
   createForm(): FormGroup {

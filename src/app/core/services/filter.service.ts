@@ -19,9 +19,7 @@ export class FilterService {
   ) {
     // format EPC rating
     if (currentFilters && currentFilters['EPC']) {
-      currentFilters['EPC'] = currentFilters['EPC'].map(rating =>
-        rating.slice(-1)
-      );
+      currentFilters['EPC'] = currentFilters['EPC'].map(rating => rating);
     }
     const combinedFilters = [filter];
     if (currentFilters) {
