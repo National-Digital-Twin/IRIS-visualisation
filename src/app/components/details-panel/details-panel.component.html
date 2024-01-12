@@ -37,9 +37,9 @@
                 <span>No data</span>
               }
             </p>
+            <span class="field">Inspection date:</span>
             @if (buildingDetails()?.InspectionDate) {
               <p>
-                <span class="field">Inspection date:</span>
                 <span>{{ buildingDetails()?.InspectionDate | date }}</span>
               </p>
             } @else {
