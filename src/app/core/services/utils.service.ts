@@ -332,8 +332,11 @@ export class UtilService {
     const filtered = buildingsArray.filter((building: BuildingModel) =>
       filterKeys.every(key => {
         if (!filterProps[key as keyof FilterProps]?.length) return true;
-
-        return filterProps[key as keyof FilterProps]?.includes(
+        // remove additional quotes for year filter
+        const removeQuotes = filterProps[key as keyof FilterProps]?.map(k =>
+          k.replace(/['"]+/g, '')
+        );
+        return removeQuotes?.includes(
           // eslint-disable-next-line
           // @ts-ignore
           building[key as keyof BuildingModel]
