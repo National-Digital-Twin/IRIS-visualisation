@@ -18,7 +18,7 @@ import {
   FloorInsulation,
   PostCode,
   RoofConstruction,
-  RoofInsulation,
+  RoofInsulationLocation,
   RoofInsulationThickness,
   WindowGlazing,
   WallConstruction,
@@ -79,8 +79,8 @@ export class FilterPanelComponent {
     {
       title: 'Multiple Glazing Type',
       data: WindowGlazing,
-      formControlName: 'MultipleGlazingType',
-      selectedValues: this.data.filterProps?.MultipleGlazingType,
+      formControlName: 'WindowGlazing',
+      selectedValues: this.data.filterProps?.WindowGlazing,
     },
   ];
   wallFilters: MultiButtonFilterOption[] = [
@@ -120,7 +120,7 @@ export class FilterPanelComponent {
     },
     {
       title: 'Roof Insulation Location',
-      data: RoofInsulation,
+      data: RoofInsulationLocation,
       formControlName: 'RoofInsulationLocation',
       selectedValues: this.data.filterProps?.RoofInsulationLocation,
     },

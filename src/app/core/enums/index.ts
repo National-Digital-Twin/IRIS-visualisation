@@ -4,7 +4,7 @@ export * from './floor-insulation';
 export * from './floor-construction';
 export * from './post-code';
 export * from './property-type';
-export * from './roof-insulation';
+export * from './roof-insulation-location';
 export * from './roof-insulation-thickness';
 export * from './roof-construction';
 export * from './wall-insulation';

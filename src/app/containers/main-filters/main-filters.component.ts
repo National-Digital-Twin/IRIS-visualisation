@@ -21,7 +21,7 @@ import {
   PostCode,
   PropertyType,
   RoofConstruction,
-  RoofInsulation,
+  RoofInsulationLocation,
   RoofInsulationThickness,
   WallConstruction,
   WallInsulation,
@@ -157,8 +157,8 @@ export class MainFiltersComponent {
       YearOfAssessment: [
         this.filterProps?.YearOfAssessment as unknown as YearOfAssessment,
       ],
-      MultipleGlazingType: [
-        this.filterProps?.MultipleGlazingType as unknown as WindowGlazing,
+      WindowGlazing: [
+        this.filterProps?.WindowGlazing as unknown as WindowGlazing,
       ],
       WallConstruction: [
         this.filterProps?.WallConstruction as unknown as WallConstruction,
@@ -176,7 +176,8 @@ export class MainFiltersComponent {
         this.filterProps?.RoofConstruction as unknown as RoofConstruction,
       ],
       RoofInsulationLocation: [
-        this.filterProps?.RoofInsulationLocation as unknown as RoofInsulation,
+        this.filterProps
+          ?.RoofInsulationLocation as unknown as RoofInsulationLocation,
       ],
       RoofInsulationThickness: [
         this.filterProps

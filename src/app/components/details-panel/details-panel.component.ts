@@ -23,7 +23,7 @@ import {
   FloorConstruction,
   FloorInsulation,
   RoofConstruction,
-  RoofInsulation,
+  RoofInsulationLocation,
   WallConstruction,
 } from '@core/enums';
 import {
@@ -59,7 +59,7 @@ export class DetailsPanelComponent {
   floor: { [key: string]: string } = FloorConstruction;
   floorInsulation: { [key: string]: string } = FloorInsulation;
   roof: { [key: string]: string } = RoofConstruction;
-  roofInsulation: { [key: string]: string } = RoofInsulation;
+  roofInsulation: { [key: string]: string } = RoofInsulationLocation;
   wall: { [key: string]: string } = WallConstruction;
 
   constructor(public dialog: MatDialog) {}

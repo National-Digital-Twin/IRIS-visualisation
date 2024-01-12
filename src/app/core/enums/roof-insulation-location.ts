@@ -1,4 +1,4 @@
-export enum RoofInsulation {
+export enum RoofInsulationLocation {
   RaftersRoofInsulation = 'Rafters Roof Insulation',
   JoistsRoofInsulation = 'Joists Roof Insulation',
   CeilingInsulation = 'Ceiling Insulation',
