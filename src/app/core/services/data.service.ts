@@ -226,6 +226,10 @@ export class DataService {
         row.EPC = EPCRating.none;
       }
       const toid = row.TOID ? row.TOID : row.ParentTOID;
+      const yearOfAssessment = row.InspectionDate
+        ? new Date(row.InspectionDate).getFullYear()
+        : '';
+      row.YearOfAssessment = yearOfAssessment?.toString();
       if (!toid) {
         return;
       }

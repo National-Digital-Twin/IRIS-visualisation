@@ -1,7 +1,6 @@
 import { Moment } from 'moment/moment';
 import {
   BuildForm,
-  DwellingSize,
   Floor,
   FloorInsulation,
   PostCode,
@@ -15,7 +14,6 @@ import {
 
 export type AdvancedFilter =
   | typeof BuildForm
-  | typeof DwellingSize
   | typeof Floor
   | typeof FloorInsulation
   | typeof PostCode
@@ -35,7 +33,6 @@ export interface AdvancedFiltersFormModel {
   PostCode: PostCode[] | null;
   BuildForm: BuildForm[] | null;
   YearOfAssessment: DateFormModel | null;
-  DwellingSize: DwellingSize[] | null;
   MultipleGlazingType: WindowGlazing[] | null;
   WallConstruction: Wall[] | null;
   WallInsulation: WallInsulation[] | null;
@@ -55,7 +52,6 @@ export interface MultiButtonFilterOption {
 
 export interface FilterProps {
   BuildForm?: string[];
-  DwellingSize?: string[];
   EPC?: string[];
   FloorConstruction?: string[];
   FloorInsulation?: string[];
@@ -71,7 +67,6 @@ export interface FilterProps {
 
 export type FilterKeys =
   | 'BuildForm'
-  | 'DwellingSize'
   | 'EPC'
   | 'FloorConstruction'
   | 'FloorInsulation'

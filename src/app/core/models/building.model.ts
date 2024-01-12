@@ -11,6 +11,7 @@ export interface BuildingModel {
   TOID?: string;
   UPRN: string;
   Flagged: string;
+  YearOfAssessment: string;
 }
 
 export interface BuildingDetailsModel extends BuildingModel {
@@ -18,13 +19,31 @@ export interface BuildingDetailsModel extends BuildingModel {
   parts: string;
 }
 
-export interface BuildingSpecificationModel {
-  floorConstruction: string;
-  floorInsulation: string;
-  roofConstruction: string;
-  roofInsulationLocation: string;
-  roofInsulationThickness: string;
-  wallConstruction: string;
+export interface DownloadDataModel extends BuildingDetailsModel {
+  FloorPartType: string;
+  FloorPartSuperType: string;
+  FloorPartInsulationType: string;
+  FloorPartInsulationThickness: string;
+  FloorInsulationThickness: string;
+  FloorInsulationThicknessLowerBound: string;
+  RoofPartType: string;
+  RoofPartSuperType: string;
+  RoofPartInsulationType: string;
+  RoofPartInsulationThickness: string;
+  RoofInsulationThickness: string;
+  RoofInsulationThicknessLowerBound: string;
+  WallPartType: string;
+  WallPartSuperType: string;
+  WallPartInsulationType: string;
+  WallPartInsulationThickness: string;
+  WallInsulationThickness: string;
+  WallInsulationThicknessLowerBound: string;
+  WindowPartType: string;
+  WindowPartSuperType: string;
+  WindowPartInsulationType: string;
+  WindowPartInsulationThickness: string;
+  WindowInsulationThickness: string;
+  WindowInsulationThicknessLowerBound: string;
 }
 
 export interface BuildingMap {
