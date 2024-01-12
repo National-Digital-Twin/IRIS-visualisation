@@ -26,7 +26,13 @@ import {
 
 import { Queries } from './Queries';
 
-import { EPCRating } from '@core/enums';
+import {
+  EPCRating,
+  FloorConstruction,
+  RoofConstruction,
+  WallConstruction,
+  WindowGlazing,
+} from '@core/enums';
 
 @Injectable({
   providedIn: 'root',
@@ -220,20 +226,54 @@ export class DataService {
    */
   mapBuildings(buildings: BuildingModel[]) {
     const buildingMap: BuildingMap = {};
-    buildings.forEach((row: BuildingModel) => {
-      /** add 'none' for buildings with no EPC rating */
-      if (row.EPC === undefined) {
-        row.EPC = EPCRating.none;
-      }
+    buildings.forEach((origRow: BuildingModel) => {
+      const row = {
+        ...origRow,
+      };
       const toid = row.TOID ? row.TOID : row.ParentTOID;
+      if (!toid) {
+        return;
+      }
+      /** add 'none' for buildings with no EPC rating */
+      const epc = row.EPC ? row.EPC : EPCRating.none;
       const yearOfAssessment = row.InspectionDate
         ? new Date(row.InspectionDate).getFullYear()
         : '';
       row.YearOfAssessment = yearOfAssessment?.toString();
-      if (!toid) {
-        return;
+      row.EPC = epc;
+      /** get building parts */
+      if (row.PartTypes) {
+        const partTypes = row.PartTypes.replace(' ', '').split(';');
+        const insulationTypes = row.InsulationTypes.replace(' ', '').split(';');
+        const insulationThickness = row.InsulationThickness.replace(
+          ' ',
+          ''
+        ).split(';');
+        const insulationThicknessLowerBounds =
+          row.InsulationThicknessLowerBound.replace(' ', '').split(';');
+        partTypes.forEach((part, i) => {
+          if (this.isWallKey(part.trim())) {
+            row.WallConstruction = part.trim();
+            row.WallInsulation = insulationTypes[i].trim();
+          } else if (this.isFloorKey(part.trim())) {
+            row.FloorConstruction = part.trim();
+            row.FloorInsulation = insulationTypes[i].trim();
+          } else if (this.isRoofKey(part.trim())) {
+            row.RoofConstruction = part.trim();
+            row.RoofInsulationLocation = insulationTypes[i].trim();
+            /** check thickness types */
+            const thickness = insulationThickness[i].trim();
+            const thicknessLB = insulationThicknessLowerBounds[i].trim();
+            row.RoofInsulationThickness =
+              thickness !== 'NA'
+                ? `${thickness.split('.')[0]}mm`
+                : `${thicknessLB.split('.')[0]}+mm`;
+          } else if (this.isWindowKey(part.trim())) {
+            row.WindowGlazing = part.trim();
+          }
+        });
       }
-      if (toid && buildingMap[toid]) {
+      if (buildingMap[toid]) {
         buildingMap[toid].push(row);
       } else {
         buildingMap[toid!] = [row];
@@ -247,7 +287,7 @@ export class DataService {
    *
    * @param parts building parts
    * @returns object with key as part name
-   * and details as value
+   * and details as value for use in details panel
    */
   mapBuildingParts(parts: BuildingPart[]) {
     const buildingPartMap: BuildingPartMap = {};
@@ -270,5 +310,29 @@ export class DataService {
     const flatBuildings: BuildingModel[] = Object.values(allBuildings!).flat();
     const building = flatBuildings.find(building => +building.UPRN === uprn);
     return building!.EPC;
+  }
+
+  private isWallKey(value: string): value is keyof typeof WallConstruction {
+    return Object.keys(WallConstruction).includes(
+      value as unknown as WallConstruction
+    );
+  }
+
+  private isWindowKey(value: string): value is keyof typeof WindowGlazing {
+    return Object.keys(WindowGlazing).includes(
+      value as unknown as WindowGlazing
+    );
+  }
+
+  private isRoofKey(value: string): value is keyof typeof RoofConstruction {
+    return Object.keys(RoofConstruction).includes(
+      value as unknown as RoofConstruction
+    );
+  }
+
+  private isFloorKey(value: string): value is keyof typeof FloorConstruction {
+    return Object.keys(FloorConstruction).includes(
+      value as unknown as FloorConstruction
+    );
   }
 }
