@@ -1,8 +1,10 @@
 import {
   Component,
+  EventEmitter,
   inject,
   Input,
   OnChanges,
+  Output,
   SimpleChanges,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -23,6 +25,10 @@ export class ResultsCardExpandableComponent implements OnChanges {
   private utilService = inject(UtilService);
   @Input() dwellings!: BuildingModel[];
   @Input() select: boolean = false;
+  @Output() cardSelected: EventEmitter<BuildingModel> =
+    new EventEmitter<BuildingModel>();
+  @Output() emitViewDetails: EventEmitter<BuildingModel> =
+    new EventEmitter<BuildingModel>();
 
   parentDataset: BuildingModel = {
     FullAddress: '',

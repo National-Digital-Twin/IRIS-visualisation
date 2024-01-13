@@ -101,6 +101,10 @@ export class ResultsPanelComponent {
     }
   }
 
+  trackByUPRN(index: number, item: BuildingModel[]) {
+    return item[0].UPRN;
+  }
+
   getZoomCenter(TOID: string): number[] {
     const geomBB = this.spatialQueryService.getFeatureGeomBB(TOID);
     return [geomBB.getCenter().lng - 0.0005, geomBB.getCenter().lat];

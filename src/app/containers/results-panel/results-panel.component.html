@@ -30,7 +30,8 @@
         <div
           *cdkVirtualFor="
             let dwellingSet of buildingSelection();
-            templateCacheSize: 0
+            templateCacheSize: 0;
+            trackBy: trackByUPRN
           ">
           @if (dwellingSet.length === 1) {
             <c477-results-card
@@ -42,7 +43,11 @@
           } @else {
             <c477-results-card-expandable
               [dwellings]="dwellingSet"
-              [select]="selectMultiple"></c477-results-card-expandable>
+              [select]="selectMultiple"
+              (emitViewDetails)="viewDetails($event)"
+              (cardSelected)="
+                cardSelected($event)
+              "></c477-results-card-expandable>
           }
         </div>
       </cdk-virtual-scroll-viewport>
