@@ -11,4 +11,6 @@ body[theme='dark'] * {
   @include mat.all-component-themes($c477-dark-theme);
 
   --arc-container-color: 9, 34, 66;
+  --c477-color--hover: 15, 58, 112;
+  --c477-color--selected: 21, 81, 157;
 }

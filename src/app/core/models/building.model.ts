@@ -10,8 +10,8 @@ export interface BuildingModel {
   PropertyType: PropertyType;
   TOID?: string;
   UPRN: string;
-  Flagged: string;
   YearOfAssessment: string;
+  Flagged?: string;
 }
 
 export interface BuildingDetailsModel extends BuildingModel {
