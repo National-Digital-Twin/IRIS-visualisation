@@ -33,6 +33,10 @@ import {
   WallConstruction,
   WindowGlazing,
 } from '@core/enums';
+import {
+  EPCBuildingResponseModel,
+  NoEPCBuildingResponseModel,
+} from '@core/models/building-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -49,20 +53,23 @@ export class DataService {
   // multiple buildings
   buildingsSelection = signal<BuildingModel[] | undefined>(undefined);
 
-  buildingsEPC$ = this.selectTable(this.queries.getEPCData());
-  buildingsNoEPC$ = this.selectTable(this.queries.getNoEPCData()).pipe();
+  buildingsEPC$ = this.selectTable(this.queries.getEPCData()).pipe(
+    map(epc =>
+      this.mapEPCBuildings(epc as unknown as EPCBuildingResponseModel[])
+    )
+  );
+  buildingsNoEPC$ = this.selectTable(this.queries.getNoEPCData()).pipe(
+    map(noEPC =>
+      this.mapNonEPCBuildings(noEPC as unknown as NoEPCBuildingResponseModel[])
+    )
+  );
 
   /**
    * Get all building data
    * @returns Observable<BuildingMap>
    */
   allData$ = forkJoin([this.buildingsEPC$, this.buildingsNoEPC$]).pipe(
-    map(([epc, noEPC]) => {
-      const epcBuildings = epc as unknown as BuildingModel[];
-      const noEPCBuildings = noEPC as unknown as BuildingModel[];
-      return epcBuildings.concat(noEPCBuildings);
-    }),
-    map(allRawData => this.mapBuildings(allRawData))
+    map(([epc, noEPC]) => this.combineBuildingData(epc, noEPC))
   );
 
   private buildingResults = toSignal(this.allData$, {
@@ -218,68 +225,134 @@ export class DataService {
   }
 
   /**
-   * An object where UPRNs are keys, and values is the epc
-   * and addresses of a building or dwelling
-   * @param buildings array of epcs, toids, uprns and addresses
-   * @returns an object with uprn as key, and object with epc,
-   * address etc
+   * An object where TOIDS are keys, and values are an array of buildings
+   * @param buildings array of buildings data
+   * @returns an object with TOID as key, and array of buildings as values
    */
   mapBuildings(buildings: BuildingModel[]) {
     const buildingMap: BuildingMap = {};
-    buildings.forEach((origRow: BuildingModel) => {
-      const row = {
-        ...origRow,
-      };
+    buildings.forEach((row: BuildingModel) => {
+      /** add 'none' for buildings with no EPC rating */
+      if (row.EPC === undefined) {
+        row.EPC = EPCRating.none;
+      }
       const toid = row.TOID ? row.TOID : row.ParentTOID;
       if (!toid) {
         return;
       }
-      /** add 'none' for buildings with no EPC rating */
-      const epc = row.EPC ? row.EPC : EPCRating.none;
-      const yearOfAssessment = row.InspectionDate
-        ? new Date(row.InspectionDate).getFullYear()
-        : '';
-      row.YearOfAssessment = yearOfAssessment?.toString();
-      row.EPC = epc;
-      /** get building parts */
-      if (row.PartTypes) {
-        const partTypes = row.PartTypes.replace(' ', '').split(';');
-        const insulationTypes = row.InsulationTypes.replace(' ', '').split(';');
-        const insulationThickness = row.InsulationThickness.replace(
-          ' ',
-          ''
-        ).split(';');
-        const insulationThicknessLowerBounds =
-          row.InsulationThicknessLowerBound.replace(' ', '').split(';');
-        partTypes.forEach((part, i) => {
-          if (this.isWallKey(part.trim())) {
-            row.WallConstruction = part.trim();
-            row.WallInsulation = insulationTypes[i].trim();
-          } else if (this.isFloorKey(part.trim())) {
-            row.FloorConstruction = part.trim();
-            row.FloorInsulation = insulationTypes[i].trim();
-          } else if (this.isRoofKey(part.trim())) {
-            row.RoofConstruction = part.trim();
-            row.RoofInsulationLocation = insulationTypes[i].trim();
-            /** check thickness types */
-            const thickness = insulationThickness[i].trim();
-            const thicknessLB = insulationThicknessLowerBounds[i].trim();
-            row.RoofInsulationThickness =
-              thickness !== 'NA'
-                ? `${thickness.split('.')[0]}mm`
-                : `${thicknessLB.split('.')[0]}+mm`;
-          } else if (this.isWindowKey(part.trim())) {
-            row.WindowGlazing = part.trim();
-          }
-        });
-      }
-      if (buildingMap[toid]) {
+      if (toid && buildingMap[toid]) {
         buildingMap[toid].push(row);
       } else {
         buildingMap[toid!] = [row];
       }
     });
     return buildingMap;
+  }
+
+  /**
+   * An object where TOIDS are keys, and values are the building(s)
+   * data
+   * @param buildings array of buildings with EPC data
+   * @returns an object with TOID as key, and an array of building
+   * objects with epc
+   */
+  mapEPCBuildings(buildings: EPCBuildingResponseModel[]) {
+    const buildingMap: BuildingMap = {};
+    buildings.forEach((row: EPCBuildingResponseModel) => {
+      const toid = row.TOID ? row.TOID : row.ParentTOID;
+      /** if there is no TOID the building cannot be visualised */
+      if (!toid) return;
+
+      /** add 'none' for buildings with no EPC rating */
+      const epc = row.EPC ? row.EPC : EPCRating.none;
+      const yearOfAssessment = row.InspectionDate
+        ? new Date(row.InspectionDate).getFullYear().toString()
+        : '';
+      /** get building parts */
+      const parts = this.parseBuildingParts(row);
+
+      const building: BuildingModel = {
+        BuildForm: row.BuildForm,
+        EPC: epc,
+        FullAddress: row.FullAddress,
+        InspectionDate: row.InspectionDate,
+        PostCode: row.PostCode,
+        PropertyType: row.PropertyType,
+        UPRN: row.UPRN,
+        YearOfAssessment: yearOfAssessment,
+        ParentTOID: row.ParentTOID,
+        TOID: toid,
+        FloorConstruction: parts.FloorConstruction,
+        FloorInsulation: parts.FloorInsulation,
+        RoofConstruction: parts.RoofConstruction,
+        RoofInsulationLocation: parts.RoofInsulationLocation,
+        RoofInsulationThickness: parts.RoofInsulationThickness,
+        WallConstruction: parts.WallConstruction,
+        WallInsulation: parts.WallInsulation,
+        WindowGlazing: parts.WindowGlazing,
+      };
+      if (buildingMap[toid]) {
+        buildingMap[toid].push(building);
+      } else {
+        buildingMap[toid!] = [building];
+      }
+    });
+    return buildingMap;
+  }
+
+  /**
+   * An object where TOIDS are keys, and are is the building details
+   * @param buildings array of building data with no EPC ratings
+   * @returns an object with TOID as key, and object with an
+   * array of building data
+   */
+  mapNonEPCBuildings(buildings: NoEPCBuildingResponseModel[]) {
+    const buildingMap: BuildingMap = {};
+    buildings.forEach((responseRow: NoEPCBuildingResponseModel) => {
+      const building: BuildingModel = {
+        ...responseRow,
+        BuildForm: undefined,
+        EPC: EPCRating.none,
+        FloorConstruction: undefined,
+        FloorInsulation: undefined,
+        InspectionDate: undefined,
+        PropertyType: undefined,
+        RoofConstruction: undefined,
+        RoofInsulationLocation: undefined,
+        RoofInsulationThickness: undefined,
+        WallConstruction: undefined,
+        WallInsulation: undefined,
+        WindowGlazing: undefined,
+        YearOfAssessment: undefined,
+      };
+      /** if there is no TOID the building cannot be visualised */
+      const toid = building.TOID ? building.TOID : building.ParentTOID;
+      if (!toid) return;
+      if (buildingMap[toid]) {
+        buildingMap[toid].push(building as BuildingModel);
+      } else {
+        buildingMap[toid!] = [building as BuildingModel];
+      }
+    });
+    return buildingMap;
+  }
+
+  /**
+   * Combine the two building datasets
+   * @param epcBuildings
+   * @param nonEPCBuildings
+   * @returns BuildingMap of all buildings
+   */
+  combineBuildingData(epcBuildings: BuildingMap, nonEPCBuildings: BuildingMap) {
+    const allBuildings: BuildingMap = { ...epcBuildings };
+    Object.keys(nonEPCBuildings).forEach((toid: string) => {
+      if (allBuildings[toid]) {
+        allBuildings[toid].concat(nonEPCBuildings[toid]);
+      } else {
+        allBuildings[toid] = nonEPCBuildings[toid];
+      }
+    });
+    return allBuildings;
   }
 
   /**
@@ -308,6 +381,7 @@ export class DataService {
   getEPCByUPRN(uprn: number): string {
     const allBuildings = this.buildings();
     const flatBuildings: BuildingModel[] = Object.values(allBuildings!).flat();
+
     const building = flatBuildings.find(building => +building.UPRN === uprn);
     return building!.EPC;
   }
@@ -334,5 +408,64 @@ export class DataService {
     return Object.keys(FloorConstruction).includes(
       value as unknown as FloorConstruction
     );
+  }
+
+  /**
+   * Building parts are returned from the IA in the format
+   * PartTypes: "CavityWall; DoubleGlazedBefore2002Window; SolidFloor; FlatRoof",
+   * InsulationTypes: "NA; NA; NA; AssumedLimitedInsulation",
+   * InsulationThickness: "NA; NA; NA; NA",
+   * InsulationThicknessLowerBound: "NA; NA; NA; NA"
+   *
+   * This function:
+   * 1. Splits the PartTypes string and for each part identifies if it's a Wall,
+   * Window, Roof or Floor.
+   * 2. Using the index of the part, it then finds the corresponding insulation type
+   * and thicknesses
+   * @param row EPCBuildingResponseModel
+   * @returns object of parts and insulation types and thicknesses
+   */
+  private parseBuildingParts(row: EPCBuildingResponseModel) {
+    const parts = {
+      FloorConstruction: 'NA',
+      FloorInsulation: 'NA',
+      RoofConstruction: 'NA',
+      RoofInsulationLocation: 'NA',
+      RoofInsulationThickness: 'NA',
+      WallConstruction: 'NA',
+      WallInsulation: 'NA',
+      WindowGlazing: 'NA',
+    };
+
+    const partTypes = row.PartTypes.replace(' ', '').split(';');
+    const insulationTypes = row.InsulationTypes.replace(' ', '').split(';');
+    const insulationThickness = row.InsulationThickness.replace(' ', '').split(
+      ';'
+    );
+    const insulationThicknessLowerBounds =
+      row.InsulationThicknessLowerBound.replace(' ', '').split(';');
+
+    partTypes.forEach((part, i) => {
+      if (this.isWallKey(part.trim())) {
+        parts['WallConstruction'] = part.trim();
+        parts['WallInsulation'] = insulationTypes[i].trim();
+      } else if (this.isFloorKey(part.trim())) {
+        parts['FloorConstruction'] = part.trim();
+        parts['FloorInsulation'] = insulationTypes[i].trim();
+      } else if (this.isRoofKey(part.trim())) {
+        parts['RoofConstruction'] = part.trim();
+        parts['RoofInsulationLocation'] = insulationTypes[i].trim();
+        /** check thickness types */
+        const thickness = insulationThickness[i].trim();
+        const thicknessLB = insulationThicknessLowerBounds[i].trim();
+        parts['RoofInsulationThickness'] =
+          thickness !== 'NA'
+            ? `${thickness.split('.')[0]}mm`
+            : `${thicknessLB.split('.')[0]}+mm`;
+      } else if (this.isWindowKey(part.trim())) {
+        parts['WindowGlazing'] = part.trim();
+      }
+    });
+    return parts;
   }
 }
