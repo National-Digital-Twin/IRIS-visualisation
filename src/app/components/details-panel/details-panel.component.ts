@@ -15,6 +15,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
 import { LabelComponent } from '@components/label/label.component';
 
+import { SETTINGS, SettingsService } from '@core/services/settings.service';
 import { DataService } from '@core/services/data.service';
 import { UtilService } from '@core/services/utils.service';
 
@@ -46,6 +47,7 @@ import {
   styleUrl: './details-panel.component.scss',
 })
 export class DetailsPanelComponent {
+  public readonly theme = inject(SettingsService).get(SETTINGS.Theme);
   private dataService = inject(DataService);
   private utilService = inject(UtilService);
 
@@ -89,5 +91,17 @@ export class DetailsPanelComponent {
           this.downloadData.emit();
         }
       });
+  }
+
+  public onFlag() {
+    /* TODO: Implement */
+    throw new Error('Not implemented');
+
+    /* TODO: open modal and flag building */
+  }
+
+  public onRemoveFlag() {
+    /* TODO: Implement */
+    throw new Error('Not implemented');
   }
 }
