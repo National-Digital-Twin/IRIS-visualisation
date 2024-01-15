@@ -444,7 +444,7 @@ export class DataService {
       ''
     ).split(';');
     const insulationThicknessLowerBounds =
-      row.InsulationThicknessLowerBound.replace(' ', '').split(';');
+      row.InsulationThicknessLowerBound.replaceAll(' ', '');
 
     partTypes.forEach((part, i) => {
       if (this.isWallKey(part)) {
