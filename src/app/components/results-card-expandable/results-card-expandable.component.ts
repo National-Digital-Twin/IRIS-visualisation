@@ -35,6 +35,7 @@ export class ResultsCardExpandableComponent implements OnChanges {
     EPC: undefined,
     PostCode: undefined,
     UPRN: '',
+    ParentTOID: '',
     Flagged: '',
   };
 
@@ -45,6 +46,7 @@ export class ResultsCardExpandableComponent implements OnChanges {
       const EPCs = this.dwellings
         .map(d => (d.EPC ? EPCRating[d.EPC] : undefined))
         .filter(d => d !== undefined);
+      this.parentDataset.ParentTOID = this.dwellings[0].ParentTOID;
 
       this.parentDataset.EPC = this.utilService.getMeanEPCValue(
         EPCs as string[]

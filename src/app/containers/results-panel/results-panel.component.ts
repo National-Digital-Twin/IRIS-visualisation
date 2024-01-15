@@ -102,7 +102,11 @@ export class ResultsPanelComponent {
   }
 
   trackByUPRN(index: number, item: BuildingModel[]) {
-    return item[0].UPRN;
+    if (item.length == 1) {
+      return item[0].UPRN;
+    } else {
+      return item[0].ParentTOID;
+    }
   }
 
   getZoomCenter(TOID: string): number[] {
