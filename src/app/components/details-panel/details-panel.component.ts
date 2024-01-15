@@ -26,6 +26,7 @@ import {
   RoofConstruction,
   RoofInsulationLocation,
   WallConstruction,
+  WindowGlazing,
 } from '@core/enums';
 import {
   DownloadDataWarningData,
@@ -63,6 +64,7 @@ export class DetailsPanelComponent {
   roof: { [key: string]: string } = RoofConstruction;
   roofInsulation: { [key: string]: string } = RoofInsulationLocation;
   wall: { [key: string]: string } = WallConstruction;
+  windowGlazing: { [key: string]: string } = WindowGlazing;
 
   constructor(public dialog: MatDialog) {}
 
