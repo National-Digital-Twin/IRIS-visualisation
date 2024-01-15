@@ -21,6 +21,7 @@ import {
   BuildingModel,
   BuildingPart,
   BuildingPartMap,
+  SAPPoint,
 } from '@core/models/building.model';
 
 import { Queries } from './Queries';
@@ -52,9 +53,17 @@ export class DataService {
   // multiple buildings
   buildingsSelection = signal<BuildingModel[][] | undefined>(undefined);
 
-  buildingsEPC$ = this.selectTable(this.queries.getEPCData()).pipe(
-    map(epc =>
-      this.mapEPCBuildings(epc as unknown as EPCBuildingResponseModel[])
+  sapPoints$ = this.selectTable(this.queries.getSAPPoints());
+
+  buildingsEPC$ = forkJoin([
+    this.sapPoints$,
+    this.selectTable(this.queries.getEPCData()),
+  ]).pipe(
+    map(([points, epc]) =>
+      this.mapEPCBuildings(
+        epc as unknown as EPCBuildingResponseModel[],
+        points as unknown as SAPPoint[]
+      )
     )
   );
   buildingsNoEPC$ = this.selectTable(this.queries.getNoEPCData()).pipe(
@@ -67,8 +76,8 @@ export class DataService {
    * Get all building data
    * @returns Observable<BuildingMap>
    */
-  allData$ = forkJoin([this.buildingsEPC$, this.buildingsNoEPC$]).pipe(
-    map(([epc, noEPC]) => this.combineBuildingData(epc, noEPC))
+  allData$ = forkJoin([this.buildingsNoEPC$, this.buildingsEPC$]).pipe(
+    map(([noEPC, epc]) => this.combineBuildingData(epc, noEPC))
   );
 
   private buildingResults = toSignal(this.allData$, {
@@ -249,19 +258,23 @@ export class DataService {
   }
 
   /**
-   * An object where TOIDS are keys, and values are the building(s)
-   * data
+   * Create an object where TOIDS are keys, and values are the building(s)
+   * data, and joins SAP Ratings with each building
    * @param buildings array of buildings with EPC data
+   * @param sapPoints array of UPRNs and SAP Points
    * @returns an object with TOID as key, and an array of building
-   * objects with epc
+   * objects with epc and sap points
    */
-  mapEPCBuildings(buildings: EPCBuildingResponseModel[]) {
+  mapEPCBuildings(
+    buildings: EPCBuildingResponseModel[],
+    sapPoints: SAPPoint[]
+  ) {
     const buildingMap: BuildingMap = {};
     buildings.forEach((row: EPCBuildingResponseModel) => {
       const toid = row.TOID ? row.TOID : row.ParentTOID;
       /** if there is no TOID the building cannot be visualised */
       if (!toid) return;
-
+      const sapPoint = sapPoints.find(p => p.UPRN === row.UPRN);
       /** add 'none' for buildings with no EPC rating */
       const epc = row.EPC ? row.EPC : EPCRating.none;
       const yearOfAssessment = row.InspectionDate
@@ -281,6 +294,7 @@ export class DataService {
         YearOfAssessment: yearOfAssessment,
         ParentTOID: row.ParentTOID,
         TOID: toid,
+        SAPPoints: sapPoint?.SAPPoint ? sapPoint.SAPPoint : undefined,
         FloorConstruction: parts.FloorConstruction,
         FloorInsulation: parts.FloorInsulation,
         RoofConstruction: parts.RoofConstruction,
@@ -319,6 +333,7 @@ export class DataService {
         RoofConstruction: undefined,
         RoofInsulationLocation: undefined,
         RoofInsulationThickness: undefined,
+        SAPPoints: undefined,
         WallConstruction: undefined,
         WallInsulation: undefined,
         WindowGlazing: undefined,
@@ -443,7 +458,7 @@ export class DataService {
       ''
     ).split(';');
     const insulationThicknessLowerBounds =
-      row.InsulationThicknessLowerBound.replaceAll(' ', '');
+      row.InsulationThicknessLowerBound.replaceAll(' ', '').split(';');
 
     partTypes.forEach((part, i) => {
       if (this.isWallKey(part)) {
@@ -456,12 +471,15 @@ export class DataService {
         parts['RoofConstruction'] = part;
         parts['RoofInsulationLocation'] = insulationTypes[i];
         /** check thickness types */
+        let roofInsulationThickness = 'NA';
         const thickness = insulationThickness[i];
         const thicknessLB = insulationThicknessLowerBounds[i];
-        parts['RoofInsulationThickness'] =
-          thickness !== 'NA'
-            ? `${thickness.split('.')[0]}mm`
-            : `${thicknessLB.split('.')[0]}+mm`;
+        if (thickness !== 'NA' && thicknessLB === 'NA') {
+          roofInsulationThickness = `${thickness.split('.')[0]}mm`;
+        } else if (thickness === 'NA' && thicknessLB !== 'NA') {
+          roofInsulationThickness = `${thicknessLB.split('.')[0]}+mm`;
+        }
+        parts['RoofInsulationThickness'] = roofInsulationThickness;
       } else if (this.isWindowKey(part)) {
         parts['WindowGlazing'] = part;
       }

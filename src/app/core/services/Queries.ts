@@ -306,4 +306,27 @@ export class Queries {
       }}
     `;
   }
+
+  getSAPPoints() {
+    return `
+      PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
+      PREFIX ndt: <http://nationaldigitaltwin.gov.uk/ontology#>
+      PREFIX epc: <http://gov.uk/government/organisations/department-for-levelling-up-housing-and-communities/ontology/epc#>
+      PREFIX qudt: <http://qudt.org/2.1/schema/qudt/>
+      PREFIX geoplace: <https://www.geoplace.co.uk/addresses-streets/location-data/the-uprn#>
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+      SELECT
+          (?uprn_id AS ?UPRN)
+          (?sap_points AS ?SAPPoint)
+      WHERE {
+        ?state ies:isStateOf ?building .
+          ?building ies:isIdentifiedBy ?uprn .
+          ?uprn ies:representationValue ?uprn_id .
+          ?uprn rdf:type geoplace:UniquePropertyReferenceNumber .
+          ?state ies:hasCharacteristic ?quantity .
+          ?quantity qudt:value ?sap_points .
+      }
+    `;
+  }
 }
