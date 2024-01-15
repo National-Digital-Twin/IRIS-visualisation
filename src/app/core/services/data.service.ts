@@ -443,7 +443,7 @@ export class DataService {
       ''
     ).split(';');
     const insulationThicknessLowerBounds =
-      row.InsulationThicknessLowerBound.replaceAll(' ', '');
+      row.InsulationThicknessLowerBound.replaceAll(' ', '').split(';');
 
     partTypes.forEach((part, i) => {
       if (this.isWallKey(part)) {
@@ -456,12 +456,15 @@ export class DataService {
         parts['RoofConstruction'] = part;
         parts['RoofInsulationLocation'] = insulationTypes[i];
         /** check thickness types */
+        let roofInsulationThickness = 'NA';
         const thickness = insulationThickness[i];
         const thicknessLB = insulationThicknessLowerBounds[i];
-        parts['RoofInsulationThickness'] =
-          thickness !== 'NA'
-            ? `${thickness.split('.')[0]}mm`
-            : `${thicknessLB.split('.')[0]}+mm`;
+        if (thickness !== 'NA' && thicknessLB === 'NA') {
+          roofInsulationThickness = `${thickness.split('.')[0]}mm`;
+        } else if (thickness === 'NA' && thicknessLB !== 'NA') {
+          roofInsulationThickness = `${thicknessLB.split('.')[0]}+mm`;
+        }
+        parts['RoofInsulationThickness'] = roofInsulationThickness;
       } else if (this.isWindowKey(part)) {
         parts['WindowGlazing'] = part;
       }
