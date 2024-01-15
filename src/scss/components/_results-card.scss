@@ -1,5 +1,5 @@
 .results-card {
-  padding: 1rem 0 1rem 2rem;
+  padding: 1rem 0.5rem 1rem 2rem;
   width: 100%;
   border-bottom: 1px solid $color-line;
   &:hover {
@@ -72,6 +72,10 @@
 .results-card-expansion {
   box-shadow: unset !important;
 
+  &__fullwidth {
+    width: 100%;
+  }
+
   .mat-expansion-panel-header {
     padding: 0;
     align-items: flex-start;
@@ -88,6 +92,7 @@
     padding: 0 0 0 2.5rem;
     .results-card {
       border-bottom: none;
+      padding-left: 1rem;
     }
   }
 }

@@ -41,7 +41,7 @@ export class DataService {
   selectedUPRN = signal<number | undefined>(undefined);
   selectedBuilding = signal<BuildingDetailsModel | undefined>(undefined);
   // multiple buildings
-  buildingsSelection = signal<BuildingModel[] | undefined>(undefined);
+  buildingsSelection = signal<BuildingModel[][] | undefined>(undefined);
 
   buildingsEPC$ = this.selectTable(this.queries.getEPCData());
   buildingsNoEPC$ = this.selectTable(this.queries.getNoEPCData()).pipe();
@@ -132,7 +132,7 @@ export class DataService {
    * Set multiple buildings
    * @param building buildings
    */
-  setSelectedBuildings(buildings: BuildingModel[] | undefined) {
+  setSelectedBuildings(buildings: BuildingModel[][] | undefined) {
     this.buildingsSelection.set(buildings ? buildings : undefined);
   }
 
@@ -269,6 +269,6 @@ export class DataService {
     const allBuildings = this.buildings();
     const flatBuildings: BuildingModel[] = Object.values(allBuildings!).flat();
     const building = flatBuildings.find(building => +building.UPRN === uprn);
-    return building!.EPC;
+    return building!.EPC!;
   }
 }

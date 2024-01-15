@@ -198,9 +198,7 @@ export class UtilService {
      * display results
      */
     if (Object.keys(this.filterProps()).length || spatialFilter) {
-      this.dataService.setSelectedBuildings(
-        Object.values(filteredBuildings).flat()
-      );
+      this.dataService.setSelectedBuildings(Object.values(filteredBuildings));
     }
   }
 
@@ -255,20 +253,25 @@ export class UtilService {
       E: 5,
       F: 6,
       G: 7,
-      none: 0,
     };
     const scores: number[] = [];
-    // get the weighting for each epc value
-    epcRatings.forEach(val => scores.push(weightings[val]));
-    const sum = scores.reduce((a, c) => a + c, 0);
-    const mean = sum / scores.length;
-    Object.keys(weightings).forEach((epc: string) => {
-      // find the corresponding weighting for the mean
-      if (Math.floor(mean) === weightings[epc]) {
-        meanEPC = epc;
-      }
-    });
-    return meanEPC;
+    // remove EPC none from the epcs to average
+    const epcsToAverage = epcRatings.filter(rating => rating !== 'none');
+    if (epcsToAverage.length > 0) {
+      // get the weighting for each epc value
+      epcsToAverage.forEach(val => scores.push(weightings[val]));
+      const sum = scores.reduce((a, c) => a + c, 0);
+      const mean = sum / scores.length;
+      Object.keys(weightings).forEach((epc: string) => {
+        // find the corresponding weighting for the mean
+        if (Math.round(mean) === weightings[epc]) {
+          meanEPC = epc;
+        }
+      });
+      return meanEPC;
+    } else {
+      return 'none';
+    }
   }
 
   getEPCColour(epcRating: string): string {
@@ -589,6 +592,6 @@ export class UtilService {
   }
 
   private openResultsPanel(buildings: BuildingModel[]) {
-    this.dataService.setSelectedBuildings(buildings);
+    this.dataService.setSelectedBuildings([buildings]);
   }
 }

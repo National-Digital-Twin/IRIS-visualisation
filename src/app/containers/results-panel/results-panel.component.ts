@@ -91,7 +91,7 @@ export class ResultsPanelComponent {
       const selectedUPRN = this.utilService.selectedUPRN();
       if (selectedUPRN) {
         const idx = this.buildingSelection()?.findIndex(
-          building => +building.UPRN === selectedUPRN
+          building => +building[0].UPRN === selectedUPRN
         );
         if (idx! > -1) {
           /** scroll to index, offset due to panel height */
@@ -137,6 +137,14 @@ export class ResultsPanelComponent {
     } else {
       /** select card */
       this.utilService.resultsCardSelected(TOID!, +UPRN);
+    }
+  }
+
+  trackByUPRN(index: number, item: BuildingModel[]) {
+    if (item.length == 1) {
+      return item[0].UPRN;
+    } else {
+      return item[0].ParentTOID;
     }
   }
 
