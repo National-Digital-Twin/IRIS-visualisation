@@ -132,6 +132,19 @@
                 <span>No data</span>
               }
             </p>
+            <p>
+              <span class="field">Window glazing:</span>
+              @if (
+                buildingParts()?.Window?.PartType &&
+                windowGlazing[buildingParts()!.Window!.PartType]
+              ) {
+                <span>{{
+                  windowGlazing[buildingParts()!.Window!.PartType]
+                }}</span>
+              } @else {
+                <span>No data</span>
+              }
+            </p>
           </div>
         </div>
       </mat-tab>
