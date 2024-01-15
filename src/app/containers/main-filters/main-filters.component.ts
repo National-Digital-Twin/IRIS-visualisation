@@ -152,7 +152,7 @@ export class MainFiltersComponent {
         this.setAdvancedFilters.emit({
           PostCode: [],
           BuildForm: [],
-          MultipleGlazingType: [],
+          WindowGlazing: [],
           WallConstruction: [],
           WallInsulation: [],
           FloorConstruction: [],
