@@ -3,7 +3,7 @@
     <section>
       <div class="results-panel__header">
         <p class="results-panel__number">
-          {{ buildingSelection()?.length }} results in view
+          {{ buildingSelection()?.flat()?.length }} results in view
         </p>
         <mat-slide-toggle [color]="'primary'" [(ngModel)]="selectMultiple"
           >Select multiple</mat-slide-toggle
@@ -39,36 +39,34 @@
         maxBufferPx="1000"
         class="viewport"
         itemSize="143">
-        <c477-results-card
+        <div
           *cdkVirtualFor="
-            let building of buildingSelection();
-            templateCacheSize: 0
-          "
-          [buildingUPRN]="selectedCardUPRN()"
-          (cardSelected)="cardSelected($event)"
-          [checked]="cardIsChecked(building.UPRN)"
-          (toggleChecked)="onToggleChecked(building.UPRN)"
-          (flag)="onFlag(building.UPRN)"
-          (removeFlag)="onRemoveFlag(building.UPRN)"
-          (emitViewDetails)="viewDetails($event)"
-          [card]="building"
-          [select]="selectMultiple"></c477-results-card>
+            let dwellingSet of buildingSelection();
+            templateCacheSize: 0;
+            trackBy: trackByUPRN
+          ">
+          @if (dwellingSet.length === 1) {
+            <c477-results-card
+              [buildingUPRN]="selectedCardUPRN()"
+              (cardSelected)="cardSelected($event)"
+              (emitViewDetails)="viewDetails($event)"
+              [checked]="cardIsChecked(dwellingSet[0].UPRN)"
+              (toggleChecked)="onToggleChecked(dwellingSet[0].UPRN)"
+              (flag)="onFlag(dwellingSet[0].UPRN)"
+              (removeFlag)="onRemoveFlag(dwellingSet[0].UPRN)"
+              [card]="dwellingSet[0]"
+              [select]="selectMultiple"></c477-results-card>
+          } @else {
+            <c477-results-card-expandable
+              [dwellings]="dwellingSet"
+              [select]="selectMultiple"
+              (emitViewDetails)="viewDetails($event)"
+              (cardSelected)="
+                cardSelected($event)
+              "></c477-results-card-expandable>
+          }
+        </div>
       </cdk-virtual-scroll-viewport>
-      <!-- leave below for mult-dwelling buildings -->
-      <!-- @for (building of buildingSelection(); track building.UPRN) { -->
-      <!-- @if (!card.dwellings) { -->
-      <!-- <c477-results-card
-          [buildingUPRN]="selectedCardUPRN()"
-          (cardSelected)="cardSelected($event)"
-          (emitViewDetails)="viewDetails($event)"
-          [card]="building"
-          [select]="selectMultiple"></c477-results-card> -->
-      <!-- } @else { -->
-      <!-- <c477-results-card-expandable
-            [card]="card"
-            [select]="selectMultiple"></c477-results-card-expandable> -->
-      <!-- } -->
-      <!-- } -->
     </section>
   </div>
 }
