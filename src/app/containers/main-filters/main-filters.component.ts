@@ -5,10 +5,15 @@ import { Observable, switchMap, tap, of } from 'rxjs';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
+import {
+  MatSlideToggleChange,
+  MatSlideToggleModule,
+} from '@angular/material/slide-toggle';
 
 import { FilterPanelComponent } from '@containers/filter-panel/filter-panel.component';
 import { LabelComponent } from '@components/label/label.component';
@@ -50,10 +55,12 @@ import { MapService } from '@core/services/map.service';
     LabelComponent,
     MatAutocompleteModule,
     MatButtonModule,
+    MatDividerModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    MatSlideToggleModule,
     ReactiveFormsModule,
   ],
   templateUrl: './main-filters.component.html',
@@ -77,6 +84,8 @@ export class MainFiltersComponent {
   advancedFiltersForm?: FormGroup;
   results$: Observable<AddressSearchData[]>;
   firstAddress?: AddressSearchData;
+
+  filterFlagged: boolean = false;
 
   constructor(public dialog: MatDialog) {
     this.results$ = this.addressSearch.valueChanges.pipe(
@@ -148,6 +157,14 @@ export class MainFiltersComponent {
 
   ratingChange(e: MatSelectChange) {
     this.setRouteParams.emit({ EPC: e.value.map((r: string) => r) });
+  }
+
+  flaggedFilterChange(e: MatSlideToggleChange) {
+    if (e.checked) {
+      this.setRouteParams.emit({ Flagged: ['true'] });
+    } else {
+      this.setRouteParams.emit({ Flagged: [] });
+    }
   }
 
   createForm(): FormGroup {
