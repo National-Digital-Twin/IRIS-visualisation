@@ -31,12 +31,24 @@ export class ResultsCardExpandableComponent implements OnChanges {
     new EventEmitter<BuildingModel>();
 
   parentDataset: BuildingModel = {
-    FullAddress: '',
+    BuildForm: undefined,
     EPC: undefined,
-    PostCode: undefined,
-    UPRN: '',
+    FullAddress: '',
+    InspectionDate: undefined,
     ParentTOID: '',
-    Flagged: '',
+    PostCode: undefined,
+    PropertyType: undefined,
+    UPRN: '',
+    Flagged: undefined,
+    YearOfAssessment: undefined,
+    FloorConstruction: undefined,
+    FloorInsulation: undefined,
+    RoofConstruction: undefined,
+    RoofInsulationThickness: undefined,
+    RoofInsulationLocation: undefined,
+    WallConstruction: undefined,
+    WallInsulation: undefined,
+    WindowGlazing: undefined,
   };
 
   ngOnChanges(changes: SimpleChanges): void {

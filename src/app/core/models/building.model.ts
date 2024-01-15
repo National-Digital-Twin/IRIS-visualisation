@@ -1,18 +1,26 @@
 import { BuildForm, EPCRating, PostCode, PropertyType } from '@core/enums';
 
-export interface BuildingModel {
-  BuildForm?: BuildForm;
+export type BuildingModel = {
+  BuildForm: BuildForm | undefined;
   EPC: EPCRating | undefined;
   FullAddress: string;
-  InspectionDate?: string;
+  InspectionDate: string | undefined;
   ParentTOID?: string;
   PostCode: PostCode | undefined;
-  PropertyType?: PropertyType;
+  PropertyType: PropertyType | undefined;
   TOID?: string;
   UPRN: string;
-  Flagged?: string;
-  YearOfAssessment?: string;
-}
+  Flagged?: string | undefined;
+  YearOfAssessment: string | undefined;
+  FloorConstruction: string | undefined;
+  FloorInsulation: string | undefined;
+  RoofConstruction: string | undefined;
+  RoofInsulationThickness: string | undefined;
+  RoofInsulationLocation: string | undefined;
+  WallConstruction: string | undefined;
+  WallInsulation: string | undefined;
+  WindowGlazing: string | undefined;
+};
 
 export interface BuildingDetailsModel extends BuildingModel {
   SAPPoints: string;
@@ -30,7 +38,6 @@ export interface DownloadDataModel extends BuildingDetailsModel {
   RoofPartSuperType: string;
   RoofPartInsulationType: string;
   RoofPartInsulationThickness: string;
-  RoofInsulationThickness: string;
   RoofInsulationThicknessLowerBound: string;
   WallPartType: string;
   WallPartSuperType: string;

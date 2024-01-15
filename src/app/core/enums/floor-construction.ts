@@ -1,4 +1,4 @@
-export enum Floor {
+export enum FloorConstruction {
   SolidFloor = 'Solid Floor',
   Suspended = 'Suspended',
   OtherPremisesBelowFloor = 'Other Premises Below Floor',
