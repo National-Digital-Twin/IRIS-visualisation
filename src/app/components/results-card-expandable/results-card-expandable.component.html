@@ -1,6 +1,9 @@
 <mat-expansion-panel class="results-card-expansion" [togglePosition]="'before'">
   <mat-expansion-panel-header
     class="results-card-expansion__header"
+    [ngClass]="{
+      'results-card--select': parentDataset.ParentTOID === buildingTOID
+    }"
     [collapsedHeight]="'auto'"
     [expandedHeight]="'auto'">
     <c477-results-card
