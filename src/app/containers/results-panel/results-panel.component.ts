@@ -158,4 +158,8 @@ export class ResultsPanelComponent {
   downloadAll() {
     this.dataDownloadService.downloadAll();
   }
+
+  downloadBuilding(building: BuildingModel) {
+    this.dataDownloadService.downloadData(building);
+  }
 }

@@ -48,6 +48,7 @@
           ">
           @if (dwellingSet.length === 1) {
             <c477-results-card
+              (downloadData)="downloadBuilding($event)"
               [buildingUPRN]="selectedCardUPRN()"
               (cardSelected)="cardSelected($event)"
               (emitViewDetails)="viewDetails($event)"
