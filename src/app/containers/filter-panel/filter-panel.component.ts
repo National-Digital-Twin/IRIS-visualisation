@@ -1,6 +1,5 @@
-import { Component, Inject, inject } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import {
@@ -8,6 +7,7 @@ import {
   MatDialogActions,
   MatDialogClose,
   MatDialogContent,
+  MatDialogRef,
   MatDialogTitle,
 } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -31,9 +31,6 @@ import {
   FilterProps,
   MultiButtonFilterOption,
 } from '@core/models/advanced-filters.model';
-
-import { FilterService } from '@core/services/filter.service';
-import { UtilService } from '@core/services/utils.service';
 
 interface PanelData {
   panelTitle: string;
@@ -59,9 +56,6 @@ interface PanelData {
   styleUrl: './filter-panel.component.css',
 })
 export class FilterPanelComponent {
-  private filterService = inject(FilterService);
-  private router = inject(Router);
-  private utilService = inject(UtilService);
   advancedFiltersForm: FormGroup;
 
   generalFilters: MultiButtonFilterOption[] = [
@@ -152,37 +146,14 @@ export class FilterPanelComponent {
     public data: {
       filterProps?: FilterProps;
       form: FormGroup;
-    }
+    },
+    private dialogRef: MatDialogRef<FilterPanelComponent>
   ) {
     this.advancedFiltersForm = this.data.form;
   }
 
   clearAll() {
-    const filtersToKeep: FilterProps = {};
-    /** extract any existing EPC and Property Type filters */
-    if (this.data.filterProps) {
-      if (this.data.filterProps.EPC) {
-        filtersToKeep.EPC = this.data.filterProps.EPC;
-      }
-      if (this.data.filterProps.PropertyType) {
-        filtersToKeep.PropertyType = this.data.filterProps.PropertyType;
-      }
-
-      /** update filter signal */
-      this.utilService.setFilters(filtersToKeep);
-    }
-    const filterString = this.filterService.createFilterString(
-      {},
-      filtersToKeep
-    );
-    const queryParams = {
-      filter: filterString !== '' ? filterString : undefined,
-    };
-    this.router.navigate(['/'], {
-      queryParams,
-      queryParamsHandling: 'merge',
-    });
-
     this.advancedFiltersForm.reset();
+    this.dialogRef.close();
   }
 }
