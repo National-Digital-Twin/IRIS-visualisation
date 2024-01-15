@@ -51,7 +51,7 @@ export class DataService {
   selectedUPRN = signal<number | undefined>(undefined);
   selectedBuilding = signal<BuildingDetailsModel | undefined>(undefined);
   // multiple buildings
-  buildingsSelection = signal<BuildingModel[] | undefined>(undefined);
+  buildingsSelection = signal<BuildingModel[][] | undefined>(undefined);
 
   buildingsEPC$ = this.selectTable(this.queries.getEPCData()).pipe(
     map(epc =>
@@ -145,7 +145,7 @@ export class DataService {
    * Set multiple buildings
    * @param building buildings
    */
-  setSelectedBuildings(buildings: BuildingModel[] | undefined) {
+  setSelectedBuildings(buildings: BuildingModel[][] | undefined) {
     this.buildingsSelection.set(buildings ? buildings : undefined);
   }
 
@@ -383,7 +383,7 @@ export class DataService {
     const flatBuildings: BuildingModel[] = Object.values(allBuildings!).flat();
 
     const building = flatBuildings.find(building => +building.UPRN === uprn);
-    return building!.EPC;
+    return building!.EPC!;
   }
 
   private isWallKey(value: string): value is keyof typeof WallConstruction {
