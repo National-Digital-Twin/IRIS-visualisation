@@ -16,9 +16,11 @@
         {{ getAddressSegment(1) }}
       </p>
     }
-    <button mat-button (click)="viewDetails($event)">
-      View details <mat-icon iconPositionEnd>arrow_right_alt</mat-icon>
-    </button>
+    @if (!parent) {
+      <button mat-button (click)="viewDetails($event)">
+        View details <mat-icon iconPositionEnd>arrow_right_alt</mat-icon>
+      </button>
+    }
   </div>
   <div
     class="results-card__details"
@@ -34,33 +36,35 @@
         }
       </div>
     </div>
-    <div class="results-card__buttons">
-      <button mat-icon-button (click)="openDownloadWarning()">
-        <img
-          src="assets/icons/FileArrowDown.svg"
-          alt="download the data for this dwelling" />
-      </button>
-      @if (card.Flagged === undefined) {
-        <button
-          mat-icon-button
-          aria-label="Flag property"
-          (click)="flag.emit()">
+    @if (!parent) {
+      <div class="results-card__buttons">
+        <button mat-icon-button (click)="openDownloadWarning()">
           <img
-            alt=""
-            [src]="
-              theme() === 'light'
-                ? 'assets/icons/FlagPennant.svg'
-                : 'assets/icons/FlagPennant_white.svg'
-            " />
+            src="assets/icons/FileArrowDown.svg"
+            alt="download the data for this dwelling" />
         </button>
-      } @else {
-        <button
-          mat-icon-button
-          aria-label="Remove flag from property"
-          (click)="removeFlag.emit()">
-          <img src="assets/icons/FlagPennant_red.svg" alt="" />
-        </button>
-      }
-    </div>
+        @if (card.Flagged === undefined) {
+          <button
+            mat-icon-button
+            aria-label="Flag property"
+            (click)="flag.emit()">
+            <img
+              alt=""
+              [src]="
+                theme() === 'light'
+                  ? 'assets/icons/FlagPennant.svg'
+                  : 'assets/icons/FlagPennant_white.svg'
+              " />
+          </button>
+        } @else {
+          <button
+            mat-icon-button
+            aria-label="Remove flag from property"
+            (click)="removeFlag.emit()">
+            <img src="assets/icons/FlagPennant_red.svg" alt="" />
+          </button>
+        }
+      </div>
+    }
   </div>
 </div>
