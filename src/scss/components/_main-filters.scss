@@ -26,19 +26,18 @@
 
     span {
       font-size: 1rem;
-      margin: 0 var(--arc-spacing-x-small) 0 var(--arc-spacing-x-small);
+      margin: 0 var(--arc-spacing-x-small) 0 var(--arc-spacing-small);
       color: rgba(0, 0, 0, 0.6);
     }
     mat-slide-toggle {
       margin: 0 var(--arc-spacing-small) 0 0;
     }
 
-    div[matformfieldlineripple] {
-      display: none;
+    mat-divider {
+      height: 2rem !important;
+      margin: var(--arc-spacing-x-small) 0 var(--arc-spacing-x-small) 0;
     }
-    div.mat-mdc-form-field-subscript-wrapper.mat-mdc-form-field-bottom-align {
-      display: none;
-    }
+
     .epc-filter {
       margin: 0 var(--arc-spacing-x-small) 0 0;
       .mdc-text-field--filled {
@@ -48,6 +47,13 @@
 
     .building-type-filter {
       margin: 0 0 0 var(--arc-spacing-x-small);
+    }
+
+    div[matformfieldlineripple] {
+      display: none;
+    }
+    div.mat-mdc-form-field-subscript-wrapper.mat-mdc-form-field-bottom-align {
+      display: none;
     }
   }
 
