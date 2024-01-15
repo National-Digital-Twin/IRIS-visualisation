@@ -363,7 +363,6 @@ export class DataService {
    * and details as value for use in details panel
    */
   mapBuildingParts(parts: BuildingPart[]) {
-    console.log(parts);
     const buildingPartMap: BuildingPartMap = {};
     parts.forEach((part: BuildingPart) => {
       /**
@@ -376,7 +375,6 @@ export class DataService {
           : part.PartSuperType;
       buildingPartMap[key] = part;
     });
-    console.log(buildingPartMap);
     return buildingPartMap;
   }
 
