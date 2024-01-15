@@ -34,4 +34,20 @@
     background: $color-input-background;
     box-shadow: $box-shadow;
   }
+
+  .clear-all-button {
+    $small-size-button: 24px;
+    $small-size-icon: 18px;
+    width: $small-size-button;
+    height: $small-size-button;
+    line-height: $small-size-button;
+
+    .mat-icon {
+      color: red;
+      font-size: $small-size-icon;
+      width: $small-size-icon;
+      height: $small-size-icon;
+      line-height: $small-size-icon;
+    }
+  }
 }
