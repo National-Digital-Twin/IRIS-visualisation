@@ -145,8 +145,23 @@ export class MainFiltersComponent {
       },
     });
     dialogRef.afterClosed().subscribe(form => {
-      if (form.value) {
+      if (form && form.value) {
         this.setAdvancedFilters.emit(form.value);
+      } else {
+        /** undefined form means clear all button is clicked */
+        this.setAdvancedFilters.emit({
+          PostCode: [],
+          BuildForm: [],
+          WindowGlazing: [],
+          WallConstruction: [],
+          WallInsulation: [],
+          FloorConstruction: [],
+          FloorInsulation: [],
+          RoofConstruction: [],
+          RoofInsulationLocation: [],
+          RoofInsulationThickness: [],
+          YearOfAssessment: [],
+        });
       }
     });
   }

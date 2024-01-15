@@ -32,7 +32,7 @@
     </mat-accordion>
   </div>
   <div mat-dialog-actions [align]="'end'">
-    <button mat-button>Clear all</button>
+    <button mat-button (click)="clearAll()">Clear all</button>
     <button mat-stroked-button mat-dialog-close>Cancel</button>
     <button mat-flat-button [mat-dialog-close]="data.form" [color]="'primary'">
       Apply filters
