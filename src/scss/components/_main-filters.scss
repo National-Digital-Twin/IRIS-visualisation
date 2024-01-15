@@ -1,4 +1,4 @@
-.main-filters {
+.filters {
   position: absolute;
   z-index: $panel-z-index;
   left: var(--arc-spacing-normal);
@@ -9,17 +9,45 @@
   .search {
     width: 26.5rem;
     margin-right: var(--arc-spacing-x-small);
-  }
-
-  .epc-filter {
-    .mdc-text-field--filled {
-      border-top-right-radius: 0 !important;
+    .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+      background: $color-input-background;
+      box-shadow: $box-shadow;
     }
   }
 
-  .building-type-filter {
-    .mdc-text-field--filled {
-      border-top-left-radius: 0 !important;
+  .main-filters {
+    margin: 0 var(--arc-spacing-x-small) 0 var(--arc-spacing-x-small);
+    display: flex;
+    background-color: #ffffff;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 4px;
+    box-shadow: $box-shadow;
+
+    span {
+      font-size: 1rem;
+      margin: 0 var(--arc-spacing-x-small) 0 var(--arc-spacing-x-small);
+      color: rgba(0, 0, 0, 0.6);
+    }
+    mat-slide-toggle {
+      margin: 0 var(--arc-spacing-small) 0 0;
+    }
+
+    div[matformfieldlineripple] {
+      display: none;
+    }
+    div.mat-mdc-form-field-subscript-wrapper.mat-mdc-form-field-bottom-align {
+      display: none;
+    }
+    .epc-filter {
+      margin: 0 var(--arc-spacing-x-small) 0 0;
+      .mdc-text-field--filled {
+        border-bottom-left-radius: 4px !important;
+      }
+    }
+
+    .building-type-filter {
+      margin: 0 0 0 var(--arc-spacing-x-small);
     }
   }
 
@@ -32,6 +60,5 @@
 
   .mdc-text-field--filled:not(.mdc-text-field--disabled) {
     background: $color-input-background;
-    box-shadow: $box-shadow;
   }
 }
