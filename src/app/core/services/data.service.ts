@@ -48,8 +48,8 @@ export class DataService {
   private queries = new Queries();
 
   // single uprn
-  selectedUPRN = signal<number | undefined>(undefined);
-  selectedBuilding = signal<BuildingDetailsModel | undefined>(undefined);
+  selectedUPRN = signal<string | undefined>(undefined);
+  selectedBuilding = signal<BuildingModel | undefined>(undefined);
   // multiple buildings
   buildingsSelection = signal<BuildingModel[][] | undefined>(undefined);
 
@@ -392,12 +392,20 @@ export class DataService {
     return buildingPartMap;
   }
 
-  getEPCByUPRN(uprn: number): string {
+  getEPCByUPRN(uprn: string): string {
     const allBuildings = this.buildings();
     const flatBuildings: BuildingModel[] = Object.values(allBuildings!).flat();
 
-    const building = flatBuildings.find(building => +building.UPRN === uprn);
+    const building = flatBuildings.find(building => building.UPRN === uprn);
     return building!.EPC!;
+  }
+
+  getBuildingByUPRN(uprn: string): BuildingModel {
+    const allBuildings = this.buildings();
+    const flatBuildings: BuildingModel[] = Object.values(allBuildings!).flat();
+    const building = flatBuildings.find(building => building.UPRN === uprn);
+    console.log(building);
+    return building!;
   }
 
   private isWallKey(value: string): value is keyof typeof WallConstruction {

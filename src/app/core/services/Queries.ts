@@ -1,5 +1,5 @@
 export class Queries {
-  getBuildingDetails(uprn: number) {
+  getBuildingDetails(uprn: string) {
     return `
     PREFIX data: <http://nationaldigitaltwin.gov.uk/data#>
     PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
@@ -66,7 +66,7 @@ export class Queries {
   `;
   }
 
-  getNoEPCBuildingDetails(uprn: number) {
+  getNoEPCBuildingDetails(uprn: string) {
     return `
       PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>

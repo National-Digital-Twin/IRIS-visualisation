@@ -91,7 +91,7 @@ export class ResultsPanelComponent {
       const selectedUPRN = this.utilService.selectedUPRN();
       if (selectedUPRN) {
         const idx = this.buildingSelection()?.findIndex(
-          building => +building[0].UPRN === selectedUPRN
+          building => building[0].UPRN === selectedUPRN
         );
         if (idx! > -1) {
           /** scroll to index, offset due to panel height */
@@ -113,7 +113,7 @@ export class ResultsPanelComponent {
     const center = this.getZoomCenter(TOID!);
     this.utilService.viewDetailsButtonClick(
       TOID!,
-      +selectedBuilding.UPRN,
+      selectedBuilding.UPRN,
       center
     );
   }
@@ -131,12 +131,12 @@ export class ResultsPanelComponent {
      * if selected card building uprn === the current selected card uprn
      * deselect card and building
      */
-    if (this.utilService.selectedCardUPRN() === +selectedBuilding.UPRN) {
+    if (this.utilService.selectedCardUPRN() === selectedBuilding.UPRN) {
       /** deselect card */
       this.utilService.resultsCardDeselected();
     } else {
       /** select card */
-      this.utilService.resultsCardSelected(TOID!, +UPRN);
+      this.utilService.resultsCardSelected(TOID!, UPRN);
     }
   }
 

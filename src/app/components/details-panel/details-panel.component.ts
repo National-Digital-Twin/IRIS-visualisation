@@ -56,7 +56,6 @@ export class DetailsPanelComponent {
   @Output() downloadData: EventEmitter<null> = new EventEmitter();
 
   buildingDetails = this.dataService.selectedBuilding;
-  buildingParts = this.dataService.parts;
 
   buildForm: { [key: string]: string } = BuildForm;
   floor: { [key: string]: string } = FloorConstruction;

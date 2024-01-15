@@ -40,6 +40,7 @@ export class ResultsCardExpandableComponent implements OnChanges {
     PropertyType: undefined,
     UPRN: '',
     Flagged: undefined,
+    SAPPoints: undefined,
     YearOfAssessment: undefined,
     FloorConstruction: undefined,
     FloorInsulation: undefined,
