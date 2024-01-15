@@ -55,7 +55,10 @@
     </mat-form-field>
     <mat-divider vertical></mat-divider>
     <span>Flagged</span>
-    <mat-slide-toggle [color]="'primary'"></mat-slide-toggle>
+    <mat-slide-toggle
+      [color]="'primary'"
+      [checked]="filterProps?.Flagged"
+      (change)="flaggedFilterChange($event)"></mat-slide-toggle>
   </div>
   <button
     class="filters-button"

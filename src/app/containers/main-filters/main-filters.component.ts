@@ -10,7 +10,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import {
+  MatSlideToggleChange,
+  MatSlideToggleModule,
+} from '@angular/material/slide-toggle';
 
 import { FilterPanelComponent } from '@containers/filter-panel/filter-panel.component';
 import { LabelComponent } from '@components/label/label.component';
@@ -82,6 +85,8 @@ export class MainFiltersComponent {
   results$: Observable<AddressSearchData[]>;
   firstAddress?: AddressSearchData;
 
+  filterFlagged: boolean = false;
+
   constructor(public dialog: MatDialog) {
     this.results$ = this.addressSearch.valueChanges.pipe(
       switchMap(value => {
@@ -152,6 +157,14 @@ export class MainFiltersComponent {
 
   ratingChange(e: MatSelectChange) {
     this.setRouteParams.emit({ EPC: e.value.map((r: string) => r) });
+  }
+
+  flaggedFilterChange(e: MatSlideToggleChange) {
+    if (e.checked) {
+      this.setRouteParams.emit({ Flagged: ['true'] });
+    } else {
+      this.setRouteParams.emit({ Flagged: [] });
+    }
   }
 
   createForm(): FormGroup {

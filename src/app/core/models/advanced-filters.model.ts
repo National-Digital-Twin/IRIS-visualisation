@@ -55,6 +55,7 @@ export interface MultiButtonFilterOption {
 export interface FilterProps {
   BuildForm?: string[];
   EPC?: string[];
+  Flagged?: string[];
   FloorConstruction?: string[];
   FloorInsulation?: string[];
   MultipleGlazingType?: string[];
