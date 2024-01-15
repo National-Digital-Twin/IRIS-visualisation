@@ -3,9 +3,17 @@
     class="results-card-expansion__header"
     [collapsedHeight]="'auto'"
     [expandedHeight]="'auto'">
-    <!-- <c477-results-card [card]="card" [select]="select"></c477-results-card> -->
+    <c477-results-card
+      class="results-card-expansion__fullwidth"
+      [card]="parentDataset"
+      [select]="select"
+      [parent]="true"></c477-results-card>
   </mat-expansion-panel-header>
-  <!-- <ng-container *ngFor="let dwelling of card.dwellings">
-    <c477-results-card [card]="dwelling" [select]="select"></c477-results-card>
-  </ng-container> -->
+  @for (dwelling of sortedDwellings(); track dwelling.UPRN) {
+    <c477-results-card
+      [card]="dwelling"
+      [select]="select"
+      (emitViewDetails)="emitViewDetails.emit($event)"
+      (cardSelected)="cardSelected.emit($event)"></c477-results-card>
+  }
 </mat-expansion-panel>

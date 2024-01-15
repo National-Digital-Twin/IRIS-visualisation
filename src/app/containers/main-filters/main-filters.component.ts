@@ -198,4 +198,14 @@ export class MainFiltersComponent {
     });
     return this.advancedFiltersForm;
   }
+
+  clearEPC($event: Event) {
+    $event.stopPropagation();
+    this.setRouteParams.emit({ EPC: [] });
+  }
+
+  clearPropertyType($event: Event) {
+    $event.stopPropagation();
+    this.setRouteParams.emit({ PropertyType: [] });
+  }
 }
