@@ -4,10 +4,10 @@
   border-bottom: 1px solid $color-line;
   &:hover {
     cursor: pointer;
-    background-color: rgb(var(--arc-grey-000));
+    background-color: rgb(var(--c477-color--hover));
   }
   &--select {
-    background-color: rgb(var(--arc-grey-000));
+    background-color: rgb(var(--c477-color--selected));
   }
 
   &__header {

@@ -10,8 +10,20 @@
         >
       </div>
       <div class="results-panel__header">
-        <button mat-flat-button disabled class="results-panel__button">
-          <img src="assets/icons/FlagPennant.svg" alt="" /> Flag selected
+        <button
+          mat-flat-button
+          class="results-panel__button"
+          aria-label="Flag selected properties"
+          [disabled]="!selectMultiple && checkedCards.length === 0"
+          (click)="onFlagSelected()">
+          <img
+            alt=""
+            [src]="
+              theme() === 'light'
+                ? 'assets/icons/FlagPennant.svg'
+                : 'assets/icons/FlagPennant_white.svg'
+            " />
+          Flag selected
         </button>
         <button
           mat-flat-button
@@ -38,6 +50,10 @@
               [buildingUPRN]="selectedCardUPRN()"
               (cardSelected)="cardSelected($event)"
               (emitViewDetails)="viewDetails($event)"
+              [checked]="cardIsChecked(dwellingSet[0].UPRN)"
+              (toggleChecked)="onToggleChecked(dwellingSet[0].UPRN)"
+              (flag)="onFlag(dwellingSet[0].UPRN)"
+              (removeFlag)="onRemoveFlag(dwellingSet[0].UPRN)"
               [card]="dwellingSet[0]"
               [select]="selectMultiple"></c477-results-card>
           } @else {

@@ -7,9 +7,10 @@ $c477-light-theme: mat.define-light-theme(
   mat.define-palette(mat.$red-palette)
 );
 
-body[theme='light'] * {
-  @include mat.core-theme($c477-light-theme);
-  @include mat.all-component-themes($c477-light-theme);
+@include mat.core-theme($c477-light-theme);
+@include mat.all-component-themes($c477-light-theme);
 
-  --arc-background-color: var(--arc-white-000);
+body[theme='light'] * {
+  --c477-color--hover: var(--arc-grey-000);
+  --c477-color--selected: var(--arc-grey-000);
 }

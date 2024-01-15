@@ -7,7 +7,7 @@
   height: calc(100vh - 10rem);
 
   .panel {
-    background-color: rgb(var(--arc-background-color));
+    background-color: rgb(var(--arc-container-color));
     box-shadow: $box-shadow;
   }
 }

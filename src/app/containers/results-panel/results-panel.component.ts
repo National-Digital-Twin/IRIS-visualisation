@@ -12,6 +12,7 @@ import {
 import { ResultsCardComponent } from '@components/results-card/results-card.component';
 import { ResultsCardExpandableComponent } from '@components/results-card-expandable/results-card-expandable.component';
 
+import { SettingsService, SETTINGS } from '@core/services/settings.service';
 import { DataService } from '@core/services/data.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { UtilService } from '@core/services/utils.service';
@@ -35,6 +36,8 @@ import { BuildingModel } from '@core/models/building.model';
   styleUrl: './results-panel.component.scss',
 })
 export class ResultsPanelComponent {
+  public readonly theme = inject(SettingsService).get(SETTINGS.Theme);
+
   @ViewChild(CdkVirtualScrollViewport) viewPort?: CdkVirtualScrollViewport;
 
   private dataService = inject(DataService);
@@ -46,6 +49,41 @@ export class ResultsPanelComponent {
   buildingSelection = this.dataService.buildingsSelection;
 
   selectMultiple: boolean = false;
+
+  public readonly checkedCards: BuildingModel['UPRN'][] = [];
+  public cardIsChecked(UPRN: BuildingModel['UPRN']): boolean {
+    return this.checkedCards.includes(UPRN);
+  }
+
+  public onToggleChecked(value: BuildingModel['UPRN']) {
+    const isChecked = this.checkedCards.includes(value);
+    if (isChecked) {
+      const index = this.checkedCards.indexOf(value);
+      this.checkedCards.splice(index, 1);
+    } else {
+      this.checkedCards.push(value);
+    }
+  }
+
+  public onFlagSelected() {
+    /* TODO: Implement */
+    throw new Error(
+      'On flag selected: Not implemented' + this.checkedCards.toString()
+    );
+
+    /* TODO: filter out already flagged buildings */
+    /* TODO: open modal and flag buildings */
+  }
+
+  public onFlag(uprn: BuildingModel['UPRN']) {
+    /* TODO: Implement */
+    throw new Error('On flag: Not implemented' + uprn);
+  }
+
+  public onRemoveFlag(uprn: BuildingModel['UPRN']) {
+    /* TODO: Implement */
+    throw new Error('On remove flag: Not implemented' + uprn);
+  }
 
   constructor() {
     /** listen for UPRN set from map click */
@@ -62,6 +100,7 @@ export class ResultsPanelComponent {
       }
     });
   }
+
   /**
    * View Details button handler
    * @param building selected building
