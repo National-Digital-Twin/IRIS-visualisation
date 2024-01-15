@@ -437,33 +437,34 @@ export class DataService {
       WindowGlazing: 'NA',
     };
 
-    const partTypes = row.PartTypes.replace(' ', '').split(';');
-    const insulationTypes = row.InsulationTypes.replace(' ', '').split(';');
-    const insulationThickness = row.InsulationThickness.replace(' ', '').split(
-      ';'
-    );
+    const partTypes = row.PartTypes.replaceAll(' ', '').split(';');
+    const insulationTypes = row.InsulationTypes.replaceAll(' ', '').split(';');
+    const insulationThickness = row.InsulationThickness.replaceAll(
+      ' ',
+      ''
+    ).split(';');
     const insulationThicknessLowerBounds =
       row.InsulationThicknessLowerBound.replace(' ', '').split(';');
 
     partTypes.forEach((part, i) => {
-      if (this.isWallKey(part.trim())) {
-        parts['WallConstruction'] = part.trim();
-        parts['WallInsulation'] = insulationTypes[i].trim();
-      } else if (this.isFloorKey(part.trim())) {
-        parts['FloorConstruction'] = part.trim();
-        parts['FloorInsulation'] = insulationTypes[i].trim();
-      } else if (this.isRoofKey(part.trim())) {
-        parts['RoofConstruction'] = part.trim();
-        parts['RoofInsulationLocation'] = insulationTypes[i].trim();
+      if (this.isWallKey(part)) {
+        parts['WallConstruction'] = part;
+        parts['WallInsulation'] = insulationTypes[i];
+      } else if (this.isFloorKey(part)) {
+        parts['FloorConstruction'] = part;
+        parts['FloorInsulation'] = insulationTypes[i];
+      } else if (this.isRoofKey(part)) {
+        parts['RoofConstruction'] = part;
+        parts['RoofInsulationLocation'] = insulationTypes[i];
         /** check thickness types */
-        const thickness = insulationThickness[i].trim();
-        const thicknessLB = insulationThicknessLowerBounds[i].trim();
+        const thickness = insulationThickness[i];
+        const thicknessLB = insulationThicknessLowerBounds[i];
         parts['RoofInsulationThickness'] =
           thickness !== 'NA'
             ? `${thickness.split('.')[0]}mm`
             : `${thicknessLB.split('.')[0]}+mm`;
-      } else if (this.isWindowKey(part.trim())) {
-        parts['WindowGlazing'] = part.trim();
+      } else if (this.isWindowKey(part)) {
+        parts['WindowGlazing'] = part;
       }
     });
     return parts;
