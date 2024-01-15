@@ -1,7 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {
-  EMPTY,
   Observable,
   Subscriber,
   catchError,
@@ -116,7 +115,7 @@ export class DataService {
     switchMap(selectedBuilding => {
       /** buildings with no EPC don't have building parts */
       if (!selectedBuilding.EPC) {
-        return EMPTY;
+        return of({} as BuildingPartMap);
       } else {
         return this.getBuildingParts(selectedBuilding!.parts.split(';')).pipe(
           map(p => this.mapBuildingParts(p as unknown as BuildingPart[])),
