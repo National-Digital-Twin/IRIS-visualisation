@@ -110,94 +110,98 @@ export class Queries {
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
       PREFIX geoplace: <https://www.geoplace.co.uk/addresses-streets/location-data/the-uprn#>
       PREFIX qudt: <http://qudt.org/2.1/schema/qudt/>
-      SELECT
-          (?uprn_id AS ?UPRN)
-          (?building_toid_id AS ?TOID)
-          (?parent_building_toid_id AS ?ParentTOID)
-          (REPLACE(STR(?current_energy_rating), "http://gov.uk/government/organisations/department-for-levelling-up-housing-and-communities/ontology/epc#BuildingWithEnergyRatingOf", "") AS ?EPC)
-          (REPLACE(STR(?property_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?PropertyType)
-          (REPLACE(STR(?build_form_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?BuildForm)
-          (?inspection_date_literal AS ?InspectionDate)
-          (?line_of_address_literal AS ?FullAddress)
-          (SUBSTR(?postcode_literal, 0, 5) AS ?PostCode)
-          #(GROUP_CONCAT(?part; SEPARATOR="; ") as ?parts)
-          (GROUP_CONCAT(DISTINCT REPLACE(STR(?part_type), "http://nationaldigitaltwin.gov.uk/ontology#", ""); SEPARATOR="; ") as ?part_types)
-          #(GROUP_CONCAT(?insulation_type; SEPARATOR="; ") as ?insulation_types)
-          #(GROUP_CONCAT(?insulation_fusion; SEPARATOR="; ") as ?insulation_fusions)
-          #(GROUP_CONCAT(?insulation_thickness_mm; SEPARATOR="; ") as ?insulation_thicknesses_mm)
-          #(GROUP_CONCAT(?insulation_thickness_mm_lowerbound; SEPARATOR="; ") as ?insulation_thicknesses_mm_lowerbound)
+        SELECT
+            (?uprn_id AS ?UPRN)
+            (?building_toid_id AS ?TOID)
+            (?parent_building_toid_id AS ?ParentTOID)
+            (STRAFTER(STR(?current_energy_rating), "BuildingWithEnergyRatingOf") AS ?EPC)
+            (STRAFTER(STR(?property_type), "#") AS ?PropertyType)
+            (STRAFTER(STR(?build_form_type), "#") AS ?BuildForm)
+            (?inspection_date_literal AS ?InspectionDate)
+            (?line_of_address_literal as ?FullAddress)
+            (SUBSTR(?postcode_literal, 0, 5) AS ?PostCode)
+            (GROUP_CONCAT(STRAFTER(STR(?part_type), "#"); SEPARATOR="; ") as ?PartTypes)
+            (GROUP_CONCAT(COALESCE(STRAFTER(STR(?insulation_type), "#"), "NA"); SEPARATOR="; ") as ?InsulationTypes)
+            (GROUP_CONCAT(COALESCE(?insulation_thickness_mm, "NA"); SEPARATOR="; ") as ?InsulationThickness)
+            (GROUP_CONCAT(COALESCE(?insulation_thickness_mm_lowerbound, "NA"); SEPARATOR="; ") as ?InsulationThicknessLowerBound)
+        WHERE {
+            ?state ies:isStateOf ?building .
+            ?state a ?current_energy_rating .
 
-      WHERE {
-          ?state ies:isStateOf ?building .
-          ?state a ?current_energy_rating .
+            ?building ies:isIdentifiedBy ?uprn .
+            ?uprn ies:representationValue ?uprn_id .
+            ?uprn rdf:type geoplace:UniquePropertyReferenceNumber .
 
-          ?building ies:isIdentifiedBy ?uprn .
-          ?uprn ies:representationValue ?uprn_id .
-          ?uprn rdf:type geoplace:UniquePropertyReferenceNumber .
+            ?building rdf:type ?property_type .
+            ?property_type ies:powertype ndt:PropertyClass .
+            OPTIONAL {
+                ?building rdf:type ?build_form_type .
+                ?build_form_type ies:powertype ndt:BuildFormClass .
+            }
 
-          ?building rdf:type ?property_type .
-          ?property_type ies:powertype ndt:PropertyClass .
-          OPTIONAL {
-              ?building rdf:type ?build_form_type .
-              ?build_form_type ies:powertype ndt:BuildFormClass .
-          }
+            ?building ies:inLocation ?address .
+            ?address ies:isIdentifiedBy ?line_of_address .
+            ?line_of_address rdf:type ies:FirstLineOfAddress .
+            ?line_of_address ies:representationValue ?line_of_address_literal .
 
-          ?building ies:inLocation ?address .
+            ?address ies:isIdentifiedBy ?postcode .
+            ?postcode rdf:type ies:PostalCode .
+            ?postcode ies:representationValue ?postcode_literal .
 
-          ?address ies:isIdentifiedBy ?line_of_address .
-          ?line_of_address rdf:type ies:FirstLineOfAddress .
-          ?line_of_address ies:representationValue ?line_of_address_literal .
+            ?state ies:inPeriod ?inspection_date .
+            ?inspection_date ies:iso8601PeriodRepresentation ?inspection_date_literal .
 
-          ?address ies:isIdentifiedBy ?postcode .
-          ?postcode rdf:type ies:PostalCode .
-          ?postcode ies:representationValue ?postcode_literal .
+            OPTIONAL {
+                ?building ies:isIdentifiedBy ?building_toid .
+                ?building_toid rdf:type ies:TOID .
+                ?building_toid ies:representationValue ?building_toid_id .
 
-          ?state ies:inPeriod ?inspection_date .
-          ?inspection_date ies:iso8601PeriodRepresentation ?inspection_date_literal .
+            }
 
-          OPTIONAL {
-              ?building ies:isIdentifiedBy ?building_toid .
-              ?building_toid rdf:type ies:TOID .
-              ?building_toid ies:representationValue ?building_toid_id .
-          }
-          OPTIONAL {
-              ?building ies:isPartOf ?parent_building .
-              ?parent_building ies:isIdentifiedBy ?parent_building_toid .
-              ?parent_building_toid ies:representationValue ?parent_building_toid_id .
-              ?parent_building_toid rdf:type ies:TOID .
-          }
-          OPTIONAL {{
-              ?part ies:isPartOf ?state .
-              ?set_of_fused_things ndt:fusedInto ?part .
-              ?set_of_fused_things rdfs:subClassOf ?part_type .
-          }}
-          #OPTIONAL {{
-          #    ?insulation_fusion ies:isPartOf ?part .
-          #    ?set_of_fused_insulation ndt:fusedInto ?insulation_fusion .
-          #    ?set_of_fused_insulation rdfs:subClassOf ?insulation_type .
-          #    OPTIONAL {{
-          #        ?insulation_fusion ies:hasCharacteristic ?quantity .
-          #        ?insulation_fusion ies:isPartOf ?part .
-          #        OPTIONAL {{
-          #            ?quantity qudt:value ?insulation_thickness_mm .
-          #        }}
-          #        OPTIONAL {{
-          #            ?quantity qudt:lowerBound ?insulation_thickness_mm_lowerbound .
-          #        }}
-          #    }}
-          #}}
-      }
-      GROUP BY
-          ?part_types
-          ?uprn_id
-          ?building_toid_id
-          ?parent_building_toid_id
-          ?current_energy_rating
-          ?property_type
-          ?build_form_type
-          ?postcode_literal
-          ?line_of_address_literal
-          ?inspection_date_literal
+            OPTIONAL {
+                    ?building ies:isPartOf ?parent_building .
+                    ?parent_building ies:isIdentifiedBy ?parent_building_toid .
+                    ?parent_building_toid ies:representationValue ?parent_building_toid_id .
+                    ?parent_building_toid rdf:type ies:TOID .
+            }
+            OPTIONAL {
+                ?part ies:isPartOf ?state .
+
+                ?set_of_fused_things ndt:fusedInto ?part .
+                ?set_of_fused_things rdfs:subClassOf ?part_type .
+
+                OPTIONAL {
+
+                    ?insulation_fusion ies:isPartOf ?part .
+                    ?set_of_fused_insulation ndt:fusedInto ?insulation_fusion .
+                    ?set_of_fused_insulation rdfs:subClassOf ?insulation_type .
+                    OPTIONAL {
+                        ?insulation_fusion ies:hasCharacteristic ?quantity .
+                        ?insulation_fusion ies:isPartOf ?part .
+                        OPTIONAL {
+                            ?quantity qudt:value ?insulation_thickness_mm .
+                        }
+                        OPTIONAL {
+                            ?quantity qudt:lowerBound ?insulation_thickness_mm_lowerbound .
+                        }
+                    }
+                }
+            }
+        }
+        GROUP BY
+            ?uprn_id
+            ?building_toid_id
+            ?parent_building_toid_id
+            ?property_type
+            ?build_form_type
+            ?line_of_address_literal
+            ?postcode_literal
+            ?current_energy_rating
+            ?inspection_date_literal
+            ?part_types
+            ?insulation_types
+            ?insulation_thicknesses_mm
+            ?insulation_thicknesses_mm_lowerbound
     `;
   }
 

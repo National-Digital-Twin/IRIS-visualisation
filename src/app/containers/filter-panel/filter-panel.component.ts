@@ -16,14 +16,14 @@ import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 
 import {
   BuildForm,
-  Floor,
+  FloorConstruction,
   FloorInsulation,
   PostCode,
-  Roof,
-  RoofInsulation,
+  RoofConstruction,
+  RoofInsulationLocation,
   RoofInsulationThickness,
   WindowGlazing,
-  Wall,
+  WallConstruction,
   WallInsulation,
   YearOfAssessment,
 } from '@core/enums';
@@ -82,14 +82,14 @@ export class FilterPanelComponent {
     {
       title: 'Multiple Glazing Type',
       data: WindowGlazing,
-      formControlName: 'MultipleGlazingType',
-      selectedValues: this.data.filterProps?.MultipleGlazingType,
+      formControlName: 'WindowGlazing',
+      selectedValues: this.data.filterProps?.WindowGlazing,
     },
   ];
   wallFilters: MultiButtonFilterOption[] = [
     {
       title: 'Wall Construction',
-      data: Wall,
+      data: WallConstruction,
       formControlName: 'WallConstruction',
       selectedValues: this.data.filterProps?.WallConstruction,
     },
@@ -103,7 +103,7 @@ export class FilterPanelComponent {
   floorFilters: MultiButtonFilterOption[] = [
     {
       title: 'Floor Construction',
-      data: Floor,
+      data: FloorConstruction,
       formControlName: 'FloorConstruction',
       selectedValues: this.data.filterProps?.FloorConstruction,
     },
@@ -117,13 +117,13 @@ export class FilterPanelComponent {
   roofFilters: MultiButtonFilterOption[] = [
     {
       title: 'Roof Construction',
-      data: Roof,
+      data: RoofConstruction,
       formControlName: 'RoofConstruction',
       selectedValues: this.data.filterProps?.RoofConstruction,
     },
     {
       title: 'Roof Insulation Location',
-      data: RoofInsulation,
+      data: RoofInsulationLocation,
       formControlName: 'RoofInsulationLocation',
       selectedValues: this.data.filterProps?.RoofInsulationLocation,
     },
