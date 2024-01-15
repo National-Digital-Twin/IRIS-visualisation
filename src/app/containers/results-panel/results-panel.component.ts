@@ -18,6 +18,7 @@ import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { UtilService } from '@core/services/utils.service';
 
 import { BuildingModel } from '@core/models/building.model';
+import { DataDownloadService } from '@core/services/data-download.service';
 
 @Component({
   selector: 'c477-results-panel',
@@ -43,6 +44,7 @@ export class ResultsPanelComponent {
   private dataService = inject(DataService);
   private spatialQueryService = inject(SpatialQueryService);
   private utilService = inject(UtilService);
+  private dataDownloadService = inject(DataDownloadService);
 
   selectedCardUPRN = this.utilService.selectedCardUPRN;
 
@@ -151,5 +153,9 @@ export class ResultsPanelComponent {
   getZoomCenter(TOID: string): number[] {
     const geomBB = this.spatialQueryService.getFeatureGeomBB(TOID);
     return [geomBB.getCenter().lng - 0.0005, geomBB.getCenter().lat];
+  }
+
+  downloadAll() {
+    this.dataDownloadService.downloadAll();
   }
 }

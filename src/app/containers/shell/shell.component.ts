@@ -218,11 +218,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   }
 
   downloadData() {
-    const dataForDownload = this.dataDownloadService.combineDetailsAndParts(
-      this.dataService.selectedBuilding()!,
-      this.dataService.parts()
-    );
-    this.dataDownloadService.downloadData(dataForDownload);
+    this.dataDownloadService.downloadData(this.dataService.selectedBuilding()!);
   }
 
   closeResults() {
