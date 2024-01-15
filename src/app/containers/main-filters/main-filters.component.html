@@ -39,6 +39,16 @@
         /></mat-option>
       }
     </mat-select>
+    @if (filterProps?.EPC) {
+      <button
+        class="clear-all-button"
+        matSuffix
+        mat-icon-button
+        aria-label="Clear EPC filter"
+        (click)="clearEPC($event)">
+        <mat-icon class="material-icons-outlined">cancel</mat-icon>
+      </button>
+    }
   </mat-form-field>
   <mat-form-field class="building-type-filter">
     <mat-label>Building Type</mat-label>
@@ -50,6 +60,16 @@
         <mat-option [value]="type">{{ propertyTypes[type] }}</mat-option>
       }
     </mat-select>
+    @if (filterProps?.PropertyType) {
+      <button
+        class="clear-all-button"
+        matSuffix
+        mat-icon-button
+        aria-label="Clear Property type filter"
+        (click)="clearPropertyType($event)">
+        <mat-icon class="material-icons-outlined">cancel</mat-icon>
+      </button>
+    }
   </mat-form-field>
   <button
     class="filters-button"
