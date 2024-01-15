@@ -7,11 +7,13 @@ import {
   MatDialogActions,
   MatDialogClose,
   MatDialogContent,
+  MatDialogRef,
   MatDialogTitle,
 } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MultiButtonFilterComponent } from '@components/multi-button-filter/multi-button-filter.component';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
+
 import {
   BuildForm,
   FloorConstruction,
@@ -55,6 +57,7 @@ interface PanelData {
 })
 export class FilterPanelComponent {
   advancedFiltersForm: FormGroup;
+
   generalFilters: MultiButtonFilterOption[] = [
     {
       title: 'Post Code',
@@ -143,8 +146,14 @@ export class FilterPanelComponent {
     public data: {
       filterProps?: FilterProps;
       form: FormGroup;
-    }
+    },
+    private dialogRef: MatDialogRef<FilterPanelComponent>
   ) {
     this.advancedFiltersForm = this.data.form;
+  }
+
+  clearAll() {
+    this.advancedFiltersForm.reset();
+    this.dialogRef.close();
   }
 }
