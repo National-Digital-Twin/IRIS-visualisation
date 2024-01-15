@@ -1,16 +1,17 @@
 <mat-expansion-panel class="results-card-expansion" [togglePosition]="'before'">
   <mat-expansion-panel-header
     class="results-card-expansion__header"
+    [collapsedHeight]="'143px'"
+    [expandedHeight]="'auto'"
     [ngClass]="{
       'results-card--select': parentDataset.ParentTOID === buildingTOID
-    }"
-    [collapsedHeight]="'auto'"
-    [expandedHeight]="'auto'">
+    }">
     <c477-results-card
       class="results-card-expansion__fullwidth"
       [card]="parentDataset"
       [select]="select"
-      [parent]="true"></c477-results-card>
+      [parent]="true"
+      (cardSelected)="cardSelected.emit($event)"></c477-results-card>
   </mat-expansion-panel-header>
   @for (dwelling of sortedDwellings(); track dwelling.UPRN) {
     <c477-results-card
