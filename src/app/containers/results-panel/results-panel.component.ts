@@ -19,6 +19,12 @@ import { UtilService } from '@core/services/utils.service';
 
 import { BuildingModel } from '@core/models/building.model';
 import { DataDownloadService } from '@core/services/data-download.service';
+import { MatDialog } from '@angular/material/dialog';
+import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
+import {
+  DownloadDataWarningData,
+  DownloadDataWarningResponse,
+} from '@core/models/download-data-warning.model';
 
 @Component({
   selector: 'c477-results-panel',
@@ -88,7 +94,7 @@ export class ResultsPanelComponent {
     throw new Error('On remove flag: Not implemented' + uprn);
   }
 
-  constructor() {
+  constructor(public dialog: MatDialog) {
     /** listen for UPRN set from map click */
     effect(() => {
       const selectedUPRN = this.utilService.selectedUPRN();
@@ -167,11 +173,41 @@ export class ResultsPanelComponent {
   }
 
   downloadAll() {
-    if (this.selectMultiple) {
-      this.dataDownloadService.downloadAll(this.checkedCards);
-    } else {
-      this.dataDownloadService.downloadAll();
+    const addresses: string[] = [];
+    if (this.checkedCards.length <= 10) {
+      this.buildingSelection()
+        ?.flat()
+        .forEach((building: BuildingModel) => {
+          if (this.checkedCards.includes(building.UPRN)) {
+            addresses.push(building.FullAddress);
+          }
+        });
     }
+    const addressCount = this.selectMultiple
+      ? this.checkedCards.length
+      : this.buildingSelection()?.flat().length;
+    this.dialog
+      .open<
+        DownloadWarningComponent,
+        DownloadDataWarningData,
+        DownloadDataWarningResponse
+      >(DownloadWarningComponent, {
+        panelClass: 'data-download',
+        data: {
+          addresses,
+          addressCount,
+        },
+      })
+      .afterClosed()
+      .subscribe(download => {
+        if (download) {
+          if (this.selectMultiple) {
+            this.dataDownloadService.downloadAll(this.checkedCards);
+          } else {
+            this.dataDownloadService.downloadAll();
+          }
+        }
+      });
   }
 
   downloadBuilding(building: BuildingModel) {

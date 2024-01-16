@@ -11,13 +11,20 @@
   <div mat-dialog-content>
     <div class="data-download__list">
       <p>Downloading data for:</p>
-      <ul>
-        @for (address of data.addresses; track address) {
-          <li>
-            <b>{{ address }}</b>
-          </li>
-        }
-      </ul>
+      @if (data.addresses.length !== 0 && data.addresses.length <= 10) {
+        <ul>
+          @for (address of data.addresses; track address) {
+            <li>
+              <b>{{ address }}</b>
+            </li>
+          }
+        </ul>
+      }
+      @if (data.addressCount) {
+        <p>
+          <b>{{ data.addressCount }} properties</b>
+        </p>
+      }
     </div>
     <p>
       The data you are about to download represents a point-in-time snapshot and

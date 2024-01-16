@@ -84,6 +84,7 @@ export class DetailsPanelComponent {
         panelClass: 'data-download',
         data: {
           addresses: [this.buildingDetails()?.FullAddress ?? ''],
+          addressCount: undefined,
         },
       })
       .afterClosed()
