@@ -45,10 +45,12 @@ export class ResultsCardComponent {
   }
 
   @Input() card!: BuildingModel;
-  @Input() buildingUPRN?: number;
+  @Input() buildingUPRN?: string;
   @Input() select: boolean = false;
   @Input() parent: boolean = false;
   @Input() checked: boolean = false;
+  @Output() downloadData: EventEmitter<BuildingModel> =
+    new EventEmitter<BuildingModel>();
   @Output() emitViewDetails: EventEmitter<BuildingModel> =
     new EventEmitter<BuildingModel>();
   @Output() cardSelected: EventEmitter<BuildingModel> =
@@ -64,12 +66,19 @@ export class ResultsCardComponent {
   }
 
   openDownloadWarning() {
-    this.dialog.open(DownloadWarningComponent, {
-      panelClass: 'data-download',
-      data: {
-        addresses: [this.card?.FullAddress],
-      },
-    });
+    this.dialog
+      .open(DownloadWarningComponent, {
+        panelClass: 'data-download',
+        data: {
+          addresses: [this.card?.FullAddress],
+        },
+      })
+      .afterClosed()
+      .subscribe(download => {
+        if (download) {
+          this.downloadData.emit(this.card);
+        }
+      });
   }
 
   selectCard() {

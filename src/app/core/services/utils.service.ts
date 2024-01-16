@@ -384,7 +384,7 @@ export class UtilService {
    * @param TOID
    * @param UPRN
    */
-  resultsCardSelected(TOID: string, UPRN: number) {
+  resultsCardSelected(TOID: string, UPRN: string) {
     this.selectResultsCard(UPRN);
     /** if its not multi dwelling select on map */
     if (this.multiDwelling() === '') {
@@ -416,7 +416,7 @@ export class UtilService {
    * @param UPRN
    * @param mapCenter
    */
-  viewDetailsButtonClick(TOID: string, UPRN: number, mapCenter: number[]) {
+  viewDetailsButtonClick(TOID: string, UPRN: string, mapCenter: number[]) {
     /** if its not viewing details for a multi dwelling select on map */
     if (this.multiDwelling() === '') {
       this.selectSingleDwellingOnMap(TOID);
@@ -452,8 +452,8 @@ export class UtilService {
    * @param TOID
    * @param UPRN
    */
-  selectedUPRN = signal<number | undefined>(undefined);
-  singleDwellingSelectedOnMap(TOID: string, UPRN: number) {
+  selectedUPRN = signal<string | undefined>(undefined);
+  singleDwellingSelectedOnMap(TOID: string, UPRN: string) {
     this.selectedUPRN.set(UPRN);
     this.multiDwellingDeselected();
     this.selectSingleDwellingOnMap(TOID);
@@ -528,11 +528,11 @@ export class UtilService {
     this.dataService.setSelectedBuildings(undefined);
   }
 
-  selectedCardUPRN = signal<number | undefined>(undefined);
+  selectedCardUPRN = signal<string | undefined>(undefined);
   multiDwelling = signal<string | undefined>(undefined);
 
   /** set the UPRN of the selected results card */
-  private selectResultsCard(UPRN: number) {
+  private selectResultsCard(UPRN: string) {
     this.selectedCardUPRN.set(UPRN);
   }
 
@@ -541,8 +541,10 @@ export class UtilService {
     this.closeBuildingDetails();
   }
 
-  private viewBuildingDetails(UPRN: number) {
+  private viewBuildingDetails(UPRN: string) {
     this.dataService.setSelectedUPRN(UPRN);
+    const building = this.dataService.getBuildingByUPRN(UPRN.toString());
+    this.dataService.setSelectedBuilding(building);
   }
 
   private closeBuildingDetails() {

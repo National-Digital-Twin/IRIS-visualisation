@@ -25,12 +25,26 @@
             " />
           Flag selected
         </button>
-        <button
-          mat-flat-button
-          [color]="'primary'"
-          class="results-panel__button">
-          <img src="assets/icons/FileArrowDown_white.svg" alt="" />Download all
-        </button>
+        @if (selectMultiple) {
+          <button
+            mat-flat-button
+            [color]="'primary'"
+            class="results-panel__button"
+            [ngStyle]="{ width: '255px' }"
+            (click)="downloadAll()">
+            <img src="assets/icons/FileArrowDown_white.svg" alt="" />Download
+            selected
+          </button>
+        } @else {
+          <button
+            mat-flat-button
+            [color]="'primary'"
+            class="results-panel__button"
+            (click)="downloadAll()">
+            <img src="assets/icons/FileArrowDown_white.svg" alt="" />Download
+            all
+          </button>
+        }
       </div>
     </section>
     <section class="results-panel__cards-container">
@@ -47,6 +61,7 @@
           ">
           @if (dwellingSet.length === 1) {
             <c477-results-card
+              (downloadData)="downloadBuilding($event)"
               [buildingUPRN]="selectedCardUPRN()"
               (cardSelected)="cardSelected($event)"
               (emitViewDetails)="viewDetails($event)"

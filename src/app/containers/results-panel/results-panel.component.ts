@@ -26,6 +26,13 @@ import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { UtilService } from '@core/services/utils.service';
 
 import { BuildingModel } from '@core/models/building.model';
+import { DataDownloadService } from '@core/services/data-download.service';
+import { MatDialog } from '@angular/material/dialog';
+import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
+import {
+  DownloadDataWarningData,
+  DownloadDataWarningResponse,
+} from '@core/models/download-data-warning.model';
 
 @Component({
   selector: 'c477-results-panel',
@@ -54,6 +61,7 @@ export class ResultsPanelComponent {
   private readonly dataService = inject(DataService);
   private spatialQueryService = inject(SpatialQueryService);
   private utilService = inject(UtilService);
+  private dataDownloadService = inject(DataDownloadService);
 
   selectedCardUPRN = this.utilService.selectedCardUPRN;
   selectedParentTOID = this.utilService.multiDwelling;
@@ -81,14 +89,14 @@ export class ResultsPanelComponent {
     );
   }
 
-  constructor() {
+  constructor(public dialog: MatDialog) {
     /** listen for UPRN set from map click */
     effect(() => {
       const selectedUPRN = this.utilService.selectedUPRN();
       const selectedTOID = this.utilService.multiDwelling();
       if (selectedUPRN) {
         const idx = this.buildingSelection()?.findIndex(
-          building => +building[0].UPRN === selectedUPRN
+          building => building[0].UPRN === selectedUPRN
         );
         if (idx! > -1) {
           /** scroll to index*/
@@ -119,7 +127,7 @@ export class ResultsPanelComponent {
     const center = this.getZoomCenter(TOID!);
     this.utilService.viewDetailsButtonClick(
       TOID!,
-      +selectedBuilding.UPRN,
+      selectedBuilding.UPRN,
       center
     );
   }
@@ -137,12 +145,12 @@ export class ResultsPanelComponent {
      * if selected card building uprn === the current selected card uprn
      * deselect card and building
      */
-    if (this.utilService.selectedCardUPRN() === +selectedBuilding.UPRN) {
+    if (this.utilService.selectedCardUPRN() === selectedBuilding.UPRN) {
       /** deselect card */
       this.utilService.resultsCardDeselected();
     } else {
       /** select card */
-      this.utilService.resultsCardSelected(TOID!, +UPRN);
+      this.utilService.resultsCardSelected(TOID!, UPRN);
     }
   }
 
@@ -157,5 +165,67 @@ export class ResultsPanelComponent {
   getZoomCenter(TOID: string): number[] {
     const geomBB = this.spatialQueryService.getFeatureGeomBB(TOID);
     return [geomBB.getCenter().lng - 0.0005, geomBB.getCenter().lat];
+  }
+
+  downloadAll() {
+    let addresses: string[] = [];
+    let addressCount = undefined;
+    /** download selected */
+    if (this.selectMultiple) {
+      if (this.checkedCards().length <= 10) {
+        this.checkedCards().forEach((building: BuildingModel) =>
+          addresses.push(building.FullAddress)
+        );
+      } else {
+        addressCount = this.checkedCards().length;
+      }
+    } else {
+      /** download all */
+      if (
+        this.buildingSelection() &&
+        this.buildingSelection()!.flat().length <= 10
+      ) {
+        this.buildingSelection()
+          ?.flat()
+          .forEach((building: BuildingModel) =>
+            addresses.push(building.FullAddress)
+          );
+      } else if (
+        this.buildingSelection() &&
+        this.buildingSelection()!.flat().length > 10
+      ) {
+        addressCount = this.buildingSelection()!.flat().length;
+      }
+    }
+    this.dialog
+      .open<
+        DownloadWarningComponent,
+        DownloadDataWarningData,
+        DownloadDataWarningResponse
+      >(DownloadWarningComponent, {
+        panelClass: 'data-download',
+        data: {
+          addresses,
+          addressCount,
+        },
+      })
+      .afterClosed()
+      .subscribe(download => {
+        if (download) {
+          if (this.selectMultiple) {
+            this.dataDownloadService.downloadData(this.checkedCards());
+          } else {
+            this.dataDownloadService.downloadData(
+              this.buildingSelection()!.flat()
+            );
+          }
+          addresses = [];
+          addressCount = undefined;
+        }
+      });
+  }
+
+  downloadBuilding(building: BuildingModel) {
+    this.dataDownloadService.downloadData([building]);
   }
 }

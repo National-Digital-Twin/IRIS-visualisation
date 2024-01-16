@@ -1,6 +1,6 @@
 <div
   class="results-card"
-  [ngClass]="{ 'results-card--select': +card.UPRN === buildingUPRN }">
+  [ngClass]="{ 'results-card--select': card.UPRN === buildingUPRN }">
   <div class="results-card__header">
     @if (select) {
       <mat-checkbox

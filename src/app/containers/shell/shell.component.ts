@@ -214,7 +214,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
       const buildings = this.utilService.getBuildings(TOID);
       /** single dwelling */
       if (buildings.length === 1) {
-        this.utilService.singleDwellingSelectedOnMap(TOID, +buildings[0].UPRN);
+        this.utilService.singleDwellingSelectedOnMap(TOID, buildings[0].UPRN);
       } else if (buildings.length > 1) {
         /** multiple dwelling */
         this.zone.run(() =>
@@ -236,11 +236,9 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   }
 
   downloadData() {
-    const dataForDownload = this.dataDownloadService.combineDetailsAndParts(
+    this.dataDownloadService.downloadData([
       this.dataService.selectedBuilding()!,
-      this.dataService.parts()
-    );
-    this.dataDownloadService.downloadData(dataForDownload);
+    ]);
   }
 
   closeResults() {
