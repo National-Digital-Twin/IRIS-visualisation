@@ -65,7 +65,7 @@
               [buildingUPRN]="selectedCardUPRN()"
               (cardSelected)="cardSelected($event)"
               (emitViewDetails)="viewDetails($event)"
-              [checked]="cardIsChecked(dwellingSet[0].UPRN)"
+              [checked]="cardIsChecked([dwellingSet[0]])"
               (toggleChecked)="onToggleChecked(dwellingSet[0])"
               (flag)="flag.emit([dwellingSet[0]])"
               (removeFlag)="removeFlag.emit(dwellingSet[0])"

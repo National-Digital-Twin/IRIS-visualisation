@@ -6,7 +6,7 @@
       <mat-checkbox
         color="primary"
         [checked]="checked"
-        (change)="toggleChecked.emit()">
+        (change)="toggleChecked.emit($event.checked)">
         {{ getAddressSegment(0) }}
         {{ getAddressSegment(1) }}
       </mat-checkbox>

@@ -34,7 +34,7 @@ export class ResultsCardExpandableComponent implements OnChanges {
   @Output() flag = new EventEmitter<BuildingModel[]>();
   @Output() removeFlag = new EventEmitter<BuildingModel>();
   @Output() toggleChecked = new EventEmitter<BuildingModel>();
-  @Input() cardIsChecked!: (uprn: string) => boolean;
+  @Input() cardIsChecked!: (_: BuildingModel[]) => boolean;
 
   parentDataset: BuildingModel = {
     BuildForm: undefined,
@@ -58,8 +58,13 @@ export class ResultsCardExpandableComponent implements OnChanges {
     WindowGlazing: undefined,
   };
 
-  public onToggleCheckedDwellings() {
-    this.dwellings.forEach(d => this.toggleChecked.emit(d));
+  public onToggleCheckedDwellings(checked: boolean) {
+    this.dwellings.forEach(d => {
+      const isChecked = this.cardIsChecked([d]);
+      if (checked !== isChecked) {
+        this.toggleChecked.emit(d);
+      }
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {

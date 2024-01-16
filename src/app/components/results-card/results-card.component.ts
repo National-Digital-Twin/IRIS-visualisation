@@ -55,7 +55,7 @@ export class ResultsCardComponent {
     new EventEmitter<BuildingModel>();
   @Output() cardSelected: EventEmitter<BuildingModel> =
     new EventEmitter<BuildingModel>();
-  @Output() toggleChecked = new EventEmitter<void>();
+  @Output() toggleChecked = new EventEmitter<boolean>();
   @Output() flag = new EventEmitter<void>();
   @Output() removeFlag = new EventEmitter<void>();
 

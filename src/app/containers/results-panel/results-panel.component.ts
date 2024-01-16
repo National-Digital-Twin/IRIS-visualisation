@@ -76,14 +76,14 @@ export class ResultsPanelComponent {
     const selected = this.checkedCards();
     return selected.length > 0 && selected.some(s => !s.Flagged);
   }
-
-  public cardIsChecked(uprn: BuildingModel['UPRN']): boolean {
-    return this.checkedCards().some(building => building.UPRN === uprn);
+  public cardIsChecked(buildings: BuildingModel[]): boolean {
+    const checkedCards = this.checkedCards();
+    return buildings.some(b => checkedCards.find(cc => cc.UPRN === b.UPRN));
   }
 
   public onToggleChecked(building: BuildingModel) {
     this.checkedCards.update(cards =>
-      this.cardIsChecked(building.UPRN)
+      this.cardIsChecked([building])
         ? cards.filter(c => c.UPRN !== building.UPRN)
         : [...cards, building]
     );
