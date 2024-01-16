@@ -47,6 +47,7 @@ export class ResultsPanelComponent {
   private dataDownloadService = inject(DataDownloadService);
 
   selectedCardUPRN = this.utilService.selectedCardUPRN;
+  selectedParentTOID = this.utilService.multiDwelling;
 
   buildingSelection = this.dataService.buildingsSelection;
 
@@ -91,12 +92,22 @@ export class ResultsPanelComponent {
     /** listen for UPRN set from map click */
     effect(() => {
       const selectedUPRN = this.utilService.selectedUPRN();
+      const selectedTOID = this.utilService.multiDwelling();
       if (selectedUPRN) {
         const idx = this.buildingSelection()?.findIndex(
           building => building[0].UPRN === selectedUPRN
         );
         if (idx! > -1) {
-          /** scroll to index, offset due to panel height */
+          /** scroll to index*/
+          this.viewPort?.scrollToIndex(idx!);
+        }
+      }
+      if (selectedTOID) {
+        const idx = this.buildingSelection()?.findIndex(
+          building => building[0].ParentTOID === selectedTOID
+        );
+        if (idx! > -1) {
+          /** scroll to index*/
           this.viewPort?.scrollToIndex(idx!);
         }
       }

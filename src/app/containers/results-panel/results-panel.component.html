@@ -73,6 +73,7 @@
               [select]="selectMultiple"></c477-results-card>
           } @else {
             <c477-results-card-expandable
+              [buildingTOID]="selectedParentTOID()"
               [dwellings]="dwellingSet"
               [select]="selectMultiple"
               (emitViewDetails)="viewDetails($event)"

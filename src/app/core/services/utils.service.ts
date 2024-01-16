@@ -455,6 +455,7 @@ export class UtilService {
   selectedUPRN = signal<string | undefined>(undefined);
   singleDwellingSelectedOnMap(TOID: string, UPRN: string) {
     this.selectedUPRN.set(UPRN);
+    this.multiDwellingDeselected();
     this.selectSingleDwellingOnMap(TOID);
     this.viewBuildingDetails(UPRN);
     /** if filtered data then results panel open so select card */
@@ -485,6 +486,7 @@ export class UtilService {
    * @param TOID
    */
   multipleDwellingSelectedOnMap(TOID: string) {
+    this.singleDwellingDeselected();
     this.selectMultiDwellingOnMap(TOID);
   }
 
@@ -492,9 +494,9 @@ export class UtilService {
    * Handle deselecting a multi-dwelling building on the map
    */
   multiDwellingDeselected() {
+    this.multiDwelling.set(undefined);
     this.deselectMultiDwellingOnMap();
     this.deselectResultsCard();
-    this.multiDwelling.set('');
   }
 
   setSpatialFilter(searchArea: GeoJSON.Feature<Polygon>) {
@@ -527,7 +529,7 @@ export class UtilService {
   }
 
   selectedCardUPRN = signal<string | undefined>(undefined);
-  multiDwelling = signal<string>('');
+  multiDwelling = signal<string | undefined>(undefined);
 
   /** set the UPRN of the selected results card */
   private selectResultsCard(UPRN: string) {
