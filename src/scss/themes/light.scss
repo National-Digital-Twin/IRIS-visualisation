@@ -10,7 +10,13 @@ $c477-light-theme: mat.define-light-theme(
 @include mat.core-theme($c477-light-theme);
 @include mat.all-component-themes($c477-light-theme);
 
+body[theme='light'],
 body[theme='light'] * {
   --c477-color--hover: var(--arc-grey-000);
   --c477-color--selected: var(--arc-grey-000);
+  --mdc-dialog-container-color: rgb(var(--arc-container-color));
+}
+
+body[theme='light'] {
+  background: rgb(var(--arc-container-color));
 }
