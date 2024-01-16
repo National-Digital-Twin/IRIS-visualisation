@@ -193,53 +193,6 @@ export class Queries {
     `;
   }
 
-  getBuildingParts(partURIs: string[]) {
-    const parts = partURIs
-      .map(p =>
-        p.trim().replace('http://nationaldigitaltwin.gov.uk/data#', 'p:')
-      )
-      .join(' ');
-    return `
-      PREFIX data: <http://nationaldigitaltwin.gov.uk/data#>
-      PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
-      PREFIX qudt: <http://qudt.org/2.1/schema/qudt/>
-      PREFIX ndt: <http://nationaldigitaltwin.gov.uk/ontology#>
-      PREFIX iesuncertainty: <http://ies.data.gov.uk/ontology/ies_uncertainty_proposal/v2.0#>
-      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      PREFIX p: <http://nationaldigitaltwin.gov.uk/data#>
-      SELECT
-      (REPLACE(STR(?part_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?PartType)
-      (REPLACE(STR(?part_supertype), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?PartSuperType)
-      (REPLACE(STR(?insulation_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?PartInsulationType)
-      (REPLACE(STR(?insulation_thickness_mm), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?InsulationThickness)
-      (REPLACE(STR(?insulation_thickness_mm_lowerbound), "http://nationaldigitaltwin.gov.uk/ontology#", "") AS ?InsulationThicknessLowerBound)
-      WHERE {{
-          VALUES ?part {${parts}} .
-          ?set_of_fused_things ndt:fusedInto ?part .
-          ?set_of_fused_things rdfs:subClassOf ?part_type .
-          ?part_type rdfs:subClassOf ?part_supertype .
-
-          OPTIONAL {{
-              ?insulation_fusion ies:isPartOf ?part .
-              ?set_of_fused_insulation ndt:fusedInto ?insulation_fusion .
-              ?set_of_fused_insulation rdfs:subClassOf ?insulation_type .
-          }}
-
-          OPTIONAL {{
-              ?insulation_fusion ies:isPartOf ?part .
-              ?insulation_fusion ies:hasCharacteristic ?quantity .
-              OPTIONAL {{
-                  ?quantity qudt:value ?insulation_thickness_mm .
-              }}
-              OPTIONAL {{
-                  ?quantity qudt:lowerBound ?insulation_thickness_mm_lowerbound .
-              }}
-          }}
-      }}
-    `;
-  }
-
   getSAPPoints() {
     return `
       PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
