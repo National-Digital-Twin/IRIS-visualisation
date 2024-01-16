@@ -168,15 +168,35 @@ export class ResultsPanelComponent {
   }
 
   downloadAll() {
-    const addresses: string[] = [];
-    if (this.checkedCards.length <= 10) {
-      this.checkedCards().forEach((building: BuildingModel) =>
-        addresses.push(building.FullAddress)
-      );
+    let addresses: string[] = [];
+    let addressCount = undefined;
+    /** download selected */
+    if (this.selectMultiple) {
+      if (this.checkedCards().length <= 10) {
+        this.checkedCards().forEach((building: BuildingModel) =>
+          addresses.push(building.FullAddress)
+        );
+      } else {
+        addressCount = this.checkedCards().length;
+      }
+    } else {
+      /** download all */
+      if (
+        this.buildingSelection() &&
+        this.buildingSelection()!.flat().length <= 10
+      ) {
+        this.buildingSelection()
+          ?.flat()
+          .forEach((building: BuildingModel) =>
+            addresses.push(building.FullAddress)
+          );
+      } else if (
+        this.buildingSelection() &&
+        this.buildingSelection()!.flat().length > 10
+      ) {
+        addressCount = this.buildingSelection()!.flat().length;
+      }
     }
-    const addressCount = this.selectMultiple
-      ? this.checkedCards.length
-      : this.buildingSelection()?.flat().length;
     this.dialog
       .open<
         DownloadWarningComponent,
@@ -199,6 +219,8 @@ export class ResultsPanelComponent {
               this.buildingSelection()!.flat()
             );
           }
+          addresses = [];
+          addressCount = undefined;
         }
       });
   }

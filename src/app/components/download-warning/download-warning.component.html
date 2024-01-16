@@ -20,7 +20,7 @@
           }
         </ul>
       }
-      @if (data.addressCount) {
+      @if (data.addressCount && data.addressCount > 10) {
         <p>
           <b>{{ data.addressCount }} properties</b>
         </p>
