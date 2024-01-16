@@ -15,27 +15,8 @@ export class DataDownloadService {
    * @param data the data to be downloaded as an object
    * @returns void
    */
-  downloadData(data: BuildingModel): void {
-    const csvBlob = this.formatDataForCSV([data]);
-    this.createZipFile(csvBlob);
-  }
-
-  downloadAll(uprns?: string[]) {
-    const data = this.dataService.buildingsSelection();
-    let selectedBuildings: BuildingModel[] = [];
-    if (uprns?.length) {
-      data!.flat().forEach(building => {
-        if (uprns.includes(building.UPRN)) {
-          selectedBuildings.push(building);
-        } else {
-          return;
-        }
-      });
-    } else {
-      selectedBuildings = data!.flat();
-    }
-    const csvBlob = this.formatDataForCSV(selectedBuildings!.flat());
-
+  downloadData(data: BuildingModel[]): void {
+    const csvBlob = this.formatDataForCSV(data);
     this.createZipFile(csvBlob);
   }
 

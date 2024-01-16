@@ -1,9 +1,17 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, Subscriber, forkJoin, map } from 'rxjs';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+  Observable,
+  Subscriber,
+  combineLatest,
+  forkJoin,
+  map,
+  tap,
+} from 'rxjs';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 
 import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
+import { WRITE_BACK_ENDPOINT } from '@core/tokens/write-back-endpoint.token';
 import { SPARQLReturn, TableRow } from '@core/models/rdf-data.model';
 import {
   BuildingMap,
@@ -20,17 +28,21 @@ import {
   WallConstruction,
   WindowGlazing,
 } from '@core/enums';
+import { InvalidateFlagReason } from '@core/enums/invalidate-flag-reason';
 import {
   EPCBuildingResponseModel,
   NoEPCBuildingResponseModel,
 } from '@core/models/building-response.model';
 
+import { MockHttpClient } from '@core/services/mock-http-client.service';
+
 @Injectable({
   providedIn: 'root',
 })
 export class DataService {
-  private readonly http: HttpClient = inject(HttpClient);
+  private readonly http: HttpClient = inject(MockHttpClient);
   private readonly searchEndpoint: string = inject(SEARCH_ENDPOINT);
+  private readonly writeBackEndpoint = inject(WRITE_BACK_ENDPOINT);
 
   private queries = new Queries();
 
@@ -39,6 +51,10 @@ export class DataService {
   selectedBuilding = signal<BuildingModel | undefined>(undefined);
   // multiple buildings
   buildingsSelection = signal<BuildingModel[][] | undefined>(undefined);
+
+  /** Building objects with a flagged uri */
+  readonly buildingsFlagged = signal<BuildingMap>({});
+  readonly buildingsFlagged$ = toObservable(this.buildingsFlagged);
 
   sapPoints$ = this.selectTable(this.queries.getSAPPoints());
 
@@ -53,6 +69,7 @@ export class DataService {
       )
     )
   );
+
   buildingsNoEPC$ = this.selectTable(this.queries.getNoEPCData()).pipe(
     map(noEPC =>
       this.mapNonEPCBuildings(noEPC as unknown as NoEPCBuildingResponseModel[])
@@ -63,8 +80,15 @@ export class DataService {
    * Get all building data
    * @returns Observable<BuildingMap>
    */
-  allData$ = forkJoin([this.buildingsNoEPC$, this.buildingsEPC$]).pipe(
-    map(([noEPC, epc]) => this.combineBuildingData(epc, noEPC))
+
+  allData$ = combineLatest([
+    this.buildingsEPC$,
+    this.buildingsNoEPC$,
+    this.buildingsFlagged$,
+  ]).pipe(
+    map(([epc, noEPC, flagged]) =>
+      this.combineBuildingData(epc, noEPC, flagged)
+    )
   );
 
   private buildingResults = toSignal(this.allData$, {
@@ -273,7 +297,11 @@ export class DataService {
    * @param nonEPCBuildings
    * @returns BuildingMap of all buildings
    */
-  combineBuildingData(epcBuildings: BuildingMap, nonEPCBuildings: BuildingMap) {
+  combineBuildingData(
+    epcBuildings: BuildingMap,
+    nonEPCBuildings: BuildingMap,
+    flaggedBuildings: BuildingMap
+  ) {
     const allBuildings: BuildingMap = { ...epcBuildings };
     Object.keys(nonEPCBuildings).forEach((toid: string) => {
       if (allBuildings[toid]) {
@@ -282,6 +310,18 @@ export class DataService {
         allBuildings[toid] = nonEPCBuildings[toid];
       }
     });
+
+    /* combine flagged buildings to all buildings */
+    Object.keys(flaggedBuildings).forEach(toid => {
+      if (allBuildings[toid]) {
+        flaggedBuildings[toid].forEach(fb => {
+          /* overwrite flagged property on building */
+          const index = allBuildings[toid].findIndex(b => b.UPRN === fb.UPRN);
+          allBuildings[toid][index].Flagged = fb.Flagged;
+        });
+      }
+    });
+
     return allBuildings;
   }
 
@@ -385,5 +425,71 @@ export class DataService {
       }
     });
     return parts;
+  }
+
+  public flagToInvestigate(
+    building: BuildingModel
+  ): Observable<NonNullable<BuildingModel['Flagged']>> {
+    return this.http
+      .post<NonNullable<BuildingModel['Flagged']>>(
+        `${this.writeBackEndpoint}/flag-to-investigate`,
+        {
+          uri: `http://nationaldigitaltwin.gov.uk/data#building_${building.UPRN}`,
+        },
+        { withCredentials: true }
+      )
+      .pipe(
+        tap(flagUri => {
+          const toid = building.TOID ? building.TOID : building.ParentTOID;
+          if (!toid) throw new Error(`Building ${building.UPRN} has no TOID`);
+          building.Flagged = flagUri;
+          this.buildingsFlagged.update(b => ({
+            ...b,
+            [toid]: b[toid] ? [...b[toid], building] : [building],
+          }));
+        })
+      );
+  }
+
+  public invalidateFlag(
+    building: BuildingModel,
+    reason: InvalidateFlagReason
+  ): Observable<NonNullable<BuildingModel['Flagged']>> {
+    /* If building has no flag, throw error */
+    if (building.Flagged === undefined)
+      throw new Error(`Building ${building.UPRN} has no flag`);
+
+    /* convert reason string to enum key */
+    const keys = Object.keys(InvalidateFlagReason) as Array<
+      keyof typeof InvalidateFlagReason
+    >;
+    const key = keys.find(k => InvalidateFlagReason[k] === reason);
+    if (!key) throw new Error(`Invalid reason: ${reason}`);
+
+    return this.http
+      .post<NonNullable<BuildingModel['Flagged']>>(
+        `${this.writeBackEndpoint}/invalidate-flag`,
+        {
+          flatUri: building.Flagged,
+          assessmentTypeOverride: `ndt_ont:${key}`,
+        },
+        { withCredentials: true }
+      )
+      .pipe(
+        tap(() => {
+          const toid = building.TOID ? building.TOID : building.ParentTOID;
+          if (!toid) throw new Error(`Building ${building.UPRN} has no TOID`);
+          /* set flagged property to undefined */
+          building.Flagged = undefined;
+          this.buildingsFlagged.update(b => {
+            /* remove building from flagged buildings */
+            const index = b[toid].findIndex(b => b.UPRN === building.UPRN);
+            b[toid].splice(index, 1);
+            /* add building to buildings */
+            b[toid].push(building);
+            return { ...b };
+          });
+        })
+      );
   }
 }

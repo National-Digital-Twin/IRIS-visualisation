@@ -15,7 +15,7 @@ import { UtilService } from '@core/services/utils.service';
 import { EPCRating } from '@core/enums';
 
 @Component({
-  selector: 'c477-results-card-expandable',
+  selector: 'c477-results-card-expandable[cardIsChecked]',
   standalone: true,
   imports: [CommonModule, MatExpansionModule, ResultsCardComponent],
   templateUrl: './results-card-expandable.component.html',
@@ -30,6 +30,11 @@ export class ResultsCardExpandableComponent implements OnChanges {
     new EventEmitter<BuildingModel>();
   @Output() emitViewDetails: EventEmitter<BuildingModel> =
     new EventEmitter<BuildingModel>();
+
+  @Output() flag = new EventEmitter<BuildingModel[]>();
+  @Output() removeFlag = new EventEmitter<BuildingModel>();
+  @Output() toggleChecked = new EventEmitter<BuildingModel>();
+  @Input() cardIsChecked!: (uprn: string) => boolean;
 
   parentDataset: BuildingModel = {
     BuildForm: undefined,
@@ -52,6 +57,10 @@ export class ResultsCardExpandableComponent implements OnChanges {
     WallInsulation: undefined,
     WindowGlazing: undefined,
   };
+
+  public onToggleCheckedDwellings() {
+    this.dwellings.forEach(d => this.toggleChecked.emit(d));
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.dwellings) {

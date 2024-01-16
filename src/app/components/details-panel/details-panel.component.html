@@ -154,7 +154,7 @@
           mat-flat-button
           color="primary"
           aria-label="Flag property"
-          (click)="onFlag()">
+          (click)="flag.emit([buildingDetails()!])">
           <img alt="" src="assets/icons/FlagPennant_white.svg" />Add a flag
         </button>
       } @else {
@@ -162,7 +162,7 @@
           mat-flat-button
           color="warn"
           aria-label="Add flag to property"
-          (click)="onRemoveFlag()">
+          (click)="removeFlag.emit(buildingDetails()!)">
           <img alt="" src="assets/icons/TrashFlag_white.svg" />Remove flag
         </button>
       }
