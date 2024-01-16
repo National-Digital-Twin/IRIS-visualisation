@@ -28,6 +28,7 @@ import { FilterService } from '@core/services/filter.service';
 import { MapService } from '@core/services/map.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { UtilService } from '@core/services/utils.service';
+import { Breakpoints, BreakpointObserver } from '@angular/cdk/layout';
 
 import {
   AdvancedFiltersFormModel,
@@ -37,11 +38,26 @@ import {
 import { URLStateModel } from '@core/models/url-state.model';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
+import { BuildingModel } from '@core/models/building.model';
+import { first, forkJoin, map, switchMap, EMPTY, Observable } from 'rxjs';
 
 import type { UserPreferences } from '@arc-web/components/src/components/accessibility/ArcAccessibility';
 import type { ArcAccessibility, ArcSwitch } from '@arc-web/components';
 import '@arc-web/components/src/components/container/arc-container';
 import '@arc-web/components/src/components/switch/arc-switch';
+
+import { ComponentType } from '@angular/cdk/portal';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import {
+  FlagModalComponent,
+  FlagModalData,
+  FlagModalResult,
+} from '@components/flag-modal/flag.modal.component';
+import {
+  RemoveFlagModalComponent,
+  RemoveFlagModalData,
+  RemoveFlagModalResult,
+} from '@components/remove-flag-modal/remove-flag-modal.component';
 
 @Component({
   selector: 'c477-shell',
@@ -90,6 +106,8 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   public colorBlindSwitch?: ElementRef<ArcSwitch>;
   private readonly document = inject(DOCUMENT);
 
+  private readonly dialog = inject(MatDialog);
+  private readonly breakpointObserver = inject(BreakpointObserver);
   private dataService = inject(DataService);
   private dataDownloadService = inject(DataDownloadService);
   private filterService = inject(FilterService);
@@ -282,6 +300,77 @@ export class ShellComponent implements AfterViewInit, OnChanges {
       zoom,
     };
     this.navigate(queryParams);
+  }
+
+  public onFlag(buildings: BuildingModel[]): void {
+    /* filter out buildings that are already flagged */
+    const toFlag = buildings.filter(b => typeof b.Flagged === 'undefined');
+    this.openFlagModal<FlagModalComponent, FlagModalData, FlagModalResult>(
+      FlagModalComponent,
+      toFlag
+    )
+      .pipe(
+        switchMap(modal => modal.afterClosed()),
+        switchMap(flag =>
+          flag !== undefined && flag == true
+            ? forkJoin(
+                ...toFlag.map(b => this.dataService.flagToInvestigate(b))
+              )
+            : EMPTY
+        )
+      )
+      .subscribe();
+  }
+
+  public onRemoveFlag(building: BuildingModel): void {
+    this.openFlagModal<
+      RemoveFlagModalComponent,
+      RemoveFlagModalData,
+      RemoveFlagModalResult
+    >(RemoveFlagModalComponent, building)
+      .pipe(
+        switchMap(modal => modal.afterClosed()),
+        switchMap(reason =>
+          reason !== undefined
+            ? this.dataService.invalidateFlag(building, reason!)
+            : EMPTY
+        )
+      )
+      .subscribe();
+  }
+
+  /**
+   * Open Flag Modal.
+   *
+   * Opens a material dialog with a given component flag modal component
+   * and data. The modal is opened in fullscreen on mobile devices and
+   * cannot be closed by clicking outside of the modal.
+   */
+  private openFlagModal<C, D, R>(
+    template: ComponentType<C>,
+    data: D
+  ): Observable<MatDialogRef<C, R>> {
+    return this.breakpointObserver.observe(Breakpoints.Handset).pipe(
+      first(),
+      map(({ matches }) =>
+        this.dialog.open<C, D, R>(template, {
+          data: data,
+          disableClose: true,
+          ...(matches
+            ? {
+                width: '100%',
+                height: '100%',
+                maxWidth: '100vw',
+                maxHeight: '100vh',
+              }
+            : {
+                width: 'auto',
+                height: 'auto',
+                minWidth: '400px',
+              }),
+        })
+      )
+    );
   }
 
   private createQueryParams(filter: { [key: string]: string[] }) {

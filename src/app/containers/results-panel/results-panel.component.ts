@@ -1,4 +1,12 @@
-import { Component, ViewChild, effect, inject } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  Output,
+  EventEmitter,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -38,9 +46,12 @@ import { BuildingModel } from '@core/models/building.model';
 export class ResultsPanelComponent {
   public readonly theme = inject(SettingsService).get(SETTINGS.Theme);
 
+  @Output() flag = new EventEmitter<BuildingModel[]>();
+  @Output() removeFlag = new EventEmitter<BuildingModel>();
+
   @ViewChild(CdkVirtualScrollViewport) viewPort?: CdkVirtualScrollViewport;
 
-  private dataService = inject(DataService);
+  private readonly dataService = inject(DataService);
   private spatialQueryService = inject(SpatialQueryService);
   private utilService = inject(UtilService);
 
@@ -51,39 +62,23 @@ export class ResultsPanelComponent {
 
   selectMultiple: boolean = false;
 
-  public readonly checkedCards: BuildingModel['UPRN'][] = [];
-  public cardIsChecked(UPRN: BuildingModel['UPRN']): boolean {
-    return this.checkedCards.includes(UPRN);
+  public readonly checkedCards = signal<BuildingModel[]>([]);
+
+  public canFlagSelected() {
+    const selected = this.checkedCards();
+    return selected.length > 0 && selected.some(s => !s.Flagged);
   }
 
-  public onToggleChecked(value: BuildingModel['UPRN']) {
-    const isChecked = this.checkedCards.includes(value);
-    if (isChecked) {
-      const index = this.checkedCards.indexOf(value);
-      this.checkedCards.splice(index, 1);
-    } else {
-      this.checkedCards.push(value);
-    }
+  public cardIsChecked(uprn: BuildingModel['UPRN']): boolean {
+    return this.checkedCards().some(building => building.UPRN === uprn);
   }
 
-  public onFlagSelected() {
-    /* TODO: Implement */
-    throw new Error(
-      'On flag selected: Not implemented' + this.checkedCards.toString()
+  public onToggleChecked(building: BuildingModel) {
+    this.checkedCards.update(cards =>
+      this.cardIsChecked(building.UPRN)
+        ? cards.filter(c => c.UPRN !== building.UPRN)
+        : [...cards, building]
     );
-
-    /* TODO: filter out already flagged buildings */
-    /* TODO: open modal and flag buildings */
-  }
-
-  public onFlag(uprn: BuildingModel['UPRN']) {
-    /* TODO: Implement */
-    throw new Error('On flag: Not implemented' + uprn);
-  }
-
-  public onRemoveFlag(uprn: BuildingModel['UPRN']) {
-    /* TODO: Implement */
-    throw new Error('On remove flag: Not implemented' + uprn);
   }
 
   constructor() {

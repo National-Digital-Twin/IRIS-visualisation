@@ -14,8 +14,8 @@
           mat-flat-button
           class="results-panel__button"
           aria-label="Flag selected properties"
-          [disabled]="!selectMultiple && checkedCards.length === 0"
-          (click)="onFlagSelected()">
+          [disabled]="!canFlagSelected()"
+          (click)="flag.emit(checkedCards())">
           <img
             alt=""
             [src]="
@@ -51,9 +51,9 @@
               (cardSelected)="cardSelected($event)"
               (emitViewDetails)="viewDetails($event)"
               [checked]="cardIsChecked(dwellingSet[0].UPRN)"
-              (toggleChecked)="onToggleChecked(dwellingSet[0].UPRN)"
-              (flag)="onFlag(dwellingSet[0].UPRN)"
-              (removeFlag)="onRemoveFlag(dwellingSet[0].UPRN)"
+              (toggleChecked)="onToggleChecked(dwellingSet[0])"
+              (flag)="flag.emit([dwellingSet[0]])"
+              (removeFlag)="removeFlag.emit(dwellingSet[0])"
               [card]="dwellingSet[0]"
               [select]="selectMultiple"></c477-results-card>
           } @else {
@@ -61,9 +61,13 @@
               [buildingTOID]="selectedParentTOID()"
               [dwellings]="dwellingSet"
               [select]="selectMultiple"
+              [cardIsChecked]="cardIsChecked.bind(this)"
               (emitViewDetails)="viewDetails($event)"
-              (cardSelected)="
-                cardSelected($event)
+              (cardSelected)="cardSelected($event)"
+              (toggleChecked)="onToggleChecked($event)"
+              (flag)="flag.emit($event)"
+              (removeFlag)="
+                removeFlag.emit($event)
               "></c477-results-card-expandable>
           }
         </div>

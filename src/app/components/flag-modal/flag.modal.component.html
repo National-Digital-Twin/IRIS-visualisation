@@ -1,0 +1,21 @@
+<h1 mat-dialog-title>You are flagging to investigate:</h1>
+
+<div mat-dialog-content>
+  <ul [class]="data.length > 1 ? 'buildings' : ''">
+    <li *ngFor="let building of data" class="building">
+      {{ building.FullAddress }}
+    </li>
+  </ul>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-flat-button mat-dialog-close>Cancel</button>
+  <button
+    mat-flat-button
+    cdkFocusInitial
+    color="primary"
+    [mat-dialog-close]="true">
+    <span *ngIf="data.length === 1; else createFlagsCopy">Create flag</span>
+    <ng-template #createFlagsCopy>Create flags</ng-template>
+  </button>
+</div>

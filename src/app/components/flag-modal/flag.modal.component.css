@@ -1,0 +1,19 @@
+:host {
+  display: block;
+  padding: 20px;
+}
+
+div[mat-dialog-content] {
+  display: grid;
+  gap: var(--arc-spacing-medium);
+  font-size: var(--arc-font-size-small);
+}
+
+div[mat-dialog-content] ul:not(.buildings) {
+  margin: 0;
+  padding: 0;
+}
+
+div[mat-dialog-content] ul:not(.buildings) li {
+  list-style: none;
+}

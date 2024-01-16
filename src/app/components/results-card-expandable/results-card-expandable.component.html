@@ -11,13 +11,18 @@
       [card]="parentDataset"
       [select]="select"
       [parent]="true"
+      (toggleChecked)="onToggleCheckedDwellings()"
       (cardSelected)="cardSelected.emit($event)"></c477-results-card>
   </mat-expansion-panel-header>
   @for (dwelling of sortedDwellings(); track dwelling.UPRN) {
     <c477-results-card
       [card]="dwelling"
       [select]="select"
+      [checked]="cardIsChecked(dwelling.UPRN)"
       (emitViewDetails)="emitViewDetails.emit($event)"
-      (cardSelected)="cardSelected.emit($event)"></c477-results-card>
+      (toggleChecked)="toggleChecked.emit(dwelling)"
+      (flag)="flag.emit([dwelling])"
+      (removeFlag)="removeFlag.emit(dwelling)">
+    </c477-results-card>
   }
 </mat-expansion-panel>

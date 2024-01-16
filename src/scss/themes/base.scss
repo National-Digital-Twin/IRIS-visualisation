@@ -1,6 +1,7 @@
 @import '../abstracts/_variables.scss';
 
 * {
+  --arc-color-primary: var(--arc-purple-050);
   --c477-color--epc-a: #{$color-epc-a};
   --c477-color--epc-b: #{$color-epc-b};
   --c477-color--epc-c: #{$color-epc-c};
