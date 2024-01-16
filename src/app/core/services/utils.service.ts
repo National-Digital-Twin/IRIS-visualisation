@@ -387,7 +387,7 @@ export class UtilService {
   resultsCardSelected(TOID: string, UPRN: number) {
     this.selectResultsCard(UPRN);
     /** if its not multi dwelling select on map */
-    if (this.multiDwelling() === '') {
+    if (this.multiDwelling() === undefined) {
       this.selectSingleDwellingOnMap(TOID);
     }
   }
@@ -400,7 +400,7 @@ export class UtilService {
      * if multi-dwelling don't deselect
      * building on map
      */
-    if (this.multiDwelling() !== '') {
+    if (this.multiDwelling() !== undefined) {
       this.deselectResultsCard();
       this.closeBuildingDetails();
     } else {
@@ -417,8 +417,9 @@ export class UtilService {
    * @param mapCenter
    */
   viewDetailsButtonClick(TOID: string, UPRN: number, mapCenter: number[]) {
+    console.log(this.multiDwelling());
     /** if its not viewing details for a multi dwelling select on map */
-    if (this.multiDwelling() === '') {
+    if (this.multiDwelling() === undefined) {
       this.selectSingleDwellingOnMap(TOID);
     }
     this.selectResultsCard(UPRN);
@@ -441,7 +442,7 @@ export class UtilService {
     if (
       !spatialFilter &&
       !Object.keys(filterProps).length &&
-      this.multiDwelling() === ''
+      this.multiDwelling() === undefined
     ) {
       this.deselectSingleDwellingOnMap();
     }
