@@ -16,17 +16,8 @@ export class DataDownloadService {
    * @returns void
    */
   downloadData(data: BuildingModel): void {
-    const csvBlob = this.formatDataForCSV(data);
-    const filename =
-      'iris-download-' +
-      new Date().toISOString().replaceAll(':', '_').replaceAll('.', '_');
-    const warning = this.generateWarning();
-    const zip = new JSZip();
-    zip.file(filename + '.csv', csvBlob);
-    zip.file('warning.txt', warning);
-    zip.generateAsync({ type: 'blob' }).then(content => {
-      saveAs(content, filename + '.zip');
-    });
+    const csvBlob = this.formatDataForCSV([data]);
+    this.createZipFile(csvBlob);
   }
 
   downloadAll(uprns?: string[]) {
@@ -43,18 +34,9 @@ export class DataDownloadService {
     } else {
       selectedBuildings = data!.flat();
     }
+    const csvBlob = this.formatDataForCSV(selectedBuildings!.flat());
 
-    const csvBlob = this.arrayToCSV(selectedBuildings!.flat());
-    const filename =
-      'iris-download-' +
-      new Date().toISOString().replaceAll(':', '_').replaceAll('.', '_');
-    const warning = this.generateWarning();
-    const zip = new JSZip();
-    zip.file(filename + '.csv', csvBlob);
-    zip.file('warning.txt', warning);
-    zip.generateAsync({ type: 'blob' }).then(content => {
-      saveAs(content, filename + '.zip');
-    });
+    this.createZipFile(csvBlob);
   }
 
   private generateWarning(): Blob {
@@ -73,23 +55,10 @@ export class DataDownloadService {
 
   /**
    * Stringify the data, add newlines and convert to blob
-   * @param data the object to be formatted & blobified
+   * @param buildings the array of objects to be formatted & blobified
    * @returns a csv compliant blob of the data
    */
-  private formatDataForCSV(data: BuildingModel): Blob {
-    const headers = [...Object.keys(data)].join(',');
-    const values = Object.values(data)
-      // add quotes to keep address together
-      .map(value => `"${value}"`)
-      .join(',');
-    const stringifiedData = headers + '\n' + values;
-    const blob = new Blob([stringifiedData], {
-      type: 'text/csv;charset=utf-8,',
-    });
-    return blob;
-  }
-
-  private arrayToCSV(buildings: BuildingModel[]): Blob {
+  private formatDataForCSV(buildings: BuildingModel[]): Blob {
     const csvRows = [];
     const headers = Object.keys(buildings[0]);
     csvRows.push(headers.join(','));
@@ -107,5 +76,18 @@ export class DataDownloadService {
       type: 'text/csv;charset=utf-8,',
     });
     return blob;
+  }
+
+  private createZipFile(csvBlob: Blob) {
+    const filename =
+      'iris-download-' +
+      new Date().toISOString().replaceAll(':', '_').replaceAll('.', '_');
+    const warning = this.generateWarning();
+    const zip = new JSZip();
+    zip.file(filename + '.csv', csvBlob);
+    zip.file('warning.txt', warning);
+    zip.generateAsync({ type: 'blob' }).then(content => {
+      saveAs(content, filename + '.zip');
+    });
   }
 }
