@@ -336,14 +336,18 @@ export class UtilService {
         const removeQuotes = filterProps[key as keyof FilterProps]?.map(k =>
           k.replace(/['"]+/g, '')
         );
-        return removeQuotes?.includes(
-          // eslint-disable-next-line
-          // @ts-ignore
-          building[key as keyof BuildingModel]
-        );
+        /** if flagged filter exists return the building if it has a flag */
+        if (key === 'Flagged' && building.Flagged !== undefined) {
+          return true;
+        } else {
+          return removeQuotes?.includes(
+            // eslint-disable-next-line
+            // @ts-ignore
+            building[key as keyof BuildingModel]
+          );
+        }
       })
     );
-    // convert filtered array of buildings back to object
     const filteredBuildings: BuildingMap =
       this.dataService.mapBuildings(filtered);
     return filteredBuildings;
