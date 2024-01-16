@@ -215,4 +215,53 @@ export class Queries {
       }
     `;
   }
+
+  getAllFlaggedBuildings() {
+    return `
+      PREFIX data: <http://nationaldigitaltwin.gov.uk/data#>
+      PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX geoplace: <https://www.geoplace.co.uk/addresses-streets/location-data/the-uprn#>
+
+      SELECT
+          (REPLACE(STR(?uprn), "http://nationaldigitaltwin.gov.uk/data#uprn_", "") as ?UPRN)
+          (?building_toid_id AS ?TOID)
+          (?parent_building_toid_id AS ?ParentTOID)
+          (REPLACE(STR(?flag), "http://nationaldigitaltwin.gov.uk/data#", "") as ?Flagged)
+          (REPLACE(STR(?flag_date), "http://iso.org/iso8601#", "") as ?FlagDate)
+      WHERE {{
+          ?state ies:isStateOf ?building .
+
+          ?building ies:isIdentifiedBy ?uprn .
+          ?uprn ies:representationValue ?uprn_id .
+          ?uprn rdf:type geoplace:UniquePropertyReferenceNumber .
+
+          ?flag ies:interestedIn ?building .
+          FILTER NOT EXISTS { ?flag_assessment ies:assessed ?flag . }
+
+          OPTIONAL {
+              ?building ies:isIdentifiedBy ?building_toid .
+              ?building_toid rdf:type ies:TOID .
+              ?building_toid ies:representationValue ?building_toid_id .
+          }
+
+          OPTIONAL {
+                  ?building ies:isPartOf ?parent_building .
+                  ?parent_building ies:isIdentifiedBy ?parent_building_toid .
+                  ?parent_building_toid ies:representationValue ?parent_building_toid_id .
+                  ?parent_building_toid rdf:type ies:TOID .
+          }
+
+          OPTIONAL {{
+              ?flag ies:inPeriod ?flag_date .
+          }}
+      }}
+      GROUP BY
+          ?flag
+          ?flag_date
+          ?building_toid_id
+          ?parent_building_toid_id
+          ?uprn
+    `;
+  }
 }

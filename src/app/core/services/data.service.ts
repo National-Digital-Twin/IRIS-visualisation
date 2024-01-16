@@ -32,7 +32,8 @@ import { InvalidateFlagReason } from '@core/enums/invalidate-flag-reason';
 import {
   EPCBuildingResponseModel,
   NoEPCBuildingResponseModel,
-} from '@core/models/building-response.model';
+} from '@core/types/building-response';
+import { FlagResponse } from '@core/types/flag-response';
 
 @Injectable({
   providedIn: 'root',
@@ -51,21 +52,25 @@ export class DataService {
   buildingsSelection = signal<BuildingModel[][] | undefined>(undefined);
 
   /** Building objects with a flagged uri */
-  readonly buildingsFlagged = signal<BuildingMap>({});
+  readonly buildingsFlagged = signal<FlagResponse[]>([]);
   readonly buildingsFlagged$ = toObservable(this.buildingsFlagged);
 
   sapPoints$ = this.selectTable(this.queries.getSAPPoints());
+  flags$ = this.selectTable(this.queries.getAllFlaggedBuildings());
 
   buildingsEPC$ = forkJoin([
+    this.flags$,
     this.sapPoints$,
     this.selectTable(this.queries.getEPCData()),
   ]).pipe(
-    map(([points, epc]) =>
-      this.mapEPCBuildings(
+    map(([flags, points, epc]) => {
+      /** set flags */
+      this.buildingsFlagged.set(flags as unknown as FlagResponse[]);
+      return this.mapEPCBuildings(
         epc as unknown as EPCBuildingResponseModel[],
         points as unknown as SAPPoint[]
-      )
-    )
+      );
+    })
   );
 
   buildingsNoEPC$ = this.selectTable(this.queries.getNoEPCData()).pipe(
@@ -84,9 +89,10 @@ export class DataService {
     this.buildingsNoEPC$,
     this.buildingsFlagged$,
   ]).pipe(
-    map(([epc, noEPC, flagged]) =>
-      this.combineBuildingData(epc, noEPC, flagged)
-    )
+    map(([epc, noEPC, flagged]) => {
+      const currentFlags = this.getCurrentFlags(flagged);
+      return this.combineBuildingData(epc, noEPC, currentFlags);
+    })
   );
 
   private buildingResults = toSignal(this.allData$, {
@@ -299,7 +305,7 @@ export class DataService {
   combineBuildingData(
     epcBuildings: BuildingMap,
     nonEPCBuildings: BuildingMap,
-    flaggedBuildings: BuildingMap
+    flaggedBuildings: FlagResponse[]
   ) {
     const allBuildings: BuildingMap = { ...epcBuildings };
     Object.keys(nonEPCBuildings).forEach((toid: string) => {
@@ -311,13 +317,12 @@ export class DataService {
     });
 
     /* combine flagged buildings to all buildings */
-    Object.keys(flaggedBuildings).forEach(toid => {
+    flaggedBuildings.forEach(flag => {
+      const toid = flag.TOID ? flag.TOID : flag.ParentTOID!;
       if (allBuildings[toid]) {
-        flaggedBuildings[toid].forEach(fb => {
-          /* overwrite flagged property on building */
-          const index = allBuildings[toid].findIndex(b => b.UPRN === fb.UPRN);
-          allBuildings[toid][index].Flagged = fb.Flagged;
-        });
+        /* overwrite flagged property on building */
+        const index = allBuildings[toid].findIndex(b => b.UPRN === flag.UPRN);
+        allBuildings[toid][index].Flagged = flag.Flagged;
       }
     });
 
@@ -442,10 +447,14 @@ export class DataService {
           const toid = building.TOID ? building.TOID : building.ParentTOID;
           if (!toid) throw new Error(`Building ${building.UPRN} has no TOID`);
           building.Flagged = flagUri;
-          this.buildingsFlagged.update(b => ({
-            ...b,
-            [toid]: b[toid] ? [...b[toid], building] : [building],
-          }));
+          const flag: FlagResponse = {
+            UPRN: building.UPRN,
+            TOID: building.TOID,
+            ParentTOID: building.ParentTOID,
+            Flagged: flagUri,
+            FlagDate: new Date().toISOString() as string,
+          };
+          this.buildingsFlagged.update(flags => [...flags, flag]);
         })
       );
   }
@@ -481,14 +490,37 @@ export class DataService {
           /* set flagged property to undefined */
           building.Flagged = undefined;
           this.buildingsFlagged.update(b => {
-            /* remove building from flagged buildings */
-            const index = b[toid].findIndex(b => b.UPRN === building.UPRN);
-            b[toid].splice(index, 1);
-            /* add building to buildings */
-            b[toid].push(building);
-            return { ...b };
+            const index = b.findIndex(b => b.UPRN === building.UPRN);
+            b.splice(index, 1);
+            return [...b];
           });
         })
       );
+  }
+
+  /**
+   * Takes an array of flags and returns an array
+   * of the most current unique flags
+   * @param flags
+   * @returns current flags
+   */
+  private getCurrentFlags(flags: FlagResponse[]) {
+    const result = Object.values(
+      flags.reduce(
+        (
+          acc: { [key: string]: FlagResponse },
+          { UPRN, FlagDate, Flagged, ParentTOID, TOID }
+        ) => {
+          if (
+            !acc[UPRN] ||
+            Date.parse(acc[UPRN].FlagDate) < Date.parse(FlagDate)
+          )
+            acc[UPRN] = { UPRN, FlagDate, Flagged, ParentTOID, TOID };
+          return acc;
+        },
+        {}
+      )
+    );
+    return result;
   }
 }
