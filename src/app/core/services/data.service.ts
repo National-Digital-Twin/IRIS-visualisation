@@ -3,12 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import {
   Observable,
   Subscriber,
-  catchError,
   combineLatest,
-  filter,
+  forkJoin,
   map,
-  of,
-  switchMap,
   tap,
 } from 'rxjs';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
@@ -17,11 +14,9 @@ import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
 import { WRITE_BACK_ENDPOINT } from '@core/tokens/write-back-endpoint.token';
 import { SPARQLReturn, TableRow } from '@core/models/rdf-data.model';
 import {
-  BuildingDetailsModel,
   BuildingMap,
   BuildingModel,
-  BuildingPart,
-  BuildingPartMap,
+  SAPPoint,
 } from '@core/models/building.model';
 
 import { Queries } from './Queries';
@@ -33,12 +28,11 @@ import {
   WallConstruction,
   WindowGlazing,
 } from '@core/enums';
+import { InvalidateFlagReason } from '@core/enums/invalidate-flag-reason';
 import {
   EPCBuildingResponseModel,
   NoEPCBuildingResponseModel,
 } from '@core/models/building-response.model';
-
-import { InvalidateFlagReason } from '@core/enums/invalidate-flag-reason';
 
 @Injectable({
   providedIn: 'root',
@@ -51,8 +45,8 @@ export class DataService {
   private queries = new Queries();
 
   // single uprn
-  selectedUPRN = signal<number | undefined>(undefined);
-  selectedBuilding = signal<BuildingDetailsModel | undefined>(undefined);
+  selectedUPRN = signal<string | undefined>(undefined);
+  selectedBuilding = signal<BuildingModel | undefined>(undefined);
   // multiple buildings
   buildingsSelection = signal<BuildingModel[][] | undefined>(undefined);
 
@@ -60,16 +54,30 @@ export class DataService {
   readonly buildingsFlagged = signal<BuildingMap>({});
   readonly buildingsFlagged$ = toObservable(this.buildingsFlagged);
 
-  buildingsEPC$ = this.selectTable(this.queries.getEPCData()).pipe(
-    map(epc =>
-      this.mapEPCBuildings(epc as unknown as EPCBuildingResponseModel[])
+  sapPoints$ = this.selectTable(this.queries.getSAPPoints());
+
+  buildingsEPC$ = forkJoin([
+    this.sapPoints$,
+    this.selectTable(this.queries.getEPCData()),
+  ]).pipe(
+    map(([points, epc]) =>
+      this.mapEPCBuildings(
+        epc as unknown as EPCBuildingResponseModel[],
+        points as unknown as SAPPoint[]
+      )
     )
   );
+
   buildingsNoEPC$ = this.selectTable(this.queries.getNoEPCData()).pipe(
     map(noEPC =>
       this.mapNonEPCBuildings(noEPC as unknown as NoEPCBuildingResponseModel[])
     )
   );
+
+  /**
+   * Get all building data
+   * @returns Observable<BuildingMap>
+   */
 
   allData$ = combineLatest([
     this.buildingsEPC$,
@@ -86,59 +94,7 @@ export class DataService {
   });
   buildings = computed(() => this.buildingResults());
 
-  /**
-   * Create observable from selectedUPRN signal
-   * React to emissions, piping the UPRN through an observable
-   * pipeline.
-   * Use switchmap to get the data
-   * Use toSignal to automatically subscribe & unsubscribe
-   */
-  private buildingDetails$ = toObservable(this.selectedUPRN).pipe(
-    filter(Boolean),
-    map(uprn => {
-      const epc = this.getEPCByUPRN(uprn);
-      if (epc === EPCRating.none) {
-        return this.queries.getNoEPCBuildingDetails(+uprn);
-      } else {
-        return this.queries.getBuildingDetails(+uprn);
-      }
-    }),
-    switchMap(query =>
-      this.getBuildingDetails(query).pipe(
-        map(details => details[0] as unknown as BuildingDetailsModel),
-        tap(details => {
-          this.setSelectedBuilding(details);
-        }),
-        catchError(() => of({} as BuildingDetailsModel))
-      )
-    )
-  );
-  readOnlyBuildingDetails = toSignal(this.buildingDetails$, {
-    initialValue: undefined,
-  });
-
-  /**
-   * Get the related building parts for the selected building
-   */
-  private buildingParts$ = toObservable(this.selectedBuilding).pipe(
-    filter(Boolean),
-    switchMap(selectedBuilding => {
-      /** buildings with no EPC don't have building parts */
-      if (!selectedBuilding.EPC) {
-        return of({} as BuildingPartMap);
-      } else {
-        return this.getBuildingParts(selectedBuilding!.parts.split(';')).pipe(
-          map(p => this.mapBuildingParts(p as unknown as BuildingPart[])),
-          catchError(() => of({} as BuildingPartMap))
-        );
-      }
-    })
-  );
-
-  private buildingParts = toSignal(this.buildingParts$);
-  parts = computed(() => this.buildingParts());
-
-  setSelectedUPRN(uprn: number | undefined) {
+  setSelectedUPRN(uprn: string | undefined) {
     this.selectedUPRN.set(uprn);
   }
 
@@ -146,7 +102,7 @@ export class DataService {
    * Set individual building
    * @param building individual building
    */
-  setSelectedBuilding(building: BuildingDetailsModel | undefined) {
+  setSelectedBuilding(building: BuildingModel | undefined) {
     this.selectedBuilding.set(building ? building : undefined);
   }
 
@@ -156,25 +112,6 @@ export class DataService {
    */
   setSelectedBuildings(buildings: BuildingModel[][] | undefined) {
     this.buildingsSelection.set(buildings ? buildings : undefined);
-  }
-
-  /**
-   * Return building details for an individual building
-   * @param query Query string to request data from IA
-   * @returns
-   */
-  getBuildingDetails(query: string) {
-    return this.selectTable(query);
-  }
-
-  /**
-   * Return building parts
-   * @param partURIs Building part URIs
-   * @returns
-   */
-  getBuildingParts(partURIs: string[]) {
-    const selectString = this.queries.getBuildingParts(partURIs);
-    return this.selectTable(selectString);
   }
 
   /**
@@ -259,19 +196,23 @@ export class DataService {
   }
 
   /**
-   * An object where TOIDS are keys, and values are the building(s)
-   * data
+   * Create an object where TOIDS are keys, and values are the building(s)
+   * data, and joins SAP Ratings with each building
    * @param buildings array of buildings with EPC data
+   * @param sapPoints array of UPRNs and SAP Points
    * @returns an object with TOID as key, and an array of building
-   * objects with epc
+   * objects with epc and sap points
    */
-  mapEPCBuildings(buildings: EPCBuildingResponseModel[]) {
+  mapEPCBuildings(
+    buildings: EPCBuildingResponseModel[],
+    sapPoints: SAPPoint[]
+  ) {
     const buildingMap: BuildingMap = {};
     buildings.forEach((row: EPCBuildingResponseModel) => {
       const toid = row.TOID ? row.TOID : row.ParentTOID;
       /** if there is no TOID the building cannot be visualised */
       if (!toid) return;
-
+      const sapPoint = sapPoints.find(p => p.UPRN === row.UPRN);
       /** add 'none' for buildings with no EPC rating */
       const epc = row.EPC ? row.EPC : EPCRating.none;
       const yearOfAssessment = row.InspectionDate
@@ -291,6 +232,7 @@ export class DataService {
         YearOfAssessment: yearOfAssessment,
         ParentTOID: row.ParentTOID,
         TOID: toid,
+        SAPPoints: sapPoint?.SAPPoint ? sapPoint.SAPPoint : undefined,
         FloorConstruction: parts.FloorConstruction,
         FloorInsulation: parts.FloorInsulation,
         RoofConstruction: parts.RoofConstruction,
@@ -329,6 +271,7 @@ export class DataService {
         RoofConstruction: undefined,
         RoofInsulationLocation: undefined,
         RoofInsulationThickness: undefined,
+        SAPPoints: undefined,
         WallConstruction: undefined,
         WallInsulation: undefined,
         WindowGlazing: undefined,
@@ -380,35 +323,19 @@ export class DataService {
     return allBuildings;
   }
 
-  /**
-   * Maps part types to parts details
-   *
-   * @param parts building parts
-   * @returns object with key as part name
-   * and details as value for use in details panel
-   */
-  mapBuildingParts(parts: BuildingPart[]) {
-    const buildingPartMap: BuildingPartMap = {};
-    parts.forEach((part: BuildingPart) => {
-      /**
-       * if PartSuperType === 'PartOfBuiling'
-       * the source data value is 'Other'
-       */
-      const key =
-        part.PartSuperType === 'PartOfBuilding'
-          ? part.PartType
-          : part.PartSuperType;
-      buildingPartMap[key] = part;
-    });
-    return buildingPartMap;
-  }
-
-  getEPCByUPRN(uprn: number): string {
+  getEPCByUPRN(uprn: string): string {
     const allBuildings = this.buildings();
     const flatBuildings: BuildingModel[] = Object.values(allBuildings!).flat();
 
-    const building = flatBuildings.find(building => +building.UPRN === uprn);
+    const building = flatBuildings.find(building => building.UPRN === uprn);
     return building!.EPC!;
+  }
+
+  getBuildingByUPRN(uprn: string): BuildingModel {
+    const allBuildings = this.buildings();
+    const flatBuildings: BuildingModel[] = Object.values(allBuildings!).flat();
+    const building = flatBuildings.find(building => building.UPRN === uprn);
+    return building!;
   }
 
   private isWallKey(value: string): value is keyof typeof WallConstruction {

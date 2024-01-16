@@ -59,7 +59,6 @@ export class DetailsPanelComponent {
   @Output() removeFlag = new EventEmitter<BuildingModel>();
 
   buildingDetails = this.dataService.selectedBuilding;
-  buildingParts = this.dataService.parts;
 
   buildForm: { [key: string]: string } = BuildForm;
   floor: { [key: string]: string } = FloorConstruction;
@@ -88,6 +87,7 @@ export class DetailsPanelComponent {
         panelClass: 'data-download',
         data: {
           addresses: [this.buildingDetails()?.FullAddress ?? ''],
+          addressCount: undefined,
         },
       })
       .afterClosed()

@@ -1,12 +1,12 @@
 <div
   class="results-card"
-  [ngClass]="{ 'results-card--select': +card.UPRN === buildingUPRN }">
+  [ngClass]="{ 'results-card--select': card.UPRN === buildingUPRN }">
   <div class="results-card__header">
     @if (select) {
       <mat-checkbox
         color="primary"
         [checked]="checked"
-        (change)="toggleChecked.emit()">
+        (change)="toggleChecked.emit($event.checked)">
         {{ getAddressSegment(0) }}
         {{ getAddressSegment(1) }}
       </mat-checkbox>

@@ -17,40 +17,15 @@ export type BuildingModel = {
   RoofConstruction: string | undefined;
   RoofInsulationThickness: string | undefined;
   RoofInsulationLocation: string | undefined;
+  SAPPoints: string | undefined;
   WallConstruction: string | undefined;
   WallInsulation: string | undefined;
   WindowGlazing: string | undefined;
 };
 
-export interface BuildingDetailsModel extends BuildingModel {
-  SAPPoints: string;
-  parts: string;
-}
-
-export interface DownloadDataModel extends BuildingDetailsModel {
-  FloorPartType: string;
-  FloorPartSuperType: string;
-  FloorPartInsulationType: string;
-  FloorPartInsulationThickness: string;
-  FloorInsulationThickness: string;
-  FloorInsulationThicknessLowerBound: string;
-  RoofPartType: string;
-  RoofPartSuperType: string;
-  RoofPartInsulationType: string;
-  RoofPartInsulationThickness: string;
-  RoofInsulationThicknessLowerBound: string;
-  WallPartType: string;
-  WallPartSuperType: string;
-  WallPartInsulationType: string;
-  WallPartInsulationThickness: string;
-  WallInsulationThickness: string;
-  WallInsulationThicknessLowerBound: string;
-  WindowPartType: string;
-  WindowPartSuperType: string;
-  WindowPartInsulationType: string;
-  WindowPartInsulationThickness: string;
-  WindowInsulationThickness: string;
-  WindowInsulationThicknessLowerBound: string;
+export interface SAPPoint {
+  UPRN: string;
+  SAPPoint: string;
 }
 
 export interface BuildingMap {
