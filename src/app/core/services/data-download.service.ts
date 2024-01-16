@@ -29,8 +29,21 @@ export class DataDownloadService {
     });
   }
 
-  downloadAll() {
-    const selectedBuildings = this.dataService.buildingsSelection();
+  downloadAll(uprns?: string[]) {
+    const data = this.dataService.buildingsSelection();
+    let selectedBuildings: BuildingModel[] = [];
+    if (uprns?.length) {
+      data!.flat().forEach(building => {
+        if (uprns.includes(building.UPRN)) {
+          selectedBuildings.push(building);
+        } else {
+          return;
+        }
+      });
+    } else {
+      selectedBuildings = data!.flat();
+    }
+
     const csvBlob = this.arrayToCSV(selectedBuildings!.flat());
     const filename =
       'iris-download-' +

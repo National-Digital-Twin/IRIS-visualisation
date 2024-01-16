@@ -156,7 +156,11 @@ export class ResultsPanelComponent {
   }
 
   downloadAll() {
-    this.dataDownloadService.downloadAll();
+    if (this.selectMultiple) {
+      this.dataDownloadService.downloadAll(this.checkedCards);
+    } else {
+      this.dataDownloadService.downloadAll();
+    }
   }
 
   downloadBuilding(building: BuildingModel) {

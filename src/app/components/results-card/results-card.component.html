@@ -4,6 +4,7 @@
   <div class="results-card__header">
     @if (select) {
       <mat-checkbox
+        [disabled]="parent"
         color="primary"
         [checked]="checked"
         (change)="toggleChecked.emit()">
