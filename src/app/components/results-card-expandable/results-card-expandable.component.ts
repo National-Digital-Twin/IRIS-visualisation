@@ -25,6 +25,7 @@ export class ResultsCardExpandableComponent implements OnChanges {
   private utilService = inject(UtilService);
   @Input() dwellings!: BuildingModel[];
   @Input() select: boolean = false;
+  @Input() buildingTOID?: string;
   @Output() cardSelected: EventEmitter<BuildingModel> =
     new EventEmitter<BuildingModel>();
   @Output() emitViewDetails: EventEmitter<BuildingModel> =

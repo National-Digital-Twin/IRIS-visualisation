@@ -22,7 +22,9 @@ export class DataDownloadService {
    */
   downloadData(data: Partial<DownloadDataModel>): void {
     const csvBlob = this.formatDataForCSV(data);
-    const filename = 'iris-download-' + new Date().toISOString();
+    const filename =
+      'iris-download-' +
+      new Date().toISOString().replaceAll(':', '_').replaceAll('.', '_');
     const warning = this.generateWarning();
     const zip = new JSZip();
     zip.file(filename + '.csv', csvBlob);
