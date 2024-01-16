@@ -10,7 +10,7 @@
     width: 26.5rem;
     margin-right: var(--arc-spacing-x-small);
     .mdc-text-field--filled:not(.mdc-text-field--disabled) {
-      background: $color-input-background;
+      background: var(--bg);
       box-shadow: $box-shadow;
     }
   }
@@ -62,10 +62,13 @@
     margin-left: 0.5rem;
     height: 3.5rem;
     box-shadow: $box-shadow;
+    --mdc-filled-button-container-color: rgb(
+      var(--arc-container-color)
+    ) !important;
   }
 
   .mdc-text-field--filled:not(.mdc-text-field--disabled) {
-    background: $color-input-background;
+    background: rgb(var(--arc-container-color)) !important;
   }
 
   .clear-all-button {
@@ -82,5 +85,6 @@
       height: $small-size-icon;
       line-height: $small-size-icon;
     }
+    box-shadow: $box-shadow;
   }
 }

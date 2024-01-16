@@ -1,21 +1,51 @@
-<div class="map-controls-container">
+<div *ngIf="theme$ | async as theme" class="map-controls-container">
   <div class="map-controls">
     <button mat-icon-button class="map-button" (click)="resetMapView.emit()">
-      <img src="assets/icons/NavigationArrow.svg" alt="reset map view" />
+      <img
+        [src]="
+          theme === 'light'
+            ? 'assets/icons/NavigationArrow.svg'
+            : 'assets/icons/NavigationArrow_white.svg'
+        "
+        alt="reset map view" />
     </button>
     <button class="map-button" mat-icon-button (click)="zoomIn.emit()">
-      <img src="assets/icons/Plus.svg" alt="zoom in" />
+      <img
+        [src]="
+          theme === 'light'
+            ? 'assets/icons/Plus.svg'
+            : 'assets/icons/Plus_white.svg'
+        "
+        alt="zoom in" />
     </button>
     <button class="map-button" mat-icon-button (click)="zoomOut.emit()">
-      <img src="assets/icons/Minus.svg" alt="zoom out" />
+      <img
+        [src]="
+          theme === 'light'
+            ? 'assets/icons/Minus.svg'
+            : 'assets/icons/Minus_white.svg'
+        "
+        alt="zoom out" />
     </button>
   </div>
   <div class="map-controls">
     <button mat-icon-button class="map-button" (click)="setDrawMode('polygon')">
-      <img src="assets/icons/SpatialSearch.svg" alt="draw polygon" />
+      <img
+        [src]="
+          theme === 'light'
+            ? 'assets/icons/SpatialSearch.svg'
+            : 'assets/icons/SpatialSearch_white.svg'
+        "
+        alt="draw polygon" />
     </button>
     <button mat-icon-button class="map-button" (click)="setDrawMode('delete')">
-      <img src="assets/icons/Trash.svg" alt="delete polygon" />
+      <img
+        [src]="
+          theme === 'light'
+            ? 'assets/icons/Trash.svg'
+            : 'assets/icons/Trash_white.svg'
+        "
+        alt="delete polygon" />
     </button>
   </div>
   <div class="map-controls">
@@ -23,7 +53,13 @@
       mat-icon-button
       class="map-button"
       (click)="showLegend = !showLegend">
-      <img src="assets/icons/MapControls.svg" alt="open legend" />
+      <img
+        [src]="
+          theme === 'light'
+            ? 'assets/icons/MapControls.svg'
+            : 'assets/icons/MapControls_white.svg'
+        "
+        alt="open legend" />
     </button>
   </div>
   @if (showLegend) {

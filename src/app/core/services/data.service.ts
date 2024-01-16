@@ -34,13 +34,11 @@ import {
   NoEPCBuildingResponseModel,
 } from '@core/models/building-response.model';
 
-import { MockHttpClient } from '@core/services/mock-http-client.service';
-
 @Injectable({
   providedIn: 'root',
 })
 export class DataService {
-  private readonly http: HttpClient = inject(MockHttpClient);
+  private readonly http: HttpClient = inject(HttpClient);
   private readonly searchEndpoint: string = inject(SEARCH_ENDPOINT);
   private readonly writeBackEndpoint = inject(WRITE_BACK_ENDPOINT);
 
@@ -470,7 +468,7 @@ export class DataService {
       .post<NonNullable<BuildingModel['Flagged']>>(
         `${this.writeBackEndpoint}/invalidate-flag`,
         {
-          flatUri: building.Flagged,
+          flagUri: building.Flagged,
           assessmentTypeOverride: `ndt_ont:${key}`,
         },
         { withCredentials: true }

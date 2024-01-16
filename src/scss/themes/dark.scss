@@ -1,16 +1,32 @@
 @use '@angular/material' as mat;
 
 $c477-dark-theme: mat.define-dark-theme(
-  mat.define-palette($c477-primary-palette, 500, 300, 700),
-  mat.define-palette($c477-accent-palette, 500, 300, 700),
+  mat.define-palette($c477-primary-palette, 50),
+  mat.define-palette($c477-accent-palette),
   mat.define-palette(mat.$red-palette)
 );
 
+body[theme='dark'],
 body[theme='dark'] * {
   @include mat.core-theme($c477-dark-theme);
   @include mat.all-component-themes($c477-dark-theme);
 
+  --c477-color--btn-background: transparent;
+
   --arc-container-color: 9, 34, 66;
   --c477-color--hover: 15, 58, 112;
   --c477-color--selected: 21, 81, 157;
+  --mdc-dialog-container-color: rgb(var(--arc-container-color));
+  --mat-expansion-container-background-color: rgb(var(--arc-container-color));
+  --mat-select-panel-background-color: rgb(var(--arc-container-color));
+  --mat-autocomplete-background-color: rgb(var(--arc-container-color));
+  --mdc-filled-button-container-color: var(--c477-color--btn-background);
+  --mdc-filled-button-container-color: var(--c477-color--btn-background);
+  --mat-standard-button-toggle-background-color: var(
+    --c477-color--btn-background
+  );
+}
+
+body[theme='dark'] {
+  background: rgb(var(--arc-container-color));
 }
