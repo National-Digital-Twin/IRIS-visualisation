@@ -385,10 +385,15 @@ export class UtilService {
    * @param UPRN
    */
   resultsCardSelected(TOID: string, UPRN: string) {
-    this.selectResultsCard(UPRN);
-    /** if its not multi dwelling select on map */
-    if (this.multiDwelling() === undefined) {
+    /** select single dwelling on map */
+    if (UPRN !== '' && TOID !== '') {
+      this.selectResultsCard(UPRN);
       this.selectSingleDwellingOnMap(TOID);
+    }
+    /** select multi-dwelling on map */
+    if (UPRN === '' && TOID !== '') {
+      console.log('multi dwelling');
+      this.selectMultiDwellingOnMap(TOID);
     }
   }
 
@@ -403,6 +408,8 @@ export class UtilService {
     if (this.multiDwelling() !== undefined) {
       this.deselectResultsCard();
       this.closeBuildingDetails();
+      this.multiDwelling.set(undefined);
+      this.deselectMultiDwellingOnMap();
     } else {
       this.deselectResultsCard();
       this.closeBuildingDetails();
@@ -482,7 +489,7 @@ export class UtilService {
   }
 
   /**
-   * Handle selecting a multi-dwelling building on the map
+   * Handle clicking a multi-dwelling building on the map
    * @param TOID
    */
   multipleDwellingSelectedOnMap(TOID: string) {
@@ -573,7 +580,6 @@ export class UtilService {
       const buildings = this.getBuildings(TOID);
       this.openResultsPanel(buildings);
     }
-    //TODO - handle multi dwelling building selection for filtered data
   }
 
   private deselectSingleDwellingOnMap() {
