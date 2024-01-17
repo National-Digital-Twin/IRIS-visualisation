@@ -1,8 +1,7 @@
-@use '@angular/material' as mat;
 @import '../abstracts/_variables.scss';
-@import './light.scss';
 
 * {
+  --arc-color-primary: var(--arc-purple-050);
   --c477-color--epc-a: #{$color-epc-a};
   --c477-color--epc-b: #{$color-epc-b};
   --c477-color--epc-c: #{$color-epc-c};
@@ -10,9 +9,6 @@
   --c477-color--epc-e: #{$color-epc-e};
   --c477-color--epc-f: #{$color-epc-f};
   --c477-color--epc-g: #{$color-epc-g};
-  @include mat.core-theme($c477-light-theme);
-  @include mat.all-component-themes($c477-light-theme);
-  --arc-background-color: var(--arc-white-000);
 }
 
 body[color-blind-mode='true'] * {

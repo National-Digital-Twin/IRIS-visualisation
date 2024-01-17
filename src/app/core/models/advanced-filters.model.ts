@@ -1,28 +1,28 @@
 import { Moment } from 'moment/moment';
 import {
   BuildForm,
-  Floor,
+  FloorConstruction,
   FloorInsulation,
   PostCode,
-  Roof,
-  RoofInsulation,
+  RoofConstruction,
+  RoofInsulationLocation,
   RoofInsulationThickness,
   WindowGlazing,
-  Wall,
+  WallConstruction,
   WallInsulation,
   YearOfAssessment,
 } from '@core/enums';
 
 export type AdvancedFilter =
   | typeof BuildForm
-  | typeof Floor
+  | typeof FloorConstruction
   | typeof FloorInsulation
   | typeof PostCode
-  | typeof Roof
-  | typeof RoofInsulation
+  | typeof RoofConstruction
+  | typeof RoofInsulationLocation
   | typeof RoofInsulationThickness
   | typeof WindowGlazing
-  | typeof Wall
+  | typeof WallConstruction
   | typeof WallInsulation
   | typeof YearOfAssessment;
 
@@ -34,13 +34,13 @@ export interface DateFormModel {
 export interface AdvancedFiltersFormModel {
   PostCode: PostCode[] | null;
   BuildForm: BuildForm[] | null;
-  MultipleGlazingType: WindowGlazing[] | null;
-  WallConstruction: Wall[] | null;
+  WindowGlazing: WindowGlazing[] | null;
+  WallConstruction: WallConstruction[] | null;
   WallInsulation: WallInsulation[] | null;
-  FloorConstruction: Floor[] | null;
+  FloorConstruction: FloorConstruction[] | null;
   FloorInsulation: FloorInsulation[] | null;
-  RoofConstruction: Roof[] | null;
-  RoofInsulationLocation: RoofInsulation[] | null;
+  RoofConstruction: RoofConstruction[] | null;
+  RoofInsulationLocation: RoofInsulationLocation[] | null;
   RoofInsulationThickness: RoofInsulationThickness[] | null;
   YearOfAssessment: YearOfAssessment[] | null;
 }
@@ -55,9 +55,10 @@ export interface MultiButtonFilterOption {
 export interface FilterProps {
   BuildForm?: string[];
   EPC?: string[];
+  Flagged?: string[];
   FloorConstruction?: string[];
   FloorInsulation?: string[];
-  MultipleGlazingType?: string[];
+  WindowGlazing?: string[];
   PostCode?: string[];
   PropertyType?: string[];
   RoofConstruction?: string[];
@@ -73,7 +74,8 @@ export type FilterKeys =
   | 'EPC'
   | 'FloorConstruction'
   | 'FloorInsulation'
-  | 'MultipleGlazingType'
+  | 'Flagged'
+  | 'WindowGlazing'
   | 'PostCode'
   | 'PropertyType'
   | 'RoofConstruction'

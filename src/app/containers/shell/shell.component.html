@@ -31,10 +31,14 @@
       (addressSelected)="setSelectedBuildingTOID($event)"></c477-main-filters>
 
     <div class="panel-container">
-      <c477-results-panel></c477-results-panel>
+      <c477-results-panel
+        (flag)="onFlag($event)"
+        (removeFlag)="onRemoveFlag($event)"></c477-results-panel>
       <c477-details-panel
         (closePanel)="closeDetails()"
-        (downloadData)="downloadData()"></c477-details-panel>
+        (downloadData)="downloadData()"
+        (flag)="onFlag($event)"
+        (removeFlag)="onRemoveFlag($event)"></c477-details-panel>
     </div>
 
     <div class="content__map-container">

@@ -1,4 +1,4 @@
-export enum Wall {
+export enum WallConstruction {
   GraniteOrWhinstoneWall = 'Granite Or Whinstone Wall',
   SandstoneWall = 'Sandstone Wall',
   SandstoneOrLimestoneWall = 'Sandstone Or Limestone Wall',

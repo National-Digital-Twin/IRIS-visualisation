@@ -17,11 +17,12 @@ import { DownloadWarningComponent } from '@components/download-warning/download-
 import { LabelComponent } from '@components/label/label.component';
 
 import { UtilService } from '@core/services/utils.service';
+import { SettingsService, SETTINGS } from '@core/services/settings.service';
 
 import { BuildingModel } from '@core/models/building.model';
 
 @Component({
-  selector: 'c477-results-card',
+  selector: 'c477-results-card[card]',
   standalone: true,
   imports: [
     CommonModule,
@@ -34,6 +35,7 @@ import { BuildingModel } from '@core/models/building.model';
   styleUrl: './results-card.component.css',
 })
 export class ResultsCardComponent {
+  public readonly theme = inject(SettingsService).get(SETTINGS.Theme);
   private utilService = inject(UtilService);
 
   @HostListener('click', ['$event'])
@@ -43,12 +45,19 @@ export class ResultsCardComponent {
   }
 
   @Input() card!: BuildingModel;
-  @Input() buildingUPRN?: number;
+  @Input() buildingUPRN?: string;
   @Input() select: boolean = false;
+  @Input() parent: boolean = false;
+  @Input() checked: boolean = false;
+  @Output() downloadData: EventEmitter<BuildingModel> =
+    new EventEmitter<BuildingModel>();
   @Output() emitViewDetails: EventEmitter<BuildingModel> =
     new EventEmitter<BuildingModel>();
   @Output() cardSelected: EventEmitter<BuildingModel> =
     new EventEmitter<BuildingModel>();
+  @Output() toggleChecked = new EventEmitter<boolean>();
+  @Output() flag = new EventEmitter<void>();
+  @Output() removeFlag = new EventEmitter<void>();
 
   constructor(public dialog: MatDialog) {}
 
@@ -57,12 +66,19 @@ export class ResultsCardComponent {
   }
 
   openDownloadWarning() {
-    this.dialog.open(DownloadWarningComponent, {
-      panelClass: 'data-download',
-      data: {
-        addresses: [this.card?.FullAddress],
-      },
-    });
+    this.dialog
+      .open(DownloadWarningComponent, {
+        panelClass: 'data-download',
+        data: {
+          addresses: [this.card?.FullAddress],
+        },
+      })
+      .afterClosed()
+      .subscribe(download => {
+        if (download) {
+          this.downloadData.emit(this.card);
+        }
+      });
   }
 
   selectCard() {

@@ -33,12 +33,13 @@
       justify-content: center;
       align-items: center;
 
-      background-color: $color-button-background !important;
+      background-color: rgb(var(--arc-container-color)) !important;
+      color: rgb(var(--arc-font-color));
       box-shadow: 0px 2px 3px rgba(118, 118, 118, 0.2);
       border-bottom: 1px solid rgba(0, 0, 0, 0.12);
       &__reset {
         margin-bottom: 0.5rem;
-        background-color: $color-button-background !important;
+        background-color: rgb(var(--arc-container-color)) !important;
         box-shadow: 0px 2px 3px rgba(118, 118, 118, 0.2);
       }
     }

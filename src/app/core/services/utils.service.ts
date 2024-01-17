@@ -198,9 +198,7 @@ export class UtilService {
      * display results
      */
     if (Object.keys(this.filterProps()).length || spatialFilter) {
-      this.dataService.setSelectedBuildings(
-        Object.values(filteredBuildings).flat()
-      );
+      this.dataService.setSelectedBuildings(Object.values(filteredBuildings));
     }
   }
 
@@ -255,20 +253,25 @@ export class UtilService {
       E: 5,
       F: 6,
       G: 7,
-      none: 0,
     };
     const scores: number[] = [];
-    // get the weighting for each epc value
-    epcRatings.forEach(val => scores.push(weightings[val]));
-    const sum = scores.reduce((a, c) => a + c, 0);
-    const mean = sum / scores.length;
-    Object.keys(weightings).forEach((epc: string) => {
-      // find the corresponding weighting for the mean
-      if (Math.floor(mean) === weightings[epc]) {
-        meanEPC = epc;
-      }
-    });
-    return meanEPC;
+    // remove EPC none from the epcs to average
+    const epcsToAverage = epcRatings.filter(rating => rating !== 'none');
+    if (epcsToAverage.length > 0) {
+      // get the weighting for each epc value
+      epcsToAverage.forEach(val => scores.push(weightings[val]));
+      const sum = scores.reduce((a, c) => a + c, 0);
+      const mean = sum / scores.length;
+      Object.keys(weightings).forEach((epc: string) => {
+        // find the corresponding weighting for the mean
+        if (Math.round(mean) === weightings[epc]) {
+          meanEPC = epc;
+        }
+      });
+      return meanEPC;
+    } else {
+      return 'none';
+    }
   }
 
   getEPCColour(epcRating: string): string {
@@ -333,14 +336,18 @@ export class UtilService {
         const removeQuotes = filterProps[key as keyof FilterProps]?.map(k =>
           k.replace(/['"]+/g, '')
         );
-        return removeQuotes?.includes(
-          // eslint-disable-next-line
-          // @ts-ignore
-          building[key as keyof BuildingModel]
-        );
+        /** if flagged filter exists return the building if it has a flag */
+        if (key === 'Flagged' && building.Flagged !== undefined) {
+          return true;
+        } else {
+          return removeQuotes?.includes(
+            // eslint-disable-next-line
+            // @ts-ignore
+            building[key as keyof BuildingModel]
+          );
+        }
       })
     );
-    // convert filtered array of buildings back to object
     const filteredBuildings: BuildingMap =
       this.dataService.mapBuildings(filtered);
     return filteredBuildings;
@@ -381,11 +388,15 @@ export class UtilService {
    * @param TOID
    * @param UPRN
    */
-  resultsCardSelected(TOID: string, UPRN: number) {
-    this.selectResultsCard(UPRN);
-    /** if its not multi dwelling select on map */
-    if (this.multiDwelling() === '') {
+  resultsCardSelected(TOID: string, UPRN: string) {
+    /** select single dwelling on map */
+    if (UPRN !== '' && TOID !== '') {
+      this.selectResultsCard(UPRN);
       this.selectSingleDwellingOnMap(TOID);
+    }
+    /** select multi-dwelling on map */
+    if (UPRN === '' && TOID !== '') {
+      this.selectMultiDwellingOnMap(TOID);
     }
   }
 
@@ -397,9 +408,11 @@ export class UtilService {
      * if multi-dwelling don't deselect
      * building on map
      */
-    if (this.multiDwelling() !== '') {
+    if (this.multiDwelling() !== undefined) {
       this.deselectResultsCard();
       this.closeBuildingDetails();
+      this.multiDwelling.set(undefined);
+      this.deselectMultiDwellingOnMap();
     } else {
       this.deselectResultsCard();
       this.closeBuildingDetails();
@@ -413,9 +426,9 @@ export class UtilService {
    * @param UPRN
    * @param mapCenter
    */
-  viewDetailsButtonClick(TOID: string, UPRN: number, mapCenter: number[]) {
+  viewDetailsButtonClick(TOID: string, UPRN: string, mapCenter: number[]) {
     /** if its not viewing details for a multi dwelling select on map */
-    if (this.multiDwelling() === '') {
+    if (this.multiDwelling() === undefined) {
       this.selectSingleDwellingOnMap(TOID);
     }
     this.selectResultsCard(UPRN);
@@ -438,7 +451,7 @@ export class UtilService {
     if (
       !spatialFilter &&
       !Object.keys(filterProps).length &&
-      this.multiDwelling() === ''
+      this.multiDwelling() === undefined
     ) {
       this.deselectSingleDwellingOnMap();
     }
@@ -449,9 +462,10 @@ export class UtilService {
    * @param TOID
    * @param UPRN
    */
-  selectedUPRN = signal<number | undefined>(undefined);
-  singleDwellingSelectedOnMap(TOID: string, UPRN: number) {
+  selectedUPRN = signal<string | undefined>(undefined);
+  singleDwellingSelectedOnMap(TOID: string, UPRN: string) {
     this.selectedUPRN.set(UPRN);
+    this.multiDwellingDeselected();
     this.selectSingleDwellingOnMap(TOID);
     this.viewBuildingDetails(UPRN);
     /** if filtered data then results panel open so select card */
@@ -478,10 +492,11 @@ export class UtilService {
   }
 
   /**
-   * Handle selecting a multi-dwelling building on the map
+   * Handle clicking a multi-dwelling building on the map
    * @param TOID
    */
   multipleDwellingSelectedOnMap(TOID: string) {
+    this.singleDwellingDeselected();
     this.selectMultiDwellingOnMap(TOID);
   }
 
@@ -489,9 +504,9 @@ export class UtilService {
    * Handle deselecting a multi-dwelling building on the map
    */
   multiDwellingDeselected() {
+    this.multiDwelling.set(undefined);
     this.deselectMultiDwellingOnMap();
     this.deselectResultsCard();
-    this.multiDwelling.set('');
   }
 
   setSpatialFilter(searchArea: GeoJSON.Feature<Polygon>) {
@@ -523,11 +538,11 @@ export class UtilService {
     this.dataService.setSelectedBuildings(undefined);
   }
 
-  selectedCardUPRN = signal<number | undefined>(undefined);
-  multiDwelling = signal<string>('');
+  selectedCardUPRN = signal<string | undefined>(undefined);
+  multiDwelling = signal<string | undefined>(undefined);
 
   /** set the UPRN of the selected results card */
-  private selectResultsCard(UPRN: number) {
+  private selectResultsCard(UPRN: string) {
     this.selectedCardUPRN.set(UPRN);
   }
 
@@ -536,8 +551,10 @@ export class UtilService {
     this.closeBuildingDetails();
   }
 
-  private viewBuildingDetails(UPRN: number) {
+  private viewBuildingDetails(UPRN: string) {
     this.dataService.setSelectedUPRN(UPRN);
+    const building = this.dataService.getBuildingByUPRN(UPRN.toString());
+    this.dataService.setSelectedBuilding(building);
   }
 
   private closeBuildingDetails() {
@@ -566,7 +583,6 @@ export class UtilService {
       const buildings = this.getBuildings(TOID);
       this.openResultsPanel(buildings);
     }
-    //TODO - handle multi dwelling building selection for filtered data
   }
 
   private deselectSingleDwellingOnMap() {
@@ -589,6 +605,6 @@ export class UtilService {
   }
 
   private openResultsPanel(buildings: BuildingModel[]) {
-    this.dataService.setSelectedBuildings(buildings);
+    this.dataService.setSelectedBuildings([buildings]);
   }
 }

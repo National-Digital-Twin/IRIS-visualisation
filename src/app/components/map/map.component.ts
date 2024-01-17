@@ -6,7 +6,9 @@ import {
   Input,
   OnDestroy,
   Output,
+  ChangeDetectionStrategy,
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -27,13 +29,14 @@ import { LegendComponent } from '@components/legend/legend.component';
 @Component({
   selector: 'c477-map',
   standalone: true,
-  imports: [LegendComponent, MatButtonModule, MatIconModule],
+  imports: [CommonModule, LegendComponent, MatButtonModule, MatIconModule],
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MapComponent implements AfterViewInit, OnDestroy {
   private readonly theme = inject(SettingsService).get(SETTINGS.Theme);
-  private readonly theme$ = toObservable(this.theme).pipe(takeUntilDestroyed());
+  public readonly theme$ = toObservable(this.theme).pipe(takeUntilDestroyed());
   private runtimeConfig = inject(RUNTIME_CONFIGURATION);
   private mapService = inject(MapService);
 

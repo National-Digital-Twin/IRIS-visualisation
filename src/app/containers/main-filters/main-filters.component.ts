@@ -5,10 +5,15 @@ import { Observable, switchMap, tap, of } from 'rxjs';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
+import {
+  MatSlideToggleChange,
+  MatSlideToggleModule,
+} from '@angular/material/slide-toggle';
 
 import { FilterPanelComponent } from '@containers/filter-panel/filter-panel.component';
 import { LabelComponent } from '@components/label/label.component';
@@ -16,14 +21,14 @@ import { LabelComponent } from '@components/label/label.component';
 import {
   BuildForm,
   EPCRating,
-  Floor,
+  FloorConstruction,
   FloorInsulation,
   PostCode,
   PropertyType,
-  Roof,
-  RoofInsulation,
+  RoofConstruction,
+  RoofInsulationLocation,
   RoofInsulationThickness,
-  Wall,
+  WallConstruction,
   WallInsulation,
   WindowGlazing,
   YearOfAssessment,
@@ -50,10 +55,12 @@ import { MapService } from '@core/services/map.service';
     LabelComponent,
     MatAutocompleteModule,
     MatButtonModule,
+    MatDividerModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    MatSlideToggleModule,
     ReactiveFormsModule,
   ],
   templateUrl: './main-filters.component.html',
@@ -77,6 +84,8 @@ export class MainFiltersComponent {
   advancedFiltersForm?: FormGroup;
   results$: Observable<AddressSearchData[]>;
   firstAddress?: AddressSearchData;
+
+  filterFlagged: boolean = false;
 
   constructor(public dialog: MatDialog) {
     this.results$ = this.addressSearch.valueChanges.pipe(
@@ -136,8 +145,23 @@ export class MainFiltersComponent {
       },
     });
     dialogRef.afterClosed().subscribe(form => {
-      if (form.value) {
+      if (form && form.value) {
         this.setAdvancedFilters.emit(form.value);
+      } else {
+        /** undefined form means clear all button is clicked */
+        this.setAdvancedFilters.emit({
+          PostCode: [],
+          BuildForm: [],
+          WindowGlazing: [],
+          WallConstruction: [],
+          WallInsulation: [],
+          FloorConstruction: [],
+          FloorInsulation: [],
+          RoofConstruction: [],
+          RoofInsulationLocation: [],
+          RoofInsulationThickness: [],
+          YearOfAssessment: [],
+        });
       }
     });
   }
@@ -150,6 +174,14 @@ export class MainFiltersComponent {
     this.setRouteParams.emit({ EPC: e.value.map((r: string) => r) });
   }
 
+  flaggedFilterChange(e: MatSlideToggleChange) {
+    if (e.checked) {
+      this.setRouteParams.emit({ Flagged: ['true'] });
+    } else {
+      this.setRouteParams.emit({ Flagged: [] });
+    }
+  }
+
   createForm(): FormGroup {
     this.advancedFiltersForm = this.fb.group<AdvancedFiltersFormModel>({
       PostCode: [this.filterProps?.PostCode as unknown as PostCode],
@@ -157,22 +189,27 @@ export class MainFiltersComponent {
       YearOfAssessment: [
         this.filterProps?.YearOfAssessment as unknown as YearOfAssessment,
       ],
-      MultipleGlazingType: [
-        this.filterProps?.MultipleGlazingType as unknown as WindowGlazing,
+      WindowGlazing: [
+        this.filterProps?.WindowGlazing as unknown as WindowGlazing,
       ],
-      WallConstruction: [this.filterProps?.WallConstruction as unknown as Wall],
+      WallConstruction: [
+        this.filterProps?.WallConstruction as unknown as WallConstruction,
+      ],
       WallInsulation: [
         this.filterProps?.WallInsulation as unknown as WallInsulation,
       ],
       FloorConstruction: [
-        this.filterProps?.FloorConstruction as unknown as Floor,
+        this.filterProps?.FloorConstruction as unknown as FloorConstruction,
       ],
       FloorInsulation: [
         this.filterProps?.FloorInsulation as unknown as FloorInsulation,
       ],
-      RoofConstruction: [this.filterProps?.RoofConstruction as unknown as Roof],
+      RoofConstruction: [
+        this.filterProps?.RoofConstruction as unknown as RoofConstruction,
+      ],
       RoofInsulationLocation: [
-        this.filterProps?.RoofInsulationLocation as unknown as RoofInsulation,
+        this.filterProps
+          ?.RoofInsulationLocation as unknown as RoofInsulationLocation,
       ],
       RoofInsulationThickness: [
         this.filterProps
@@ -180,5 +217,15 @@ export class MainFiltersComponent {
       ],
     });
     return this.advancedFiltersForm;
+  }
+
+  clearEPC($event: Event) {
+    $event.stopPropagation();
+    this.setRouteParams.emit({ EPC: [] });
+  }
+
+  clearPropertyType($event: Event) {
+    $event.stopPropagation();
+    this.setRouteParams.emit({ PropertyType: [] });
   }
 }

@@ -7,21 +7,23 @@ import {
   MatDialogActions,
   MatDialogClose,
   MatDialogContent,
+  MatDialogRef,
   MatDialogTitle,
 } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MultiButtonFilterComponent } from '@components/multi-button-filter/multi-button-filter.component';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
+
 import {
   BuildForm,
-  Floor,
+  FloorConstruction,
   FloorInsulation,
   PostCode,
-  Roof,
-  RoofInsulation,
+  RoofConstruction,
+  RoofInsulationLocation,
   RoofInsulationThickness,
   WindowGlazing,
-  Wall,
+  WallConstruction,
   WallInsulation,
   YearOfAssessment,
 } from '@core/enums';
@@ -55,6 +57,7 @@ interface PanelData {
 })
 export class FilterPanelComponent {
   advancedFiltersForm: FormGroup;
+
   generalFilters: MultiButtonFilterOption[] = [
     {
       title: 'Post Code',
@@ -79,14 +82,14 @@ export class FilterPanelComponent {
     {
       title: 'Multiple Glazing Type',
       data: WindowGlazing,
-      formControlName: 'MultipleGlazingType',
-      selectedValues: this.data.filterProps?.MultipleGlazingType,
+      formControlName: 'WindowGlazing',
+      selectedValues: this.data.filterProps?.WindowGlazing,
     },
   ];
   wallFilters: MultiButtonFilterOption[] = [
     {
       title: 'Wall Construction',
-      data: Wall,
+      data: WallConstruction,
       formControlName: 'WallConstruction',
       selectedValues: this.data.filterProps?.WallConstruction,
     },
@@ -100,7 +103,7 @@ export class FilterPanelComponent {
   floorFilters: MultiButtonFilterOption[] = [
     {
       title: 'Floor Construction',
-      data: Floor,
+      data: FloorConstruction,
       formControlName: 'FloorConstruction',
       selectedValues: this.data.filterProps?.FloorConstruction,
     },
@@ -114,13 +117,13 @@ export class FilterPanelComponent {
   roofFilters: MultiButtonFilterOption[] = [
     {
       title: 'Roof Construction',
-      data: Roof,
+      data: RoofConstruction,
       formControlName: 'RoofConstruction',
       selectedValues: this.data.filterProps?.RoofConstruction,
     },
     {
       title: 'Roof Insulation Location',
-      data: RoofInsulation,
+      data: RoofInsulationLocation,
       formControlName: 'RoofInsulationLocation',
       selectedValues: this.data.filterProps?.RoofInsulationLocation,
     },
@@ -143,8 +146,14 @@ export class FilterPanelComponent {
     public data: {
       filterProps?: FilterProps;
       form: FormGroup;
-    }
+    },
+    private dialogRef: MatDialogRef<FilterPanelComponent>
   ) {
     this.advancedFiltersForm = this.data.form;
+  }
+
+  clearAll() {
+    this.advancedFiltersForm.reset();
+    this.dialogRef.close();
   }
 }

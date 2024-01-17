@@ -24,15 +24,18 @@
         </div>
       }
     </div>
-    <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
-      <mat-tab label="Overview">
+    <mat-tab-group
+      mat-stretch-tabs="false"
+      mat-align-tabs="start"
+      (selectedTabChange)="tabChanged($event)">
+      <mat-tab label="Overview" aria-label="Property overview">
         <div class="details-panel__tab details-panel__tab--overview">
           <div class="about">
             <h2>About</h2>
             <p>
               <span class="field">Built form:</span>
               @if (buildingDetails()?.BuildForm) {
-                <span>{{ buildForm[buildingDetails()!.BuildForm] }}</span>
+                <span>{{ buildForm[buildingDetails()!.BuildForm!] }}</span>
               } @else {
                 <span>No data</span>
               }
@@ -56,10 +59,10 @@
             <p>
               <span class="field">Floor construction:</span>
               @if (
-                buildingParts()?.Floor?.PartType &&
-                floor[buildingParts()!.Floor!.PartType]
+                buildingDetails()?.FloorConstruction &&
+                floor[buildingDetails()!.FloorConstruction!]
               ) {
-                <span>{{ floor[buildingParts()!.Floor!.PartType] }}</span>
+                <span>{{ floor[buildingDetails()!.FloorConstruction!] }}</span>
               } @else {
                 <span>No data</span>
               }
@@ -67,11 +70,11 @@
             <p>
               <span class="field">Floor insulation:</span>
               @if (
-                buildingParts()?.Floor?.PartInsulationType &&
-                floorInsulation[buildingParts()!.Floor!.PartInsulationType]
+                buildingDetails()?.FloorInsulation &&
+                floorInsulation[buildingDetails()!.FloorInsulation!]
               ) {
                 <span>{{
-                  floorInsulation[buildingParts()!.Floor!.PartInsulationType]
+                  floorInsulation[buildingDetails()!.FloorInsulation!]
                 }}</span>
               } @else {
                 <span>No data</span>
@@ -80,10 +83,10 @@
             <p>
               <span class="field">Roof construction:</span>
               @if (
-                buildingParts()?.Roof?.PartType &&
-                roof[buildingParts()!.Roof!.PartType]
+                buildingDetails()?.RoofConstruction &&
+                roof[buildingDetails()!.RoofConstruction!]
               ) {
-                <span>{{ roof[buildingParts()!.Roof!.PartType] }}</span>
+                <span>{{ roof[buildingDetails()!.RoofConstruction!] }}</span>
               } @else {
                 <span>No data</span>
               }
@@ -91,11 +94,11 @@
             <p>
               <span class="field">Roof insulation location:</span>
               @if (
-                buildingParts()?.Roof?.PartInsulationType &&
-                roofInsulation[buildingParts()!.Roof!.PartInsulationType]
+                buildingDetails()?.RoofInsulationLocation &&
+                roofInsulation[buildingDetails()!.RoofInsulationLocation!]
               ) {
                 <span>{{
-                  roofInsulation[buildingParts()!.Roof!.PartInsulationType]
+                  roofInsulation[buildingDetails()!.RoofInsulationLocation!]
                 }}</span>
               } @else {
                 <span>No data</span>
@@ -104,19 +107,10 @@
             <p>
               <span class="field">Roof insulation thickness:</span>
               @if (
-                buildingParts()?.Roof?.InsulationThickness &&
-                buildingParts()!.Roof!.InsulationThickness !== ''
+                buildingDetails()?.RoofInsulationThickness &&
+                buildingDetails()!.RoofInsulationThickness!
               ) {
-                <span>{{ buildingParts()!.Roof!.InsulationThickness }}mm</span>
-              } @else if (
-                buildingParts()?.Roof?.InsulationThicknessLowerBound &&
-                buildingParts()!.Roof!.InsulationThicknessLowerBound !== ''
-              ) {
-                <span
-                  >{{
-                    buildingParts()!.Roof!.InsulationThicknessLowerBound
-                  }}+mm</span
-                >
+                <span>{{ buildingDetails()!.RoofInsulationThickness }}</span>
               } @else {
                 <span>No data</span>
               }
@@ -124,10 +118,23 @@
             <p>
               <span class="field">Wall construction:</span>
               @if (
-                buildingParts()?.Wall?.PartType &&
-                wall[buildingParts()!.Wall!.PartType]
+                buildingDetails()?.WallConstruction &&
+                wall[buildingDetails()!.WallConstruction!]
               ) {
-                <span>{{ wall[buildingParts()!.Wall!.PartType] }}</span>
+                <span>{{ wall[buildingDetails()!.WallConstruction!] }}</span>
+              } @else {
+                <span>No data</span>
+              }
+            </p>
+            <p>
+              <span class="field">Window glazing:</span>
+              @if (
+                buildingDetails()?.WindowGlazing &&
+                windowGlazing[buildingDetails()!.WindowGlazing!]
+              ) {
+                <span>{{
+                  windowGlazing[buildingDetails()!.WindowGlazing!]
+                }}</span>
               } @else {
                 <span>No data</span>
               }
@@ -135,12 +142,26 @@
           </div>
         </div>
       </mat-tab>
-      <mat-tab label="Flag">*Flag information*</mat-tab>
+      <mat-tab label="Flag"></mat-tab>
     </mat-tab-group>
     <div class="details-panel__buttons">
-      <button mat-flat-button [color]="'primary'">
-        <img src="assets/icons/FlagPennant_white.svg" alt="" />Add a flag
-      </button>
+      @if (buildingDetails()?.Flagged === undefined) {
+        <button
+          mat-flat-button
+          color="primary"
+          aria-label="Flag property"
+          (click)="flag.emit([buildingDetails()!])">
+          <img alt="" src="assets/icons/FlagPennant_white.svg" />Add a flag
+        </button>
+      } @else {
+        <button
+          mat-flat-button
+          color="warn"
+          aria-label="Add flag to property"
+          (click)="removeFlag.emit(buildingDetails()!)">
+          <img alt="" src="assets/icons/TrashFlag_white.svg" />Remove flag
+        </button>
+      }
       <button
         mat-flat-button
         [color]="'primary'"

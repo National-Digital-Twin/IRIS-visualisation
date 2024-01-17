@@ -1,62 +1,23 @@
-import { Injectable } from '@angular/core';
-import {
-  BuildingDetailsModel,
-  BuildingMap,
-  BuildingPart,
-  BuildingPartMap,
-  DownloadDataModel,
-} from '@core/models/building.model';
+import { Injectable, inject } from '@angular/core';
+import { BuildingModel } from '@core/models/building.model';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+import { DataService } from './data.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataDownloadService {
-  constructor() {}
+  private dataService = inject(DataService);
 
   /**
    * Format data into blob url & download by adding a link to the document
    * @param data the data to be downloaded as an object
    * @returns void
    */
-  downloadData(data: Partial<DownloadDataModel>): void {
+  downloadData(data: BuildingModel[]): void {
     const csvBlob = this.formatDataForCSV(data);
-    const filename = 'iris-download-' + new Date().toISOString();
-    const warning = this.generateWarning();
-    const zip = new JSZip();
-    zip.file(filename + '.csv', csvBlob);
-    zip.file('warning.txt', warning);
-    zip.generateAsync({ type: 'blob' }).then(content => {
-      saveAs(content, filename + '.zip');
-    });
-  }
-
-  /**
-   * Combine building details and parts into one object
-   * @param details the building details
-   * @param parts the building parts
-   * @returns a flattened, combined object of building details & parts
-   */
-  combineDetailsAndParts(
-    details: BuildingDetailsModel,
-    parts: BuildingPartMap | undefined
-  ): Partial<DownloadDataModel> {
-    let detailsData = details as Partial<DownloadDataModel>;
-    // remove parts as superceded by the full parts data
-    delete detailsData.parts;
-    if (parts) {
-      // flatten parts into one object
-      const partsArray = Object.keys(parts).map((key: keyof BuildingMap) => {
-        const subParts = Object.keys(parts[key]).map(subKey => {
-          return { [key + subKey]: parts[key][subKey as keyof BuildingPart] };
-        });
-        return Object.assign({}, ...subParts);
-      });
-      const flattenedParts = Object.assign({}, ...partsArray);
-      detailsData = { ...detailsData, ...flattenedParts };
-    }
-    return detailsData;
+    this.createZipFile(csvBlob);
   }
 
   private generateWarning(): Blob {
@@ -75,19 +36,39 @@ export class DataDownloadService {
 
   /**
    * Stringify the data, add newlines and convert to blob
-   * @param data the object to be formatted & blobified
+   * @param buildings the array of objects to be formatted & blobified
    * @returns a csv compliant blob of the data
    */
-  private formatDataForCSV(data: Partial<DownloadDataModel>): Blob {
-    const headers = [...Object.keys(data)].join(',');
-    const values = Object.values(data)
-      // add quotes to keep address together
-      .map(value => `"${value}"`)
-      .join(',');
-    const stringifiedData = headers + '\n' + values;
-    const blob = new Blob([stringifiedData], {
+  private formatDataForCSV(buildings: BuildingModel[]): Blob {
+    const csvRows = [];
+    const headers = Object.keys(buildings[0]);
+    csvRows.push(headers.join(','));
+    for (const building of buildings) {
+      const values = headers.map(header => {
+        // eslint-disable-next-line
+        //@ts-ignore
+        const val = building[header];
+        return `"${val}"`;
+      });
+      csvRows.push(values.join(','));
+    }
+    const data = csvRows.join('\n');
+    const blob = new Blob([data], {
       type: 'text/csv;charset=utf-8,',
     });
     return blob;
+  }
+
+  private createZipFile(csvBlob: Blob) {
+    const filename =
+      'iris-download-' +
+      new Date().toISOString().replaceAll(':', '_').replaceAll('.', '_');
+    const warning = this.generateWarning();
+    const zip = new JSZip();
+    zip.file(filename + '.csv', csvBlob);
+    zip.file('warning.txt', warning);
+    zip.generateAsync({ type: 'blob' }).then(content => {
+      saveAs(content, filename + '.zip');
+    });
   }
 }

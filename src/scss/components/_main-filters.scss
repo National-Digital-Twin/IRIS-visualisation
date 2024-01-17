@@ -1,4 +1,4 @@
-.main-filters {
+.filters {
   position: absolute;
   z-index: $panel-z-index;
   left: var(--arc-spacing-normal);
@@ -9,17 +9,51 @@
   .search {
     width: 26.5rem;
     margin-right: var(--arc-spacing-x-small);
-  }
-
-  .epc-filter {
-    .mdc-text-field--filled {
-      border-top-right-radius: 0 !important;
+    .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+      background: var(--bg);
+      box-shadow: $box-shadow;
     }
   }
 
-  .building-type-filter {
-    .mdc-text-field--filled {
-      border-top-left-radius: 0 !important;
+  .main-filters {
+    margin: 0 var(--arc-spacing-x-small) 0 var(--arc-spacing-x-small);
+    display: flex;
+    background-color: rgb(var(--arc-container-color));
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 4px;
+    box-shadow: $box-shadow;
+
+    span {
+      font-size: 1rem;
+      margin: 0 var(--arc-spacing-x-small) 0 var(--arc-spacing-small);
+      color: rgba(0, 0, 0, 0.6);
+    }
+    mat-slide-toggle {
+      margin: 0 var(--arc-spacing-small) 0 0;
+    }
+
+    mat-divider {
+      height: 2rem !important;
+      margin: var(--arc-spacing-x-small) 0 var(--arc-spacing-x-small) 0;
+    }
+
+    .epc-filter {
+      margin: 0 var(--arc-spacing-x-small) 0 0;
+      .mdc-text-field--filled {
+        border-bottom-left-radius: 4px !important;
+      }
+    }
+
+    .building-type-filter {
+      margin: 0 0 0 var(--arc-spacing-x-small);
+    }
+
+    div[matformfieldlineripple] {
+      display: none;
+    }
+    div.mat-mdc-form-field-subscript-wrapper.mat-mdc-form-field-bottom-align {
+      display: none;
     }
   }
 
@@ -28,10 +62,29 @@
     margin-left: 0.5rem;
     height: 3.5rem;
     box-shadow: $box-shadow;
+    --mdc-filled-button-container-color: rgb(
+      var(--arc-container-color)
+    ) !important;
   }
 
   .mdc-text-field--filled:not(.mdc-text-field--disabled) {
-    background: $color-input-background;
+    background: rgb(var(--arc-container-color)) !important;
+  }
+
+  .clear-all-button {
+    $small-size-button: 24px;
+    $small-size-icon: 18px;
+    width: $small-size-button;
+    height: $small-size-button;
+    line-height: $small-size-button;
+
+    .mat-icon {
+      color: red;
+      font-size: $small-size-icon;
+      width: $small-size-icon;
+      height: $small-size-icon;
+      line-height: $small-size-icon;
+    }
     box-shadow: $box-shadow;
   }
 }

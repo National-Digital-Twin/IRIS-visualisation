@@ -4,32 +4,37 @@ import {
   EventEmitter,
   Output,
   inject,
+  signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTabsModule } from '@angular/material/tabs';
+import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 
 import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
 import { LabelComponent } from '@components/label/label.component';
 
 import { DataService } from '@core/services/data.service';
+import { SETTINGS, SettingsService } from '@core/services/settings.service';
 import { UtilService } from '@core/services/utils.service';
+import { BuildingModel } from '@core/models/building.model';
 
 import {
   BuildForm,
-  Floor,
+  FloorConstruction,
   FloorInsulation,
-  Roof,
-  RoofInsulation,
-  Wall,
+  RoofConstruction,
+  RoofInsulationLocation,
+  WallConstruction,
+  WindowGlazing,
 } from '@core/enums';
 import {
   DownloadDataWarningData,
   DownloadDataWarningResponse,
 } from '@core/models/download-data-warning.model';
+import { FlagHistory } from '@core/types/flag-history';
 
 @Component({
   selector: 'c477-details-panel',
@@ -46,21 +51,26 @@ import {
   styleUrl: './details-panel.component.scss',
 })
 export class DetailsPanelComponent {
-  private dataService = inject(DataService);
+  public readonly theme = inject(SettingsService).get(SETTINGS.Theme);
+  private readonly dataService = inject(DataService);
   private utilService = inject(UtilService);
 
   @Output() closePanel: EventEmitter<null> = new EventEmitter();
   @Output() downloadData: EventEmitter<null> = new EventEmitter();
+  @Output() flag = new EventEmitter<BuildingModel[]>();
+  @Output() removeFlag = new EventEmitter<BuildingModel>();
+  @Output() getFlagHistory = new EventEmitter<string>();
 
   buildingDetails = this.dataService.selectedBuilding;
-  buildingParts = this.dataService.parts;
+  flagHistory = signal<FlagHistory[]>([]);
 
   buildForm: { [key: string]: string } = BuildForm;
-  floor: { [key: string]: string } = Floor;
+  floor: { [key: string]: string } = FloorConstruction;
   floorInsulation: { [key: string]: string } = FloorInsulation;
-  roof: { [key: string]: string } = Roof;
-  roofInsulation: { [key: string]: string } = RoofInsulation;
-  wall: { [key: string]: string } = Wall;
+  roof: { [key: string]: string } = RoofConstruction;
+  roofInsulation: { [key: string]: string } = RoofInsulationLocation;
+  wall: { [key: string]: string } = WallConstruction;
+  windowGlazing: { [key: string]: string } = WindowGlazing;
 
   constructor(public dialog: MatDialog) {}
 
@@ -81,6 +91,7 @@ export class DetailsPanelComponent {
         panelClass: 'data-download',
         data: {
           addresses: [this.buildingDetails()?.FullAddress ?? ''],
+          addressCount: undefined,
         },
       })
       .afterClosed()
@@ -89,5 +100,13 @@ export class DetailsPanelComponent {
           this.downloadData.emit();
         }
       });
+  }
+
+  tabChanged($event: MatTabChangeEvent) {
+    if ($event.tab.textLabel === 'Flag') {
+      this.dataService
+        .getBuildingFlagHistory(this.buildingDetails()!.UPRN)
+        .subscribe(res => this.flagHistory.set(res));
+    }
   }
 }
