@@ -396,7 +396,6 @@ export class UtilService {
     }
     /** select multi-dwelling on map */
     if (UPRN === '' && TOID !== '') {
-      console.log('multi dwelling');
       this.selectMultiDwellingOnMap(TOID);
     }
   }
