@@ -145,7 +145,10 @@ export class ResultsPanelComponent {
      * if selected card building uprn === the current selected card uprn
      * deselect card and building
      */
-    if (this.utilService.selectedCardUPRN() === selectedBuilding.UPRN) {
+    if (
+      this.utilService.selectedCardUPRN() === selectedBuilding.UPRN ||
+      this.utilService.multiDwelling() === TOID
+    ) {
       /** deselect card */
       this.utilService.resultsCardDeselected();
     } else {
