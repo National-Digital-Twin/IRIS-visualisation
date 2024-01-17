@@ -227,7 +227,7 @@ export class Queries {
           (REPLACE(STR(?uprn), "http://nationaldigitaltwin.gov.uk/data#uprn_", "") as ?UPRN)
           (?building_toid_id AS ?TOID)
           (?parent_building_toid_id AS ?ParentTOID)
-          (REPLACE(STR(?flag), "http://nationaldigitaltwin.gov.uk/data#", "") as ?Flagged)
+          (?flag as ?Flagged)
           (REPLACE(STR(?flag_date), "http://iso.org/iso8601#", "") as ?FlagDate)
       WHERE {{
           ?state ies:isStateOf ?building .
