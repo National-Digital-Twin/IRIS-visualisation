@@ -223,7 +223,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
       }
     } else {
       /** deselecting current map selection */
-      if (this.utilService.multiDwelling() === '') {
+      if (this.utilService.multiDwelling() === undefined) {
         this.utilService.singleDwellingDeselected();
       } else {
         this.utilService.multiDwellingDeselected();
