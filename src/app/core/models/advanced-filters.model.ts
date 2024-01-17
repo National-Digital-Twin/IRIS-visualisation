@@ -74,6 +74,7 @@ export type FilterKeys =
   | 'EPC'
   | 'FloorConstruction'
   | 'FloorInsulation'
+  | 'Flagged'
   | 'WindowGlazing'
   | 'PostCode'
   | 'PropertyType'

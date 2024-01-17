@@ -232,6 +232,7 @@ export class DataService {
         YearOfAssessment: yearOfAssessment,
         ParentTOID: row.ParentTOID,
         TOID: toid,
+        Flagged: undefined,
         SAPPoints: sapPoint?.SAPPoint ? sapPoint.SAPPoint : undefined,
         FloorConstruction: parts.FloorConstruction,
         FloorInsulation: parts.FloorInsulation,
