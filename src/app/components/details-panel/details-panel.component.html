@@ -24,7 +24,10 @@
         </div>
       }
     </div>
-    <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+    <mat-tab-group
+      mat-stretch-tabs="false"
+      mat-align-tabs="start"
+      (selectedTabChange)="tabChanged($event)">
       <mat-tab label="Overview" aria-label="Property overview">
         <div class="details-panel__tab details-panel__tab--overview">
           <div class="about">
@@ -139,14 +142,7 @@
           </div>
         </div>
       </mat-tab>
-      <mat-tab
-        label="Flag"
-        [disabled]="buildingDetails()?.Flagged === undefined"
-        [aria-label]="
-          buildingDetails()?.Flagged === undefined
-            ? 'No flag information'
-            : 'Flag information'
-        "></mat-tab>
+      <mat-tab label="Flag"></mat-tab>
     </mat-tab-group>
     <div class="details-panel__buttons">
       @if (buildingDetails()?.Flagged === undefined) {

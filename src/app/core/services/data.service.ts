@@ -31,6 +31,7 @@ import {
 } from '@core/types/building-response';
 import { FlagMap, FlagResponse } from '@core/types/flag-response';
 import { SAPPointMap, SAPPoint } from '@core/types/sap-point';
+import { FlagHistory } from '@core/types/flag-history';
 
 @Injectable({
   providedIn: 'root',
@@ -335,6 +336,17 @@ export class DataService {
     });
 
     return allBuildings;
+  }
+
+  /**
+   * Return flag history for an individual building
+   * @param query Query string to request data from IA
+   * @returns
+   */
+  getBuildingFlagHistory(uprn: string) {
+    return this.selectTable(
+      this.queries.getFlagHistory(uprn)
+    ) as unknown as Observable<FlagHistory[]>;
   }
 
   getEPCByUPRN(uprn: string): string {

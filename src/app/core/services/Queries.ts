@@ -193,6 +193,71 @@ export class Queries {
     `;
   }
 
+  getFlagHistory(uprn: string) {
+    return `
+      PREFIX data: <http://nationaldigitaltwin.gov.uk/data#>
+      PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+      SELECT
+          (REPLACE(STR(?uprn), "http://nationaldigitaltwin.gov.uk/data#uprn_", "") as ?UPRN)
+          (?flag as ?Flagged)
+          (REPLACE(STR(?flag_type), "http://nationaldigitaltwin.gov.uk/data#", "") as ?FlagType)
+          (?given_name_literal AS ?FlaggedByGivenName)
+          (?surname_literal AS ?FlaggedBySurname)
+          (REPLACE(STR(?flag_date), "http://iso.org/iso8601#", "") as ?FlagDate)
+          (REPLACE(STR(?flag_ass_date), "http://iso.org/iso8601#", "") AS ?AssessmentDate)
+          (?assessor_given_name_literal AS ?AssessorGivenName)
+          (?assessor_surname_literal AS ?AssessorSurname)
+          (REPLACE(STR(?flag_assessment_type), "http://nationaldigitaltwin.gov.uk/ontology#", "") as ?AssessmentReason)
+      WHERE {{
+          ?building ies:isIdentifiedBy ?uprn .
+          ?uprn ies:representationValue "${uprn}" .
+
+          OPTIONAL {{
+              ?flag ies:interestedIn ?building .
+              ?flag ies:isStateOf ?flag_person .
+              ?flag_person ies:hasName ?flag_person_name .
+              ?surname a ies:Surname .
+              ?surname ies:inRepresentation ?flag_person_name .
+              ?surname ies:representationValue ?surname_literal .
+              ?given_name a ies:GivenName .
+              ?given_name ies:inRepresentation ?flag_person_name .
+              ?given_name ies:representationValue ?given_name_literal .
+              ?flag a ?flag_type .
+              ?flag ies:inPeriod ?flag_date .
+              OPTIONAL {{
+                  ?flag_assessment ies:assessed ?flag .
+                  ?flag_assessment ies:inPeriod ?flag_ass_date .
+                  ?flag_assessment ies:assessor ?flag_assessor .
+                  ?flag_assessor ies:hasName ?flag_assessor_name .
+                  ?surname a ies:Surname .
+                  ?surname ies:inRepresentation ?flag_assessor_name .
+                  ?surname ies:representationValue ?assessor_surname_literal .
+                  ?given_name a ies:GivenName .
+                  ?given_name ies:inRepresentation ?flag_assessor_name .
+                  ?given_name ies:representationValue ?assessor_given_name_literal .
+                  ?flag_assessment rdf:type ?flag_assessment_type .
+              }}
+          }}
+      }}
+      GROUP BY
+          ?flag
+          ?flag_type
+          ?flag_person
+          ?flag_assessment
+          ?flag_date
+          ?flag_ass_date
+          ?flag_assessor
+          ?flag_assessment_type
+          ?surname_literal
+          ?given_name_literal
+          ?assessor_given_name_literal
+          ?assessor_surname_literal
+          ?uprn
+    `;
+  }
+
   getSAPPoints() {
     return `
       PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
