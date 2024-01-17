@@ -72,7 +72,7 @@ export class FilterPanelComponent {
       selectedValues: this.data.filterProps?.BuildForm,
     },
     {
-      title: 'Year of Assessment',
+      title: 'Year of Inspection',
       data: YearOfAssessment,
       formControlName: 'YearOfAssessment',
       selectedValues: this.data.filterProps?.YearOfAssessment,
