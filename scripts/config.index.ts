@@ -8,6 +8,8 @@ const mapboxKey = process.env.MAPBOX_API_KEY;
 
 const osAPIKey = process.env.OS_API_KEY;
 
+const posthogAPIKey = process.env.POSTHOG_KEY;
+
 const targetPath = `./src/environments/environment.ts`;
 
 const envConfigFile = `export const environment = {
@@ -18,6 +20,9 @@ const envConfigFile = `export const environment = {
   },
   os: {
     apiKey: '${osAPIKey}',
+  },
+  posthog: {
+    apiKey: '${posthogAPIKey}',
   },
 };
 `;
