@@ -5,3 +5,7 @@ export type FlagResponse = {
   Flagged: string;
   FlagDate: string;
 };
+
+export type FlagMap = {
+  [key: string]: FlagResponse[];
+};

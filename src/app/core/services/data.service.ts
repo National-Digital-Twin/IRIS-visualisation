@@ -13,11 +13,7 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
 import { WRITE_BACK_ENDPOINT } from '@core/tokens/write-back-endpoint.token';
 import { SPARQLReturn, TableRow } from '@core/models/rdf-data.model';
-import {
-  BuildingMap,
-  BuildingModel,
-  SAPPoint,
-} from '@core/models/building.model';
+import { BuildingMap, BuildingModel } from '@core/models/building.model';
 
 import { Queries } from './Queries';
 
@@ -33,7 +29,8 @@ import {
   EPCBuildingResponseModel,
   NoEPCBuildingResponseModel,
 } from '@core/types/building-response';
-import { FlagResponse } from '@core/types/flag-response';
+import { FlagMap, FlagResponse } from '@core/types/flag-response';
+import { SAPPointMap, SAPPoint } from '@core/types/sap-point';
 
 @Injectable({
   providedIn: 'root',
@@ -52,23 +49,34 @@ export class DataService {
   buildingsSelection = signal<BuildingModel[][] | undefined>(undefined);
 
   /** Building objects with a flagged uri */
-  readonly buildingsFlagged = signal<FlagResponse[]>([]);
+  readonly buildingsFlagged = signal<FlagMap>({});
   readonly buildingsFlagged$ = toObservable(this.buildingsFlagged);
 
-  sapPoints$ = this.selectTable(this.queries.getSAPPoints());
-  flags$ = this.selectTable(this.queries.getAllFlaggedBuildings());
+  sapPoints$ = this.selectTable(this.queries.getSAPPoints()).pipe(
+    map(points => this.mapSAPPointsToToids(points as unknown as SAPPoint[]))
+  );
+  /** load all flags */
+  flags$ = this.selectTable(this.queries.getAllFlaggedBuildings()).pipe(
+    map(res => {
+      const currentFlags = this.getCurrentFlags(
+        res as unknown as FlagResponse[]
+      );
+      const flagMap = this.mapFlagsToToids(currentFlags);
+      return flagMap;
+    })
+  );
 
   buildingsEPC$ = forkJoin([
     this.flags$,
     this.sapPoints$,
     this.selectTable(this.queries.getEPCData()),
   ]).pipe(
-    map(([flags, points, epc]) => {
+    map(([flagMap, points, epc]) => {
       /** set flags */
-      this.buildingsFlagged.set(flags as unknown as FlagResponse[]);
+      this.buildingsFlagged.set(flagMap);
       return this.mapEPCBuildings(
         epc as unknown as EPCBuildingResponseModel[],
-        points as unknown as SAPPoint[]
+        points
       );
     })
   );
@@ -90,8 +98,7 @@ export class DataService {
     this.buildingsFlagged$,
   ]).pipe(
     map(([epc, noEPC, flagged]) => {
-      const currentFlags = this.getCurrentFlags(flagged);
-      return this.combineBuildingData(epc, noEPC, currentFlags);
+      return this.combineBuildingData(epc, noEPC, flagged);
     })
   );
 
@@ -211,14 +218,14 @@ export class DataService {
    */
   mapEPCBuildings(
     buildings: EPCBuildingResponseModel[],
-    sapPoints: SAPPoint[]
+    sapPoints: SAPPointMap
   ) {
     const buildingMap: BuildingMap = {};
     buildings.forEach((row: EPCBuildingResponseModel) => {
       const toid = row.TOID ? row.TOID : row.ParentTOID;
       /** if there is no TOID the building cannot be visualised */
       if (!toid) return;
-      const sapPoint = sapPoints.find(p => p.UPRN === row.UPRN);
+      const sapPoint = sapPoints[toid].find(p => p.UPRN === row.UPRN);
       /** add 'none' for buildings with no EPC rating */
       const epc = row.EPC ? row.EPC : EPCRating.none;
       const yearOfAssessment = row.InspectionDate
@@ -305,7 +312,7 @@ export class DataService {
   combineBuildingData(
     epcBuildings: BuildingMap,
     nonEPCBuildings: BuildingMap,
-    flaggedBuildings: FlagResponse[]
+    flaggedBuildings: FlagMap
   ) {
     const allBuildings: BuildingMap = { ...epcBuildings };
     Object.keys(nonEPCBuildings).forEach((toid: string) => {
@@ -317,12 +324,13 @@ export class DataService {
     });
 
     /* combine flagged buildings to all buildings */
-    flaggedBuildings.forEach(flag => {
-      const toid = flag.TOID ? flag.TOID : flag.ParentTOID!;
+    Object.keys(flaggedBuildings).forEach(toid => {
       if (allBuildings[toid]) {
-        /* overwrite flagged property on building */
-        const index = allBuildings[toid].findIndex(b => b.UPRN === flag.UPRN);
-        allBuildings[toid][index].Flagged = flag.Flagged;
+        flaggedBuildings[toid].forEach(fb => {
+          /* overwrite flagged property on building */
+          const index = allBuildings[toid].findIndex(b => b.UPRN === fb.UPRN);
+          allBuildings[toid][index].Flagged = fb.Flagged;
+        });
       }
     });
 
@@ -454,7 +462,10 @@ export class DataService {
             Flagged: flagUri,
             FlagDate: new Date().toISOString() as string,
           };
-          this.buildingsFlagged.update(flags => [...flags, flag]);
+          this.buildingsFlagged.update(f => ({
+            ...f,
+            [toid]: f[toid] ? [...f[toid], flag] : [flag],
+          }));
         })
       );
   }
@@ -490,9 +501,10 @@ export class DataService {
           /* set flagged property to undefined */
           building.Flagged = undefined;
           this.buildingsFlagged.update(b => {
-            const index = b.findIndex(b => b.UPRN === building.UPRN);
-            b.splice(index, 1);
-            return [...b];
+            /* remove building from flagged buildings */
+            const index = b[toid].findIndex(b => b.UPRN === building.UPRN);
+            b[toid].splice(index, 1);
+            return { ...b };
           });
         })
       );
@@ -522,5 +534,33 @@ export class DataService {
       )
     );
     return result;
+  }
+
+  private mapFlagsToToids(flags: FlagResponse[]): FlagMap {
+    const flagMap: FlagMap = {};
+    flags.forEach(flag => {
+      const toid = flag.TOID ? flag.TOID : flag.ParentTOID;
+      if (!toid) throw new Error(`Flag ${flag.UPRN} has no TOID`);
+      if (flagMap[toid]) {
+        flagMap[toid].push(flag);
+      } else {
+        flagMap[toid] = [flag];
+      }
+    });
+    return flagMap;
+  }
+
+  private mapSAPPointsToToids(data: SAPPoint[]): SAPPointMap {
+    const map: SAPPointMap = {};
+    data.forEach(d => {
+      const toid = d.TOID ? d.TOID : d.ParentTOID;
+      if (!toid) return;
+      if (map[toid]) {
+        map[toid].push(d);
+      } else {
+        map[toid] = [d];
+      }
+    });
+    return map;
   }
 }

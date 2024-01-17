@@ -204,6 +204,8 @@ export class Queries {
 
       SELECT
           (?uprn_id AS ?UPRN)
+          (?building_toid_id AS ?TOID)
+          (?parent_building_toid_id AS ?ParentTOID)
           (?sap_points AS ?SAPPoint)
       WHERE {
         ?state ies:isStateOf ?building .
@@ -212,6 +214,18 @@ export class Queries {
           ?uprn rdf:type geoplace:UniquePropertyReferenceNumber .
           ?state ies:hasCharacteristic ?quantity .
           ?quantity qudt:value ?sap_points .
+          OPTIONAL {
+              ?building ies:isIdentifiedBy ?building_toid .
+              ?building_toid rdf:type ies:TOID .
+              ?building_toid ies:representationValue ?building_toid_id .
+          }
+
+          OPTIONAL {
+                  ?building ies:isPartOf ?parent_building .
+                  ?parent_building ies:isIdentifiedBy ?parent_building_toid .
+                  ?parent_building_toid ies:representationValue ?parent_building_toid_id .
+                  ?parent_building_toid rdf:type ies:TOID .
+          }
       }
     `;
   }
