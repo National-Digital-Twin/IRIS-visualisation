@@ -4,13 +4,14 @@ import {
   EventEmitter,
   Output,
   inject,
+  signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTabsModule } from '@angular/material/tabs';
+import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 
 import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
 import { LabelComponent } from '@components/label/label.component';
@@ -33,6 +34,7 @@ import {
   DownloadDataWarningData,
   DownloadDataWarningResponse,
 } from '@core/models/download-data-warning.model';
+import { FlagHistory } from '@core/types/flag-history';
 
 @Component({
   selector: 'c477-details-panel',
@@ -57,9 +59,10 @@ export class DetailsPanelComponent {
   @Output() downloadData: EventEmitter<null> = new EventEmitter();
   @Output() flag = new EventEmitter<BuildingModel[]>();
   @Output() removeFlag = new EventEmitter<BuildingModel>();
+  @Output() getFlagHistory = new EventEmitter<string>();
 
   buildingDetails = this.dataService.selectedBuilding;
-  flagHistory = this.dataService.flagHistory;
+  flagHistory = signal<FlagHistory[]>([]);
 
   buildForm: { [key: string]: string } = BuildForm;
   floor: { [key: string]: string } = FloorConstruction;
@@ -97,5 +100,13 @@ export class DetailsPanelComponent {
           this.downloadData.emit();
         }
       });
+  }
+
+  tabChanged($event: MatTabChangeEvent) {
+    if ($event.tab.textLabel === 'Flag') {
+      this.dataService
+        .getBuildingFlagHistory(this.buildingDetails()!.UPRN)
+        .subscribe(res => this.flagHistory.set(res));
+    }
   }
 }
