@@ -102,7 +102,7 @@ jobs:
           MAPBOX_API_KEY: ${{ secrets.MAPBOX_API_KEY }}
           OS_API_KEY: ${{ secrets.OS_API_KEY }}
       - name: Build
-        run: npm run build:prod
+        run: npm run build
       - name: Deploy to production
         run: |
           aws s3 sync ./dist/c477-vis s3://${{ secrets.S3_BUCKET }}/c477-vis

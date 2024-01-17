@@ -1,7 +1,7 @@
 {
   "production": true,
   "env": "prod",
-  "apiURL": "https://thirdp.telicent.live",
+  "apiURL": "https://iris.telicent.live",
   "placesAPIURL": "https://api.os.uk/search/places/v1",
   "companyLogo": {
     "light": "assets/NDTP-HM-02-highres.png",
