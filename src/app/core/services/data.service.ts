@@ -3,9 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import {
   Observable,
   Subscriber,
+  catchError,
   combineLatest,
+  filter,
   forkJoin,
   map,
+  of,
+  switchMap,
   tap,
 } from 'rxjs';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
@@ -33,6 +37,7 @@ import {
   EPCBuildingResponseModel,
   NoEPCBuildingResponseModel,
 } from '@core/models/building-response.model';
+import { FlagHistory } from '@core/types/flag-history';
 
 @Injectable({
   providedIn: 'root',
@@ -97,6 +102,21 @@ export class DataService {
   setSelectedUPRN(uprn: string | undefined) {
     this.selectedUPRN.set(uprn);
   }
+
+  /**
+   * Get the related building parts for the selected building
+   */
+  private buildingFlagHistory$ = toObservable(this.selectedBuilding).pipe(
+    filter(Boolean),
+    switchMap(selectedBuilding =>
+      this.getBuildingFlagHistory(
+        this.queries.getFlagHistory(selectedBuilding.UPRN)
+      ).pipe(catchError(() => of([] as FlagHistory[])))
+    )
+  );
+
+  private buildingFlagHistory = toSignal(this.buildingFlagHistory$);
+  flagHistory = computed(() => this.buildingFlagHistory());
 
   /**
    * Set individual building
@@ -321,6 +341,15 @@ export class DataService {
     });
 
     return allBuildings;
+  }
+
+  /**
+   * Return flag history for an individual building
+   * @param query Query string to request data from IA
+   * @returns
+   */
+  getBuildingFlagHistory(query: string) {
+    return this.selectTable(query) as unknown as Observable<FlagHistory[]>;
   }
 
   getEPCByUPRN(uprn: string): string {

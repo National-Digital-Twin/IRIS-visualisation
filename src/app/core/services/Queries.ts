@@ -201,7 +201,7 @@ export class Queries {
 
       SELECT
           (REPLACE(STR(?uprn), "http://nationaldigitaltwin.gov.uk/data#uprn_", "") as ?UPRN)
-          (REPLACE(STR(?flag), "http://nationaldigitaltwin.gov.uk/data#", "") as ?Flagged)
+          (?flag as ?Flagged)
           (REPLACE(STR(?flag_type), "http://nationaldigitaltwin.gov.uk/data#", "") as ?FlagType)
           (?given_name_literal AS ?FlaggedByGivenName)
           (?surname_literal AS ?FlaggedBySurname)

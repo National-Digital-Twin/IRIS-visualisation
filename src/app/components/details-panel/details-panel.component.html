@@ -141,9 +141,9 @@
       </mat-tab>
       <mat-tab
         label="Flag"
-        [disabled]="buildingDetails()?.Flagged === undefined"
+        [disabled]="flagHistory() && !flagHistory()![0].Flagged"
         [aria-label]="
-          buildingDetails()?.Flagged === undefined
+          flagHistory() && !flagHistory()![0].Flagged
             ? 'No flag information'
             : 'Flag information'
         "></mat-tab>

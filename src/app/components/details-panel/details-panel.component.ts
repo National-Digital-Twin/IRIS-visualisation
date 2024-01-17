@@ -59,6 +59,7 @@ export class DetailsPanelComponent {
   @Output() removeFlag = new EventEmitter<BuildingModel>();
 
   buildingDetails = this.dataService.selectedBuilding;
+  flagHistory = this.dataService.flagHistory;
 
   buildForm: { [key: string]: string } = BuildForm;
   floor: { [key: string]: string } = FloorConstruction;
