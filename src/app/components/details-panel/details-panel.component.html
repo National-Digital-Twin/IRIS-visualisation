@@ -173,31 +173,33 @@
                 @for (flag of flagHistory(); track flag.Flagged) {
                   <div class="historical-flag">
                     <img src="assets/icons/FlagPennant.svg" alt="" />
-                    <div class="column-data">
+                    <div>
                       <p>
-                        <span class="field">Flagged by:</span
+                        <strong
+                          >Flagged on
+                          {{ flag.FlagDate | date: 'dd-MMM-YYYY' }}</strong
+                        >
+                      </p>
+                      <p>
+                        <span class="field">Flagged by: </span
                         ><span
                           >{{ flag.FlaggedByGivenName }}
                           {{ flag.FlaggedBySurname }}</span
                         >
                       </p>
                       <p>
-                        <span class="field">Flag date:</span
+                        <span class="field">Remove date: </span
                         ><span>{{ flag.FlagDate | date: 'dd-MMM-YYYY' }}</span>
                       </p>
                       <p>
-                        <span class="field">Removed by:</span
+                        <span class="field">Removed by: </span
                         ><span
                           >{{ flag.AssessorGivenName }}
                           {{ flag.AssessorSurname }}</span
                         >
                       </p>
                       <p>
-                        <span class="field">Remove date:</span
-                        ><span>{{ flag.FlagDate | date: 'dd-MMM-YYYY' }}</span>
-                      </p>
-                      <p>
-                        <span class="field">Reason:</span
+                        <span class="field">Reason: </span
                         ><span>{{
                           invalidateReason[flag.AssessmentReason]
                         }}</span>
