@@ -11,18 +11,14 @@
     </div>
     <div class="details-panel__overview">
       <p class="address">{{ buildingDetails()?.FullAddress }}</p>
-      @if (buildingDetails()?.EPC) {
-        <div class="labels">
-          <c477-label
-            [epcRating]="buildingDetails()?.EPC"
-            [sapPoints]="buildingDetails()?.SAPPoints"></c477-label>
+      <div class="labels">
+        <c477-label
+          [epcRating]="buildingDetails()?.EPC"
+          [sapPoints]="buildingDetails()?.SAPPoints"></c477-label>
+        @if (buildingDetails()?.PropertyType) {
           <c477-label>{{ buildingDetails()?.PropertyType }}</c477-label>
-        </div>
-      } @else {
-        <div class="labels">
-          <c477-label [epcRating]="'none'"></c477-label>
-        </div>
-      }
+        }
+      </div>
     </div>
     <mat-tab-group
       mat-stretch-tabs="false"
