@@ -23,11 +23,6 @@ export type BuildingModel = {
   WindowGlazing: string | undefined;
 };
 
-export interface SAPPoint {
-  UPRN: string;
-  SAPPoint: string;
-}
-
 export interface BuildingMap {
   [key: string]: BuildingModel[];
 }
