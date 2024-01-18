@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0](https://github.com/arup-group/C477-DBT-Vis/compare/v0.0.4...v0.1.0) (2024-01-18)
+
+
+### Features
+
+* **app:** add flagged toid colour to map ([#86](https://github.com/arup-group/C477-DBT-Vis/issues/86)) ([53320c3](https://github.com/arup-group/C477-DBT-Vis/commit/53320c3684797a8f068db2cb7a19b267fb6f3b6c))
+
 ## [0.0.4](https://github.com/arup-group/C477-DBT-Vis/compare/v0.0.3...v0.0.4) (2024-01-18)
 
 
