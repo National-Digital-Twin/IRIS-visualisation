@@ -24,10 +24,12 @@
     border-radius: 4px;
     box-shadow: $box-shadow;
 
-    span {
-      font-size: 1rem;
-      margin: 0 var(--arc-spacing-x-small) 0 var(--arc-spacing-small);
-      color: rgba(0, 0, 0, 0.6);
+    .flag-filter {
+      span {
+        font-size: 1rem;
+        margin: 0 var(--arc-spacing-x-small) 0 var(--arc-spacing-small);
+        color: rgba(0, 0, 0, 0.6);
+      }
     }
     mat-slide-toggle {
       margin: 0 var(--arc-spacing-small) 0 0;
@@ -85,6 +87,5 @@
       height: $small-size-icon;
       line-height: $small-size-icon;
     }
-    box-shadow: $box-shadow;
   }
 }
