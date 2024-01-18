@@ -1,6 +1,11 @@
 <div *ngIf="theme$ | async as theme" class="map-controls-container">
   <div class="map-controls">
-    <button mat-icon-button class="map-button" (click)="resetMapView.emit()">
+    <button
+      mat-icon-button
+      class="map-button"
+      (click)="resetMapView.emit()"
+      matTooltipPosition="before"
+      matTooltip="Reset view">
       <img
         [src]="
           theme === 'light'
@@ -9,7 +14,12 @@
         "
         alt="reset map view" />
     </button>
-    <button class="map-button" mat-icon-button (click)="zoomIn.emit()">
+    <button
+      class="map-button"
+      mat-icon-button
+      (click)="zoomIn.emit()"
+      matTooltipPosition="before"
+      matTooltip="Zoom in">
       <img
         [src]="
           theme === 'light'
@@ -18,7 +28,12 @@
         "
         alt="zoom in" />
     </button>
-    <button class="map-button" mat-icon-button (click)="zoomOut.emit()">
+    <button
+      class="map-button"
+      mat-icon-button
+      (click)="zoomOut.emit()"
+      matTooltipPosition="before"
+      matTooltip="Zoom out">
       <img
         [src]="
           theme === 'light'
@@ -29,7 +44,12 @@
     </button>
   </div>
   <div class="map-controls">
-    <button mat-icon-button class="map-button" (click)="setDrawMode('polygon')">
+    <button
+      mat-icon-button
+      class="map-button"
+      (click)="setDrawMode('polygon')"
+      matTooltipPosition="before"
+      matTooltip="Draw filter area">
       <img
         [src]="
           theme === 'light'
@@ -38,7 +58,12 @@
         "
         alt="draw polygon" />
     </button>
-    <button mat-icon-button class="map-button" (click)="setDrawMode('delete')">
+    <button
+      mat-icon-button
+      class="map-button"
+      (click)="setDrawMode('delete')"
+      matTooltipPosition="before"
+      matTooltip="Delete filter area">
       <img
         [src]="
           theme === 'light'
@@ -52,7 +77,9 @@
     <button
       mat-icon-button
       class="map-button"
-      (click)="showLegend = !showLegend">
+      (click)="showLegend = !showLegend"
+      matTooltipPosition="before"
+      matTooltip="Legend">
       <img
         [src]="
           theme === 'light'

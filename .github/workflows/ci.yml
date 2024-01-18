@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  release:
+    types:
+      - published
   workflow_dispatch:
 
 jobs:
@@ -60,5 +63,46 @@ jobs:
       - name: Build
         run: npm run build:dev
       - name: Deploy to development
+        run: |
+          aws s3 sync ./dist/c477-vis s3://${{ secrets.S3_BUCKET }}/c477-vis
+  deploy-prod:
+    needs: [deploy-dev]
+    environment: prod
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@master
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          ENV: 'prod'
+          MAPBOX_API_KEY: ${{ secrets.MAPBOX_API_KEY }}
+          OS_API_KEY: ${{ secrets.OS_API_KEY }}
+          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
+      - name: Create environment file
+        run: npm run config
+        env:
+          ENV: 'prod'
+          MAPBOX_API_KEY: ${{ secrets.MAPBOX_API_KEY }}
+          OS_API_KEY: ${{ secrets.OS_API_KEY }}
+      - name: Build
+        run: npm run build
+      - name: Deploy to production
         run: |
           aws s3 sync ./dist/c477-vis s3://${{ secrets.S3_BUCKET }}/c477-vis
