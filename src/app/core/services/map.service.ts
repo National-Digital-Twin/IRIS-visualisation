@@ -187,18 +187,11 @@ export class MapService {
     );
   }
 
-  zoomToCoords(
-    center: number[],
-    zoom: number = 18,
-    pitch: number = 0,
-    bearing: number = 0
-  ) {
+  zoomToCoords(center: number[], zoom: number = 18) {
     this.zone.runOutsideAngular(() => {
       this.mapInstance.flyTo({
         center,
         zoom,
-        pitch,
-        bearing,
       });
     });
   }
