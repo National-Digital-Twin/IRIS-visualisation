@@ -144,54 +144,76 @@
       </mat-tab>
       <mat-tab label="Flag">
         <div class="details-panel__tab">
-          <div class="column-data about">
-            <h2>Active Flag</h2>
-            @if (activeFlag()) {
-              <p>
-                <span class="field">Flagged by:</span
-                ><span
-                  >{{ activeFlag()!.FlaggedByGivenName }}
-                  {{ activeFlag()!.FlaggedBySurname }}</span
-                >
-              </p>
-              <p>
-                <span class="field">Flag date:</span
-                ><span>{{ activeFlag()!.FlagDate | date: 'dd-MMM-YYYY' }}</span>
-              </p>
-            }
-          </div>
-          <div class="details-panel__history">
-            <h2>Previous Flags</h2>
-            @if (flagHistory().length) {
-              @for (flag of flagHistory(); track flag.Flagged) {
-                <div class="historical-flag">
-                  <img src="assets/icons/FlagPennant.svg" alt="" />
-                  <div class="column-data">
-                    <p>
-                      <strong>{{
-                        flag.AssessmentDate | date: 'dd-MMM-YYYY'
-                      }}</strong>
-                    </p>
-                    <p>
-                      <span class="field">Flagged by:</span
-                      ><span
-                        >{{ flag.FlaggedByGivenName }}
-                        {{ flag.FlaggedBySurname }}</span
-                      >
-                    </p>
-                    <p>
-                      <span class="field">Reason:</span
-                      ><span>{{
-                        invalidateReason[flag.AssessmentReason]
-                      }}</span>
-                    </p>
-                  </div>
+          @if (activeFlag() === undefined && flagHistory() === []) {
+            <div class="about">
+              <h2>Active Flag</h2>
+              @if (activeFlag()) {
+                <div class="column-data">
+                  <p>
+                    <span class="field">Flagged by:</span
+                    ><span
+                      >{{ activeFlag()!.FlaggedByGivenName }}
+                      {{ activeFlag()!.FlaggedBySurname }}</span
+                    >
+                  </p>
+                  <p>
+                    <span class="field">Flag date:</span
+                    ><span>{{
+                      activeFlag()!.FlagDate | date: 'dd-MMM-YYYY'
+                    }}</span>
+                  </p>
                 </div>
+              } @else {
+                <p class="no-flag">This dwelling is not currently flagged</p>
               }
-            } @else {
-              <p>There are no previous flags for this dwelling</p>
-            }
-          </div>
+            </div>
+            <div class="details-panel__history">
+              <h2>Previous Flags</h2>
+              @if (flagHistory().length) {
+                @for (flag of flagHistory(); track flag.Flagged) {
+                  <div class="historical-flag">
+                    <img src="assets/icons/FlagPennant.svg" alt="" />
+                    <div class="column-data">
+                      <p>
+                        <span class="field">Flagged by:</span
+                        ><span
+                          >{{ flag.FlaggedByGivenName }}
+                          {{ flag.FlaggedBySurname }}</span
+                        >
+                      </p>
+                      <p>
+                        <span class="field">Flag date:</span
+                        ><span>{{ flag.FlagDate | date: 'dd-MMM-YYYY' }}</span>
+                      </p>
+                      <p>
+                        <span class="field">Removed by:</span
+                        ><span
+                          >{{ flag.AssessorGivenName }}
+                          {{ flag.AssessorSurname }}</span
+                        >
+                      </p>
+                      <p>
+                        <span class="field">Remove date:</span
+                        ><span>{{ flag.FlagDate | date: 'dd-MMM-YYYY' }}</span>
+                      </p>
+                      <p>
+                        <span class="field">Reason:</span
+                        ><span>{{
+                          invalidateReason[flag.AssessmentReason]
+                        }}</span>
+                      </p>
+                    </div>
+                  </div>
+                }
+              } @else {
+                <p class="no-flag">
+                  There are no previous flags for this dwelling
+                </p>
+              }
+            </div>
+          } @else {
+            <p class="no-flag">There is currently no flag for this dwelling</p>
+          }
         </div>
       </mat-tab>
     </mat-tab-group>
