@@ -35,24 +35,40 @@
       font-size: 1rem;
     }
 
+    .column-data {
+      padding-bottom: 1rem;
+
+      p {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 1rem;
+      }
+    }
+
+    .field {
+      font-weight: 300;
+    }
+
     &--overview {
-      .about {
-        padding-bottom: 1rem;
-        border-bottom: 1px solid $color-line;
-        p {
-          display: grid;
-          grid-template-columns: 1fr 2fr;
-          gap: 1rem;
-        }
-      }
-      .field {
-        font-weight: 300;
-      }
       .specification {
         p {
           display: flex;
           flex-direction: column;
         }
+      }
+
+      .about {
+        border-bottom: 1px solid $color-line;
+      }
+    }
+
+    .historical-flag {
+      display: flex;
+      gap: 0.5rem;
+
+      img {
+        margin-top: 0.25rem;
+        height: var(--arc-font-size-medium);
       }
     }
   }

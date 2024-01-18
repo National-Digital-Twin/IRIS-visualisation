@@ -30,7 +30,7 @@
       (selectedTabChange)="tabChanged($event)">
       <mat-tab label="Overview" aria-label="Property overview">
         <div class="details-panel__tab details-panel__tab--overview">
-          <div class="about">
+          <div class="column-data about">
             <h2>About</h2>
             <p>
               <span class="field">Built form:</span>
@@ -142,7 +142,58 @@
           </div>
         </div>
       </mat-tab>
-      <mat-tab label="Flag"></mat-tab>
+      <mat-tab label="Flag">
+        <div class="details-panel__tab">
+          <div class="column-data about">
+            <h2>Active Flag</h2>
+            @if (activeFlag()) {
+              <p>
+                <span class="field">Flagged by:</span
+                ><span
+                  >{{ activeFlag()!.FlaggedByGivenName }}
+                  {{ activeFlag()!.FlaggedBySurname }}</span
+                >
+              </p>
+              <p>
+                <span class="field">Flag date:</span
+                ><span>{{ activeFlag()!.FlagDate | date: 'dd-MMM-YYYY' }}</span>
+              </p>
+            }
+          </div>
+          <div class="details-panel__history">
+            <h2>Previous Flags</h2>
+            @if (flagHistory().length) {
+              @for (flag of flagHistory(); track flag.Flagged) {
+                <div class="historical-flag">
+                  <img src="assets/icons/FlagPennant.svg" alt="" />
+                  <div class="column-data">
+                    <p>
+                      <strong>{{
+                        flag.AssessmentDate | date: 'dd-MMM-YYYY'
+                      }}</strong>
+                    </p>
+                    <p>
+                      <span class="field">Flagged by:</span
+                      ><span
+                        >{{ flag.FlaggedByGivenName }}
+                        {{ flag.FlaggedBySurname }}</span
+                      >
+                    </p>
+                    <p>
+                      <span class="field">Reason:</span
+                      ><span>{{
+                        invalidateReason[flag.AssessmentReason]
+                      }}</span>
+                    </p>
+                  </div>
+                </div>
+              }
+            } @else {
+              <p>There are no previous flags for this dwelling</p>
+            }
+          </div>
+        </div>
+      </mat-tab>
     </mat-tab-group>
     <div class="details-panel__buttons">
       @if (buildingDetails()?.Flagged === undefined) {
