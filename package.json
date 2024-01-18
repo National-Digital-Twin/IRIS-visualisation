@@ -1,12 +1,12 @@
 {
-  "name": "c477-vis",
+  "name": "iris",
   "version": "0.1.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve --configuration=local",
     "start:dev": "ng serve --configuration=dev",
     "start:prod": "ng serve --configuration=production",
-    "build": "ng build",
+    "build": "ng build --output-path dist/iris",
     "build:dev": "ng build --configuration=dev",
     "build:local": "npm run config && ng build --configuration=local",
     "watch": "ng build --watch --configuration development",
@@ -17,7 +17,7 @@
     "cypress:run": "cypress run",
     "prepare": "husky install",
     "commit": "git-cz",
-    "compodoc": "npx compodoc -p tsconfig.doc.json -a screenshots -n \"C477 Vis documentation\" -s -o",
+    "compodoc": "npx compodoc -p tsconfig.doc.json -a screenshots -n \"IRIS documentation\" -s -o",
     "config": "ts-node -O '{\"module\": \"commonjs\"}' ./scripts/config.index.ts"
   },
   "private": true,
