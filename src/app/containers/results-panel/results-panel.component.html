@@ -9,28 +9,12 @@
           >Select multiple</mat-slide-toggle
         >
       </div>
-      <div class="results-panel__header">
-        <button
-          mat-flat-button
-          class="results-panel__button"
-          aria-label="Flag selected properties"
-          [disabled]="!canFlagSelected()"
-          (click)="flag.emit(checkedCards())">
-          <img
-            alt=""
-            [src]="
-              theme() === 'light'
-                ? 'assets/icons/FlagPennant.svg'
-                : 'assets/icons/FlagPennant_white.svg'
-            " />
-          Flag selected
-        </button>
+      <div class="results-panel__header results-panel__header--download">
         @if (selectMultiple) {
           <button
             mat-flat-button
             [color]="'primary'"
             class="results-panel__button"
-            [ngStyle]="{ width: '255px' }"
             (click)="downloadAll()">
             <img src="assets/icons/FileArrowDown_white.svg" alt="" />Download
             selected
