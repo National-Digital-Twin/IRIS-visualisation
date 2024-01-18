@@ -6,4 +6,7 @@ export const environment = {
   os: {
     apiKey: 'undefined',
   },
+  posthog: {
+    apiKey: 'undefined',
+  },
 };
