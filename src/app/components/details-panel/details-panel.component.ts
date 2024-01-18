@@ -25,6 +25,7 @@ import {
   BuildForm,
   FloorConstruction,
   FloorInsulation,
+  InvalidateFlagReason,
   RoofConstruction,
   RoofInsulationLocation,
   WallConstruction,
@@ -63,6 +64,7 @@ export class DetailsPanelComponent {
 
   buildingDetails = this.dataService.selectedBuilding;
   flagHistory = signal<FlagHistory[]>([]);
+  activeFlag = signal<FlagHistory | undefined>(undefined);
 
   buildForm: { [key: string]: string } = BuildForm;
   floor: { [key: string]: string } = FloorConstruction;
@@ -71,6 +73,8 @@ export class DetailsPanelComponent {
   roofInsulation: { [key: string]: string } = RoofInsulationLocation;
   wall: { [key: string]: string } = WallConstruction;
   windowGlazing: { [key: string]: string } = WindowGlazing;
+
+  invalidateReason: { [key: string]: string } = InvalidateFlagReason;
 
   constructor(public dialog: MatDialog) {}
 
@@ -106,7 +110,13 @@ export class DetailsPanelComponent {
     if ($event.tab.textLabel === 'Flag') {
       this.dataService
         .getBuildingFlagHistory(this.buildingDetails()!.UPRN)
-        .subscribe(res => this.flagHistory.set(res));
+        .subscribe(res => {
+          // filter out empty results
+          const filteredRes = res.filter(r => r.Flagged && r.AssessmentReason);
+          this.flagHistory.set(filteredRes);
+          const activeFlag = res.find(r => r.Flagged && !r.AssessmentReason);
+          this.activeFlag.set(activeFlag);
+        });
     }
   }
 }
