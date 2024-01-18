@@ -123,7 +123,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   private selectedBuildingTOID = this.spatialQueryService.selectedBuildingTOID;
 
   title = 'IRIS';
-  loading = true;
+  loading = this.dataService.loading;
   mapConfig?: URLStateModel;
 
   filterProps?: FilterProps;
