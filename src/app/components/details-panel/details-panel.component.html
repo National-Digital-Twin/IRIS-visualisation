@@ -144,7 +144,7 @@
       </mat-tab>
       <mat-tab label="Flag">
         <div class="details-panel__tab">
-          @if (activeFlag() === undefined && flagHistory() === []) {
+          @if (activeFlag() || flagHistory().length !== 0) {
             <div class="about">
               <h2>Active Flag</h2>
               @if (activeFlag()) {
