@@ -9,8 +9,11 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+
 import { toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { skip, Subscription, tap } from 'rxjs';
 
@@ -19,17 +22,23 @@ import { MapLayerMouseEvent } from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
-
 import { MapService } from '@core/services/map.service';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { URLStateModel } from '@core/models/url-state.model';
+
 import { LegendComponent } from '@components/legend/legend.component';
 
 @Component({
   selector: 'c477-map',
   standalone: true,
-  imports: [CommonModule, LegendComponent, MatButtonModule, MatIconModule],
+  imports: [
+    CommonModule,
+    LegendComponent,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
+  ],
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
