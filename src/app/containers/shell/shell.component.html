@@ -24,6 +24,9 @@
   </arc-accessibility>
 
   <div class="content">
+    @if (loading()) {
+      <c477-loading-screen />
+    }
     <c477-main-filters
       [filterProps]="filterProps"
       (setRouteParams)="setFilterParams($event)"
