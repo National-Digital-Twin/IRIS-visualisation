@@ -29,6 +29,7 @@ import {
   RoofConstruction,
   RoofInsulationLocation,
   WallConstruction,
+  WallInsulation,
   WindowGlazing,
 } from '@core/enums';
 import {
@@ -73,6 +74,7 @@ export class DetailsPanelComponent {
   roof: { [key: string]: string } = RoofConstruction;
   roofInsulation: { [key: string]: string } = RoofInsulationLocation;
   wall: { [key: string]: string } = WallConstruction;
+  wallInsulation: { [key: string]: string } = WallInsulation;
   windowGlazing: { [key: string]: string } = WindowGlazing;
 
   invalidateReason: { [key: string]: string } = InvalidateFlagReason;
