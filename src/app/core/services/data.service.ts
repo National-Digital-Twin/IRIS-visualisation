@@ -53,6 +53,8 @@ export class DataService {
   readonly buildingsFlagged = signal<FlagMap>({});
   readonly buildingsFlagged$ = toObservable(this.buildingsFlagged);
 
+  loading = signal<boolean>(true);
+
   sapPoints$ = this.selectTable(this.queries.getSAPPoints()).pipe(
     map(points => this.mapSAPPointsToToids(points as unknown as SAPPoint[]))
   );
@@ -100,6 +102,9 @@ export class DataService {
   ]).pipe(
     map(([epc, noEPC, flagged]) => {
       return this.combineBuildingData(epc, noEPC, flagged);
+    }),
+    tap(() => {
+      this.loading.set(false);
     })
   );
 
