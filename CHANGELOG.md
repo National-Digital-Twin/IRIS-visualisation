@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.0.4](https://github.com/arup-group/C477-DBT-Vis/compare/v0.0.3...v0.0.4) (2024-01-18)
+
+
+### Miscellaneous Chores
+
+* release 0.0.4 ([f1591d5](https://github.com/arup-group/C477-DBT-Vis/commit/f1591d50d92d0c4a3a18f12e4010bce87fd49d77))
+
+## [0.0.3](https://github.com/arup-group/C477-DBT-Vis/compare/v0.0.2...v0.0.3) (2024-01-18)
+
+
+### Miscellaneous Chores
+
+* release 0.0.3 ([7b5ed0e](https://github.com/arup-group/C477-DBT-Vis/commit/7b5ed0e18f06bc0a740fbff6079265633fe8b4c6))
+
 ## 0.0.2 (2024-01-18)
 
 

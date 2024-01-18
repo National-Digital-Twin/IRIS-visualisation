@@ -105,4 +105,4 @@ jobs:
         run: npm run build
       - name: Deploy to production
         run: |
-          aws s3 sync ./dist/c477-vis s3://${{ secrets.S3_BUCKET }}/c477-vis
+          aws s3 sync ./dist/c477-vis s3://${{ secrets.S3_BUCKET }}/iris

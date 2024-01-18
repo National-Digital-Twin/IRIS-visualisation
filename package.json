@@ -1,6 +1,6 @@
 {
   "name": "c477-vis",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "scripts": {
     "ng": "ng",
     "start": "ng serve --configuration=local",
