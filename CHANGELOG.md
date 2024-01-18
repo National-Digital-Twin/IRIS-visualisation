@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/arup-group/C477-DBT-Vis/compare/v0.1.1...v0.1.2) (2024-01-18)
+
+
+### Bug Fixes
+
+* **Details Panel:** :bug: fix statement for displaying no flags ([3838bfd](https://github.com/arup-group/C477-DBT-Vis/commit/3838bfdafe7a0eb7807f07066a6ce73b066bb154))
+
 ## [0.1.1](https://github.com/arup-group/C477-DBT-Vis/compare/v0.1.0...v0.1.1) (2024-01-18)
 
 ### Miscellaneous Chores
