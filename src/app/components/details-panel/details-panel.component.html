@@ -123,6 +123,19 @@
               }
             </p>
             <p>
+              <span class="field">Wall insulation:</span>
+              @if (
+                buildingDetails()?.WallInsulation &&
+                wallInsulation[buildingDetails()!.WallInsulation!]
+              ) {
+                <span>{{
+                  wallInsulation[buildingDetails()!.WallInsulation!]
+                }}</span>
+              } @else {
+                <span>No data</span>
+              }
+            </p>
+            <p>
               <span class="field">Window glazing:</span>
               @if (
                 buildingDetails()?.WindowGlazing &&
