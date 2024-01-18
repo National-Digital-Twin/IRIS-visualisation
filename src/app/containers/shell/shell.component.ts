@@ -58,12 +58,14 @@ import {
   RemoveFlagModalData,
   RemoveFlagModalResult,
 } from '@components/remove-flag-modal/remove-flag-modal.component';
+import { LoadingScreenComponent } from '@components/loading-screen/loading-screen.component';
 
 @Component({
   selector: 'c477-shell',
   standalone: true,
   imports: [
     DetailsPanelComponent,
+    LoadingScreenComponent,
     MainFiltersComponent,
     MapComponent,
     ResultsPanelComponent,
@@ -121,7 +123,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   private selectedBuildingTOID = this.spatialQueryService.selectedBuildingTOID;
 
   title = 'IRIS';
-
+  loading = true;
   mapConfig?: URLStateModel;
 
   filterProps?: FilterProps;
