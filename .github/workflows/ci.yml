@@ -54,12 +54,14 @@ jobs:
           ENV: 'dev'
           MAPBOX_API_KEY: ${{ secrets.MAPBOX_API_KEY }}
           OS_API_KEY: ${{ secrets.OS_API_KEY }}
+          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
       - name: Create environment file
         run: npm run config
         env:
           ENV: 'dev'
           MAPBOX_API_KEY: ${{ secrets.MAPBOX_API_KEY }}
           OS_API_KEY: ${{ secrets.OS_API_KEY }}
+          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
       - name: Build
         run: npm run build:dev
       - name: Deploy to development
@@ -101,8 +103,9 @@ jobs:
           ENV: 'prod'
           MAPBOX_API_KEY: ${{ secrets.MAPBOX_API_KEY }}
           OS_API_KEY: ${{ secrets.OS_API_KEY }}
+          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
       - name: Build
         run: npm run build
       - name: Deploy to production
         run: |
-          aws s3 sync ./dist/c477-vis s3://${{ secrets.S3_BUCKET }}/c477-vis
+          aws s3 sync ./dist/iris s3://${{ secrets.S3_BUCKET }}/iris
