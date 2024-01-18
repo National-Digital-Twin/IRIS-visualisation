@@ -144,41 +144,42 @@ export class UtilService {
         : null;
     }
 
-    /** Iterate through the filtered toids */
-    Object.keys(filteredBuildings).forEach((toid: string) => {
-      /** Get the buildings UPRN's for a TOID */
-      const buildings: BuildingModel[] = filteredBuildings[toid];
+    const flaggedTOIDS: string[] = [];
 
-      if (buildings.length === 0) {
+    /** Iterate through the filtered toids */
+    Object.keys(filteredBuildings).forEach(toid => {
+      /** Get the buildings UPRN's for a TOID */
+      const dwellings: BuildingModel[] = filteredBuildings[toid];
+
+      if (dwellings.length === 0) {
         /** No UPRNs for a TOID */
 
         addTooExpression('fill-extrusion-color', toid, defaultColor);
-      } else if (buildings.length === 1) {
+      } else if (dwellings.length === 1) {
         /* One UPRN for a TOID */
 
-        const { EPC } = buildings[0];
-        addTooExpression(
-          'fill-extrusion-color',
-          toid,
-          EPC ? this.getEPCColour(EPC) : defaultPattern
-        );
-      } else if (buildings.length > 1) {
+        const { EPC, Flagged } = dwellings[0];
+        const color = EPC ? this.getEPCColour(EPC) : defaultPattern;
+
+        /* Add toid to flagged array if flagged */
+        if (Flagged) flaggedTOIDS.push(toid);
+
+        addTooExpression('fill-extrusion-color', toid, color);
+      } else if (dwellings.length > 1) {
         /* Multiple UPRNs for a TOID */
 
-        const buildingEPCs: string[] = [];
-        buildings.forEach(({ EPC }) => {
-          if (EPC) {
-            buildingEPCs.push(EPC);
-          }
+        const epcs: string[] = [];
+        const Flagged = dwellings.some(({ Flagged }) => Flagged);
+        dwellings.forEach(({ EPC }) => {
+          if (EPC) epcs.push(EPC);
         });
+        const pattern =
+          epcs.length === 0 ? defaultPattern : this.getEPCPattern(epcs);
 
-        addTooExpression(
-          'fill-extrusion-pattern',
-          toid,
-          buildingEPCs.length === 0
-            ? defaultPattern
-            : this.getEPCPattern(buildingEPCs)
-        );
+        /* Add toid to flagged array if flagged */
+        if (Flagged) flaggedTOIDS.push(toid);
+
+        addTooExpression('fill-extrusion-pattern', toid, pattern);
       }
     });
 
@@ -200,6 +201,16 @@ export class UtilService {
     if (Object.keys(this.filterProps()).length || spatialFilter) {
       this.dataService.setSelectedBuildings(Object.values(filteredBuildings));
     }
+
+    /* Apply the flagged filter */
+    this.mapService.filterMapLayer({
+      layerId: 'OS/TopographicArea_2/Building/1_3D-Dwelling-Flagged',
+      expression: [
+        'all',
+        ['==', '_symbol', 4],
+        ['in', 'TOID', ...flaggedTOIDS],
+      ],
+    });
   }
 
   /**
