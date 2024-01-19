@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.3.0](https://github.com/arup-group/C477-DBT-Vis/compare/v0.2.0...v0.3.0) (2024-01-19)
+
+
+### Features
+
+* **map:** remove buildings with data from default ([5d7a350](https://github.com/arup-group/C477-DBT-Vis/commit/5d7a350581ca65b5ca1372e30bea997a585715ac))
+
+
+### Bug Fixes
+
+* **Filters:** :bug: fix positioning and cancel error ([39d46d0](https://github.com/arup-group/C477-DBT-Vis/commit/39d46d03db47ecc43ff12b8fbc63759a12829d98))
+* **Map:** :bug: update default zoom to ensure data is rendered ([59b5187](https://github.com/arup-group/C477-DBT-Vis/commit/59b5187c8208fce524879fe15f06b29b5e752a6c))
+* **Results:** :bug: fixes issue where cards beneath expansion look like child ([19409cb](https://github.com/arup-group/C477-DBT-Vis/commit/19409cb2891db456e95a6b95b67422366527e7d1))
+
 ## [0.2.0](https://github.com/arup-group/C477-DBT-Vis/compare/v0.1.2...v0.2.0) (2024-01-18)
 
 
