@@ -41,7 +41,7 @@
     "file-saver": "^2.0.5",
     "install": "^0.13.0",
     "jszip": "^3.10.1",
-    "mapbox-gl": "^2.15.0",
+    "mapbox-gl": "3.0.1",
     "npm": "^10.2.4",
     "posthog-js": "^1.100.0",
     "rxjs": "~7.8.0",
