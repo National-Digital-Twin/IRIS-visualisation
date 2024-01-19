@@ -87,5 +87,8 @@
     mat-flat-button
     (click)="openAdvancedFilters()">
     Advanced Filters <mat-icon iconPositionEnd>add</mat-icon>
+    @if (numberFilters > 0) {
+      ({{ numberFilters }} applied)
+    }
   </button>
 </div>

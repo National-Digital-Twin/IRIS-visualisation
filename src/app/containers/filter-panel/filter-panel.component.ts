@@ -135,6 +135,7 @@ export class FilterPanelComponent {
     },
   ];
   otherPanels: PanelData[] = [
+    { panelTitle: 'General', filters: this.generalFilters },
     { panelTitle: 'Glazing', filters: this.glazingFilters },
     { panelTitle: 'Wall', filters: this.wallFilters },
     { panelTitle: 'Floor', filters: this.floorFilters },
@@ -152,8 +153,27 @@ export class FilterPanelComponent {
     this.advancedFiltersForm = this.data.form;
   }
 
+  checkFiltersApplied(panelTitle: string) {
+    if (
+      panelTitle === 'General' &&
+      Object.keys(this.advancedFiltersForm.value).every(
+        key => this.advancedFiltersForm.value[key] === null
+      )
+    ) {
+      // open first panel if form is empty
+      return true;
+    } else {
+      const panel = this.otherPanels.find(
+        panel => panel.panelTitle === panelTitle
+      );
+      return panel?.filters.some(filter => {
+        return this.advancedFiltersForm.value[filter.formControlName];
+      });
+    }
+  }
+
   clearAll() {
     this.advancedFiltersForm.reset();
-    this.dialogRef.close();
+    this.dialogRef.close({ clear: true });
   }
 }
