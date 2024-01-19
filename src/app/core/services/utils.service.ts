@@ -80,11 +80,11 @@ export class UtilService {
    * @returns MapboxGLJS expression
    */
   createBuildingColourFilter() {
-    let buildings = this.dataService.buildings();
-    if (!buildings || !Object.keys(buildings).length) {
+    const unfilteredBuildings = this.dataService.buildings();
+    if (!unfilteredBuildings || !Object.keys(unfilteredBuildings).length) {
       return;
     }
-    buildings = this.filterBuildings(buildings);
+    const buildings = this.filterBuildings(unfilteredBuildings);
 
     const spatialFilter = this.spatialQueryService.spatialFilterBounds();
     const filteredBuildings = this.filterBuildingsWithinBounds(
@@ -168,7 +168,15 @@ export class UtilService {
         /** Add toid to default layer array */
         excludeFromDefault.push(toid);
 
-        addTooExpression('fill-extrusion-color', toid, color);
+        /* if the building was originally a multi dwelling building
+         * before filtering then set an epc pattern over epc color */
+        const multiDwelling = unfilteredBuildings![toid].length > 1;
+        if (multiDwelling) {
+          const pattern = EPC ? this.getEPCPattern([EPC]) : defaultPattern;
+          addTooExpression('fill-extrusion-pattern', toid, pattern);
+        } else {
+          addTooExpression('fill-extrusion-color', toid, color);
+        }
       } else if (dwellings.length > 1) {
         /* Multiple UPRNs for a TOID */
 
