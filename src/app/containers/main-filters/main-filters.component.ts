@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable, switchMap, tap, of } from 'rxjs';
 
@@ -66,7 +74,7 @@ import { MapService } from '@core/services/map.service';
   templateUrl: './main-filters.component.html',
   styleUrl: './main-filters.component.css',
 })
-export class MainFiltersComponent {
+export class MainFiltersComponent implements OnChanges {
   @Input() filterProps?: FilterProps;
   @Output() setRouteParams: EventEmitter<{ [key: string]: string[] }> =
     new EventEmitter<{ [key: string]: string[] }>();
@@ -84,6 +92,7 @@ export class MainFiltersComponent {
   advancedFiltersForm?: FormGroup;
   results$: Observable<AddressSearchData[]>;
   firstAddress?: AddressSearchData;
+  numberFilters: number = 0;
 
   filterFlagged: boolean = false;
 
@@ -99,6 +108,13 @@ export class MainFiltersComponent {
       }),
       tap(results => (this.firstAddress = results[0]))
     );
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.filterProps) {
+      // generate form to provide count on filters applied button
+      this.advancedFiltersForm = this.createForm();
+    }
   }
 
   getKeys(options: { [key: string]: string }) {
@@ -141,14 +157,14 @@ export class MainFiltersComponent {
       panelClass: 'filter-panel',
       data: {
         filterProps: this.filterProps,
-        form: this.createForm(),
+        form: this.advancedFiltersForm,
       },
     });
-    dialogRef.afterClosed().subscribe(form => {
-      if (form && form.value) {
-        this.setAdvancedFilters.emit(form.value);
-      } else {
-        /** undefined form means clear all button is clicked */
+    dialogRef.afterClosed().subscribe(res => {
+      if (res && res.value) {
+        this.setAdvancedFilters.emit(res.value);
+      } else if (res && res.clear) {
+        this.numberFilters = 0;
         this.setAdvancedFilters.emit({
           PostCode: [],
           BuildForm: [],
@@ -162,8 +178,19 @@ export class MainFiltersComponent {
           RoofInsulationThickness: [],
           YearOfAssessment: [],
         });
+      } else {
+        // reset the form to the original values on cancel
+        this.createForm();
       }
     });
+  }
+
+  countFilters(formValue: AdvancedFiltersFormModel): number {
+    return Object.keys(formValue).reduce((acc, val) => {
+      return (
+        acc + (formValue[val as keyof AdvancedFiltersFormModel]?.length ?? 0)
+      );
+    }, 0);
   }
 
   propertyTypeChange(e: MatSelectChange) {
@@ -216,6 +243,7 @@ export class MainFiltersComponent {
           ?.RoofInsulationThickness as unknown as RoofInsulationThickness,
       ],
     });
+    this.numberFilters = this.countFilters(this.advancedFiltersForm.value);
     return this.advancedFiltersForm;
   }
 
