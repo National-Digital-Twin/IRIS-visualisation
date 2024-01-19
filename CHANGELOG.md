@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/arup-group/C477-DBT-Vis/compare/v0.3.0...v0.3.1) (2024-01-19)
+
+
+### Bug Fixes
+
+* **Details Panel:** :bug: fix details panel to have internal scroll ([b3de23f](https://github.com/arup-group/C477-DBT-Vis/commit/b3de23f662c2f99a68a28e5c56ab1b2d3940e088))
+
 ## [0.3.0](https://github.com/arup-group/C477-DBT-Vis/compare/v0.2.0...v0.3.0) (2024-01-19)
 
 
