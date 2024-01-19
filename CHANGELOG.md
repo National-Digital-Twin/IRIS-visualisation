@@ -23,24 +23,21 @@
 
 ## [0.2.0](https://github.com/arup-group/C477-DBT-Vis/compare/v0.1.2...v0.2.0) (2024-01-18)
 
-
 ### Features
 
-* **Details Panel:** :sparkles: add wall insulation to details panel ([0276f68](https://github.com/arup-group/C477-DBT-Vis/commit/0276f68da46473165f8b1d9c935e8dd950d0738e))
-
+- **Details Panel:** :sparkles: add wall insulation to details panel ([0276f68](https://github.com/arup-group/C477-DBT-Vis/commit/0276f68da46473165f8b1d9c935e8dd950d0738e))
 
 ### Bug Fixes
 
-* **Details Panel:** :bug: hide property type label when there is no data ([2a94bee](https://github.com/arup-group/C477-DBT-Vis/commit/2a94beea488bfdc1782e8d262a0c6d90364339d3))
-* **Results:** :fire: remove selected flag button ([5880815](https://github.com/arup-group/C477-DBT-Vis/commit/5880815fa66d6c9aac51e63e487180c490b07ae9))
-* **Results:** :lipstick: fix letter spacing ([94f9926](https://github.com/arup-group/C477-DBT-Vis/commit/94f9926e74010a274ff732960afce0d0cdb856c0))
+- **Details Panel:** :bug: hide property type label when there is no data ([2a94bee](https://github.com/arup-group/C477-DBT-Vis/commit/2a94beea488bfdc1782e8d262a0c6d90364339d3))
+- **Results:** :fire: remove selected flag button ([5880815](https://github.com/arup-group/C477-DBT-Vis/commit/5880815fa66d6c9aac51e63e487180c490b07ae9))
+- **Results:** :lipstick: fix letter spacing ([94f9926](https://github.com/arup-group/C477-DBT-Vis/commit/94f9926e74010a274ff732960afce0d0cdb856c0))
 
 ## [0.1.2](https://github.com/arup-group/C477-DBT-Vis/compare/v0.1.1...v0.1.2) (2024-01-18)
 
-
 ### Bug Fixes
 
-* **Details Panel:** :bug: fix statement for displaying no flags ([3838bfd](https://github.com/arup-group/C477-DBT-Vis/commit/3838bfdafe7a0eb7807f07066a6ce73b066bb154))
+- **Details Panel:** :bug: fix statement for displaying no flags ([3838bfd](https://github.com/arup-group/C477-DBT-Vis/commit/3838bfdafe7a0eb7807f07066a6ce73b066bb154))
 
 ## [0.1.1](https://github.com/arup-group/C477-DBT-Vis/compare/v0.1.0...v0.1.1) (2024-01-18)
 

@@ -155,79 +155,89 @@
       </mat-tab>
       <mat-tab label="Flag">
         <div class="details-panel__tab">
-          @if (activeFlag() || flagHistory().length !== 0) {
-            <div class="about">
+          @if (
+            (activeFlag$ | async) ||
+            ((flagHistory$ | async) && (flagHistory$ | async)!.length > 0)
+          ) {
+            <div class="column-data about">
               <h2>Active Flag</h2>
-              @if (activeFlag()) {
-                <div class="column-data">
+              <ng-container *ngIf="activeFlag$ | async as activeFlag">
+                <ng-container *ngIf="activeFlag !== 'loading'; else loading">
                   <p>
                     <span class="field">Flagged by:</span
                     ><span
-                      >{{ activeFlag()!.FlaggedByGivenName }}
-                      {{ activeFlag()!.FlaggedBySurname }}</span
+                      >{{ activeFlag.FlaggedByGivenName }}
+                      {{ activeFlag.FlaggedBySurname }}</span
                     >
                   </p>
                   <p>
                     <span class="field">Flag date:</span
                     ><span>{{
-                      activeFlag()!.FlagDate | date: 'dd-MMM-YYYY'
+                      activeFlag.FlagDate | date: 'dd-MMM-YYYY'
                     }}</span>
                   </p>
-                </div>
-              } @else {
-                <p class="no-flag">This dwelling is not currently flagged</p>
-              }
+                </ng-container>
+              </ng-container>
             </div>
             <div class="details-panel__history">
               <h2>Previous Flags</h2>
-              @if (flagHistory().length) {
-                @for (flag of flagHistory(); track flag.Flagged) {
-                  <div class="historical-flag">
-                    <img src="assets/icons/FlagPennant.svg" alt="" />
-                    <div>
-                      <p>
-                        <strong
-                          >Flagged on
-                          {{ flag.FlagDate | date: 'dd-MMM-YYYY' }}</strong
-                        >
-                      </p>
-                      <p>
-                        <span class="field">Flagged by: </span
-                        ><span
-                          >{{ flag.FlaggedByGivenName }}
-                          {{ flag.FlaggedBySurname }}</span
-                        >
-                      </p>
-                      <p>
-                        <span class="field">Remove date: </span
-                        ><span>{{ flag.FlagDate | date: 'dd-MMM-YYYY' }}</span>
-                      </p>
-                      <p>
-                        <span class="field">Removed by: </span
-                        ><span
-                          >{{ flag.AssessorGivenName }}
-                          {{ flag.AssessorSurname }}</span
-                        >
-                      </p>
-                      <p>
-                        <span class="field">Reason: </span
-                        ><span>{{
-                          invalidateReason[flag.AssessmentReason]
-                        }}</span>
-                      </p>
-                    </div>
-                  </div>
-                }
-              } @else {
-                <p class="no-flag">
-                  There are no previous flags for this dwelling
-                </p>
-              }
+              <ng-container *ngIf="flagHistory$ | async as flagHistory">
+                <ng-container *ngIf="flagHistory !== 'loading'; else loading">
+                  <ng-container *ngIf="flagHistory.length > 0; else noHistory">
+                    <ng-container
+                      *ngFor="let flag of flagHistory; track: flag.Flagged">
+                      <div class="historical-flag">
+                        <img src="assets/icons/FlagPennant.svg" alt="" />
+                        <div>
+                          <p>
+                            <strong
+                              >Flagged on
+                              {{ flag.FlagDate | date: 'dd-MMM-YYYY' }}</strong
+                            >
+                          </p>
+                          <p>
+                            <span class="field">Flagged by: </span
+                            ><span
+                              >{{ flag.FlaggedByGivenName }}
+                              {{ flag.FlaggedBySurname }}</span
+                            >
+                          </p>
+                          <p>
+                            <span class="field">Remove date: </span
+                            ><span>{{
+                              flag.AssessmentDate | date: 'dd-MMM-YYYY'
+                            }}</span>
+                          </p>
+                          <p>
+                            <span class="field">Removed by: </span
+                            ><span
+                              >{{ flag.AssessorGivenName }}
+                              {{ flag.AssessorSurname }}</span
+                            >
+                          </p>
+                          <p>
+                            <span class="field">Reason: </span
+                            ><span>{{
+                              invalidateReason[flag.AssessmentReason]
+                            }}</span>
+                          </p>
+                        </div>
+                      </div>
+                    </ng-container>
+                  </ng-container>
+                  <ng-template #noHistory>
+                    <p>There are no previous flags for this dwelling</p>
+                  </ng-template>
+                </ng-container>
+              </ng-container>
             </div>
           } @else {
             <p class="no-flag">There are no flags for this dwelling</p>
           }
         </div>
+        <ng-template #loading>
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </ng-template>
       </mat-tab>
     </mat-tab-group>
     <div class="details-panel__buttons">

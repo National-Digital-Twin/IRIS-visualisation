@@ -1,3 +1,5 @@
+import { BuildingModel } from '@core/models/building.model';
+
 export class Queries {
   getNoEPCBuildingDetails(uprn: string) {
     return `
@@ -193,7 +195,7 @@ export class Queries {
     `;
   }
 
-  getFlagHistory(uprn: string) {
+  getFlagHistory(uprn: BuildingModel['UPRN']): string {
     return `
       PREFIX data: <http://nationaldigitaltwin.gov.uk/data#>
       PREFIX ies: <http://ies.data.gov.uk/ontology/ies4#>
@@ -213,30 +215,36 @@ export class Queries {
       WHERE {{
           ?building ies:isIdentifiedBy ?uprn .
           ?uprn ies:representationValue "${uprn}" .
+          ?flag ies:interestedIn ?building .
 
           OPTIONAL {{
-              ?flag ies:interestedIn ?building .
+
+
               ?flag ies:isStateOf ?flag_person .
               ?flag_person ies:hasName ?flag_person_name .
+
               ?surname a ies:Surname .
               ?surname ies:inRepresentation ?flag_person_name .
               ?surname ies:representationValue ?surname_literal .
+
               ?given_name a ies:GivenName .
               ?given_name ies:inRepresentation ?flag_person_name .
               ?given_name ies:representationValue ?given_name_literal .
+
               ?flag a ?flag_type .
               ?flag ies:inPeriod ?flag_date .
               OPTIONAL {{
                   ?flag_assessment ies:assessed ?flag .
                   ?flag_assessment ies:inPeriod ?flag_ass_date .
+
                   ?flag_assessment ies:assessor ?flag_assessor .
                   ?flag_assessor ies:hasName ?flag_assessor_name .
-                  ?surname a ies:Surname .
                   ?surname ies:inRepresentation ?flag_assessor_name .
                   ?surname ies:representationValue ?assessor_surname_literal .
-                  ?given_name a ies:GivenName .
+
                   ?given_name ies:inRepresentation ?flag_assessor_name .
                   ?given_name ies:representationValue ?assessor_given_name_literal .
+
                   ?flag_assessment rdf:type ?flag_assessment_type .
               }}
           }}

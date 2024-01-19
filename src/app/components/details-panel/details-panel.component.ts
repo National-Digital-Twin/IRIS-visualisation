@@ -3,8 +3,8 @@ import {
   Component,
   EventEmitter,
   Output,
+  OnInit,
   inject,
-  signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -12,6 +12,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
 import { LabelComponent } from '@components/label/label.component';
@@ -36,7 +37,9 @@ import {
   DownloadDataWarningData,
   DownloadDataWarningResponse,
 } from '@core/models/download-data-warning.model';
-import { FlagHistory } from '@core/types/flag-history';
+
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { switchMap, EMPTY } from 'rxjs';
 
 @Component({
   selector: 'c477-details-panel',
@@ -47,12 +50,13 @@ import { FlagHistory } from '@core/types/flag-history';
     MatButtonModule,
     MatIconModule,
     MatTabsModule,
+    MatProgressBarModule,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './details-panel.component.html',
   styleUrl: './details-panel.component.scss',
 })
-export class DetailsPanelComponent {
+export class DetailsPanelComponent implements OnInit {
   public readonly theme = inject(SettingsService).get(SETTINGS.Theme);
   private readonly dataService = inject(DataService);
   private utilService = inject(UtilService);
@@ -63,10 +67,15 @@ export class DetailsPanelComponent {
   @Output() removeFlag = new EventEmitter<BuildingModel>();
   @Output() getFlagHistory = new EventEmitter<string>();
 
-  buildingDetails = this.dataService.selectedBuilding;
   buildingSelection = this.dataService.buildingsSelection;
-  flagHistory = signal<FlagHistory[]>([]);
-  activeFlag = signal<FlagHistory | undefined>(undefined);
+  public readonly buildingDetails = this.dataService.selectedBuilding;
+  public readonly flagHistory$ = toObservable(this.dataService.flagHistory);
+  public readonly activeFlag$ = toObservable(this.dataService.activeFlag);
+
+  private readonly updateFlagHistory$ = toObservable(this.buildingDetails).pipe(
+    takeUntilDestroyed(),
+    switchMap(b => (b ? this.dataService.updateFlagHistory(b.UPRN) : EMPTY))
+  );
 
   buildForm: { [key: string]: string } = BuildForm;
   floor: { [key: string]: string } = FloorConstruction;
@@ -80,6 +89,11 @@ export class DetailsPanelComponent {
   invalidateReason: { [key: string]: string } = InvalidateFlagReason;
 
   constructor(public dialog: MatDialog) {}
+
+  /** subscribe to the flag history to make updates */
+  public ngOnInit(): void {
+    this.updateFlagHistory$.pipe().subscribe();
+  }
 
   getAddressSegment(index: number) {
     return this.utilService.splitAddress(
@@ -111,15 +125,11 @@ export class DetailsPanelComponent {
 
   tabChanged($event: MatTabChangeEvent) {
     if ($event.tab.textLabel === 'Flag') {
-      this.dataService
-        .getBuildingFlagHistory(this.buildingDetails()!.UPRN)
-        .subscribe(res => {
-          // filter out empty results
-          const filteredRes = res.filter(r => r.Flagged && r.AssessmentReason);
-          this.flagHistory.set(filteredRes);
-          const activeFlag = res.find(r => r.Flagged && !r.AssessmentReason);
-          this.activeFlag.set(activeFlag);
-        });
+      const building = this.buildingDetails();
+      if (building) {
+        const { UPRN } = building;
+        this.dataService.updateFlagHistory(UPRN).subscribe();
+      }
     }
   }
 }

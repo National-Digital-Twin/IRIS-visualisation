@@ -7,6 +7,9 @@ import {
   forkJoin,
   map,
   tap,
+  first,
+  switchMap,
+  EMPTY,
 } from 'rxjs';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 
@@ -33,6 +36,8 @@ import { FlagMap, FlagResponse } from '@core/types/flag-response';
 import { SAPPointMap, SAPPoint } from '@core/types/sap-point';
 import { FlagHistory } from '@core/types/flag-history';
 
+type Loading<T> = T | 'loading';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -46,6 +51,11 @@ export class DataService {
   // single uprn
   selectedUPRN = signal<string | undefined>(undefined);
   selectedBuilding = signal<BuildingModel | undefined>(undefined);
+  public readonly flagHistory = signal<Loading<FlagHistory[]>>([]);
+  public readonly activeFlag = signal<Loading<FlagHistory> | undefined>(
+    undefined
+  );
+
   // multiple buildings
   buildingsSelection = signal<BuildingModel[][] | undefined>(undefined);
 
@@ -456,9 +466,7 @@ export class DataService {
     return parts;
   }
 
-  public flagToInvestigate(
-    building: BuildingModel
-  ): Observable<NonNullable<BuildingModel['Flagged']>> {
+  public flagToInvestigate(building: BuildingModel) {
     return this.http
       .post<NonNullable<BuildingModel['Flagged']>>(
         `${this.writeBackEndpoint}/flag-to-investigate`,
@@ -468,7 +476,7 @@ export class DataService {
         { withCredentials: true }
       )
       .pipe(
-        tap(flagUri => {
+        switchMap(flagUri => {
           const toid = building.TOID ? building.TOID : building.ParentTOID;
           if (!toid) throw new Error(`Building ${building.UPRN} has no TOID`);
           building.Flagged = flagUri;
@@ -483,14 +491,19 @@ export class DataService {
             ...f,
             [toid]: f[toid] ? [...f[toid], flag] : [flag],
           }));
+
+          /* if invalidaing flag for selected building, update the flag history */
+          const { UPRN } = building;
+          const selectedBuilding = this.selectedBuilding();
+          if (selectedBuilding?.UPRN === UPRN) {
+            return this.updateFlagHistory(UPRN);
+          }
+          return EMPTY;
         })
       );
   }
 
-  public invalidateFlag(
-    building: BuildingModel,
-    reason: InvalidateFlagReason
-  ): Observable<NonNullable<BuildingModel['Flagged']>> {
+  public invalidateFlag(building: BuildingModel, reason: InvalidateFlagReason) {
     /* If building has no flag, throw error */
     if (building.Flagged === undefined)
       throw new Error(`Building ${building.UPRN} has no flag`);
@@ -500,7 +513,6 @@ export class DataService {
       keyof typeof InvalidateFlagReason
     >;
     const key = keys.find(k => InvalidateFlagReason[k] === reason);
-    if (!key) throw new Error(`Invalid reason: ${reason}`);
 
     return this.http
       .post<NonNullable<BuildingModel['Flagged']>>(
@@ -512,7 +524,7 @@ export class DataService {
         { withCredentials: true }
       )
       .pipe(
-        tap(() => {
+        switchMap(() => {
           const toid = building.TOID ? building.TOID : building.ParentTOID;
           if (!toid) throw new Error(`Building ${building.UPRN} has no TOID`);
           /* set flagged property to undefined */
@@ -523,8 +535,31 @@ export class DataService {
             b[toid].splice(index, 1);
             return { ...b };
           });
+
+          /* if invalidaing flag for selected building, update the flag history */
+          const { UPRN } = building;
+          const selectedBuilding = this.selectedBuilding();
+          if (selectedBuilding?.UPRN === UPRN) {
+            return this.updateFlagHistory(UPRN);
+          }
+          return EMPTY;
         })
       );
+  }
+
+  /** get the flag history for selected building and update the signals */
+  public updateFlagHistory(uprn: BuildingModel['UPRN']) {
+    this.flagHistory.set('loading');
+    this.activeFlag.set('loading');
+    return this.getBuildingFlagHistory(uprn).pipe(
+      first(),
+      tap(flagHistory => {
+        const flags = flagHistory.filter(f => f.Flagged && f.AssessmentReason);
+        this.flagHistory.set(flags);
+        const flag = flagHistory.find(f => f.Flagged && !f.AssessmentReason);
+        this.activeFlag.set(flag);
+      })
+    );
   }
 
   /**
