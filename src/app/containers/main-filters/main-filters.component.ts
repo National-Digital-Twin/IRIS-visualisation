@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 import { Observable, switchMap, tap, of } from 'rxjs';
 
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
@@ -62,6 +63,7 @@ import { MapService } from '@core/services/map.service';
     CommonModule,
     LabelComponent,
     MatAutocompleteModule,
+    MatBadgeModule,
     MatButtonModule,
     MatDividerModule,
     MatFormFieldModule,
