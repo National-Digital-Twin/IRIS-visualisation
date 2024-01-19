@@ -145,6 +145,8 @@ export class UtilService {
     }
 
     const flaggedTOIDS: string[] = [];
+    /** TOIDS to exclude from the default layer */
+    const excludeFromDefault: string[] = [];
 
     /** Iterate through the filtered toids */
     Object.keys(filteredBuildings).forEach(toid => {
@@ -163,6 +165,8 @@ export class UtilService {
 
         /* Add toid to flagged array if flagged */
         if (Flagged) flaggedTOIDS.push(toid);
+        /** Add toid to default layer array */
+        excludeFromDefault.push(toid);
 
         addTooExpression('fill-extrusion-color', toid, color);
       } else if (dwellings.length > 1) {
@@ -178,6 +182,8 @@ export class UtilService {
 
         /* Add toid to flagged array if flagged */
         if (Flagged) flaggedTOIDS.push(toid);
+        /** Add toid to default layer array */
+        excludeFromDefault.push(toid);
 
         addTooExpression('fill-extrusion-pattern', toid, pattern);
       }
@@ -209,6 +215,15 @@ export class UtilService {
         'all',
         ['==', '_symbol', 4],
         ['in', 'TOID', ...flaggedTOIDS],
+      ],
+    });
+    /** Remove from toids from default layer so they're not rendered */
+    this.mapService.filterMapLayer({
+      layerId: 'OS/TopographicArea_2/Building/1_3D',
+      expression: [
+        'all',
+        ['==', '_symbol', 4],
+        ['!in', 'TOID', ...excludeFromDefault],
       ],
     });
   }
