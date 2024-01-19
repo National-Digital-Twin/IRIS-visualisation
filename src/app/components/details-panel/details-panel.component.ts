@@ -64,6 +64,7 @@ export class DetailsPanelComponent {
   @Output() getFlagHistory = new EventEmitter<string>();
 
   buildingDetails = this.dataService.selectedBuilding;
+  buildingSelection = this.dataService.buildingsSelection;
   flagHistory = signal<FlagHistory[]>([]);
   activeFlag = signal<FlagHistory | undefined>(undefined);
 
