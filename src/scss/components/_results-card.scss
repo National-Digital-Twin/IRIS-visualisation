@@ -71,6 +71,7 @@
 
 .results-card-expansion {
   box-shadow: unset !important;
+  border-bottom: 1px solid $color-line;
 
   &__fullwidth {
     width: 100%;
@@ -82,6 +83,7 @@
     font-weight: 400;
     .results-card {
       padding-left: 0;
+      border-bottom: none;
     }
 
     .mat-expansion-indicator {

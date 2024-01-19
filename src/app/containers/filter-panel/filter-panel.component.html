@@ -5,19 +5,8 @@
       class="filter-expansion"
       [displayMode]="'flat'"
       [multi]="true">
-      <mat-expansion-panel [expanded]="true">
-        <mat-expansion-panel-header
-          ><h2>General</h2></mat-expansion-panel-header
-        >
-        @for (filter of generalFilters; track filter.title) {
-          <c477-multi-button-filter
-            [formControlName]="filter.formControlName"
-            [title]="filter.title"
-            [options]="filter.data" />
-        }
-      </mat-expansion-panel>
       @for (panel of otherPanels; track panel.panelTitle) {
-        <mat-expansion-panel>
+        <mat-expansion-panel [expanded]="checkFiltersApplied(panel.panelTitle)">
           <mat-expansion-panel-header
             ><h2>{{ panel.panelTitle }}</h2></mat-expansion-panel-header
           >
