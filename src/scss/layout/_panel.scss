@@ -9,5 +9,6 @@
   .panel {
     background-color: rgb(var(--arc-container-color));
     box-shadow: $box-shadow;
+    border-radius: 4px;
   }
 }

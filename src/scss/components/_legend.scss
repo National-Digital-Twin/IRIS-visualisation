@@ -1,4 +1,9 @@
 .legend {
+  position: absolute;
+  float: right;
+  right: 0.5rem;
+  top: 380px;
+  z-index: $panel-z-index;
   background-color: rgb(var(--arc-container-color));
   border-radius: 0.25rem;
   padding: 1.5rem;
