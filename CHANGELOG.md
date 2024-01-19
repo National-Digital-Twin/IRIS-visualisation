@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.0](https://github.com/arup-group/C477-DBT-Vis/compare/v0.3.1...v1.0.0) (2024-01-19)
+
+
+### Features
+
+* **details-panel:** flag history updates ([#111](https://github.com/arup-group/C477-DBT-Vis/issues/111)) ([d503e89](https://github.com/arup-group/C477-DBT-Vis/commit/d503e899ceb8429072b0aa2822642c95a3ee37ec))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0 ([c45b7f7](https://github.com/arup-group/C477-DBT-Vis/commit/c45b7f7b7accc5e6b9caaf16e606c17ed4e18aec))
+
 ## [0.3.1](https://github.com/arup-group/C477-DBT-Vis/compare/v0.3.0...v0.3.1) (2024-01-19)
 
 
