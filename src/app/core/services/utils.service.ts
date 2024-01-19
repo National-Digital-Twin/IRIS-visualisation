@@ -172,7 +172,6 @@ export class UtilService {
          * before filtering then set an epc pattern over epc color */
         const multiDwelling = unfilteredBuildings![toid].length > 1;
         if (multiDwelling) {
-          console.log('was multi dwelling');
           const pattern = EPC ? this.getEPCPattern([EPC]) : defaultPattern;
           addTooExpression('fill-extrusion-pattern', toid, pattern);
         } else {
