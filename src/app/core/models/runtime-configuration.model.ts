@@ -14,8 +14,17 @@ export interface RuntimeConfigurationModel {
   env: 'local' | 'dev' | 'prod';
   /* IA API URL */
   apiURL: string;
-  /* OS PLACES API URL */
-  placesAPIURL: string;
+  /** Address search configuration */
+  addressSearch: {
+    /* OS PLACES API URL */
+    placesAPIURL: string;
+    /**
+     * Unique ID of the Local Land & Property Gazetteer custodian.
+     * Used to refine search to a specific area
+     */
+    localCustodianCode: number;
+    maxResults: number;
+  };
   /* Mapbox map config */
   map: URLStateModel & { style: Record<Theme, string> };
   /* Mapbox map layers */
