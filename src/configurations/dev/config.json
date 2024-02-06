@@ -2,7 +2,11 @@
   "production": false,
   "env": "dev",
   "apiURL": "https://thirdp-test.telicent.live",
-  "placesAPIURL": "https://api.os.uk/search/places/v1",
+  "addressSearch": {
+    "placesAPIURL": "https://api.os.uk/search/places/v1",
+    "maxResults": 100,
+    "localCustodianCode": 2114
+  },
   "companyLogo": {
     "light": "assets/NDTP-HM-02-highres.png",
     "dark": "assets/NDTP-HM-04-highres.png"
