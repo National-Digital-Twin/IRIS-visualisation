@@ -109,7 +109,6 @@ export class MainFiltersComponent implements OnChanges {
     this.results$ = this.addressSearch.valueChanges.pipe(
       debounceTime(200),
       distinctUntilChanged(),
-      // startWith(''),
       filter((value): value is string => !!value),
       switchMap(value => this.searchHandler(value)),
       tap(results => (this.firstAddress = results[0]))
