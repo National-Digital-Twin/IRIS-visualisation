@@ -4,6 +4,7 @@
   "apiURL": "https://iris.telicent.live",
   "addressSearch": {
     "placesAPIURL": "https://api.os.uk/search/places/v1",
+    "namesAPIURL": "https://api.os.uk/search/names/v1",
     "maxResults": 100,
     "localCustodianCode": 2114
   },

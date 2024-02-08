@@ -44,6 +44,7 @@
     "mapbox-gl": "3.0.1",
     "npm": "^10.2.4",
     "posthog-js": "^1.100.0",
+    "proj4": "^2.10.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.2"
@@ -68,6 +69,7 @@
     "@types/mapbox__mapbox-gl-draw": "^1.4.6",
     "@types/mapbox-gl": "^2.7.18",
     "@types/papaparse": "^5.3.13",
+    "@types/proj4": "^2.5.5",
     "@typescript-eslint/eslint-plugin": "6.11.0",
     "@typescript-eslint/parser": "6.11.0",
     "commitizen": "^4.3.0",
