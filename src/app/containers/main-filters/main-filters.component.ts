@@ -8,7 +8,7 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Observable, switchMap, tap, of } from 'rxjs';
+import { filter, Observable, switchMap, tap, of } from 'rxjs';
 
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -100,9 +100,15 @@ export class MainFiltersComponent implements OnChanges {
 
   constructor(public dialog: MatDialog) {
     this.results$ = this.addressSearch.valueChanges.pipe(
+      filter((value): value is string => !!value),
       switchMap(value => {
-        if (value !== '') {
-          return this.addressSearchService.getAddresses(value ?? '');
+        if (value?.length >= 3) {
+          /* check if string is a postcode */
+          if (this.checkForPostcode(value)) {
+            return this.addressSearchService.getPostCodes(value ?? '');
+          } else {
+            return this.addressSearchService.getAddresses(value ?? '');
+          }
         } else {
           this.firstAddress = undefined;
           return of([]);
@@ -257,5 +263,21 @@ export class MainFiltersComponent implements OnChanges {
   clearPropertyType($event: Event) {
     $event.stopPropagation();
     this.setRouteParams.emit({ PropertyType: [] });
+  }
+
+  /**
+   * Check if search string is a IoW postcode.
+   * @param query search string
+   * @returns boolean
+   */
+  private checkForPostcode(query: string): boolean {
+    if (
+      query.slice(0, 3).toLocaleLowerCase() === 'po3' ||
+      query.slice(0, 3).toLocaleLowerCase() === 'po4'
+    ) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
