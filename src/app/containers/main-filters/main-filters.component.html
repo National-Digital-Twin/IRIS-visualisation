@@ -11,7 +11,7 @@
       <mat-autocomplete #addressHints="matAutocomplete">
         @for (result of results$ | async; track result.UPRN) {
           <mat-option
-            [value]="result.ADDRESS"
+            [value]="getOptionValue(result)"
             (onSelectionChange)="selectAddress(result)"
             >{{ removePostCode(result.ADDRESS) | titlecase }}
             {{ result.POSTCODE }}</mat-option

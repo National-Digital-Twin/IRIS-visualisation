@@ -8,7 +8,14 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { filter, Observable, switchMap, tap, of } from 'rxjs';
+import {
+  filter,
+  Observable,
+  switchMap,
+  tap,
+  debounceTime,
+  distinctUntilChanged,
+} from 'rxjs';
 
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -100,20 +107,11 @@ export class MainFiltersComponent implements OnChanges {
 
   constructor(public dialog: MatDialog) {
     this.results$ = this.addressSearch.valueChanges.pipe(
+      debounceTime(200),
+      distinctUntilChanged(),
+      // startWith(''),
       filter((value): value is string => !!value),
-      switchMap(value => {
-        if (value?.length >= 3) {
-          /* check if string is a postcode */
-          if (this.checkForPostcode(value)) {
-            return this.addressSearchService.getPostCodes(value ?? '');
-          } else {
-            return this.addressSearchService.getAddresses(value ?? '');
-          }
-        } else {
-          this.firstAddress = undefined;
-          return of([]);
-        }
-      }),
+      switchMap(value => this.searchHandler(value)),
       tap(results => (this.firstAddress = results[0]))
     );
   }
@@ -130,6 +128,19 @@ export class MainFiltersComponent implements OnChanges {
   }
 
   /**
+   * Conditionally handle which OS API to call depending on user input
+   * @param query address or postcode search string
+   * @returns address or postcode suggestions
+   */
+  searchHandler(query: string): Observable<AddressSearchData[]> {
+    const isPostcode = this.checkForPostcode(query);
+    const results = isPostcode
+      ? this.addressSearchService.getPostCodes(query)
+      : this.addressSearchService.getAddresses(query);
+    return results;
+  }
+
+  /**
    * Remove postcode from address string
    * to prevent titlecase applying
    * @param address string
@@ -141,6 +152,16 @@ export class MainFiltersComponent implements OnChanges {
   }
 
   /**
+   * set the autocomplete option value to
+   * be either postcode or address
+   * @param value option value
+   * @returns string to use as option value
+   */
+  getOptionValue(value: AddressSearchData) {
+    return value.ADDRESS !== '' ? value.ADDRESS : value.POSTCODE;
+  }
+
+  /**
    * if the address has been selected in the autocomplete
    * zoom to that, otherwise zoom to first matching address
    * @param result AddressSearchData (optional)
@@ -148,15 +169,21 @@ export class MainFiltersComponent implements OnChanges {
    */
   selectAddress(result?: AddressSearchData) {
     let coords;
-    if (result) {
+    /** if address string is empty the it's a postcode result from the names API */
+    if (result && result.ADDRESS !== '') {
       coords = [result.LNG, result.LAT];
       this.addressSelected.emit(result.TOPOGRAPHY_LAYER_TOID);
-    } else if (this.firstAddress) {
+    } else if (this.firstAddress && this.firstAddress.ADDRESS !== '') {
       coords = [this.firstAddress.LNG, this.firstAddress.LAT];
       this.addressSelected.emit(this.firstAddress.TOPOGRAPHY_LAYER_TOID);
     }
+    /** zoom to address */
     if (coords) {
       this.mapService.zoomToCoords(coords);
+    }
+    /** zoom to postcode */
+    if (result && result.ADDRESS === '') {
+      this.mapService.zoomToCoords([result.LNG, result.LAT], 16);
     }
   }
 
