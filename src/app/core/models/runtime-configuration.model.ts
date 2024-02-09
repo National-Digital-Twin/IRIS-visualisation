@@ -18,6 +18,8 @@ export interface RuntimeConfigurationModel {
   addressSearch: {
     /* OS PLACES API URL */
     placesAPIURL: string;
+    /* OS NAMES API URL */
+    namesAPIURL: string;
     /**
      * Unique ID of the Local Land & Property Gazetteer custodian.
      * Used to refine search to a specific area
