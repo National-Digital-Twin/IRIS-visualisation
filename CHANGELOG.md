@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.0](https://github.com/arup-group/C477-DBT-Vis/compare/v1.0.0...v1.1.0) (2024-02-09)
+
+
+### Features
+
+* **address search:** refine search results ([31eb28a](https://github.com/arup-group/C477-DBT-Vis/commit/31eb28a8a8d8d6fc9f3009e75b2f7f85dbed93b4))
+* **postcode search:** add method to search for postcodes ([9642f7d](https://github.com/arup-group/C477-DBT-Vis/commit/9642f7d8d47578bfc6192f6cd2807f12526acbf3))
+
+
+### Bug Fixes
+
+* **address search:** remove commented code ([84c2a11](https://github.com/arup-group/C477-DBT-Vis/commit/84c2a112a3f96aa3e8ab4a85befb674a6afe2398))
+
 ## [1.0.0](https://github.com/arup-group/C477-DBT-Vis/compare/v0.3.1...v1.0.0) (2024-01-19)
 
 
