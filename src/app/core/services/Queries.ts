@@ -56,9 +56,9 @@ export class Queries {
             (?line_of_address_literal as ?FullAddress)
             (SUBSTR(?postcode_literal, 0, 5) AS ?PostCode)
             (GROUP_CONCAT(STRAFTER(STR(?part_type), "#"); SEPARATOR="; ") as ?PartTypes)
-            (GROUP_CONCAT(COALESCE(STRAFTER(STR(?insulation_type), "#"), "No data"); SEPARATOR="; ") as ?InsulationTypes)
-            (GROUP_CONCAT(COALESCE(?insulation_thickness_mm, "No data"); SEPARATOR="; ") as ?InsulationThickness)
-            (GROUP_CONCAT(COALESCE(?insulation_thickness_mm_lowerbound, "No data"); SEPARATOR="; ") as ?InsulationThicknessLowerBound)
+            (GROUP_CONCAT(COALESCE(STRAFTER(STR(?insulation_type), "#"), "NoData"); SEPARATOR="; ") as ?InsulationTypes)
+            (GROUP_CONCAT(COALESCE(?insulation_thickness_mm, "NoData"); SEPARATOR="; ") as ?InsulationThickness)
+            (GROUP_CONCAT(COALESCE(?insulation_thickness_mm_lowerbound, "NoData"); SEPARATOR="; ") as ?InsulationThicknessLowerBound)
         WHERE {
             ?state ies:isStateOf ?building .
             ?state a ?current_energy_rating .
