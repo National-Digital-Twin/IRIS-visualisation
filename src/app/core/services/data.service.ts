@@ -406,9 +406,9 @@ export class DataService {
   /**
    * Building parts are returned from the IA in the format
    * PartTypes: "CavityWall; DoubleGlazedBefore2002Window; SolidFloor; FlatRoof",
-   * InsulationTypes: "NA; NA; NA; AssumedLimitedInsulation",
-   * InsulationThickness: "NA; NA; NA; NA",
-   * InsulationThicknessLowerBound: "NA; NA; NA; NA"
+   * InsulationTypes: "No data; No data; No data; AssumedLimitedInsulation",
+   * InsulationThickness: "No data; No data; No data; No data",
+   * InsulationThicknessLowerBound: "No data; No data; No data; No data"
    *
    * This function:
    * 1. Splits the PartTypes string and for each part identifies if it's a Wall,
@@ -420,14 +420,14 @@ export class DataService {
    */
   private parseBuildingParts(row: EPCBuildingResponseModel) {
     const parts = {
-      FloorConstruction: 'NA',
-      FloorInsulation: 'NA',
-      RoofConstruction: 'NA',
-      RoofInsulationLocation: 'NA',
-      RoofInsulationThickness: 'NA',
-      WallConstruction: 'NA',
-      WallInsulation: 'NA',
-      WindowGlazing: 'NA',
+      FloorConstruction: 'No data',
+      FloorInsulation: 'No data',
+      RoofConstruction: 'No data',
+      RoofInsulationLocation: 'No data',
+      RoofInsulationThickness: 'No data',
+      WallConstruction: 'No data',
+      WallInsulation: 'No data',
+      WindowGlazing: 'No data',
     };
 
     const partTypes = row.PartTypes.replaceAll(' ', '').split(';');
@@ -450,12 +450,12 @@ export class DataService {
         parts['RoofConstruction'] = part;
         parts['RoofInsulationLocation'] = insulationTypes[i];
         /** check thickness types */
-        let roofInsulationThickness = 'NA';
+        let roofInsulationThickness = 'No data';
         const thickness = insulationThickness[i];
         const thicknessLB = insulationThicknessLowerBounds[i];
-        if (thickness !== 'NA' && thicknessLB === 'NA') {
+        if (thickness !== 'No data' && thicknessLB === 'No data') {
           roofInsulationThickness = `${thickness.split('.')[0]}mm`;
-        } else if (thickness === 'NA' && thicknessLB !== 'NA') {
+        } else if (thickness === 'No data' && thicknessLB !== 'No data') {
           roofInsulationThickness = `${thicknessLB.split('.')[0]}+mm`;
         }
         parts['RoofInsulationThickness'] = roofInsulationThickness;
