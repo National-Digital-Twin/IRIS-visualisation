@@ -5,4 +5,5 @@ export enum WindowGlazing {
   SecondaryGlazedWindow = 'Secondary Glazed Window',
   SingleGlazedWindow = 'Single Glazed Window',
   TripleGlazedWindow = 'Triple Glazed Window',
+  NoData = 'No data',
 }

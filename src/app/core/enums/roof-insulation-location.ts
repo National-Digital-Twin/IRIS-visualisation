@@ -12,4 +12,5 @@ export enum RoofInsulationLocation {
   InsulatedAssumed = 'Insulated Assumed',
   NoInsulationAssumed = 'No Insulation Assumed',
   ThatchedWithAdditionalRoofInsulation = 'Thatched With Additional Roof Insulation',
+  NoData = 'No Data',
 }
