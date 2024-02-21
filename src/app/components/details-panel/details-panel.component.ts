@@ -29,6 +29,7 @@ import {
   InvalidateFlagReason,
   RoofConstruction,
   RoofInsulationLocation,
+  RoofInsulationThickness,
   WallConstruction,
   WallInsulation,
   WindowGlazing,
@@ -82,6 +83,7 @@ export class DetailsPanelComponent implements OnInit {
   floorInsulation: { [key: string]: string } = FloorInsulation;
   roof: { [key: string]: string } = RoofConstruction;
   roofInsulation: { [key: string]: string } = RoofInsulationLocation;
+  roofInsulationThickness: { [key: string]: string } = RoofInsulationThickness;
   wall: { [key: string]: string } = WallConstruction;
   wallInsulation: { [key: string]: string } = WallInsulation;
   windowGlazing: { [key: string]: string } = WindowGlazing;

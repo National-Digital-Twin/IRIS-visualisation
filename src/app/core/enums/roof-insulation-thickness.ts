@@ -14,4 +14,5 @@ export enum RoofInsulationThickness {
   '350mm' = '350mm',
   '400mm' = '400mm',
   '400+mm' = '400+mm',
+  NoData = 'No Data',
 }

@@ -6,4 +6,5 @@ export enum WallInsulation {
   FilledCavityAndInternalWallInsulation = 'Filled Cavity And Internal Wall Insulation',
   FilledCavityAndExternalWallInsulation = 'Filled Cavity And External Wall Insulation',
   WallInsulationWithAdditionalInsulation = 'Wall Insulation With Additional Insulation',
+  NoData = 'No Data',
 }

@@ -9,4 +9,5 @@ export enum WallConstruction {
   CobWall = 'Cob Wall',
   ParkHomeWall = 'Park Home Wall',
   Wall = 'Other', //replaces PartOfBuilding
+  NoData = 'No Data',
 }
