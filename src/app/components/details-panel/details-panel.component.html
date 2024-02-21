@@ -108,7 +108,11 @@
                 buildingDetails()?.RoofInsulationThickness &&
                 buildingDetails()!.RoofInsulationThickness!
               ) {
-                <span>{{ buildingDetails()!.RoofInsulationThickness }}</span>
+                <span>{{
+                  roofInsulationThickness[
+                    buildingDetails()!.RoofInsulationThickness!
+                  ]
+                }}</span>
               } @else {
                 <span>No data</span>
               }
