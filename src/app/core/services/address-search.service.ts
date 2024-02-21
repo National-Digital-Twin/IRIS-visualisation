@@ -60,7 +60,7 @@ export class AddressSearchService {
       )
       .pipe(
         map((res: AddressSearchResponse) =>
-          res.results.length ? res.results.map(r => r.DPA) : []
+          res.results?.length ? res.results.map(r => r.DPA) : []
         )
       );
   }

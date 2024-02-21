@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
-  filter,
+  of,
   Observable,
   switchMap,
   tap,
@@ -109,9 +109,20 @@ export class MainFiltersComponent implements OnChanges {
     this.results$ = this.addressSearch.valueChanges.pipe(
       debounceTime(200),
       distinctUntilChanged(),
-      filter((value): value is string => !!value),
-      switchMap(value => this.searchHandler(value)),
-      tap(results => (this.firstAddress = results[0]))
+      switchMap((value): Observable<AddressSearchData[]> => {
+        if (value) {
+          return this.searchHandler(value);
+        } else {
+          return of<AddressSearchData[]>([]);
+        }
+      }),
+      tap(results => {
+        if (results.length > 0) {
+          this.firstAddress = results[0];
+        } else {
+          this.firstAddress = undefined;
+        }
+      })
     );
   }
 
