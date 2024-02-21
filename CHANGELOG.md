@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/arup-group/C477-DBT-Vis/compare/v1.1.0...v1.1.1) (2024-02-21)
+
+
+### Bug Fixes
+
+* **AddressSearch:** :bug: clear the autocomplete results when the search box is cleared ([74a89ec](https://github.com/arup-group/C477-DBT-Vis/commit/74a89ece69a38d3244be6ebd78f03ec909dbc39a))
+* **AddressSearch:** :bug: handle when there are no results returned ([3bbe19b](https://github.com/arup-group/C477-DBT-Vis/commit/3bbe19b1732e5db4173c77223fbc46d75cbcf88b))
+
 ## [1.1.0](https://github.com/arup-group/C477-DBT-Vis/compare/v1.0.0...v1.1.0) (2024-02-09)
 
 
