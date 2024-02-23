@@ -63,7 +63,8 @@ export class DetailsPanelComponent implements OnInit {
   private utilService = inject(UtilService);
 
   @Output() closePanel: EventEmitter<null> = new EventEmitter();
-  @Output() downloadData: EventEmitter<null> = new EventEmitter();
+  @Output() downloadData: EventEmitter<DownloadDataWarningResponse> =
+    new EventEmitter();
   @Output() flag = new EventEmitter<BuildingModel[]>();
   @Output() removeFlag = new EventEmitter<BuildingModel>();
   @Output() getFlagHistory = new EventEmitter<string>();
@@ -120,7 +121,7 @@ export class DetailsPanelComponent implements OnInit {
       .afterClosed()
       .subscribe(download => {
         if (download) {
-          this.downloadData.emit();
+          this.downloadData.emit(download);
         }
       });
   }

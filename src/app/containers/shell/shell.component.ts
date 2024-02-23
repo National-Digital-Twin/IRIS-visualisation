@@ -237,10 +237,18 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     this.utilService.closeDetailsButtonClick();
   }
 
-  downloadData() {
-    this.dataDownloadService.downloadData([
-      this.dataService.selectedBuilding()!,
-    ]);
+  downloadData(format: string) {
+    if (format === 'xlsx') {
+      this.dataDownloadService.downloadXlsxData([
+        this.dataService.selectedBuilding()!,
+      ]);
+    } else if (format === 'csv') {
+      {
+        this.dataDownloadService.downloadCSVData([
+          this.dataService.selectedBuilding()!,
+        ]);
+      }
+    }
   }
 
   closeResults() {

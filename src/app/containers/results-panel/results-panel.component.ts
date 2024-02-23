@@ -30,6 +30,7 @@ import { DataDownloadService } from '@core/services/data-download.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
 import {
+  DownloadBuilding,
   DownloadDataWarningData,
   DownloadDataWarningResponse,
 } from '@core/models/download-data-warning.model';
@@ -216,11 +217,21 @@ export class ResultsPanelComponent {
       .subscribe(download => {
         if (download) {
           if (this.selectMultiple) {
-            this.dataDownloadService.downloadData(this.checkedCards());
+            if (download === 'xlsx') {
+              this.dataDownloadService.downloadXlsxData(this.checkedCards());
+            } else if (download === 'csv') {
+              this.dataDownloadService.downloadCSVData(this.checkedCards());
+            }
           } else {
-            this.dataDownloadService.downloadData(
-              this.buildingSelection()!.flat()
-            );
+            if (download === 'xlsx') {
+              this.dataDownloadService.downloadXlsxData(
+                this.buildingSelection()!.flat()
+              );
+            } else if (download === 'csv') {
+              this.dataDownloadService.downloadCSVData(
+                this.buildingSelection()!.flat()
+              );
+            }
           }
           addresses = [];
           addressCount = undefined;
@@ -228,7 +239,11 @@ export class ResultsPanelComponent {
       });
   }
 
-  downloadBuilding(building: BuildingModel) {
-    this.dataDownloadService.downloadData([building]);
+  downloadBuilding(result: DownloadBuilding) {
+    if (result.format === 'xlsx') {
+      this.dataDownloadService.downloadXlsxData([result.building]);
+    } else if (result.format === 'csv') {
+      this.dataDownloadService.downloadCSVData([result.building]);
+    }
   }
 }
