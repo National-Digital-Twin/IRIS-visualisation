@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/arup-group/C477-DBT-Vis/compare/v1.1.1...v1.2.0) (2024-02-26)
+
+
+### Features
+
+* **Data Download:** :sparkles: download in excel format ([fd52e83](https://github.com/arup-group/C477-DBT-Vis/commit/fd52e83b43f10da8b9b4f34fdf56da495ddfcd7e))
+
+
+### Bug Fixes
+
+* **Data Download:** :lipstick: change download button text ([698c736](https://github.com/arup-group/C477-DBT-Vis/commit/698c73671884188910106585cc945c7ad0be563f))
+
 ## [1.1.1](https://github.com/arup-group/C477-DBT-Vis/compare/v1.1.0...v1.1.1) (2024-02-21)
 
 
