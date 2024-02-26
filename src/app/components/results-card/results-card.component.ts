@@ -20,6 +20,7 @@ import { UtilService } from '@core/services/utils.service';
 import { SettingsService, SETTINGS } from '@core/services/settings.service';
 
 import { BuildingModel } from '@core/models/building.model';
+import { DownloadBuilding } from '@core/models/download-data-warning.model';
 
 @Component({
   selector: 'c477-results-card[card]',
@@ -49,8 +50,8 @@ export class ResultsCardComponent {
   @Input() select: boolean = false;
   @Input() parent: boolean = false;
   @Input() checked: boolean = false;
-  @Output() downloadData: EventEmitter<BuildingModel> =
-    new EventEmitter<BuildingModel>();
+  @Output() downloadData: EventEmitter<DownloadBuilding> =
+    new EventEmitter<DownloadBuilding>();
   @Output() emitViewDetails: EventEmitter<BuildingModel> =
     new EventEmitter<BuildingModel>();
   @Output() cardSelected: EventEmitter<BuildingModel> =
@@ -76,7 +77,7 @@ export class ResultsCardComponent {
       .afterClosed()
       .subscribe(download => {
         if (download) {
-          this.downloadData.emit(this.card);
+          this.downloadData.emit({ building: this.card, format: download });
         }
       });
   }

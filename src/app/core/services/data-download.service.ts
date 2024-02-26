@@ -3,34 +3,45 @@ import { BuildingModel } from '@core/models/building.model';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { DataService } from './data.service';
+import { utils, writeFileXLSX } from 'xlsx';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataDownloadService {
+  warning = `
+  Warning: The downloaded data is static and will not refresh after download. We advise using the tool for accessing the most current data available.
+  The data you have downloaded represents a point-in-time snapshot and will not reflect real-time updates or changes. It is valid and accurate only at the moment of download.
+  Any subsequent updates or modifications made to the original dataset will not be reflected in this downloaded version.
+  Please ensure that you verify the currency of the data for your specific needs. We recommend referring back to the online version or consulting the relevant authoritative sources for the most up-to-date information.
+`;
+
   private dataService = inject(DataService);
+
+  downloadXlsxData(data: BuildingModel[]): void {
+    const ws = utils.json_to_sheet(data);
+    const warningWS = utils.aoa_to_sheet([[this.warning]]);
+    const wb = utils.book_new();
+    utils.book_append_sheet(wb, warningWS, 'WARNING');
+    utils.book_append_sheet(wb, ws, 'Data');
+    const filename = this.generateFileName() + '.xlsx';
+    writeFileXLSX(wb, filename);
+  }
 
   /**
    * Format data into blob url & download by adding a link to the document
    * @param data the data to be downloaded as an object
    * @returns void
    */
-  downloadData(data: BuildingModel[]): void {
+  downloadCSVData(data: BuildingModel[]): void {
     const csvBlob = this.formatDataForCSV(data);
     this.createZipFile(csvBlob);
   }
 
-  private generateWarning(): Blob {
-    return new Blob(
-      [
-        `
-      Warning: The downloaded data is static and will not refresh after download. We advise using the tool for accessing the most current data available.
-      The data you have downloaded represents a point-in-time snapshot and will not reflect real-time updates or changes. It is valid and accurate only at the moment of download.
-      Any subsequent updates or modifications made to the original dataset will not be reflected in this downloaded version.
-      Please ensure that you verify the currency of the data for your specific needs. We recommend referring back to the online version or consulting the relevant authoritative sources for the most up-to-date information.
-    `,
-      ],
-      { type: 'text/plain' }
+  private generateFileName(): string {
+    return (
+      'iris-download-' +
+      new Date().toISOString().replaceAll(':', '_').replaceAll('.', '_')
     );
   }
 
@@ -60,10 +71,9 @@ export class DataDownloadService {
   }
 
   private createZipFile(csvBlob: Blob) {
-    const filename =
-      'iris-download-' +
-      new Date().toISOString().replaceAll(':', '_').replaceAll('.', '_');
-    const warning = this.generateWarning();
+    const filename = this.generateFileName();
+
+    const warning = new Blob([this.warning], { type: 'text/plain' });
     const zip = new JSZip();
     zip.file(filename + '.csv', csvBlob);
     zip.file('warning.txt', warning);
