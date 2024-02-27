@@ -276,6 +276,10 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     });
   }
 
+  resetNorth() {
+    this.mapService.mapInstance.easeTo({ bearing: 0 });
+  }
+
   deleteSpatialFilter() {
     this.utilService.deleteSpatialFilter();
     this.updateBuildingLayerColour();
