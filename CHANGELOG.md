@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/arup-group/C477-DBT-Vis/compare/v1.2.0...v1.3.0) (2024-02-27)
+
+
+### Features
+
+* **Map:** :sparkles: add north orientation arrow ([3af2ed7](https://github.com/arup-group/C477-DBT-Vis/commit/3af2ed71b65e0b24e3a1fbf9bf2972baf465119e))
+
 ## [1.2.0](https://github.com/arup-group/C477-DBT-Vis/compare/v1.1.1...v1.2.0) (2024-02-26)
 
 
