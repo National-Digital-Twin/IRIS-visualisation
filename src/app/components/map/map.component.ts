@@ -57,6 +57,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   @Input() mapConfig!: URLStateModel | undefined;
 
   @Output() resetMapView: EventEmitter<null> = new EventEmitter<null>();
+  @Output() resetNorth: EventEmitter<null> = new EventEmitter<null>();
   @Output() zoomIn: EventEmitter<null> = new EventEmitter<null>();
   @Output() zoomOut: EventEmitter<null> = new EventEmitter<null>();
 
