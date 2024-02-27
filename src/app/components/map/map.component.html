@@ -31,6 +31,22 @@
         alt="reset to north" />
     </button>
     <button
+      mat-icon-button
+      class="map-button"
+      (click)="changeDimensions()"
+      matTooltipPosition="before"
+      [matTooltip]="
+        twoDimensions ? 'Tilt the view to 3D' : 'Tilt the view to 2D'
+      ">
+      @if (!twoDimensions) {
+        2D
+      } @else {
+        3D
+      }
+    </button>
+  </div>
+  <div class="map-controls">
+    <button
       class="map-button"
       mat-icon-button
       (click)="zoomIn.emit()"

@@ -258,14 +258,6 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     }
   }
 
-  zoomIn() {
-    this.mapService.mapInstance.zoomIn();
-  }
-
-  zoomOut() {
-    this.mapService.mapInstance.zoomOut();
-  }
-
   resetMapView() {
     this.mapService.mapInstance.easeTo({
       center: this.runtimeConfig.map.center,
@@ -278,6 +270,21 @@ export class ShellComponent implements AfterViewInit, OnChanges {
 
   resetNorth() {
     this.mapService.mapInstance.easeTo({ bearing: 0 });
+  }
+
+  tilt2D(twoDimensions: boolean) {
+    const maxPitch = twoDimensions ? 0 : 85;
+    const pitch = twoDimensions ? 0 : this.runtimeConfig.map.pitch;
+    this.mapService.mapInstance.easeTo({ pitch });
+    this.mapService.mapInstance.setMaxPitch(maxPitch);
+  }
+
+  zoomIn() {
+    this.mapService.mapInstance.zoomIn();
+  }
+
+  zoomOut() {
+    this.mapService.mapInstance.zoomOut();
   }
 
   deleteSpatialFilter() {

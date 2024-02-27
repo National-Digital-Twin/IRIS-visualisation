@@ -53,11 +53,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private mapSubscription!: Subscription;
 
   showLegend: boolean = false;
+  twoDimensions: boolean = false;
 
   @Input() mapConfig!: URLStateModel | undefined;
 
   @Output() resetMapView: EventEmitter<null> = new EventEmitter<null>();
   @Output() resetNorth: EventEmitter<null> = new EventEmitter<null>();
+  @Output() tilt2D: EventEmitter<boolean> = new EventEmitter<boolean>();
   @Output() zoomIn: EventEmitter<null> = new EventEmitter<null>();
   @Output() zoomOut: EventEmitter<null> = new EventEmitter<null>();
 
@@ -177,6 +179,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   updateMode(mode: string) {
     this.drawControl.changeMode(mode);
+  }
+
+  changeDimensions(): void {
+    this.twoDimensions = !this.twoDimensions;
+    this.tilt2D.emit(this.twoDimensions);
   }
 
   deleteSearchArea() {
