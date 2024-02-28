@@ -19,7 +19,35 @@ export class DataDownloadService {
   private dataService = inject(DataService);
 
   downloadXlsxData(data: BuildingModel[]): void {
-    const ws = utils.json_to_sheet(data);
+    const dateData = data.map(d => ({
+      ...d,
+      InspectionDate: d.InspectionDate ? new Date(d.InspectionDate) : '',
+    }));
+    const ws = utils.json_to_sheet(dateData, {
+      cellDates: true,
+      header: [
+        'UPRN',
+        'TOID',
+        'ParentTOID',
+        'FullAddress',
+        'PostCode',
+        'PropertyType',
+        'BuildForm',
+        'InspectionDate',
+        'YearOfAssessment',
+        'EPC',
+        'SAPPoints',
+        'FloorConstruction',
+        'FloorInsulation',
+        'RoofConstruction',
+        'RoofInsulationLocation',
+        'RoofInsulationThickness',
+        'WallConstruction',
+        'WallInsulation',
+        'WindowGlazing',
+        'Flagged',
+      ],
+    });
     const warningWS = utils.aoa_to_sheet([[this.warning]]);
     const wb = utils.book_new();
     utils.book_append_sheet(wb, warningWS, 'WARNING');
