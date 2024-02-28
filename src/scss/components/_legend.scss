@@ -1,8 +1,8 @@
 .legend {
   position: absolute;
   float: right;
-  right: 0.5rem;
-  top: 380px;
+  right: calc(1rem + 48px + 10px);
+  top: calc(55px + 1rem + (7 * 48px) + (4 * 10px));
   z-index: $panel-z-index;
   background-color: rgb(var(--arc-container-color));
   border-radius: 0.25rem;
