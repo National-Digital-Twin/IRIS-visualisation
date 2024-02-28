@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/arup-group/C477-DBT-Vis/compare/v1.3.0...v1.4.0) (2024-02-27)
+
+
+### Features
+
+* **Map:** :sparkles: add 2D mode ([088f216](https://github.com/arup-group/C477-DBT-Vis/commit/088f216f195c2a5dcdb7a768159ca6062e34125a))
+
 ## [1.3.0](https://github.com/arup-group/C477-DBT-Vis/compare/v1.2.0...v1.3.0) (2024-02-27)
 
 
