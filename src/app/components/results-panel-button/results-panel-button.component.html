@@ -4,9 +4,8 @@
     class="results-button"
     [ngClass]="{ 'results-button--open': panelOpen }"
     mat-icon-button
-    matTooltipPosition="before"
-    matTooltip="Toggle results panel"
-    aria-label="toggle results panel"
+    matTooltipPosition="after"
+    [matTooltip]="panelOpen ? 'Close panel' : 'Open panel'"
     (click)="togglePanel()">
     <mat-icon>vertical_align_top</mat-icon>
   </button>
