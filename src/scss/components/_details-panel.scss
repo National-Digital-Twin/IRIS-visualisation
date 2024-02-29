@@ -6,18 +6,29 @@
   padding: 1rem;
   padding-right: 0;
   width: 22rem;
-  max-height: 80vh;
+  height: calc(100vh - 10rem);
   background-color: rgb(var(--arc-container-color));
   box-shadow: $box-shadow;
   border-radius: 4px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 
   &--results-open {
     left: 28.5rem;
   }
 
+  &__info-container {
+    height: calc(100% - 52px);
+    display: flex;
+    flex-direction: column;
+  }
+
   h1 {
     font-size: 1.5rem;
     margin: 0;
+    line-height: var(--arc-line-height-dense);
   }
   &__header {
     display: flex;
@@ -39,9 +50,12 @@
     }
   }
 
+  &__tab-group {
+    overflow: auto;
+  }
+
   &__tab {
-    max-height: calc(80vh - 18.5rem);
-    overflow-y: scroll;
+    overflow-y: auto;
     p {
       margin: 0;
     }
