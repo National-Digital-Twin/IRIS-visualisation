@@ -6,6 +6,8 @@
   overflow-y: hidden;
   overflow-x: hidden;
 
+  @include transition(width 0.5s ease, height 0.4s ease);
+
   &__header {
     display: flex;
     justify-content: space-between;
@@ -28,10 +30,14 @@
     }
   }
 
-  &__number {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0 0 0 0.5rem;
+  &__toggle {
+    margin-left: 1.5rem;
+  }
+
+  &--closed {
+    @include transition(width 0.5s ease, height 0.4s ease);
+    width: 18rem;
+    height: 5rem;
   }
 }
 
