@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.0](https://github.com/arup-group/C477-DBT-Vis/compare/v1.4.0...v1.5.0) (2024-03-01)
+
+
+### Features
+
+* **Results:** :sparkles: add collapsing functionality to results panel ([23bb64b](https://github.com/arup-group/C477-DBT-Vis/commit/23bb64bec73669d2d556f289f8a9b348a6768b6a))
+
+
+### Bug Fixes
+
+* **Details Panel:** :bug: return results panel to open when a new filter is applied ([cee3353](https://github.com/arup-group/C477-DBT-Vis/commit/cee3353374364743fb9128eed147b225574f38be))
+
 ## [1.4.0](https://github.com/arup-group/C477-DBT-Vis/compare/v1.3.0...v1.4.0) (2024-02-27)
 
 
