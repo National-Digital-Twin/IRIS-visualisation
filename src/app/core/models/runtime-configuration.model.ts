@@ -4,6 +4,7 @@ import { MapLayerId } from '@core/types/map-layer-id';
 import { Theme } from '@core/types/theme';
 
 import { Layer as MapboxLayer } from 'mapbox-gl';
+import { MapLayerConfig } from './map-layer-config.model';
 
 type Layer = MapboxLayer & { filter: MapLayerFilter & { layerId: MapLayerId } };
 
@@ -37,4 +38,6 @@ export interface RuntimeConfigurationModel {
   epcColoursCD: { [key: string]: string };
   /* Company logo */
   companyLogo: Record<Theme, string>;
+  /* Map context layers */
+  contextLayers: MapLayerConfig[];
 }

@@ -35,6 +35,9 @@ import {
 import { FlagMap, FlagResponse } from '@core/types/flag-response';
 import { SAPPointMap, SAPPoint } from '@core/types/sap-point';
 import { FlagHistory } from '@core/types/flag-history';
+import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
+import { MapLayerConfig } from '@core/models/map-layer-config.model';
+import { FeatureCollection } from 'geojson';
 
 type Loading<T> = T | 'loading';
 
@@ -45,6 +48,7 @@ export class DataService {
   private readonly http: HttpClient = inject(HttpClient);
   private readonly searchEndpoint: string = inject(SEARCH_ENDPOINT);
   private readonly writeBackEndpoint = inject(WRITE_BACK_ENDPOINT);
+  private runtimeConfig = inject(RUNTIME_CONFIGURATION);
 
   private queries = new Queries();
 
@@ -167,6 +171,20 @@ export class DataService {
       }
     );
     return tableObservable;
+  }
+
+  /**
+   * Loads all spatial context data
+   * @returns FeatureCollection[] Array of geojson
+   */
+  loadContextData(): Observable<FeatureCollection[]> {
+    const requests = this.runtimeConfig.contextLayers.map(
+      (mapLayerConfig: MapLayerConfig) =>
+        this.http.get<FeatureCollection>(
+          `assets/data/${mapLayerConfig.filename}`
+        )
+    );
+    return forkJoin(requests).pipe(map((data: FeatureCollection[]) => data));
   }
 
   /**
