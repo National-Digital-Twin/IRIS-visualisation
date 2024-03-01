@@ -17,13 +17,19 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { skip, Subscription, tap } from 'rxjs';
 
-import { Polygon } from 'geojson';
-import { MapLayerMouseEvent } from 'mapbox-gl';
+import {
+  FeatureCollection,
+  GeoJsonProperties,
+  Geometry,
+  Polygon,
+} from 'geojson';
+import { GeoJSONSourceRaw, MapLayerMouseEvent } from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
 import { MapService } from '@core/services/map.service';
 
+import { MapLayerConfig } from '@core/models/map-layer-config.model';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { URLStateModel } from '@core/models/url-state.model';
 
@@ -56,6 +62,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   twoDimensions: boolean = false;
 
   @Input() mapConfig!: URLStateModel | undefined;
+  @Input() contextData:
+    | FeatureCollection<Geometry, GeoJsonProperties>[]
+    | undefined;
 
   @Output() resetMapView: EventEmitter<null> = new EventEmitter<null>();
   @Output() resetNorth: EventEmitter<null> = new EventEmitter<null>();
@@ -100,6 +109,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         tap(() => {
           this.addControls();
           this.initMapEvents();
+          this.addContextLayers();
         })
       )
       .subscribe();
@@ -229,6 +239,24 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       zoom,
     };
     this.setRouteParams.emit(mapConfig);
+  }
+
+  private addContextLayers(): void {
+    if (this.contextData) {
+      this.runtimeConfig.contextLayers.forEach((config: MapLayerConfig) => {
+        const data = this.contextData?.find(
+          // eslint-disable-next-line
+          // @ts-ignore
+          (d: unknown) => d.name === config.id
+        );
+        const geojsonSource = {
+          type: 'geojson',
+          data,
+        } as GeoJSONSourceRaw;
+        this.mapService.addMapSource(config.id, geojsonSource);
+        this.mapService.addMapLayer(config);
+      });
+    }
   }
 
   ngOnDestroy(): void {

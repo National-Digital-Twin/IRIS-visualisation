@@ -10,11 +10,17 @@ import {
   inject,
   numberAttribute,
   computed,
+  OnDestroy,
 } from '@angular/core';
 import { Params, Router } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
 
-import { Polygon } from 'geojson';
+import {
+  FeatureCollection,
+  GeoJsonProperties,
+  Geometry,
+  Polygon,
+} from 'geojson';
 
 import { DetailsPanelComponent } from '@components/details-panel/details-panel.component';
 import { MainFiltersComponent } from '@containers/main-filters/main-filters.component';
@@ -39,7 +45,15 @@ import { URLStateModel } from '@core/models/url-state.model';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { BuildingModel } from '@core/models/building.model';
-import { first, forkJoin, map, switchMap, EMPTY, Observable } from 'rxjs';
+import {
+  first,
+  forkJoin,
+  map,
+  switchMap,
+  EMPTY,
+  Observable,
+  Subscription,
+} from 'rxjs';
 
 import type { UserPreferences } from '@arc-web/components/src/components/accessibility/ArcAccessibility';
 import type { ArcAccessibility, ArcSwitch } from '@arc-web/components';
@@ -74,7 +88,7 @@ import { LoadingScreenComponent } from '@components/loading-screen/loading-scree
   styleUrl: './shell.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ShellComponent implements AfterViewInit, OnChanges {
+export class ShellComponent implements AfterViewInit, OnChanges, OnDestroy {
   // get map state from route query params
   @Input({ transform: numberAttribute }) pitch: number = 0;
   @Input({ transform: numberAttribute }) bearing: number = 0;
@@ -122,11 +136,22 @@ export class ShellComponent implements AfterViewInit, OnChanges {
 
   private selectedBuildingTOID = this.spatialQueryService.selectedBuildingTOID;
 
+  private contextDataSubscription: Subscription;
+  contextData: FeatureCollection<Geometry, GeoJsonProperties>[] | undefined;
+
   title = 'IRIS';
   loading = this.dataService.loading;
   mapConfig?: URLStateModel;
 
   filterProps?: FilterProps;
+
+  constructor() {
+    this.contextDataSubscription = this.dataService
+      .loadContextData()
+      .subscribe({
+        next: data => (this.contextData = data),
+      });
+  }
 
   public ngAfterViewInit(): void {
     const colorBlindMode = this.colorBlindMode();
@@ -415,5 +440,9 @@ export class ShellComponent implements AfterViewInit, OnChanges {
         queryParamsHandling: 'merge',
       });
     });
+  }
+
+  ngOnDestroy(): void {
+    this.contextDataSubscription.unsubscribe();
   }
 }
