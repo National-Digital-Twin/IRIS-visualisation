@@ -2,248 +2,256 @@
   <div
     class="panel details-panel"
     [ngClass]="{ 'details-panel--results-open': buildingSelection() }">
-    <div class="details-panel__header">
-      <h1>
-        {{ getAddressSegment(0) }}
-        {{ getAddressSegment(1) }}
-      </h1>
-      <button mat-icon-button (click)="closePanel.emit()">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
-    <div class="details-panel__overview">
-      <p class="address">{{ buildingDetails()?.FullAddress }}</p>
-      <div class="labels">
-        <c477-label
-          [epcRating]="buildingDetails()?.EPC"
-          [sapPoints]="buildingDetails()?.SAPPoints"></c477-label>
-        @if (buildingDetails()?.PropertyType) {
-          <c477-label>{{ buildingDetails()?.PropertyType }}</c477-label>
-        }
+    <div class="details-panel__info-container">
+      <div class="details-panel__header">
+        <h1>
+          {{ getAddressSegment(0) }}
+          {{ getAddressSegment(1) }}
+        </h1>
+        <button mat-icon-button (click)="closePanel.emit()">
+          <mat-icon>close</mat-icon>
+        </button>
       </div>
-    </div>
-    <mat-tab-group
-      mat-stretch-tabs="false"
-      mat-align-tabs="start"
-      (selectedTabChange)="tabChanged($event)">
-      <mat-tab label="Overview" aria-label="Property overview">
-        <div class="details-panel__tab details-panel__tab--overview">
-          <div class="column-data about">
-            <h2>About</h2>
-            <p>
-              <span class="field">Built form:</span>
-              @if (buildingDetails()?.BuildForm) {
-                <span>{{ buildForm[buildingDetails()!.BuildForm!] }}</span>
-              } @else {
-                <span>No data</span>
-              }
-            </p>
-            <p>
-              <span class="field">Inspection date:</span>
-              @if (buildingDetails()?.InspectionDate) {
-                <span>{{ buildingDetails()?.InspectionDate | date }}</span>
-              } @else {
-                <span>No data</span>
-              }
-            </p>
-
-            <p>
-              <span class="field">UPRN:</span>
-              <span>{{ buildingDetails()?.UPRN }}</span>
-            </p>
-          </div>
-          <div class="specification">
-            <h2>Specification</h2>
-            <p>
-              <span class="field">Floor construction:</span>
-              @if (
-                buildingDetails()?.FloorConstruction &&
-                floor[buildingDetails()!.FloorConstruction!]
-              ) {
-                <span>{{ floor[buildingDetails()!.FloorConstruction!] }}</span>
-              } @else {
-                <span>No data</span>
-              }
-            </p>
-            <p>
-              <span class="field">Floor insulation:</span>
-              @if (
-                buildingDetails()?.FloorInsulation &&
-                floorInsulation[buildingDetails()!.FloorInsulation!]
-              ) {
-                <span>{{
-                  floorInsulation[buildingDetails()!.FloorInsulation!]
-                }}</span>
-              } @else {
-                <span>No data</span>
-              }
-            </p>
-            <p>
-              <span class="field">Roof construction:</span>
-              @if (
-                buildingDetails()?.RoofConstruction &&
-                roof[buildingDetails()!.RoofConstruction!]
-              ) {
-                <span>{{ roof[buildingDetails()!.RoofConstruction!] }}</span>
-              } @else {
-                <span>No data</span>
-              }
-            </p>
-            <p>
-              <span class="field">Roof insulation location:</span>
-              @if (
-                buildingDetails()?.RoofInsulationLocation &&
-                roofInsulation[buildingDetails()!.RoofInsulationLocation!]
-              ) {
-                <span>{{
-                  roofInsulation[buildingDetails()!.RoofInsulationLocation!]
-                }}</span>
-              } @else {
-                <span>No data</span>
-              }
-            </p>
-            <p>
-              <span class="field">Roof insulation thickness:</span>
-              @if (
-                buildingDetails()?.RoofInsulationThickness &&
-                buildingDetails()!.RoofInsulationThickness!
-              ) {
-                <span>{{
-                  roofInsulationThickness[
-                    buildingDetails()!.RoofInsulationThickness!
-                  ]
-                }}</span>
-              } @else {
-                <span>No data</span>
-              }
-            </p>
-            <p>
-              <span class="field">Wall construction:</span>
-              @if (
-                buildingDetails()?.WallConstruction &&
-                wall[buildingDetails()!.WallConstruction!]
-              ) {
-                <span>{{ wall[buildingDetails()!.WallConstruction!] }}</span>
-              } @else {
-                <span>No data</span>
-              }
-            </p>
-            <p>
-              <span class="field">Wall insulation:</span>
-              @if (
-                buildingDetails()?.WallInsulation &&
-                wallInsulation[buildingDetails()!.WallInsulation!]
-              ) {
-                <span>{{
-                  wallInsulation[buildingDetails()!.WallInsulation!]
-                }}</span>
-              } @else {
-                <span>No data</span>
-              }
-            </p>
-            <p>
-              <span class="field">Window glazing:</span>
-              @if (
-                buildingDetails()?.WindowGlazing &&
-                windowGlazing[buildingDetails()!.WindowGlazing!]
-              ) {
-                <span>{{
-                  windowGlazing[buildingDetails()!.WindowGlazing!]
-                }}</span>
-              } @else {
-                <span>No data</span>
-              }
-            </p>
-          </div>
-        </div>
-      </mat-tab>
-      <mat-tab label="Flag">
-        <div class="details-panel__tab">
-          @if (
-            (activeFlag$ | async) ||
-            ((flagHistory$ | async) && (flagHistory$ | async)!.length > 0)
-          ) {
-            <div class="column-data about">
-              <h2>Active Flag</h2>
-              <ng-container *ngIf="activeFlag$ | async as activeFlag">
-                <ng-container *ngIf="activeFlag !== 'loading'; else loading">
-                  <p>
-                    <span class="field">Flagged by:</span
-                    ><span
-                      >{{ activeFlag.FlaggedByGivenName }}
-                      {{ activeFlag.FlaggedBySurname }}</span
-                    >
-                  </p>
-                  <p>
-                    <span class="field">Flag date:</span
-                    ><span>{{
-                      activeFlag.FlagDate | date: 'dd-MMM-YYYY'
-                    }}</span>
-                  </p>
-                </ng-container>
-              </ng-container>
-            </div>
-            <div class="details-panel__history">
-              <h2>Previous Flags</h2>
-              <ng-container *ngIf="flagHistory$ | async as flagHistory">
-                <ng-container *ngIf="flagHistory !== 'loading'; else loading">
-                  <ng-container *ngIf="flagHistory.length > 0; else noHistory">
-                    <ng-container
-                      *ngFor="let flag of flagHistory; track: flag.Flagged">
-                      <div class="historical-flag">
-                        <img src="assets/icons/FlagPennant.svg" alt="" />
-                        <div>
-                          <p>
-                            <strong
-                              >Flagged on
-                              {{ flag.FlagDate | date: 'dd-MMM-YYYY' }}</strong
-                            >
-                          </p>
-                          <p>
-                            <span class="field">Flagged by: </span
-                            ><span
-                              >{{ flag.FlaggedByGivenName }}
-                              {{ flag.FlaggedBySurname }}</span
-                            >
-                          </p>
-                          <p>
-                            <span class="field">Remove date: </span
-                            ><span>{{
-                              flag.AssessmentDate | date: 'dd-MMM-YYYY'
-                            }}</span>
-                          </p>
-                          <p>
-                            <span class="field">Removed by: </span
-                            ><span
-                              >{{ flag.AssessorGivenName }}
-                              {{ flag.AssessorSurname }}</span
-                            >
-                          </p>
-                          <p>
-                            <span class="field">Reason: </span
-                            ><span>{{
-                              invalidateReason[flag.AssessmentReason]
-                            }}</span>
-                          </p>
-                        </div>
-                      </div>
-                    </ng-container>
-                  </ng-container>
-                  <ng-template #noHistory>
-                    <p>There are no previous flags for this dwelling</p>
-                  </ng-template>
-                </ng-container>
-              </ng-container>
-            </div>
-          } @else {
-            <p class="no-flag">There are no flags for this dwelling</p>
+      <div class="details-panel__overview">
+        <p class="address">{{ buildingDetails()?.FullAddress }}</p>
+        <div class="labels">
+          <c477-label
+            [epcRating]="buildingDetails()?.EPC"
+            [sapPoints]="buildingDetails()?.SAPPoints"></c477-label>
+          @if (buildingDetails()?.PropertyType) {
+            <c477-label>{{ buildingDetails()?.PropertyType }}</c477-label>
           }
         </div>
-        <ng-template #loading>
-          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-        </ng-template>
-      </mat-tab>
-    </mat-tab-group>
+      </div>
+      <mat-tab-group
+        mat-stretch-tabs="false"
+        mat-align-tabs="start"
+        (selectedTabChange)="tabChanged($event)"
+        class="details-panel__tab-group">
+        <mat-tab label="Overview" aria-label="Property overview">
+          <div class="details-panel__tab details-panel__tab--overview">
+            <div class="column-data about">
+              <h2>About</h2>
+              <p>
+                <span class="field">Built form:</span>
+                @if (buildingDetails()?.BuildForm) {
+                  <span>{{ buildForm[buildingDetails()!.BuildForm!] }}</span>
+                } @else {
+                  <span>No data</span>
+                }
+              </p>
+              <p>
+                <span class="field">Inspection date:</span>
+                @if (buildingDetails()?.InspectionDate) {
+                  <span>{{ buildingDetails()?.InspectionDate | date }}</span>
+                } @else {
+                  <span>No data</span>
+                }
+              </p>
+
+              <p>
+                <span class="field">UPRN:</span>
+                <span>{{ buildingDetails()?.UPRN }}</span>
+              </p>
+            </div>
+            <div class="specification">
+              <h2>Specification</h2>
+              <p>
+                <span class="field">Floor construction:</span>
+                @if (
+                  buildingDetails()?.FloorConstruction &&
+                  floor[buildingDetails()!.FloorConstruction!]
+                ) {
+                  <span>{{
+                    floor[buildingDetails()!.FloorConstruction!]
+                  }}</span>
+                } @else {
+                  <span>No data</span>
+                }
+              </p>
+              <p>
+                <span class="field">Floor insulation:</span>
+                @if (
+                  buildingDetails()?.FloorInsulation &&
+                  floorInsulation[buildingDetails()!.FloorInsulation!]
+                ) {
+                  <span>{{
+                    floorInsulation[buildingDetails()!.FloorInsulation!]
+                  }}</span>
+                } @else {
+                  <span>No data</span>
+                }
+              </p>
+              <p>
+                <span class="field">Roof construction:</span>
+                @if (
+                  buildingDetails()?.RoofConstruction &&
+                  roof[buildingDetails()!.RoofConstruction!]
+                ) {
+                  <span>{{ roof[buildingDetails()!.RoofConstruction!] }}</span>
+                } @else {
+                  <span>No data</span>
+                }
+              </p>
+              <p>
+                <span class="field">Roof insulation location:</span>
+                @if (
+                  buildingDetails()?.RoofInsulationLocation &&
+                  roofInsulation[buildingDetails()!.RoofInsulationLocation!]
+                ) {
+                  <span>{{
+                    roofInsulation[buildingDetails()!.RoofInsulationLocation!]
+                  }}</span>
+                } @else {
+                  <span>No data</span>
+                }
+              </p>
+              <p>
+                <span class="field">Roof insulation thickness:</span>
+                @if (
+                  buildingDetails()?.RoofInsulationThickness &&
+                  buildingDetails()!.RoofInsulationThickness!
+                ) {
+                  <span>{{
+                    roofInsulationThickness[
+                      buildingDetails()!.RoofInsulationThickness!
+                    ]
+                  }}</span>
+                } @else {
+                  <span>No data</span>
+                }
+              </p>
+              <p>
+                <span class="field">Wall construction:</span>
+                @if (
+                  buildingDetails()?.WallConstruction &&
+                  wall[buildingDetails()!.WallConstruction!]
+                ) {
+                  <span>{{ wall[buildingDetails()!.WallConstruction!] }}</span>
+                } @else {
+                  <span>No data</span>
+                }
+              </p>
+              <p>
+                <span class="field">Wall insulation:</span>
+                @if (
+                  buildingDetails()?.WallInsulation &&
+                  wallInsulation[buildingDetails()!.WallInsulation!]
+                ) {
+                  <span>{{
+                    wallInsulation[buildingDetails()!.WallInsulation!]
+                  }}</span>
+                } @else {
+                  <span>No data</span>
+                }
+              </p>
+              <p>
+                <span class="field">Window glazing:</span>
+                @if (
+                  buildingDetails()?.WindowGlazing &&
+                  windowGlazing[buildingDetails()!.WindowGlazing!]
+                ) {
+                  <span>{{
+                    windowGlazing[buildingDetails()!.WindowGlazing!]
+                  }}</span>
+                } @else {
+                  <span>No data</span>
+                }
+              </p>
+            </div>
+          </div>
+        </mat-tab>
+        <mat-tab label="Flag">
+          <div class="details-panel__tab">
+            @if (
+              (activeFlag$ | async) ||
+              ((flagHistory$ | async) && (flagHistory$ | async)!.length > 0)
+            ) {
+              <div class="column-data about">
+                <h2>Active Flag</h2>
+                <ng-container *ngIf="activeFlag$ | async as activeFlag">
+                  <ng-container *ngIf="activeFlag !== 'loading'; else loading">
+                    <p>
+                      <span class="field">Flagged by:</span
+                      ><span
+                        >{{ activeFlag.FlaggedByGivenName }}
+                        {{ activeFlag.FlaggedBySurname }}</span
+                      >
+                    </p>
+                    <p>
+                      <span class="field">Flag date:</span
+                      ><span>{{
+                        activeFlag.FlagDate | date: 'dd-MMM-YYYY'
+                      }}</span>
+                    </p>
+                  </ng-container>
+                </ng-container>
+              </div>
+              <div class="details-panel__history">
+                <h2>Previous Flags</h2>
+                <ng-container *ngIf="flagHistory$ | async as flagHistory">
+                  <ng-container *ngIf="flagHistory !== 'loading'; else loading">
+                    <ng-container
+                      *ngIf="flagHistory.length > 0; else noHistory">
+                      <ng-container
+                        *ngFor="let flag of flagHistory; track: flag.Flagged">
+                        <div class="historical-flag">
+                          <img src="assets/icons/FlagPennant.svg" alt="" />
+                          <div>
+                            <p>
+                              <strong
+                                >Flagged on
+                                {{
+                                  flag.FlagDate | date: 'dd-MMM-YYYY'
+                                }}</strong
+                              >
+                            </p>
+                            <p>
+                              <span class="field">Flagged by: </span
+                              ><span
+                                >{{ flag.FlaggedByGivenName }}
+                                {{ flag.FlaggedBySurname }}</span
+                              >
+                            </p>
+                            <p>
+                              <span class="field">Remove date: </span
+                              ><span>{{
+                                flag.AssessmentDate | date: 'dd-MMM-YYYY'
+                              }}</span>
+                            </p>
+                            <p>
+                              <span class="field">Removed by: </span
+                              ><span
+                                >{{ flag.AssessorGivenName }}
+                                {{ flag.AssessorSurname }}</span
+                              >
+                            </p>
+                            <p>
+                              <span class="field">Reason: </span
+                              ><span>{{
+                                invalidateReason[flag.AssessmentReason]
+                              }}</span>
+                            </p>
+                          </div>
+                        </div>
+                      </ng-container>
+                    </ng-container>
+                    <ng-template #noHistory>
+                      <p>There are no previous flags for this dwelling</p>
+                    </ng-template>
+                  </ng-container>
+                </ng-container>
+              </div>
+            } @else {
+              <p class="no-flag">There are no flags for this dwelling</p>
+            }
+          </div>
+          <ng-template #loading>
+            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+          </ng-template>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
     <div class="details-panel__buttons">
       @if (buildingDetails()?.Flagged === undefined) {
         <button
