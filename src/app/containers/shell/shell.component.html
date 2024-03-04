@@ -55,8 +55,11 @@
         (zoomIn)="zoomIn()"
         (zoomOut)="zoomOut()"
         (setSearchArea)="setSearchArea($event)"
-        (setSelectedBuildingTOID)="setSelectedBuildingTOID($event)"></c477-map>
+        (setSelectedBuildingTOID)="setSelectedBuildingTOID($event)"
+        (setMinimapData)="minimapData = $event"></c477-map>
     </div>
+
+    <c477-minimap [minimapData]="minimapData" />
   </div>
 
   <arc-bottombar

@@ -13,7 +13,6 @@ import {
 } from '@angular/core';
 import { Params, Router } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
-
 import { Polygon } from 'geojson';
 
 import { DetailsPanelComponent } from '@components/details-panel/details-panel.component';
@@ -36,6 +35,7 @@ import {
   FilterProps,
 } from '@core/models/advanced-filters.model';
 import { URLStateModel } from '@core/models/url-state.model';
+import { MinimapData } from '@core/models/minimap-data.model';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { BuildingModel } from '@core/models/building.model';
@@ -53,12 +53,13 @@ import {
   FlagModalData,
   FlagModalResult,
 } from '@components/flag-modal/flag.modal.component';
+import { LoadingScreenComponent } from '@components/loading-screen/loading-screen.component';
+import { MinimapComponent } from '@components/minimap/minimap.component';
 import {
   RemoveFlagModalComponent,
   RemoveFlagModalData,
   RemoveFlagModalResult,
 } from '@components/remove-flag-modal/remove-flag-modal.component';
-import { LoadingScreenComponent } from '@components/loading-screen/loading-screen.component';
 
 @Component({
   selector: 'c477-shell',
@@ -68,6 +69,7 @@ import { LoadingScreenComponent } from '@components/loading-screen/loading-scree
     LoadingScreenComponent,
     MainFiltersComponent,
     MapComponent,
+    MinimapComponent,
     ResultsPanelComponent,
   ],
   templateUrl: './shell.component.html',
@@ -125,8 +127,8 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   title = 'IRIS';
   loading = this.dataService.loading;
   mapConfig?: URLStateModel;
-
   filterProps?: FilterProps;
+  minimapData?: MinimapData;
 
   public ngAfterViewInit(): void {
     const colorBlindMode = this.colorBlindMode();

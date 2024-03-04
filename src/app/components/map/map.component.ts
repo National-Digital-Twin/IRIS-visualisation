@@ -26,6 +26,7 @@ import { MapService } from '@core/services/map.service';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { URLStateModel } from '@core/models/url-state.model';
+import { MinimapData } from '@core/models/minimap-data.model';
 
 import { LegendComponent } from '@components/legend/legend.component';
 
@@ -71,6 +72,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   @Output() setRouteParams: EventEmitter<URLStateModel> =
     new EventEmitter<URLStateModel>();
+  @Output() setMinimapData: EventEmitter<MinimapData> =
+    new EventEmitter<MinimapData>();
 
   /** setup map */
   ngAfterViewInit() {
@@ -100,6 +103,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         tap(() => {
           this.addControls();
           this.initMapEvents();
+          this.updateMinimap();
         })
       )
       .subscribe();
@@ -146,6 +150,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     /** Get map state whenever the map is moved */
     this.mapService.mapInstance.on('moveend', () => {
       this.setRouterParams();
+    });
+
+    /** update the minimap as the map moves */
+    this.mapService.mapInstance.on('move', () => {
+      this.updateMinimap();
     });
   }
 
@@ -210,6 +219,15 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   onDrawUpdate = (e: MapboxDraw.DrawUpdateEvent) => {
     this.setSearchArea.emit(e.features[0] as GeoJSON.Feature<Polygon>);
   };
+
+  updateMinimap() {
+    this.setMinimapData.emit({
+      position: this.mapService.mapInstance
+        .getFreeCameraOptions()
+        ._position.toLngLat(),
+      bearing: this.mapService.mapInstance.getBearing(),
+    });
+  }
 
   setSelectedTOID = (e: MapLayerMouseEvent) => {
     if (e.features && this.drawControl.getMode() !== 'draw_polygon') {
