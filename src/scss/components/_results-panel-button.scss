@@ -13,12 +13,12 @@
   }
 
   .mat-icon {
-    transform: rotate(-90deg);
+    transform: rotate(90deg);
   }
 
   &--open {
     .mat-icon {
-      transform: rotate(90deg);
+      transform: rotate(-90deg);
     }
   }
 }
