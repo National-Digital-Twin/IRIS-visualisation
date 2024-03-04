@@ -280,8 +280,17 @@ export class Queries {
           (?building_toid_id AS ?TOID)
           (?parent_building_toid_id AS ?ParentTOID)
           (?sap_points AS ?SAPPoint)
+          (?lon_literal AS ?longitude)
+          (?lat_literal AS ?latitude)
       WHERE {
-        ?state ies:isStateOf ?building .
+          ?state ies:isStateOf ?building .
+          ?building ies:inLocation ?geopoint .
+          ?geopoint ies:isIdentifiedBy ?lat .
+          ?lat rdf:type ies:Latitude .
+          ?lat ies:representationValue ?lat_literal .
+          ?geopoint ies:isIdentifiedBy ?lon .
+          ?lon rdf:type ies:Longitude .
+          ?lon ies:representationValue ?lon_literal .
           ?building ies:isIdentifiedBy ?uprn .
           ?uprn ies:representationValue ?uprn_id .
           ?uprn rdf:type geoplace:UniquePropertyReferenceNumber .

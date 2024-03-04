@@ -13,10 +13,21 @@ import {
 } from 'rxjs';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 
+import {
+  Feature,
+  FeatureCollection,
+  GeoJsonProperties,
+  Geometry,
+  Polygon,
+} from 'geojson';
+import pointsWithinPolygon from '@turf/points-within-polygon';
+import { featureCollection, point } from '@turf/helpers';
+
 import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
 import { WRITE_BACK_ENDPOINT } from '@core/tokens/write-back-endpoint.token';
 import { SPARQLReturn, TableRow } from '@core/models/rdf-data.model';
 import { BuildingMap, BuildingModel } from '@core/models/building.model';
+import { MapLayerConfig } from '@core/models/map-layer-config.model';
 
 import { Queries } from './Queries';
 
@@ -36,8 +47,6 @@ import { FlagMap, FlagResponse } from '@core/types/flag-response';
 import { SAPPointMap, SAPPoint } from '@core/types/sap-point';
 import { FlagHistory } from '@core/types/flag-history';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
-import { MapLayerConfig } from '@core/models/map-layer-config.model';
-import { FeatureCollection } from 'geojson';
 
 type Loading<T> = T | 'loading';
 
@@ -69,9 +78,19 @@ export class DataService {
 
   loading = signal<boolean>(true);
 
-  sapPoints$ = this.selectTable(this.queries.getSAPPoints()).pipe(
-    map(points => this.mapSAPPointsToToids(points as unknown as SAPPoint[]))
+  contextData$ = this.loadContextData();
+
+  sapPoints$ = forkJoin([
+    this.selectTable(this.queries.getSAPPoints()),
+    this.contextData$,
+  ]).pipe(
+    map(([points, contextData]) => {
+      const p = this.mapSAPPointsToToids(points as unknown as SAPPoint[]);
+      this.createAddressPoints(Object.values(p).flat(), contextData);
+      return p;
+    })
   );
+
   /** load all flags */
   flags$ = this.selectTable(this.queries.getAllFlaggedBuildings()).pipe(
     map(res => {
@@ -632,5 +651,26 @@ export class DataService {
       }
     });
     return map;
+  }
+
+  private createAddressPoints(
+    data: SAPPoint[],
+    contextData: FeatureCollection<Geometry, GeoJsonProperties>[]
+  ) {
+    const coordArray = data.map(p =>
+      point([+p.longitude, +p.latitude], {
+        uprn: p.UPRN,
+        toid: p.TOID ? p.TOID : p.ParentTOID,
+        rating: +p.SAPPoint,
+      })
+    );
+    const addressPointsFC = featureCollection(coordArray);
+    contextData.forEach(collection => {
+      collection.features.forEach((feature: Feature) => {
+        const f = feature as unknown as Polygon;
+        const featuresInPolygon = pointsWithinPolygon(addressPointsFC, f);
+        console.log(feature.properties, featuresInPolygon.features);
+      });
+    });
   }
 }
