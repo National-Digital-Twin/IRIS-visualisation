@@ -18,6 +18,7 @@ import {
   FeatureCollection,
   GeoJsonProperties,
   Geometry,
+  Point,
   Polygon,
 } from 'geojson';
 import pointsWithinPolygon from '@turf/points-within-polygon';
@@ -80,15 +81,8 @@ export class DataService {
 
   contextData$ = this.loadContextData();
 
-  sapPoints$ = forkJoin([
-    this.selectTable(this.queries.getSAPPoints()),
-    this.contextData$,
-  ]).pipe(
-    map(([points, contextData]) => {
-      const p = this.mapSAPPointsToToids(points as unknown as SAPPoint[]);
-      this.createAddressPoints(Object.values(p).flat(), contextData);
-      return p;
-    })
+  sapPoints$ = this.selectTable(this.queries.getSAPPoints()).pipe(
+    map(points => this.mapSAPPointsToToids(points as unknown as SAPPoint[]))
   );
 
   /** load all flags */
@@ -132,9 +126,12 @@ export class DataService {
     this.buildingsEPC$,
     this.buildingsNoEPC$,
     this.buildingsFlagged$,
+    this.contextData$,
   ]).pipe(
-    map(([epc, noEPC, flagged]) => {
-      return this.combineBuildingData(epc, noEPC, flagged);
+    map(([epc, noEPC, flagged, contextData]) => {
+      const combinedData = this.combineBuildingData(epc, noEPC, flagged);
+      this.createAddressPoints(Object.values(combinedData).flat(), contextData);
+      return combinedData;
     }),
     tap(() => {
       this.loading.set(false);
@@ -308,6 +305,8 @@ export class DataService {
         WallConstruction: parts.WallConstruction,
         WallInsulation: parts.WallInsulation,
         WindowGlazing: parts.WindowGlazing,
+        latitude: sapPoint?.latitude,
+        longitude: sapPoint?.longitude,
       };
       if (buildingMap[toid]) {
         buildingMap[toid].push(building);
@@ -343,6 +342,8 @@ export class DataService {
         WallInsulation: undefined,
         WindowGlazing: undefined,
         YearOfAssessment: undefined,
+        latitude: undefined,
+        longitude: undefined,
       };
       /** if there is no TOID the building cannot be visualised */
       const toid = building.TOID ? building.TOID : building.ParentTOID;
@@ -654,23 +655,47 @@ export class DataService {
   }
 
   private createAddressPoints(
-    data: SAPPoint[],
+    data: BuildingModel[],
     contextData: FeatureCollection<Geometry, GeoJsonProperties>[]
   ) {
-    const coordArray = data.map(p =>
-      point([+p.longitude, +p.latitude], {
-        uprn: p.UPRN,
-        toid: p.TOID ? p.TOID : p.ParentTOID,
-        rating: +p.SAPPoint,
-      })
-    );
+    const coordArray: Feature<Point>[] = [];
+    data.forEach(p => {
+      if (!p.latitude) return;
+      const pt = point([+p.longitude!, +p.latitude!], {
+        UPRN: p.UPRN,
+        TOID: p.TOID ? p.TOID : p.ParentTOID,
+        EPC: p.EPC ? p.EPC : undefined,
+      });
+      coordArray.push(pt);
+    });
     const addressPointsFC = featureCollection(coordArray);
     contextData.forEach(collection => {
       collection.features.forEach((feature: Feature) => {
         const f = feature as unknown as Polygon;
         const featuresInPolygon = pointsWithinPolygon(addressPointsFC, f);
-        console.log(feature.properties, featuresInPolygon.features);
+        const mode = this.calculateEPCMode(featuresInPolygon);
+        console.log(feature.properties!.WD23NM, mode);
       });
     });
+  }
+
+  private calculateEPCMode(
+    buildings: FeatureCollection<Point, GeoJsonProperties>
+  ): string[] {
+    if (!buildings.features.length) return [];
+    const store: { [key: string]: number } = {};
+    let maxCount = 0;
+    buildings.features.forEach(b => {
+      if (!store[b.properties!.EPC]) {
+        store[b.properties!.EPC] = 0;
+      }
+      store[b.properties!.EPC] += 1;
+      if (store[b.properties!.EPC] > maxCount) {
+        maxCount = store[b.properties!.EPC];
+      }
+    });
+    const modes = Object.keys(store).filter(key => store[key] === maxCount);
+
+    return modes;
   }
 }
