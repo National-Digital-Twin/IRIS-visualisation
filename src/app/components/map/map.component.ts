@@ -25,7 +25,12 @@ import {
   Geometry,
   Polygon,
 } from 'geojson';
-import { FillPaint, GeoJSONSourceRaw, MapLayerMouseEvent } from 'mapbox-gl';
+import {
+  FillPaint,
+  GeoJSONSourceRaw,
+  MapLayerMouseEvent,
+  Popup,
+} from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
@@ -162,7 +167,16 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
     /** Change mouse cursor on building hover */
     this.mapService.mapInstance.on(
       'mouseenter',
-      'OS/TopographicArea_2/Building/1_3D',
+      'OS/TopographicArea_2/Building/1_3D-Single-Dwelling',
+      () => {
+        if (this.drawControl.getMode() !== 'draw_polygon') {
+          this.mapService.mapInstance.getCanvas().style.cursor = 'pointer';
+        }
+      }
+    );
+    this.mapService.mapInstance.on(
+      'mouseenter',
+      'OS/TopographicArea_2/Building/1_3D-Multi-Dwelling',
       () => {
         if (this.drawControl.getMode() !== 'draw_polygon') {
           this.mapService.mapInstance.getCanvas().style.cursor = 'pointer';
@@ -172,12 +186,34 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
     /** Remove mouse cursor when hovering off a building */
     this.mapService.mapInstance.on(
       'mouseleave',
-      'OS/TopographicArea_2/Building/1_3D',
+      'OS/TopographicArea_2/Building/1_3D-Single-Dwelling',
+      () => (this.mapService.mapInstance.getCanvas().style.cursor = '')
+    );
+    this.mapService.mapInstance.on(
+      'mouseleave',
+      'OS/TopographicArea_2/Building/1_3D-Multi-Dwelling',
       () => (this.mapService.mapInstance.getCanvas().style.cursor = '')
     );
     /** Get map state whenever the map is moved */
     this.mapService.mapInstance.on('moveend', () => {
       this.setRouterParams();
+    });
+
+    /** wards layer click */
+    this.mapService.mapInstance.on(
+      'click',
+      'wards',
+      (e: MapLayerMouseEvent) => {
+        this.wardsLayerClick(e);
+      }
+    );
+
+    this.mapService.mapInstance.on('mouseenter', 'wards', () => {
+      this.mapService.mapInstance.getCanvas().style.cursor = 'pointer';
+    });
+
+    this.mapService.mapInstance.on('mouseleave', 'wards', () => {
+      this.mapService.mapInstance.getCanvas().style.cursor = '';
     });
   }
 
@@ -263,6 +299,14 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.setRouteParams.emit(mapConfig);
   }
 
+  wardsLayerClick(e: MapLayerMouseEvent) {
+    if (e.features?.length) {
+      new Popup()
+        .setLngLat(e.lngLat)
+        .setHTML(e.features[0].properties!.WD23NM)
+        .addTo(this.mapService.mapInstance);
+    }
+  }
   /**
    * Add context layers to map
    */
@@ -325,7 +369,7 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
     colors.push(defaultColor);
 
     const paint = {
-      'fill-color': ['match', ['get', 'EPC'], ...colors],
+      'fill-color': ['match', ['get', 'aggEPC'], ...colors],
     } as FillPaint;
 
     return paint;
