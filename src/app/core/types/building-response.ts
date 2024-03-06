@@ -14,6 +14,8 @@ export type EPCBuildingResponseModel = {
   PropertyType: PropertyType;
   UPRN: string;
   TOID?: string;
+  latitude: string;
+  longitude: string;
 };
 
 export type NoEPCBuildingResponseModel = Omit<
