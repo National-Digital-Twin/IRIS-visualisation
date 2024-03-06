@@ -13,16 +13,7 @@ import {
 } from 'rxjs';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 
-import {
-  Feature,
-  FeatureCollection,
-  GeoJsonProperties,
-  Geometry,
-  Point,
-  Polygon,
-} from 'geojson';
-import pointsWithinPolygon from '@turf/points-within-polygon';
-import { featureCollection, point } from '@turf/helpers';
+import { FeatureCollection } from 'geojson';
 
 import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
 import { WRITE_BACK_ENDPOINT } from '@core/tokens/write-back-endpoint.token';
@@ -79,11 +70,11 @@ export class DataService {
 
   loading = signal<boolean>(true);
 
-  contextData$ = this.loadContextData();
-
   sapPoints$ = this.selectTable(this.queries.getSAPPoints()).pipe(
     map(points => this.mapSAPPointsToToids(points as unknown as SAPPoint[]))
   );
+
+  contextData$ = this.loadContextData();
 
   /** load all flags */
   flags$ = this.selectTable(this.queries.getAllFlaggedBuildings()).pipe(
@@ -126,13 +117,10 @@ export class DataService {
     this.buildingsEPC$,
     this.buildingsNoEPC$,
     this.buildingsFlagged$,
-    this.contextData$,
   ]).pipe(
-    map(([epc, noEPC, flagged, contextData]) => {
-      const combinedData = this.combineBuildingData(epc, noEPC, flagged);
-      this.createAddressPoints(Object.values(combinedData).flat(), contextData);
-      return combinedData;
-    }),
+    map(([epc, noEPC, flagged]) =>
+      this.combineBuildingData(epc, noEPC, flagged)
+    ),
     tap(() => {
       this.loading.set(false);
     })
@@ -342,8 +330,6 @@ export class DataService {
         WallInsulation: undefined,
         WindowGlazing: undefined,
         YearOfAssessment: undefined,
-        latitude: undefined,
-        longitude: undefined,
       };
       /** if there is no TOID the building cannot be visualised */
       const toid = building.TOID ? building.TOID : building.ParentTOID;
@@ -652,50 +638,5 @@ export class DataService {
       }
     });
     return map;
-  }
-
-  private createAddressPoints(
-    data: BuildingModel[],
-    contextData: FeatureCollection<Geometry, GeoJsonProperties>[]
-  ) {
-    const coordArray: Feature<Point>[] = [];
-    data.forEach(p => {
-      if (!p.latitude) return;
-      const pt = point([+p.longitude!, +p.latitude!], {
-        UPRN: p.UPRN,
-        TOID: p.TOID ? p.TOID : p.ParentTOID,
-        EPC: p.EPC ? p.EPC : undefined,
-      });
-      coordArray.push(pt);
-    });
-    const addressPointsFC = featureCollection(coordArray);
-    contextData.forEach(collection => {
-      collection.features.forEach((feature: Feature) => {
-        const f = feature as unknown as Polygon;
-        const featuresInPolygon = pointsWithinPolygon(addressPointsFC, f);
-        const mode = this.calculateEPCMode(featuresInPolygon);
-        console.log(feature.properties!.WD23NM, mode);
-      });
-    });
-  }
-
-  private calculateEPCMode(
-    buildings: FeatureCollection<Point, GeoJsonProperties>
-  ): string[] {
-    if (!buildings.features.length) return [];
-    const store: { [key: string]: number } = {};
-    let maxCount = 0;
-    buildings.features.forEach(b => {
-      if (!store[b.properties!.EPC]) {
-        store[b.properties!.EPC] = 0;
-      }
-      store[b.properties!.EPC] += 1;
-      if (store[b.properties!.EPC] > maxCount) {
-        maxCount = store[b.properties!.EPC];
-      }
-    });
-    const modes = Object.keys(store).filter(key => store[key] === maxCount);
-
-    return modes;
   }
 }
