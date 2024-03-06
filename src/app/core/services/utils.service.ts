@@ -464,13 +464,14 @@ export class UtilService {
         /** find address points within polygon */
         const featuresInPolygon = pointsWithinPolygon(addressPointsFC, f);
         /** find the mode EPC for the addresses within the polygon */
-        const mode = this.calculateEPCMode(featuresInPolygon);
+        const { aggEPC, epcCounts } = this.calculateEPCMode(featuresInPolygon);
         newFeature = {
           ...feature,
           properties: {
             ...feature.properties!,
             /** assign the lowest EPC value to the ward */
-            EPC: mode.sort().reverse()[0],
+            aggEPC: aggEPC.sort().reverse()[0],
+            ...epcCounts,
           },
         };
         featuresWithEPC.push(newFeature as Feature<Polygon, GeoJsonProperties>);
@@ -491,8 +492,8 @@ export class UtilService {
    */
   private calculateEPCMode(
     buildings: FeatureCollection<Point, GeoJsonProperties>
-  ): string[] {
-    if (!buildings.features.length) return [];
+  ): { aggEPC: string[]; epcCounts: { [key: string]: number } } {
+    if (!buildings.features.length) return { aggEPC: [], epcCounts: {} };
     const store: { [key: string]: number } = {};
     let maxCount = 0;
     buildings.features.forEach(b => {
@@ -509,7 +510,7 @@ export class UtilService {
       }
     });
     const modes = Object.keys(store).filter(key => store[key] === maxCount);
-    return modes;
+    return { aggEPC: modes, epcCounts: store };
   }
 
   /**
