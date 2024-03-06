@@ -7,6 +7,8 @@ import {
   OnDestroy,
   Output,
   ChangeDetectionStrategy,
+  SimpleChanges,
+  OnChanges,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -23,11 +25,12 @@ import {
   Geometry,
   Polygon,
 } from 'geojson';
-import { GeoJSONSourceRaw, MapLayerMouseEvent } from 'mapbox-gl';
+import { FillPaint, GeoJSONSourceRaw, MapLayerMouseEvent } from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
 import { MapService } from '@core/services/map.service';
+import { UtilService } from '@core/services/utils.service';
 
 import { MapLayerConfig } from '@core/models/map-layer-config.model';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
@@ -49,14 +52,22 @@ import { LegendComponent } from '@components/legend/legend.component';
   styleUrls: ['./map.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MapComponent implements AfterViewInit, OnDestroy {
-  private readonly theme = inject(SettingsService).get(SETTINGS.Theme);
+export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
+  private readonly settings = inject(SettingsService);
+  private readonly theme = this.settings.get(SETTINGS.Theme);
   public readonly theme$ = toObservable(this.theme).pipe(takeUntilDestroyed());
+  private readonly colorBlindMode$ = toObservable(
+    this.settings.get(SETTINGS.ColorBlindMode)
+  ).pipe(takeUntilDestroyed());
   private runtimeConfig = inject(RUNTIME_CONFIGURATION);
   private mapService = inject(MapService);
+  private utilsService = inject(UtilService);
 
   private drawControl!: MapboxDraw;
   private mapSubscription!: Subscription;
+
+  private epcColours = this.runtimeConfig.epcColours;
+  private colorBlindEpcColors = this.runtimeConfig.epcColoursCD;
 
   showLegend: boolean = false;
   twoDimensions: boolean = false;
@@ -64,7 +75,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   @Input() mapConfig!: URLStateModel | undefined;
   @Input() contextData:
     | FeatureCollection<Geometry, GeoJsonProperties>[]
-    | undefined;
+    | undefined
+    | null;
 
   @Output() resetMapView: EventEmitter<null> = new EventEmitter<null>();
   @Output() resetNorth: EventEmitter<null> = new EventEmitter<null>();
@@ -102,6 +114,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.contextData && changes.contextData.currentValue) {
+      this.addContextLayers();
+    }
+  }
+
   /** on map loaded, setup layers, controls etc */
   constructor() {
     this.mapSubscription = this.mapService.mapLoaded$
@@ -109,10 +127,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         tap(() => {
           this.addControls();
           this.initMapEvents();
-          this.addContextLayers();
         })
       )
       .subscribe();
+
+    /** update context layer colors when color blind mode changes */
+    this.colorBlindMode$.subscribe({
+      next: () => this.updateLayerPaint(),
+    });
   }
 
   /**
@@ -241,6 +263,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.setRouteParams.emit(mapConfig);
   }
 
+  /**
+   * Add context layers to map
+   */
   private addContextLayers(): void {
     if (this.contextData) {
       this.runtimeConfig.contextLayers.forEach((config: MapLayerConfig) => {
@@ -254,9 +279,56 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           data,
         } as GeoJSONSourceRaw;
         this.mapService.addMapSource(config.id, geojsonSource);
-        this.mapService.addMapLayer(config);
+
+        const paint = this.getWardLayerPaint();
+
+        const newConfig = {
+          ...config,
+          paint: {
+            ...paint,
+            ...config.paint,
+          },
+        };
+        this.mapService.addMapLayer(newConfig);
       });
     }
+  }
+
+  /**
+   * update context layer paint when color blind mode changes
+   */
+  private updateLayerPaint() {
+    if (!this.mapService.mapInstance) return;
+    this.runtimeConfig.contextLayers.forEach((config: MapLayerConfig) => {
+      const lyr = this.mapService.mapInstance.getLayer(config.id);
+      if (lyr) {
+        const paint = this.getWardLayerPaint();
+        this.mapService.mapInstance.setPaintProperty(
+          lyr.id,
+          'fill-color',
+          paint['fill-color']
+        );
+      }
+    });
+  }
+
+  private getWardLayerPaint() {
+    const EPCRatings = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'none'];
+    const defaultColor = this.epcColours['default'];
+    const colors: string[] = [];
+
+    EPCRatings.forEach((rating: string) => {
+      colors.push(rating);
+      const color = this.utilsService.getEPCColour(rating);
+      colors.push(color);
+    });
+    colors.push(defaultColor);
+
+    const paint = {
+      'fill-color': ['match', ['get', 'EPC'], ...colors],
+    } as FillPaint;
+
+    return paint;
   }
 
   ngOnDestroy(): void {
