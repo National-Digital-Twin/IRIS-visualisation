@@ -1,0 +1,12 @@
+<div class="results-button__container">
+  <p class="results-button__number">{{ numberResults }} results in view</p>
+  <button
+    class="results-button"
+    [ngClass]="{ 'results-button--open': panelOpen }"
+    mat-icon-button
+    matTooltipPosition="after"
+    [matTooltip]="panelOpen ? 'Close panel' : 'Open panel'"
+    (click)="togglePanel()">
+    <mat-icon>vertical_align_top</mat-icon>
+  </button>
+</div>

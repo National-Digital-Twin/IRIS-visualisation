@@ -10,6 +10,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import {
@@ -17,18 +18,19 @@ import {
   ScrollingModule,
 } from '@angular/cdk/scrolling';
 
+import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
+import { ResultsPanelButtonComponent } from '@components/results-panel-button/results-panel-button.component';
 import { ResultsCardComponent } from '@components/results-card/results-card.component';
 import { ResultsCardExpandableComponent } from '@components/results-card-expandable/results-card-expandable.component';
 
 import { SettingsService, SETTINGS } from '@core/services/settings.service';
 import { DataService } from '@core/services/data.service';
+import { DataDownloadService } from '@core/services/data-download.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { UtilService } from '@core/services/utils.service';
 
 import { BuildingModel } from '@core/models/building.model';
-import { DataDownloadService } from '@core/services/data-download.service';
-import { MatDialog } from '@angular/material/dialog';
-import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
+
 import {
   DownloadBuilding,
   DownloadDataWarningData,
@@ -44,6 +46,7 @@ import {
     MatButtonModule,
     MatIconModule,
     MatSlideToggleModule,
+    ResultsPanelButtonComponent,
     ResultsCardComponent,
     ResultsCardExpandableComponent,
     ScrollingModule,
@@ -70,6 +73,7 @@ export class ResultsPanelComponent {
   buildingSelection = this.dataService.buildingsSelection;
 
   selectMultiple: boolean = false;
+  panelOpen: boolean = true;
 
   public readonly checkedCards = signal<BuildingModel[]>([]);
 
