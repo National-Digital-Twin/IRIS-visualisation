@@ -12,9 +12,9 @@ import {
   computed,
 } from '@angular/core';
 import { Params, Router } from '@angular/router';
-import { DOCUMENT } from '@angular/common';
+import { AsyncPipe, DOCUMENT } from '@angular/common';
 
-import { Polygon } from 'geojson';
+import { GeoJsonProperties, Geometry, Polygon } from 'geojson';
 
 import { DetailsPanelComponent } from '@components/details-panel/details-panel.component';
 import { MainFiltersComponent } from '@containers/main-filters/main-filters.component';
@@ -38,8 +38,16 @@ import {
 import { URLStateModel } from '@core/models/url-state.model';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
-import { BuildingModel } from '@core/models/building.model';
-import { first, forkJoin, map, switchMap, EMPTY, Observable } from 'rxjs';
+import { BuildingMap, BuildingModel } from '@core/models/building.model';
+import {
+  first,
+  forkJoin,
+  map,
+  switchMap,
+  EMPTY,
+  Observable,
+  combineLatest,
+} from 'rxjs';
 
 import type { UserPreferences } from '@arc-web/components/src/components/accessibility/ArcAccessibility';
 import type { ArcAccessibility, ArcSwitch } from '@arc-web/components';
@@ -59,6 +67,8 @@ import {
   RemoveFlagModalResult,
 } from '@components/remove-flag-modal/remove-flag-modal.component';
 import { LoadingScreenComponent } from '@components/loading-screen/loading-screen.component';
+import { FeatureCollection } from '@turf/helpers';
+import { toObservable } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'c477-shell',
@@ -69,6 +79,7 @@ import { LoadingScreenComponent } from '@components/loading-screen/loading-scree
     MainFiltersComponent,
     MapComponent,
     ResultsPanelComponent,
+    AsyncPipe,
   ],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
@@ -122,11 +133,30 @@ export class ShellComponent implements AfterViewInit, OnChanges {
 
   private selectedBuildingTOID = this.spatialQueryService.selectedBuildingTOID;
 
+  contextData$: Observable<
+    FeatureCollection<Geometry, GeoJsonProperties>[] | undefined
+  >;
+
   title = 'IRIS';
   loading = this.dataService.loading;
   mapConfig?: URLStateModel;
 
   filterProps?: FilterProps;
+
+  constructor() {
+    this.contextData$ = combineLatest([
+      this.dataService.contextData$,
+      toObservable(this.dataService.buildings),
+    ]).pipe(
+      map(([contextData, buildings]) => {
+        if (buildings) {
+          return this.aggregateEPC(contextData, buildings!);
+        } else {
+          return undefined;
+        }
+      })
+    );
+  }
 
   public ngAfterViewInit(): void {
     const colorBlindMode = this.colorBlindMode();
@@ -415,5 +445,16 @@ export class ShellComponent implements AfterViewInit, OnChanges {
         queryParamsHandling: 'merge',
       });
     });
+  }
+
+  private aggregateEPC(
+    contextData: FeatureCollection<Geometry, GeoJsonProperties>[],
+    buildings: BuildingMap
+  ) {
+    const aggregateData = this.utilService.createAddressPoints(
+      Object.values(buildings).flat(),
+      contextData
+    );
+    return aggregateData;
   }
 }
