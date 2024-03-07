@@ -74,6 +74,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     new EventEmitter<URLStateModel>();
   @Output() setMinimapData: EventEmitter<MinimapData> =
     new EventEmitter<MinimapData>();
+  @Output() toggleMinimap: EventEmitter<null> = new EventEmitter<null>();
 
   /** setup map */
   ngAfterViewInit() {

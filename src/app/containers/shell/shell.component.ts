@@ -129,6 +129,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   mapConfig?: URLStateModel;
   filterProps?: FilterProps;
   minimapData?: MinimapData;
+  showMinimap: boolean = true;
 
   public ngAfterViewInit(): void {
     const colorBlindMode = this.colorBlindMode();

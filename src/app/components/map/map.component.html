@@ -121,6 +121,22 @@
         alt="open legend" />
     </button>
   </div>
+  <div class="map-controls map-controls--bottom">
+    <button
+      mat-icon-button
+      class="map-button"
+      (click)="toggleMinimap.emit()"
+      matTooltipPosition="before"
+      matTooltip="Legend">
+      <img
+        [src]="
+          theme === 'light'
+            ? 'assets/icons/MapTrifold.svg'
+            : 'assets/icons/MapTrifold_white.svg'
+        "
+        alt="open minimap" />
+    </button>
+  </div>
 </div>
 @if (showLegend) {
   <c477-legend></c477-legend>

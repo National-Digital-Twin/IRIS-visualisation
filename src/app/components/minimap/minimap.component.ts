@@ -22,6 +22,7 @@ export class MinimapComponent implements OnInit, OnChanges {
   private runtimeConfig = inject(RUNTIME_CONFIGURATION);
   private readonly theme = inject(SettingsService).get(SETTINGS.Theme);
   public readonly theme$ = toObservable(this.theme).pipe(takeUntilDestroyed());
+  private arrow: string = 'arrow-dark';
   data = {
     type: 'Feature',
     geometry: { type: 'Point' },
@@ -29,11 +30,16 @@ export class MinimapComponent implements OnInit, OnChanges {
   } as Feature<Geometry, GeoJsonProperties>;
 
   ngOnInit(): void {
-    if (this.runtimeConfig.map.style && this.runtimeConfig.minimap.zoom) {
+    if (
+      this.runtimeConfig.map.style &&
+      this.runtimeConfig.map.center &&
+      this.runtimeConfig.minimap.zoom &&
+      environment.mapbox.apiKey
+    ) {
       const accessToken = environment.mapbox.apiKey;
       const apiKey = environment.os.apiKey;
       const theme = this.theme();
-
+      this.arrow = theme === 'dark' ? 'arrow-light' : 'arrow-dark';
       this.map = new mapboxgl.Map({
         accessToken,
         container: 'minimap',
@@ -57,15 +63,17 @@ export class MinimapComponent implements OnInit, OnChanges {
         },
       });
 
-      this.map.on('load', async () => {
-        this.map?.loadImage(
-          'assets/NavigationArrowMarker.png',
-          (error, image) => {
-            if (image) {
-              this.map?.addImage('arrow', image);
-            }
+      this.map.on('style.load', async () => {
+        this.map?.loadImage('assets/Arrow_dark.png', (error, image) => {
+          if (image) {
+            this.map?.addImage('arrow-dark', image);
           }
-        );
+        });
+        this.map?.loadImage('assets/Arrow_light.png', (error, image) => {
+          if (image) {
+            this.map?.addImage('arrow-light', image);
+          }
+        });
         this.map?.addSource('centerpoint', {
           type: 'geojson',
           data: this.data,
@@ -75,25 +83,26 @@ export class MinimapComponent implements OnInit, OnChanges {
           type: 'symbol',
           source: 'centerpoint',
           layout: {
-            'icon-image': 'arrow',
+            'icon-image': this.arrow,
             'icon-size': 0.5,
           },
         });
+        if (this.map && this.minimapData) {
+          this.setArrowPosition();
+        }
       });
     }
 
     /* skip first value as we've already set the map style based on theme */
     this.theme$.pipe(skip(1)).subscribe(theme => {
+      this.arrow = theme === 'dark' ? 'arrow-light' : 'arrow-dark';
       this.map?.setStyle(this.runtimeConfig.map.style[theme]);
     });
   }
 
-  ngOnChanges(): void {
+  setArrowPosition() {
     if (this.map && this.minimapData) {
-      this.map.flyTo({
-        center: this.minimapData.position,
-      });
-      (this.map.getSource('centerpoint') as GeoJSONSource).setData({
+      (this.map.getSource('centerpoint') as GeoJSONSource)?.setData({
         ...this.data,
         geometry: {
           ...this.data.geometry,
@@ -111,5 +120,15 @@ export class MinimapComponent implements OnInit, OnChanges {
         this.minimapData.bearing
       );
     }
+  }
+
+  ngOnChanges(): void {
+    if (this.map && this.minimapData) {
+      this.map.flyTo({
+        center: this.minimapData.position,
+        zoom: this.runtimeConfig.minimap.zoom,
+      });
+    }
+    this.setArrowPosition();
   }
 }
