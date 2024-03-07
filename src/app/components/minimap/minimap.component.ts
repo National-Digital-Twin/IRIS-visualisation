@@ -25,7 +25,7 @@ export class MinimapComponent implements OnInit, OnChanges {
   private arrow: string = 'arrow-dark';
   data = {
     type: 'Feature',
-    geometry: { type: 'Point' },
+    geometry: { type: 'Point', coordinates: this.runtimeConfig.map.center },
     properties: {},
   } as Feature<Geometry, GeoJsonProperties>;
 
