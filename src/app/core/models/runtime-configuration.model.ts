@@ -27,6 +27,10 @@ export interface RuntimeConfigurationModel {
     localCustodianCode: number;
     maxResults: number;
   };
+  /* Mapbox minimap config */
+  minimap: {
+    zoom: number;
+  };
   /* Mapbox map config */
   map: URLStateModel & { style: Record<Theme, string> };
   /* Mapbox map layers */
