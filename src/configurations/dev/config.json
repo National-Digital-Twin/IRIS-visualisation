@@ -12,6 +12,9 @@
     "light": "assets/NDTP-HM-02-highres.png",
     "dark": "assets/NDTP-HM-04-highres.png"
   },
+  "minimap": {
+    "zoom": 8
+  },
   "map": {
     "style": {
       "light": "https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Light.json",

@@ -40,6 +40,7 @@ import { UtilService } from '@core/services/utils.service';
 import { MapLayerConfig } from '@core/models/map-layer-config.model';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { URLStateModel } from '@core/models/url-state.model';
+import { MinimapData } from '@core/models/minimap-data.model';
 
 import { LegendComponent } from '@components/legend/legend.component';
 
@@ -97,6 +98,9 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   @Output() setRouteParams: EventEmitter<URLStateModel> =
     new EventEmitter<URLStateModel>();
+  @Output() setMinimapData: EventEmitter<MinimapData> =
+    new EventEmitter<MinimapData>();
+  @Output() toggleMinimap: EventEmitter<null> = new EventEmitter<null>();
 
   /** setup map */
   ngAfterViewInit() {
@@ -132,6 +136,7 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
         tap(() => {
           this.addControls();
           this.initMapEvents();
+          this.updateMinimap();
         })
       )
       .subscribe();
@@ -215,6 +220,11 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.mapService.mapInstance.on('mouseleave', 'wards', () => {
       this.mapService.mapInstance.getCanvas().style.cursor = '';
     });
+
+    /** update the minimap as the map moves */
+    this.mapService.mapInstance.on('move', () => {
+      this.updateMinimap();
+    });
   }
 
   /**
@@ -278,6 +288,15 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
   onDrawUpdate = (e: MapboxDraw.DrawUpdateEvent) => {
     this.setSearchArea.emit(e.features[0] as GeoJSON.Feature<Polygon>);
   };
+
+  updateMinimap() {
+    this.setMinimapData.emit({
+      position: this.mapService.mapInstance
+        .getFreeCameraOptions()
+        ._position.toLngLat(),
+      bearing: this.mapService.mapInstance.getBearing(),
+    });
+  }
 
   setSelectedTOID = (e: MapLayerMouseEvent) => {
     if (e.features && this.drawControl.getMode() !== 'draw_polygon') {
