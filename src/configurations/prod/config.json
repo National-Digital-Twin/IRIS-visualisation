@@ -201,7 +201,6 @@
       "id": "wards",
       "labelProperty": "WD23NM",
       "maxzoom": 15,
-      "minzoom": 10,
       "type": "fill",
       "layout": {
         "visibility": "visible"
