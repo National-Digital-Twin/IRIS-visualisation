@@ -51,6 +51,7 @@ export class UtilService {
   private readonly colorBlindEpcColors = this.runtimeConfig.epcColoursCD;
 
   currentMapViewExpressions = signal<CurrentExpressions | undefined>(undefined);
+  filteredBuildings = signal<BuildingMap | undefined>(undefined);
 
   /**
    * Watch for when the buildings data is added to the buildings signal
@@ -84,13 +85,17 @@ export class UtilService {
     if (!unfilteredBuildings || !Object.keys(unfilteredBuildings).length) {
       return;
     }
-    const buildings = this.filterBuildings(unfilteredBuildings);
+    const filterProps = this.filterProps();
+    const buildings = this.filterBuildings(unfilteredBuildings, filterProps);
 
     const spatialFilter = this.spatialQueryService.spatialFilterBounds();
     const filteredBuildings = this.filterBuildingsWithinBounds(
       buildings!,
       spatialFilter
     );
+
+    // set the filtered buildings so that the filters can search it
+    this.filteredBuildings.set(filteredBuildings);
 
     /**
      * Get the default colors and patterns
@@ -129,11 +134,11 @@ export class UtilService {
     /**
      *  Add To Expression.
      *
-     * Add a toid to an expression. The tolid is only added
-     * to the correspondin layer filter if it doesn't
+     * Add a toid to an expression. The toid is only added
+     * to the corresponding layer filter if it doesn't
      * already exist.
      */
-    function addTooExpression(
+    function addToidExpression(
       expressionKey: keyof CurrentExpressions,
       toid: string,
       value: string
@@ -156,7 +161,7 @@ export class UtilService {
       if (dwellings.length === 0) {
         /** No UPRNs for a TOID */
 
-        addTooExpression('fill-extrusion-color', toid, defaultColor);
+        addToidExpression('fill-extrusion-color', toid, defaultColor);
       } else if (dwellings.length === 1) {
         /* One UPRN for a TOID */
 
@@ -173,9 +178,9 @@ export class UtilService {
         const multiDwelling = unfilteredBuildings![toid].length > 1;
         if (multiDwelling) {
           const pattern = EPC ? this.getEPCPattern([EPC]) : defaultPattern;
-          addTooExpression('fill-extrusion-pattern', toid, pattern);
+          addToidExpression('fill-extrusion-pattern', toid, pattern);
         } else {
-          addTooExpression('fill-extrusion-color', toid, color);
+          addToidExpression('fill-extrusion-color', toid, color);
         }
       } else if (dwellings.length > 1) {
         /* Multiple UPRNs for a TOID */
@@ -193,7 +198,7 @@ export class UtilService {
         /** Add toid to default layer array */
         excludeFromDefault.push(toid);
 
-        addTooExpression('fill-extrusion-pattern', toid, pattern);
+        addToidExpression('fill-extrusion-pattern', toid, pattern);
       }
     });
 
@@ -355,8 +360,10 @@ export class UtilService {
    * @param buildings all buildings data
    * @returns BuildingMap of filtered buildings
    */
-  filterBuildings(buildings: BuildingMap): BuildingMap {
-    const filterProps = this.filterProps();
+  filterBuildings(
+    buildings: BuildingMap,
+    filterProps: FilterProps
+  ): BuildingMap {
     if (Object.keys(filterProps).length === 0) return buildings;
 
     // convert building object to array to ease filtering
@@ -640,5 +647,58 @@ export class UtilService {
 
   private openResultsPanel(buildings: BuildingModel[]) {
     this.dataService.setSelectedBuildings([buildings]);
+  }
+
+  getValidFilters(filters: FilterProps) {
+    const advancedFilterKeys = Object.keys(filters);
+    // remove advanced filters without a value
+    Object.keys(filters).forEach(key => {
+      const filterKey = key as keyof FilterProps;
+      if (filters[filterKey] === null) {
+        delete filters[filterKey];
+      }
+    });
+
+    // identify main filter props
+    const mainFilterProps = { ...this.filterProps() };
+    Object.keys(mainFilterProps).forEach(key => {
+      console.log('main filter', key);
+      const filterKey = key as keyof FilterProps;
+      if (advancedFilterKeys.includes(key)) {
+        delete mainFilterProps[filterKey];
+      }
+    });
+    // merge filters to create new potential filter
+    const newFilter = { ...mainFilterProps, ...filters };
+
+    const unfilteredBuildings = this.dataService.buildings();
+    // filter buildings based on potential filter
+    const potentiallyFilteredBuildings = this.filterBuildings(
+      unfilteredBuildings!,
+      newFilter
+    );
+
+    // get unique set of valid options for each advanced filter
+    const flattenedBuildings = Object.values(
+      potentiallyFilteredBuildings
+    ).flat();
+    const availableValues: FilterProps = {};
+    advancedFilterKeys.forEach(key => {
+      const keyProp = key as keyof BuildingModel;
+      availableValues[key as keyof FilterProps] = [
+        ...new Set(
+          flattenedBuildings.map(b => {
+            if (keyProp !== 'YearOfAssessment') {
+              return b[keyProp] ?? '';
+            } else {
+              // add extra quotation marks to handle year enum
+              return `'${b[keyProp]}'` ?? '';
+            }
+          })
+        ),
+      ];
+    });
+
+    return availableValues;
   }
 }

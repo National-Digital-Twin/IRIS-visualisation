@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -31,6 +31,8 @@ import {
   FilterProps,
   MultiButtonFilterOption,
 } from '@core/models/advanced-filters.model';
+import { Subject, takeUntil } from 'rxjs';
+import { UtilService } from '@core/services/utils.service';
 
 interface PanelData {
   panelTitle: string;
@@ -55,9 +57,9 @@ interface PanelData {
   templateUrl: './filter-panel.component.html',
   styleUrl: './filter-panel.component.css',
 })
-export class FilterPanelComponent {
+export class FilterPanelComponent implements OnDestroy {
+  private utilService = inject(UtilService);
   advancedFiltersForm: FormGroup;
-
   generalFilters: MultiButtonFilterOption[] = [
     {
       title: 'Post Code',
@@ -141,6 +143,7 @@ export class FilterPanelComponent {
     { panelTitle: 'Floor', filters: this.floorFilters },
     { panelTitle: 'Roof', filters: this.roofFilters },
   ];
+  private unsubscribe$ = new Subject<void>();
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -151,6 +154,29 @@ export class FilterPanelComponent {
     private dialogRef: MatDialogRef<FilterPanelComponent>
   ) {
     this.advancedFiltersForm = this.data.form;
+
+    this.getValidOptions();
+
+    this.advancedFiltersForm.valueChanges
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe(() => {
+        this.getValidOptions();
+      });
+  }
+
+  getValidOptions() {
+    const validOptions = this.utilService.getValidFilters(
+      this.advancedFiltersForm.value
+    );
+    Object.keys(validOptions).forEach(key => {
+      this.otherPanels.forEach(panel => {
+        panel.filters.forEach(filter => {
+          if (filter.formControlName === key) {
+            filter.validOptions = validOptions[key];
+          }
+        });
+      });
+    });
   }
 
   checkFiltersApplied(panelTitle: string) {
@@ -175,5 +201,10 @@ export class FilterPanelComponent {
   clearAll() {
     this.advancedFiltersForm.reset();
     this.dialogRef.close({ clear: true });
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 }

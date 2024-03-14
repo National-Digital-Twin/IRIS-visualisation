@@ -40,6 +40,7 @@ export class MultiButtonFilterComponent<T extends AdvancedFilter>
   @Input() options!: {
     [key: string]: string;
   };
+  @Input() validOptions?: string[];
   optionKeys: string[] = [];
   selectedValues?: string[];
   touched = false;

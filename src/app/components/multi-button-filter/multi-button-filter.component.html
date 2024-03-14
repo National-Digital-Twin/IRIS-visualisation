@@ -8,6 +8,10 @@
     multiple>
     @for (option of optionKeys; track option) {
       <mat-button-toggle
+        [ngClass]="{
+          'filter-button--invalid':
+            validOptions && !validOptions.includes(option)
+        }"
         [value]="option"
         [checked]="selectedValues?.includes(option)"
         >{{ options[option] }}</mat-button-toggle
