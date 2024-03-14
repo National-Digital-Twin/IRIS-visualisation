@@ -13,20 +13,6 @@ import {
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MultiButtonFilterComponent } from '@components/multi-button-filter/multi-button-filter.component';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
-
-import {
-  BuildForm,
-  FloorConstruction,
-  FloorInsulation,
-  PostCode,
-  RoofConstruction,
-  RoofInsulationLocation,
-  RoofInsulationThickness,
-  WindowGlazing,
-  WallConstruction,
-  WallInsulation,
-  YearOfAssessment,
-} from '@core/enums';
 import {
   FilterProps,
   MultiButtonFilterOption,
@@ -63,19 +49,19 @@ export class FilterPanelComponent implements OnDestroy {
   generalFilters: MultiButtonFilterOption[] = [
     {
       title: 'Post Code',
-      data: PostCode,
+      data: [],
       formControlName: 'PostCode',
       selectedValues: this.data.filterProps?.PostCode,
     },
     {
       title: 'Build Form',
-      data: BuildForm,
+      data: [],
       formControlName: 'BuildForm',
       selectedValues: this.data.filterProps?.BuildForm,
     },
     {
       title: 'Year of Inspection',
-      data: YearOfAssessment,
+      data: [],
       formControlName: 'YearOfAssessment',
       selectedValues: this.data.filterProps?.YearOfAssessment,
     },
@@ -83,7 +69,7 @@ export class FilterPanelComponent implements OnDestroy {
   glazingFilters: MultiButtonFilterOption[] = [
     {
       title: 'Multiple Glazing Type',
-      data: WindowGlazing,
+      data: [],
       formControlName: 'WindowGlazing',
       selectedValues: this.data.filterProps?.WindowGlazing,
     },
@@ -91,13 +77,13 @@ export class FilterPanelComponent implements OnDestroy {
   wallFilters: MultiButtonFilterOption[] = [
     {
       title: 'Wall Construction',
-      data: WallConstruction,
+      data: [],
       formControlName: 'WallConstruction',
       selectedValues: this.data.filterProps?.WallConstruction,
     },
     {
       title: 'Wall Insulation',
-      data: WallInsulation,
+      data: [],
       formControlName: 'WallInsulation',
       selectedValues: this.data.filterProps?.WallInsulation,
     },
@@ -105,13 +91,13 @@ export class FilterPanelComponent implements OnDestroy {
   floorFilters: MultiButtonFilterOption[] = [
     {
       title: 'Floor Construction',
-      data: FloorConstruction,
+      data: [],
       formControlName: 'FloorConstruction',
       selectedValues: this.data.filterProps?.FloorConstruction,
     },
     {
       title: 'Floor Insulation',
-      data: FloorInsulation,
+      data: [],
       formControlName: 'FloorInsulation',
       selectedValues: this.data.filterProps?.FloorInsulation,
     },
@@ -119,19 +105,19 @@ export class FilterPanelComponent implements OnDestroy {
   roofFilters: MultiButtonFilterOption[] = [
     {
       title: 'Roof Construction',
-      data: RoofConstruction,
+      data: [],
       formControlName: 'RoofConstruction',
       selectedValues: this.data.filterProps?.RoofConstruction,
     },
     {
       title: 'Roof Insulation Location',
-      data: RoofInsulationLocation,
+      data: [],
       formControlName: 'RoofInsulationLocation',
       selectedValues: this.data.filterProps?.RoofInsulationLocation,
     },
     {
       title: 'Roof Insulation Thickness',
-      data: RoofInsulationThickness,
+      data: [],
       formControlName: 'RoofInsulationThickness',
       selectedValues: this.data.filterProps?.RoofInsulationThickness,
     },
@@ -155,16 +141,33 @@ export class FilterPanelComponent implements OnDestroy {
   ) {
     this.advancedFiltersForm = this.data.form;
 
-    this.getValidOptions();
+    this.setOptions();
+    this.setValidOptions();
 
     this.advancedFiltersForm.valueChanges
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe(() => {
-        this.getValidOptions();
+        this.setValidOptions();
       });
   }
 
-  getValidOptions() {
+  setOptions() {
+    const allOptions = this.utilService.getAllUniqueFilterOptions(
+      this.advancedFiltersForm.value
+    );
+
+    Object.keys(allOptions).forEach(key => {
+      this.otherPanels.forEach(panel => {
+        panel.filters.forEach(filter => {
+          if (filter.formControlName === key) {
+            filter.data = allOptions[key] ?? [];
+          }
+        });
+      });
+    });
+  }
+
+  setValidOptions() {
     const validOptions = this.utilService.getValidFilters(
       this.advancedFiltersForm.value
     );
@@ -172,7 +175,7 @@ export class FilterPanelComponent implements OnDestroy {
       this.otherPanels.forEach(panel => {
         panel.filters.forEach(filter => {
           if (filter.formControlName === key) {
-            filter.validOptions = validOptions[key];
+            filter.validOptions = validOptions[key] ?? [];
           }
         });
       });

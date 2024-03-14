@@ -651,25 +651,25 @@ export class UtilService {
 
   getValidFilters(filters: FilterProps) {
     const advancedFilterKeys = Object.keys(filters);
+    const filterCopy = { ...filters };
     // remove advanced filters without a value
-    Object.keys(filters).forEach(key => {
+    Object.keys(filterCopy).forEach(key => {
       const filterKey = key as keyof FilterProps;
-      if (filters[filterKey] === null) {
-        delete filters[filterKey];
+      if (filterCopy[filterKey] === null) {
+        delete filterCopy[filterKey];
       }
     });
 
     // identify main filter props
     const mainFilterProps = { ...this.filterProps() };
     Object.keys(mainFilterProps).forEach(key => {
-      console.log('main filter', key);
       const filterKey = key as keyof FilterProps;
       if (advancedFilterKeys.includes(key)) {
         delete mainFilterProps[filterKey];
       }
     });
     // merge filters to create new potential filter
-    const newFilter = { ...mainFilterProps, ...filters };
+    const newFilter = { ...mainFilterProps, ...filterCopy };
 
     const unfilteredBuildings = this.dataService.buildings();
     // filter buildings based on potential filter
@@ -682,23 +682,39 @@ export class UtilService {
     const flattenedBuildings = Object.values(
       potentiallyFilteredBuildings
     ).flat();
+
+    return this.getUniqueOptions(advancedFilterKeys, flattenedBuildings);
+  }
+
+  getAllUniqueFilterOptions(filters: FilterProps) {
+    const unfilteredBuildings = this.dataService.buildings();
+    const flattenedBuildings = Object.values(unfilteredBuildings!).flat();
+    const options = this.getUniqueOptions(
+      Object.keys(filters),
+      flattenedBuildings
+    );
+    return options;
+  }
+
+  getUniqueOptions(filterKeys: string[], flattenedBuildings: BuildingModel[]) {
     const availableValues: FilterProps = {};
-    advancedFilterKeys.forEach(key => {
+    filterKeys.forEach(key => {
       const keyProp = key as keyof BuildingModel;
-      availableValues[key as keyof FilterProps] = [
+      const options = [
         ...new Set(
           flattenedBuildings.map(b => {
-            if (keyProp !== 'YearOfAssessment') {
-              return b[keyProp] ?? '';
-            } else {
-              // add extra quotation marks to handle year enum
-              return `'${b[keyProp]}'` ?? '';
-            }
+            return b[keyProp] ?? '';
           })
         ),
-      ];
+      ].sort();
+      if (options.includes('NoData')) {
+        options.push(options.splice(options.indexOf('NoData'), 1)[0]);
+      }
+      if (options.includes('')) {
+        options.splice(options.indexOf(''), 1);
+      }
+      availableValues[key as keyof FilterProps] = options;
     });
-
     return availableValues;
   }
 }
