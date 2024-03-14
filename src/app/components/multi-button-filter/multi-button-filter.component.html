@@ -10,7 +10,13 @@
       <mat-button-toggle
         [ngClass]="{
           'filter-button--invalid':
-            validOptions && !validOptions.includes(option)
+            validOptions &&
+            !validOptions.includes(option) &&
+            !selectedValues?.includes(option),
+          'filter-button--invalid-selected':
+            validOptions &&
+            !validOptions.includes(option) &&
+            selectedValues?.includes(option)
         }"
         [value]="option"
         [checked]="selectedValues?.includes(option)"

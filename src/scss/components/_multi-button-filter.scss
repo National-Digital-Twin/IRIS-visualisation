@@ -27,7 +27,12 @@
 
     .filter-button {
       &--invalid {
-        background-color: #ffd9d9;
+        background-color: $color-line;
+        color: rgba(0, 0, 0, 0.38);
+      }
+
+      &--invalid-selected {
+        background-color: rgba($color-primary, 0.6);
       }
     }
   }

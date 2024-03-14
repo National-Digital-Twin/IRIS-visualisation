@@ -12,6 +12,20 @@
     }
   }
 
+  .filter-panel-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: var(--arc-spacing-x-small);
+
+    .invalid-filter-warning {
+      color: $color-warn;
+      display: flex;
+      align-items: center;
+      gap: var(--arc-spacing-x-small);
+    }
+  }
+
   .mdc-dialog__content {
     padding: 0 !important;
   }

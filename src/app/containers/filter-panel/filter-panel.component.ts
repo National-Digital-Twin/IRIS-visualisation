@@ -11,6 +11,7 @@ import {
   MatDialogTitle,
 } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatIconModule } from '@angular/material/icon';
 import { MultiButtonFilterComponent } from '@components/multi-button-filter/multi-button-filter.component';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import {
@@ -36,6 +37,7 @@ interface PanelData {
     MatDialogClose,
     MatDialogContent,
     MatDialogTitle,
+    MatIconModule,
     MatExpansionModule,
     MultiButtonFilterComponent,
     ReactiveFormsModule,
@@ -46,6 +48,7 @@ interface PanelData {
 export class FilterPanelComponent implements OnDestroy {
   private utilService = inject(UtilService);
   advancedFiltersForm: FormGroup;
+  noValidFilterOptions: boolean = false;
   generalFilters: MultiButtonFilterOption[] = [
     {
       title: 'Post Code',
@@ -179,6 +182,10 @@ export class FilterPanelComponent implements OnDestroy {
           }
         });
       });
+    });
+
+    this.noValidFilterOptions = Object.keys(validOptions).every(key => {
+      return validOptions[key as keyof FilterProps]?.length === 0;
     });
   }
 
