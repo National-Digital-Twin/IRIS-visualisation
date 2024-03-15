@@ -47,9 +47,10 @@ export interface AdvancedFiltersFormModel {
 
 export interface MultiButtonFilterOption {
   title: string;
-  data: AdvancedFilter;
+  data: string[];
   formControlName: keyof AdvancedFiltersFormModel;
   selectedValues?: string[];
+  validOptions?: string[];
 }
 
 export interface FilterProps {

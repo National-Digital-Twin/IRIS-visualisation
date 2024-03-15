@@ -24,5 +24,16 @@
       color: rgb(var(--arc-white-000));
       box-shadow: 1px 4px 6px 0px rgba(81, 64, 108, 0.1);
     }
+
+    .filter-button {
+      &--invalid {
+        background-color: $color-line;
+        color: rgba(0, 0, 0, 0.38);
+      }
+
+      &--invalid-selected {
+        background-color: rgba($color-primary, 0.6);
+      }
+    }
   }
 }

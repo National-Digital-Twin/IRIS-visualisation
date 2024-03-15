@@ -14,17 +14,31 @@
             <c477-multi-button-filter
               [formControlName]="filter.formControlName"
               [title]="filter.title"
-              [options]="filter.data" />
+              [options]="filter.data"
+              [validOptions]="filter.validOptions" />
           }
         </mat-expansion-panel>
       }
     </mat-accordion>
   </div>
-  <div mat-dialog-actions [align]="'end'">
-    <button mat-button (click)="clearAll()">Clear all</button>
-    <button mat-stroked-button mat-dialog-close>Cancel</button>
-    <button mat-flat-button [mat-dialog-close]="data.form" [color]="'primary'">
-      Apply filters
-    </button>
+  <div class="filter-panel-buttons">
+    <div>
+      @if (noValidFilterOptions) {
+        <p class="invalid-filter-warning">
+          <mat-icon fontSet="material-icons-outlined">warning</mat-icon>
+          There are no dwellings that match this filter criteria
+        </p>
+      }
+    </div>
+    <div mat-dialog-actions [align]="'end'">
+      <button mat-button (click)="clearAll()">Clear all</button>
+      <button mat-stroked-button mat-dialog-close>Cancel</button>
+      <button
+        mat-flat-button
+        [mat-dialog-close]="data.form"
+        [color]="'primary'">
+        Apply filters
+      </button>
+    </div>
   </div>
 </section>
