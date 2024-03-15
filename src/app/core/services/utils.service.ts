@@ -514,6 +514,52 @@ export class UtilService {
   }
 
   /**
+   * Create a histogram of EPC counts for a ward
+   * @param ratings EPC counts for a ward
+   * @returns
+   */
+  createHistogram(ratings: Array<{ rating: string; count: number }>): string {
+    // wmax value of the histogram array
+    const maxValue = Math.max(...ratings.map(o => o.count));
+    // const log = this.logArray(ratings.map(o => o.count));
+    // console.log(log);
+    const labels: string[] = [];
+    const histogram = ratings.map(r => {
+      // getting a percentage of the max
+      const height = (r.count / maxValue) * 100;
+      const label = `<span>${r.rating}</span>`;
+      labels.push(label);
+      return `
+        <div class="histogramItem" style="height: calc(${height}% + 5px)">
+          <span class="epcRating">${r.count}</span>
+          <div class="histogramBar" style="background: ${this.getEPCColour(
+            r.rating
+          )}"></div>
+        </div>
+        `;
+    });
+
+    return `
+      <div>
+        <div class="histogramWrapper">
+          ${histogram.join('')}
+        </div>
+        <div class="labelRow">
+          ${labels.join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  logArray(arr: number[]): number[] {
+    const output: number[] = [];
+    for (let i = 0; i < arr.length; i++) {
+      output.push(Math.log(arr[i]));
+    }
+    return output;
+  }
+
+  /**
    * Handle selecting of results card in results list
    * @param TOID
    * @param UPRN
