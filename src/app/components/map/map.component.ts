@@ -320,9 +320,28 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   wardsLayerClick(e: MapLayerMouseEvent) {
     if (e.features?.length) {
-      new Popup()
+      const properties = e.features[0].properties;
+      /** extract ratings from properties */
+      const epcRatings = Object.keys(properties!)
+        .filter(k => !isNaN(properties![k]))
+        .map(k => {
+          return {
+            rating: k,
+            count: properties![k],
+          };
+        })
+        .sort((a, b) => a.rating.localeCompare(b.rating));
+      const histogram = this.utilsService.createHistogram(epcRatings);
+      const popupContent = `
+        <div class="popupContent">
+          <h1>EPC breakdown for ${e.features[0].properties!.WD23NM}</h1>
+          <p>Addresses with no EPC's are excluded from the aggregated ward view</p>
+          ${histogram}
+        </div>
+      `;
+      new Popup({ maxWidth: 'none' })
         .setLngLat(e.lngLat)
-        .setHTML(e.features[0].properties!.WD23NM)
+        .setHTML(popupContent)
         .addTo(this.mapService.mapInstance);
     }
   }
