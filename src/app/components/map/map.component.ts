@@ -73,7 +73,8 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
   private mapSubscription!: Subscription;
 
   private epcColours = this.runtimeConfig.epcColours;
-  private colorBlindEpcColors = this.runtimeConfig.epcColoursCD;
+
+  private wardPopup = new Popup();
 
   showLegend: boolean = false;
   twoDimensions: boolean = false;
@@ -225,6 +226,24 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.mapService.mapInstance.on('move', () => {
       this.updateMinimap();
     });
+
+    /** close popup if open and zoom is > 15 and remove selection*/
+    this.mapService.mapInstance.on('zoomend', () => {
+      const zoom = this.mapService.mapInstance.getZoom();
+      if (zoom >= 15 && this.wardPopup.isOpen()) {
+        this.wardPopup.remove();
+        this.mapService.filterMapLayer({
+          layerId: 'wards-selected',
+          expression: ['==', 'WD23NM', ``],
+        });
+      }
+    });
+    this.wardPopup.on('close', () => {
+      this.mapService.filterMapLayer({
+        layerId: 'wards-selected',
+        expression: ['==', 'WD23NM', ``],
+      });
+    });
   }
 
   /**
@@ -320,6 +339,11 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   wardsLayerClick(e: MapLayerMouseEvent) {
     if (e.features?.length) {
+      /** highlight selected ward */
+      this.mapService.filterMapLayer({
+        layerId: 'wards-selected',
+        expression: ['==', 'WD23NM', `${e.features[0].properties!.WD23NM}`],
+      });
       const properties = e.features[0].properties;
       /** extract ratings from properties */
       const epcRatings = Object.keys(properties!)
@@ -339,8 +363,9 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
           ${histogram}
         </div>
       `;
-      new Popup({ maxWidth: 'none' })
+      this.wardPopup
         .setLngLat(e.lngLat)
+        .setMaxWidth('none')
         .setHTML(popupContent)
         .addTo(this.mapService.mapInstance);
     }
@@ -352,9 +377,13 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
     if (this.contextData) {
       this.runtimeConfig.contextLayers.forEach((config: MapLayerConfig) => {
         const data = this.contextData?.find(
+          /**
+           * find matching source data, ignore 'selected' part
+           * of layer id
+           */
           // eslint-disable-next-line
           // @ts-ignore
-          (d: unknown) => d.name === config.id
+          (d: unknown) => d.name === config.id.split('-')[0]
         );
         const geojsonSource = {
           type: 'geojson',
