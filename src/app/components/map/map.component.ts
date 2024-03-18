@@ -173,7 +173,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   setDrawMode(mode: string) {
     switch (mode) {
       case 'polygon': {
-        this.drawControl.deleteAll();
+        this.deleteSearchArea();
         this.updateMode('draw_polygon');
         break;
       }
