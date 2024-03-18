@@ -79,6 +79,9 @@
     <button
       mat-icon-button
       class="map-button"
+      [ngClass]="
+        this.drawActive ? 'map-button--active' : 'map-button--inactive'
+      "
       (click)="setDrawMode('polygon')"
       matTooltipPosition="before"
       matTooltip="Draw filter area">
@@ -91,6 +94,10 @@
         alt="draw polygon" />
     </button>
     <button
+      [disabled]="!spatialFilterEnabled"
+      [ngClass]="
+        !spatialFilterEnabled ? 'map-button--active' : 'map-button--inactive'
+      "
       mat-icon-button
       class="map-button"
       (click)="setDrawMode('delete')"
