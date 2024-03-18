@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.6.0](https://github.com/arup-group/C477-DBT-Vis/compare/v1.5.0...v1.6.0) (2024-03-18)
+
+
+### Features
+
+* **Filters:** :lipstick: style and add no dwellings warning ([58a250b](https://github.com/arup-group/C477-DBT-Vis/commit/58a250b77c8b350d98179df24c79364744c443f7))
+* **Filters:** :sparkles: indicate which advanced filters are valid ([bd826ce](https://github.com/arup-group/C477-DBT-Vis/commit/bd826ce92603d847f661a926a1afb8c70d62e6e3))
+* **map:** mapbox logo ([316d166](https://github.com/arup-group/C477-DBT-Vis/commit/316d166e5155e57ffbd88ee2ed6176545a35b4d4))
+* **Minimap:** :sparkles: add minimap to bottom right corner ([78c525a](https://github.com/arup-group/C477-DBT-Vis/commit/78c525aa3b961c38274ea93632b7037aa14e853c))
+* **Minimap:** :sparkles: hide/show minimap ([c14ad1e](https://github.com/arup-group/C477-DBT-Vis/commit/c14ad1ed6e9f37d54c2c5ddad7ea0fc990a36a8a))
+
+
+### Bug Fixes
+
+* **Minimap:** :bug: update tooltip and initial coords ([3334841](https://github.com/arup-group/C477-DBT-Vis/commit/3334841a2a7078d09cac2ce33cef95b1f24af6a1))
+
 ## [1.5.0](https://github.com/arup-group/C477-DBT-Vis/compare/v1.4.0...v1.5.0) (2024-03-01)
 
 
