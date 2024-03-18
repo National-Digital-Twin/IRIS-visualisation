@@ -55,14 +55,16 @@ export class SpatialQueryService {
    * Filter map to show selection of multiple buildings
    * @param geom user drawn geometry
    */
-  setSpatialGeom(geom: GeoJSON.Feature<Polygon>) {
+  setSpatialGeom(geom: GeoJSON.Feature<Polygon> | undefined) {
     this.spatialFilterGeom.set(geom);
     // get bounding box of drawn geometry as this
     // is the input required by mapbox to query
     // features
-    const geomBBox = this.getBBox(geom);
-    this.setSpatialFilter(true);
-    this.setSpatialFilterBounds(geomBBox);
+    if (geom) {
+      const geomBBox = this.getBBox(geom);
+      this.setSpatialFilter(true);
+      this.setSpatialFilterBounds(geomBBox);
+    }
   }
 
   /**
