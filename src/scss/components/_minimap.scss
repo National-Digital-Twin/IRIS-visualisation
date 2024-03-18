@@ -14,5 +14,8 @@
   &__map {
     width: 100%;
     height: 100%;
+    .mapboxgl-ctrl-bottom-left {
+      display: none !important;
+    }
   }
 }
