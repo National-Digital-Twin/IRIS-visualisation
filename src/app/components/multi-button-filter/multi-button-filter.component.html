@@ -6,11 +6,21 @@
     [attr.aria-label]="title"
     (change)="filterChange($event)"
     multiple>
-    @for (option of optionKeys; track option) {
+    @for (option of options; track option) {
       <mat-button-toggle
+        [ngClass]="{
+          'filter-button--invalid':
+            validOptions &&
+            !validOptions.includes(option) &&
+            !selectedValues?.includes(option),
+          'filter-button--invalid-selected':
+            validOptions &&
+            !validOptions.includes(option) &&
+            selectedValues?.includes(option)
+        }"
         [value]="option"
         [checked]="selectedValues?.includes(option)"
-        >{{ options[option] }}</mat-button-toggle
+        >{{ option | pascalCaseSpace }}</mat-button-toggle
       >
     }
   </mat-button-toggle-group>
