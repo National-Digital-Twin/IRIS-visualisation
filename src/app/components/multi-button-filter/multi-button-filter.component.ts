@@ -11,13 +11,14 @@ import {
 } from '@angular/forms';
 
 import { AdvancedFilter } from '@core/models/advanced-filters.model';
+import { PascalCaseSpacePipe } from '@core/pipes/pascal-case-space.pipe';
 
 type MultiFilterControlValue<T extends AdvancedFilter> = T[] | null;
 
 @Component({
   selector: 'c477-multi-button-filter[title][options]',
   standalone: true,
-  imports: [CommonModule, MatButtonToggleModule],
+  imports: [CommonModule, MatButtonToggleModule, PascalCaseSpacePipe],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -37,9 +38,8 @@ export class MultiButtonFilterComponent<T extends AdvancedFilter>
   implements OnInit, ControlValueAccessor
 {
   @Input() title!: string;
-  @Input() options!: {
-    [key: string]: string;
-  };
+  @Input() options!: string[];
+  @Input() validOptions?: string[];
   optionKeys: string[] = [];
   selectedValues?: string[];
   touched = false;

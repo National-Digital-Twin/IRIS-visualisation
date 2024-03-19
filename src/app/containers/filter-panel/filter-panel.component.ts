@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -11,26 +11,15 @@ import {
   MatDialogTitle,
 } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatIconModule } from '@angular/material/icon';
 import { MultiButtonFilterComponent } from '@components/multi-button-filter/multi-button-filter.component';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
-
-import {
-  BuildForm,
-  FloorConstruction,
-  FloorInsulation,
-  PostCode,
-  RoofConstruction,
-  RoofInsulationLocation,
-  RoofInsulationThickness,
-  WindowGlazing,
-  WallConstruction,
-  WallInsulation,
-  YearOfAssessment,
-} from '@core/enums';
 import {
   FilterProps,
   MultiButtonFilterOption,
 } from '@core/models/advanced-filters.model';
+import { Subject, takeUntil } from 'rxjs';
+import { UtilService } from '@core/services/utils.service';
 
 interface PanelData {
   panelTitle: string;
@@ -48,6 +37,7 @@ interface PanelData {
     MatDialogClose,
     MatDialogContent,
     MatDialogTitle,
+    MatIconModule,
     MatExpansionModule,
     MultiButtonFilterComponent,
     ReactiveFormsModule,
@@ -55,25 +45,26 @@ interface PanelData {
   templateUrl: './filter-panel.component.html',
   styleUrl: './filter-panel.component.css',
 })
-export class FilterPanelComponent {
+export class FilterPanelComponent implements OnDestroy {
+  private utilService = inject(UtilService);
   advancedFiltersForm: FormGroup;
-
+  noValidFilterOptions: boolean = false;
   generalFilters: MultiButtonFilterOption[] = [
     {
       title: 'Post Code',
-      data: PostCode,
+      data: [],
       formControlName: 'PostCode',
       selectedValues: this.data.filterProps?.PostCode,
     },
     {
       title: 'Build Form',
-      data: BuildForm,
+      data: [],
       formControlName: 'BuildForm',
       selectedValues: this.data.filterProps?.BuildForm,
     },
     {
       title: 'Year of Inspection',
-      data: YearOfAssessment,
+      data: [],
       formControlName: 'YearOfAssessment',
       selectedValues: this.data.filterProps?.YearOfAssessment,
     },
@@ -81,7 +72,7 @@ export class FilterPanelComponent {
   glazingFilters: MultiButtonFilterOption[] = [
     {
       title: 'Multiple Glazing Type',
-      data: WindowGlazing,
+      data: [],
       formControlName: 'WindowGlazing',
       selectedValues: this.data.filterProps?.WindowGlazing,
     },
@@ -89,13 +80,13 @@ export class FilterPanelComponent {
   wallFilters: MultiButtonFilterOption[] = [
     {
       title: 'Wall Construction',
-      data: WallConstruction,
+      data: [],
       formControlName: 'WallConstruction',
       selectedValues: this.data.filterProps?.WallConstruction,
     },
     {
       title: 'Wall Insulation',
-      data: WallInsulation,
+      data: [],
       formControlName: 'WallInsulation',
       selectedValues: this.data.filterProps?.WallInsulation,
     },
@@ -103,13 +94,13 @@ export class FilterPanelComponent {
   floorFilters: MultiButtonFilterOption[] = [
     {
       title: 'Floor Construction',
-      data: FloorConstruction,
+      data: [],
       formControlName: 'FloorConstruction',
       selectedValues: this.data.filterProps?.FloorConstruction,
     },
     {
       title: 'Floor Insulation',
-      data: FloorInsulation,
+      data: [],
       formControlName: 'FloorInsulation',
       selectedValues: this.data.filterProps?.FloorInsulation,
     },
@@ -117,19 +108,19 @@ export class FilterPanelComponent {
   roofFilters: MultiButtonFilterOption[] = [
     {
       title: 'Roof Construction',
-      data: RoofConstruction,
+      data: [],
       formControlName: 'RoofConstruction',
       selectedValues: this.data.filterProps?.RoofConstruction,
     },
     {
       title: 'Roof Insulation Location',
-      data: RoofInsulationLocation,
+      data: [],
       formControlName: 'RoofInsulationLocation',
       selectedValues: this.data.filterProps?.RoofInsulationLocation,
     },
     {
       title: 'Roof Insulation Thickness',
-      data: RoofInsulationThickness,
+      data: [],
       formControlName: 'RoofInsulationThickness',
       selectedValues: this.data.filterProps?.RoofInsulationThickness,
     },
@@ -141,6 +132,7 @@ export class FilterPanelComponent {
     { panelTitle: 'Floor', filters: this.floorFilters },
     { panelTitle: 'Roof', filters: this.roofFilters },
   ];
+  private unsubscribe$ = new Subject<void>();
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -151,6 +143,50 @@ export class FilterPanelComponent {
     private dialogRef: MatDialogRef<FilterPanelComponent>
   ) {
     this.advancedFiltersForm = this.data.form;
+
+    this.setOptions();
+    this.setValidOptions();
+
+    this.advancedFiltersForm.valueChanges
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe(() => {
+        this.setValidOptions();
+      });
+  }
+
+  setOptions() {
+    const allOptions = this.utilService.getAllUniqueFilterOptions(
+      this.advancedFiltersForm.value
+    );
+
+    Object.keys(allOptions).forEach(key => {
+      this.otherPanels.forEach(panel => {
+        panel.filters.forEach(filter => {
+          if (filter.formControlName === key) {
+            filter.data = allOptions[key] ?? [];
+          }
+        });
+      });
+    });
+  }
+
+  setValidOptions() {
+    const validOptions = this.utilService.getValidFilters(
+      this.advancedFiltersForm.value
+    );
+    Object.keys(validOptions).forEach(key => {
+      this.otherPanels.forEach(panel => {
+        panel.filters.forEach(filter => {
+          if (filter.formControlName === key) {
+            filter.validOptions = validOptions[key] ?? [];
+          }
+        });
+      });
+    });
+
+    this.noValidFilterOptions = Object.keys(validOptions).every(key => {
+      return validOptions[key as keyof FilterProps]?.length === 0;
+    });
   }
 
   checkFiltersApplied(panelTitle: string) {
@@ -175,5 +211,10 @@ export class FilterPanelComponent {
   clearAll() {
     this.advancedFiltersForm.reset();
     this.dialogRef.close({ clear: true });
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 }
