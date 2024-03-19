@@ -214,6 +214,18 @@ export class UtilService {
     this.setCurrentMapExpression(expressions);
 
     /**
+     * If there is a building currently selected, check if it's in the
+     * filtered buildings data and if not deselect it
+     */
+    if (this.dataService.selectedUPRN()) {
+      const exists = this.uprnInFilteredBuildings(
+        this.dataService.selectedUPRN()!,
+        filteredBuildings
+      );
+      if (!exists) this.singleDwellingDeselected();
+    }
+
+    /**
      * if there are filters set filtered buildings to
      * display results
      */
@@ -409,6 +421,12 @@ export class UtilService {
       return buildings.flat();
     }
     return [];
+  }
+
+  uprnInFilteredBuildings(uprn: string, buildings: BuildingMap): boolean {
+    return Object.values(buildings)
+      .flat()
+      .some(b => b.UPRN === uprn);
   }
 
   /**
