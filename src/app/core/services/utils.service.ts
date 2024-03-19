@@ -528,8 +528,6 @@ export class UtilService {
   createHistogram(ratings: Array<{ rating: string; count: number }>): string {
     // wmax value of the histogram array
     const maxValue = Math.max(...ratings.map(o => o.count));
-    // const log = this.logArray(ratings.map(o => o.count));
-    // console.log(log);
     const labels: string[] = [];
     const histogram = ratings.map(r => {
       // getting a percentage of the max
@@ -556,14 +554,6 @@ export class UtilService {
         </div>
       </div>
     `;
-  }
-
-  logArray(arr: number[]): number[] {
-    const output: number[] = [];
-    for (let i = 0; i < arr.length; i++) {
-      output.push(Math.log(arr[i]));
-    }
-    return output;
   }
 
   /**
