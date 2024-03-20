@@ -429,6 +429,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
       RoofInsulationLocation: [],
       RoofInsulationThickness: [],
       YearOfAssessment: [],
+      Flagged: [],
     });
     this.navigate(params);
   }
