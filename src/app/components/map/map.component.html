@@ -79,25 +79,32 @@
     <button
       mat-icon-button
       class="map-button"
-      [ngClass]="
-        this.drawActive ? 'map-button--active' : 'map-button--inactive'
-      "
+      [ngClass]="{
+        'map-button--active': theme === 'light' && this.drawActive,
+        'map-button--active_dark': theme === 'dark' && this.drawActive
+      }"
       (click)="setDrawMode('polygon')"
       matTooltipPosition="before"
       matTooltip="Draw filter area">
       <img
+        *ngIf="theme === 'light'"
         [src]="
-          theme === 'light'
+          !this.drawActive
             ? 'assets/icons/SpatialSearch.svg'
             : 'assets/icons/SpatialSearch_white.svg'
         "
         alt="draw polygon" />
+      <img
+        *ngIf="theme === 'dark'"
+        [src]="'assets/icons/SpatialSearch_white.svg'"
+        alt="draw polygon" />
     </button>
     <button
       [disabled]="!spatialFilterEnabled"
-      [ngClass]="
-        !spatialFilterEnabled ? 'map-button--active' : 'map-button--inactive'
-      "
+      [ngClass]="{
+        'map-button--inactive': theme === 'light' && !spatialFilterEnabled,
+        'map-button--inactive_dark': theme === 'dark' && !spatialFilterEnabled
+      }"
       mat-icon-button
       class="map-button"
       (click)="setDrawMode('delete')"

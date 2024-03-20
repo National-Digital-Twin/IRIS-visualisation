@@ -45,11 +45,17 @@
       }
 
       &--active {
-        background-color: rgb(var(--c477-color--selected)) !important;
+        background-color: $color-primary !important;
+        &_dark {
+          background-color: #0f3a70 !important;
+        }
       }
 
       &--inactive {
-        background-color: rgb(var(--arc-container-color)) !important;
+        background-color: rgb(var(--arc-grey-010)) !important;
+        &_dark {
+          background-color: #0f3a70 !important;
+        }
       }
     }
 
