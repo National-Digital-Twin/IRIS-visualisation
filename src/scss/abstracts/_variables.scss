@@ -31,6 +31,14 @@ $color-cb-epc-f: #d9963a;
 $color-cb-epc-g: #b35a00;
 $color-cb-epc-none: #bebebe;
 
+// Media Query Variables
+// from Angular Layout CDK
+
+$screen-x-small: 600px;
+$screen-small: 1000px;
+$screen-medium: 1280px;
+$screen-large: 1921px;
+
 $c477-primary-palette: (
   50: #eae8ed,
   100: #cbc6d3,

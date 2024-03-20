@@ -15,6 +15,10 @@
   flex-direction: column;
   justify-content: space-between;
 
+  @include md {
+    width: 16rem;
+  }
+
   &--results-open {
     left: 28.5rem;
   }
@@ -123,6 +127,7 @@
         align-items: center !important;
         gap: 0.5rem;
         font-size: var(--arc-font-size-x-small);
+        line-height: var(--arc-line-height-dense);
       }
     }
   }

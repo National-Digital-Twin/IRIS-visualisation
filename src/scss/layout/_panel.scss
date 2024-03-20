@@ -6,6 +6,12 @@
   display: flex;
   height: calc(100vh - 10rem);
 
+  @include md {
+    left: var(--arc-spacing-x-small);
+    right: var(--arc-spacing-x-small);
+    height: calc(100vh - 15rem);
+  }
+
   .panel {
     background-color: rgb(var(--arc-container-color));
     box-shadow: $box-shadow;

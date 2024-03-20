@@ -5,3 +5,39 @@
   -webkit-transition: $transition1, $transition2;
   transition: $transition1, $transition2;
 }
+
+// media query mixins
+// exta small devices
+@mixin xs {
+  @media (max-width: #{$screen-x-small}) {
+    @content;
+  }
+}
+
+// Small devices
+@mixin sm {
+  @media (max-width: #{$screen-small}) {
+    @content;
+  }
+}
+
+// Medium devices
+@mixin md {
+  @media (max-width: #{$screen-medium}) {
+    @content;
+  }
+}
+
+// Large devices
+@mixin lg {
+  @media (max-width: #{$screen-large}) {
+    @content;
+  }
+}
+
+// Extra large devices
+@mixin xl {
+  @media (min-width: #{$screen-large}) {
+    @content;
+  }
+}
