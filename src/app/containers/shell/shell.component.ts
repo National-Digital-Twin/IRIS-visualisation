@@ -131,6 +131,8 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   minimapData?: MinimapData;
   showMinimap: boolean = true;
 
+  spatialFilterEnabled = this.spatialQueryService.spatialFilterEnabled;
+
   public ngAfterViewInit(): void {
     const colorBlindMode = this.colorBlindMode();
     this.setColorBlindMode(colorBlindMode);
@@ -256,7 +258,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
 
   closeResults() {
     /** if there is no spatial filter close results panel */
-    if (!this.spatialQueryService.spatialFilterEnabled()) {
+    if (!this.spatialFilterEnabled()) {
       this.utilService.closeResultsPanel();
     }
   }

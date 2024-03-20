@@ -47,6 +47,7 @@
 
     <div class="content__map-container">
       <c477-map
+        [spatialFilterEnabled]="spatialFilterEnabled()"
         [mapConfig]="mapConfig"
         (setRouteParams)="setRouteMapParams($event)"
         (deleteSpatialFilter)="deleteSpatialFilter()"
