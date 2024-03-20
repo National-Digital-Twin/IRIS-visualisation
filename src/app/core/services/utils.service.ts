@@ -585,6 +585,7 @@ export class UtilService {
   deleteSpatialFilter() {
     this.singleDwellingDeselected();
     this.multiDwellingDeselected();
+    this.spatialQueryService.setSpatialGeom(undefined);
     this.spatialQueryService.setSpatialFilter(false);
     this.spatialQueryService.setSpatialFilterBounds(undefined);
     this.zone.run(() => this.closeResultsPanel());
