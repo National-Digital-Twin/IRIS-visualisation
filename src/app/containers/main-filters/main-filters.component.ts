@@ -305,6 +305,7 @@ export class MainFiltersComponent implements OnChanges {
 
   clearAll() {
     this.numberFilters = 0;
+    this.advancedFiltersForm?.reset();
     this.clearAllFilters.emit();
   }
 
