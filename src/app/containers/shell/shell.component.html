@@ -29,6 +29,7 @@
     }
     <c477-main-filters
       [filterProps]="filterProps"
+      (clearAllFilters)="clearAllFilters()"
       (setRouteParams)="setFilterParams($event)"
       (setAdvancedFilters)="setAdvancedFilters($event)"
       (addressSelected)="setSelectedBuildingTOID($event)"></c477-main-filters>
