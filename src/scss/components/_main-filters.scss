@@ -88,4 +88,11 @@
       line-height: $small-size-icon;
     }
   }
+
+  .clear {
+    color: red !important;
+    border-color: red;
+    border: solid;
+    border-width: 1px;
+  }
 }
