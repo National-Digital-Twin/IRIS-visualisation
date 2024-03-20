@@ -53,10 +53,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private drawControl!: MapboxDraw;
   private mapSubscription!: Subscription;
 
+  drawActive: boolean = false;
   showLegend: boolean = false;
   twoDimensions: boolean = false;
 
   @Input() mapConfig!: URLStateModel | undefined;
+  @Input() spatialFilterEnabled: boolean = false;
 
   @Output() resetMapView: EventEmitter<null> = new EventEmitter<null>();
   @Output() resetNorth: EventEmitter<null> = new EventEmitter<null>();
@@ -173,7 +175,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   setDrawMode(mode: string) {
     switch (mode) {
       case 'polygon': {
-        this.drawControl.deleteAll();
+        this.deleteSearchArea();
+        this.drawActive = true;
         this.updateMode('draw_polygon');
         break;
       }
@@ -197,6 +200,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   deleteSearchArea() {
+    this.drawActive = false;
     // delete search geom
     this.drawControl.deleteAll();
     // reset building colour to entire map
@@ -210,6 +214,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
    * @param e Mapbox draw create event
    */
   onDrawCreate = (e: MapboxDraw.DrawCreateEvent) => {
+    this.drawActive = false;
     this.setSearchArea.emit(e.features[0] as GeoJSON.Feature<Polygon>);
   };
 
