@@ -167,10 +167,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
    * ui as we're using custom buttons
    */
   addControls(): void {
-    this.drawControl = new MapboxDraw({
-      displayControlsDefault: false,
-    });
-    this.mapService.mapInstance.addControl(this.drawControl, 'top-right');
+    this.drawControl = this.mapService.drawControl;
   }
 
   setDrawMode(mode: string) {
