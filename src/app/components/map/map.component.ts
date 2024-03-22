@@ -56,6 +56,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   drawActive: boolean = false;
   showLegend: boolean = false;
   twoDimensions: boolean = false;
+  bearing: number = 0;
 
   @Input() mapConfig!: URLStateModel | undefined;
   @Input() spatialFilterEnabled: boolean = false;
@@ -227,6 +228,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   };
 
   updateMinimap() {
+    this.bearing = this.mapService.mapInstance.getBearing();
     this.setMinimapData.emit({
       position: this.mapService.mapInstance
         .getFreeCameraOptions()

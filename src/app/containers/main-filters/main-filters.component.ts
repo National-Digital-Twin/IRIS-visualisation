@@ -91,6 +91,7 @@ export class MainFiltersComponent implements OnChanges {
   @Output() setAdvancedFilters: EventEmitter<AdvancedFiltersFormModel> =
     new EventEmitter<AdvancedFiltersFormModel>();
   @Output() addressSelected: EventEmitter<string> = new EventEmitter<string>();
+  @Output() clearAllFilters: EventEmitter<null> = new EventEmitter<null>();
 
   private fb: FormBuilder = inject(FormBuilder);
   private addressSearchService = inject(AddressSearchService);
@@ -303,6 +304,12 @@ export class MainFiltersComponent implements OnChanges {
   clearPropertyType($event: Event) {
     $event.stopPropagation();
     this.setRouteParams.emit({ PropertyType: [] });
+  }
+
+  clearAll() {
+    this.numberFilters = 0;
+    this.advancedFiltersForm?.reset();
+    this.clearAllFilters.emit();
   }
 
   /**

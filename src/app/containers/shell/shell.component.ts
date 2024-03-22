@@ -413,6 +413,27 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     return queryParams;
   }
 
+  clearAllFilters() {
+    this.utilService.deleteSpatialFilter();
+    const params = this.createQueryParams({
+      EPC: [],
+      PropertyType: [],
+      PostCode: [],
+      BuildForm: [],
+      WindowGlazing: [],
+      WallConstruction: [],
+      WallInsulation: [],
+      FloorConstruction: [],
+      FloorInsulation: [],
+      RoofConstruction: [],
+      RoofInsulationLocation: [],
+      RoofInsulationThickness: [],
+      YearOfAssessment: [],
+      Flagged: [],
+    });
+    this.navigate(params);
+  }
+
   private navigate(queryParams: Params) {
     this.zone.run(() => {
       this.router.navigate(['/'], {
