@@ -147,6 +147,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   filterProps?: FilterProps;
   minimapData?: MinimapData;
   showMinimap: boolean = true;
+  spatialFilterEnabled = this.spatialQueryService.spatialFilterEnabled;
 
   constructor() {
     this.contextData$ = combineLatest([
@@ -288,7 +289,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
 
   closeResults() {
     /** if there is no spatial filter close results panel */
-    if (!this.spatialQueryService.spatialFilterEnabled()) {
+    if (!this.spatialFilterEnabled()) {
       this.utilService.closeResultsPanel();
     }
   }
@@ -441,6 +442,27 @@ export class ShellComponent implements AfterViewInit, OnChanges {
       filter: filterString !== '' ? filterString : undefined,
     };
     return queryParams;
+  }
+
+  clearAllFilters() {
+    this.utilService.deleteSpatialFilter();
+    const params = this.createQueryParams({
+      EPC: [],
+      PropertyType: [],
+      PostCode: [],
+      BuildForm: [],
+      WindowGlazing: [],
+      WallConstruction: [],
+      WallInsulation: [],
+      FloorConstruction: [],
+      FloorInsulation: [],
+      RoofConstruction: [],
+      RoofInsulationLocation: [],
+      RoofInsulationThickness: [],
+      YearOfAssessment: [],
+      Flagged: [],
+    });
+    this.navigate(params);
   }
 
   private navigate(queryParams: Params) {

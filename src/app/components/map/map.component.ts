@@ -76,14 +76,17 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   private wardPopup = new Popup();
 
+  drawActive: boolean = false;
   showLegend: boolean = false;
   twoDimensions: boolean = false;
+  bearing: number = 0;
 
   @Input() mapConfig!: URLStateModel | undefined;
   @Input() contextData:
     | FeatureCollection<Geometry, GeoJsonProperties>[]
     | undefined
     | null;
+  @Input() spatialFilterEnabled: boolean = false;
 
   @Output() resetMapView: EventEmitter<null> = new EventEmitter<null>();
   @Output() resetNorth: EventEmitter<null> = new EventEmitter<null>();
@@ -260,7 +263,8 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
   setDrawMode(mode: string) {
     switch (mode) {
       case 'polygon': {
-        this.drawControl.deleteAll();
+        this.deleteSearchArea();
+        this.drawActive = true;
         this.updateMode('draw_polygon');
         break;
       }
@@ -284,6 +288,7 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   deleteSearchArea() {
+    this.drawActive = false;
     // delete search geom
     this.drawControl.deleteAll();
     // reset building colour to entire map
@@ -297,6 +302,7 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
    * @param e Mapbox draw create event
    */
   onDrawCreate = (e: MapboxDraw.DrawCreateEvent) => {
+    this.drawActive = false;
     this.setSearchArea.emit(e.features[0] as GeoJSON.Feature<Polygon>);
   };
 
@@ -309,6 +315,7 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
   };
 
   updateMinimap() {
+    this.bearing = this.mapService.mapInstance.getBearing();
     this.setMinimapData.emit({
       position: this.mapService.mapInstance
         .getFreeCameraOptions()

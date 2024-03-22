@@ -28,6 +28,7 @@
             ? 'assets/icons/NavigationArrow.svg'
             : 'assets/icons/NavigationArrow_white.svg'
         "
+        [style]="'transform: rotate(' + bearing + 'deg)'"
         alt="reset to north" />
     </button>
     <button
@@ -79,18 +80,32 @@
     <button
       mat-icon-button
       class="map-button"
+      [ngClass]="{
+        'map-button--active': theme === 'light' && this.drawActive,
+        'map-button--active_dark': theme === 'dark' && this.drawActive
+      }"
       (click)="setDrawMode('polygon')"
       matTooltipPosition="before"
       matTooltip="Draw filter area">
       <img
+        *ngIf="theme === 'light'"
         [src]="
-          theme === 'light'
+          !this.drawActive
             ? 'assets/icons/SpatialSearch.svg'
             : 'assets/icons/SpatialSearch_white.svg'
         "
         alt="draw polygon" />
+      <img
+        *ngIf="theme === 'dark'"
+        [src]="'assets/icons/SpatialSearch_white.svg'"
+        alt="draw polygon" />
     </button>
     <button
+      [disabled]="!spatialFilterEnabled"
+      [ngClass]="{
+        'map-button--inactive': theme === 'light' && !spatialFilterEnabled,
+        'map-button--inactive_dark': theme === 'dark' && !spatialFilterEnabled
+      }"
       mat-icon-button
       class="map-button"
       (click)="setDrawMode('delete')"

@@ -43,6 +43,20 @@
         background-color: rgb(var(--arc-container-color)) !important;
         box-shadow: 0px 2px 3px rgba(118, 118, 118, 0.2);
       }
+
+      &--active {
+        background-color: $color-primary !important;
+        &_dark {
+          background-color: #0f3a70 !important;
+        }
+      }
+
+      &--inactive {
+        background-color: rgb(var(--arc-grey-010)) !important;
+        &_dark {
+          background-color: #0f3a70 !important;
+        }
+      }
     }
 
     &--bottom {
