@@ -365,11 +365,9 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
       const histogram = this.utilsService.createHistogram(epcRatings);
       const popupContent = `
         <div class="popupContent">
-          <h1>EPC breakdown for ${e.features[0].properties!.WD23NM}</h1>
+          <h1>${e.features[0].properties!.WD23NM}</h1>
           ${histogram}
-          <p>Addresses with no EPC* are excluded from the aggregated ward view</p>
-          <p class="disclaimer">*The no EPC rating is made of a mix of domestic buildings with no prior
-          rating and of commercial buildings</p>
+          <p class="disclaimer">*Mix of domestic and commercial buildings. Excluded from ward visualisation.</p>
         </div>
       `;
       this.wardPopup

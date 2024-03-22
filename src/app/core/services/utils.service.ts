@@ -550,7 +550,9 @@ export class UtilService {
     const histogram = ratings.map(r => {
       // getting a percentage of the max
       const height = (r.count / maxValue) * 100;
-      const label = `<span>${r.rating === 'none' ? 'No EPC' : r.rating}</span>`;
+      const label = `<span>${
+        r.rating === 'none' ? 'No EPC*' : r.rating
+      }</span>`;
       labels.push(label);
       return `
         <div class="histogramItem" style="height: calc(${height}% + 5px)">

@@ -24,7 +24,7 @@ $popupWidth: 340px;
 .histogramWrapper {
   display: flex;
   align-items: flex-end;
-  height: 170px;
+  height: 150px;
   padding-left: 10px;
   padding-right: 10px;
   border-bottom-width: 1px;
@@ -64,6 +64,10 @@ $popupWidth: 340px;
     font-size: var(--arc-font-size-xx-small);
     font-weight: var(--arc-font-weight-normal);
   }
+}
+
+.mapboxgl-popup-content {
+  background-color: rgba(var(--arc-white-000), 0.95);
 }
 
 .mapboxgl-popup-close-button {
