@@ -366,8 +366,10 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
       const popupContent = `
         <div class="popupContent">
           <h1>EPC breakdown for ${e.features[0].properties!.WD23NM}</h1>
-          <p>Addresses with no EPC's are excluded from the aggregated ward view</p>
           ${histogram}
+          <p>Addresses with no EPC* are excluded from the aggregated ward view</p>
+          <p class="disclaimer">*The no EPC rating is made of a mix of domestic buildings with no prior
+          rating and of commercial buildings</p>
         </div>
       `;
       this.wardPopup

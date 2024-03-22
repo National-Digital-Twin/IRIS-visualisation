@@ -1,21 +1,30 @@
+$popupWidth: 340px;
+
 .popupContent {
   display: flex;
   flex-direction: column;
-  width: 300px;
+  width: $popupWidth;
+  margin: 0 10px;
   h1 {
-    font-size: 0.875rem;
-    margin: 0.5rem 0rem;
+    font-size: var(--arc-font-size-small);
+    margin: var(--arc-spacing-x-small) 0;
   }
   p {
-    font-size: 0.75rem;
-    margin: 0rem 0rem 0.5rem 0rem;
+    font-size: var(--arc-font-size-x-small);
+    margin: var(--arc-font-size-xx-small) 0 0 0;
+    line-height: 1.0625rem;
+  }
+  .disclaimer {
+    font-size: var(--arc-font-size-xx-small);
+    margin: 0;
+    line-height: 0.875rem;
   }
 }
 
 .histogramWrapper {
   display: flex;
   align-items: flex-end;
-  height: 120px;
+  height: 170px;
   padding-left: 10px;
   padding-right: 10px;
   border-bottom-width: 1px;
@@ -26,7 +35,8 @@
 .histogramBar {
   flex: 1;
   margin-right: 1px;
-  border-radius: 4px 4px 0px 0px;
+  border-radius: var(--arc-border-radius-medium) var(--arc-border-radius-medium)
+    0 0;
 }
 
 .histogramItem {
@@ -34,24 +44,25 @@
   flex-direction: column;
   flex: 1;
   justify-content: flex-end;
+  margin: 0 4px;
 }
 
 .epcRating {
   align-self: center;
+  font-size: var(--arc-font-size-small);
+  font-weight: var(--arc-font-weight-semibold);
 }
 
 .labelRow {
-  width: 300px;
+  width: $popupWidth;
   padding-left: 10px;
   padding-right: 10px;
   display: flex;
   span {
     flex: 1;
     text-align: center;
-    font-size: 0.625rem;
-  }
-  span::first-letter {
-    text-transform: capitalize;
+    font-size: var(--arc-font-size-xx-small);
+    font-weight: var(--arc-font-weight-normal);
   }
 }
 
