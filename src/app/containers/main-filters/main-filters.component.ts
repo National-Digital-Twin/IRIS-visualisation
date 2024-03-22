@@ -51,6 +51,7 @@ import {
 } from '@core/enums';
 import {
   AdvancedFiltersFormModel,
+  EPCExpiry,
   FilterProps,
 } from '@core/models/advanced-filters.model';
 import {
@@ -222,6 +223,7 @@ export class MainFiltersComponent implements OnChanges {
           RoofInsulationLocation: [],
           RoofInsulationThickness: [],
           YearOfAssessment: [],
+          EPCExpiry: [],
         });
       } else {
         // reset the form to the original values on cancel
@@ -287,6 +289,7 @@ export class MainFiltersComponent implements OnChanges {
         this.filterProps
           ?.RoofInsulationThickness as unknown as RoofInsulationThickness,
       ],
+      EPCExpiry: [this.filterProps?.EPCExpiry as unknown as EPCExpiry],
     });
     this.numberFilters = this.countFilters(this.advancedFiltersForm.value);
     return this.advancedFiltersForm;
