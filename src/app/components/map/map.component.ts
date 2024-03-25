@@ -147,7 +147,10 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     /** update context layer colors when color blind mode changes */
     this.colorBlindMode$.subscribe({
-      next: () => this.updateLayerPaint(),
+      next: () => {
+        this.wardPopup.remove();
+        this.updateLayerPaint();
+      },
     });
   }
 
@@ -419,7 +422,7 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
     if (!this.mapService.mapInstance) return;
     this.runtimeConfig.contextLayers.forEach((config: MapLayerConfig) => {
       const lyr = this.mapService.mapInstance.getLayer(config.id);
-      if (lyr) {
+      if (lyr && config.type !== 'line') {
         const paint = this.getWardLayerPaint();
         this.mapService.mapInstance.setPaintProperty(
           lyr.id,
