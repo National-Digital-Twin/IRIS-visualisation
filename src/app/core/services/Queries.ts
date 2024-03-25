@@ -156,8 +156,17 @@ export class Queries {
           (?line_of_address_literal as ?FullAddress)
           (?parent_building_toid_id AS ?ParentTOID)
           (SUBSTR(?postcode_literal, 0, 5) AS ?PostCode)
+          (?lon_literal AS ?longitude)
+          (?lat_literal AS ?latitude)
       WHERE {
           ?building ies:isIdentifiedBy ?uprn .
+          ?building ies:inLocation ?geopoint .
+          ?geopoint ies:isIdentifiedBy ?lat .
+          ?lat rdf:type ies:Latitude .
+          ?lat ies:representationValue ?lat_literal .
+          ?geopoint ies:isIdentifiedBy ?lon .
+          ?lon rdf:type ies:Longitude .
+          ?lon ies:representationValue ?lon_literal .
           ?uprn ies:representationValue ?uprn_literal .
           ?uprn a geoplace:UniquePropertyReferenceNumber .
           FILTER NOT EXISTS { ?epc_state ies:isStateOf ?building . }
@@ -188,6 +197,8 @@ export class Queries {
       }
       GROUP BY
           ?uprn_literal
+          ?lon_literal
+          ?lat_literal
           ?building_toid_id
           ?line_of_address_literal
           ?parent_building_toid_id
@@ -280,8 +291,17 @@ export class Queries {
           (?building_toid_id AS ?TOID)
           (?parent_building_toid_id AS ?ParentTOID)
           (?sap_points AS ?SAPPoint)
+          (?lon_literal AS ?longitude)
+          (?lat_literal AS ?latitude)
       WHERE {
-        ?state ies:isStateOf ?building .
+          ?state ies:isStateOf ?building .
+          ?building ies:inLocation ?geopoint .
+          ?geopoint ies:isIdentifiedBy ?lat .
+          ?lat rdf:type ies:Latitude .
+          ?lat ies:representationValue ?lat_literal .
+          ?geopoint ies:isIdentifiedBy ?lon .
+          ?lon rdf:type ies:Longitude .
+          ?lon ies:representationValue ?lon_literal .
           ?building ies:isIdentifiedBy ?uprn .
           ?uprn ies:representationValue ?uprn_id .
           ?uprn rdf:type geoplace:UniquePropertyReferenceNumber .
