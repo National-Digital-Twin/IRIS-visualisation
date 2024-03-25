@@ -461,6 +461,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
         RoofInsulationThickness: [],
         YearOfAssessment: [],
         Flagged: [],
+        EPCExpiry: [],
       });
       this.navigate(params);
       /** delete spatial filter if it exists */

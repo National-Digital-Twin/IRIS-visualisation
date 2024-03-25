@@ -13,6 +13,8 @@ import {
   YearOfAssessment,
 } from '@core/enums';
 
+export type EPCExpiry = 'EPC Expired' | 'EPC In Date';
+
 export type AdvancedFilter =
   | typeof BuildForm
   | typeof FloorConstruction
@@ -43,6 +45,7 @@ export interface AdvancedFiltersFormModel {
   RoofInsulationLocation: RoofInsulationLocation[] | null;
   RoofInsulationThickness: RoofInsulationThickness[] | null;
   YearOfAssessment: YearOfAssessment[] | null;
+  EPCExpiry: EPCExpiry[] | null;
 }
 
 export interface MultiButtonFilterOption {
@@ -68,6 +71,7 @@ export interface FilterProps {
   WallConstruction?: string[];
   WallInsulation?: string[];
   YearOfAssessment?: string[];
+  EPCExpiry?: string[];
 }
 
 export type FilterKeys =
