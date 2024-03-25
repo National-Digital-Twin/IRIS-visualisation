@@ -49,6 +49,7 @@ export class FilterPanelComponent implements OnDestroy {
   private utilService = inject(UtilService);
   advancedFiltersForm: FormGroup;
   noValidFilterOptions: boolean = false;
+  expiredOptions = ['EPC In Date', 'EPC Expired'];
   generalFilters: MultiButtonFilterOption[] = [
     {
       title: 'Post Code',
@@ -67,6 +68,12 @@ export class FilterPanelComponent implements OnDestroy {
       data: [],
       formControlName: 'YearOfAssessment',
       selectedValues: this.data.filterProps?.YearOfAssessment,
+    },
+    {
+      title: 'EPC Expiry',
+      data: this.expiredOptions,
+      formControlName: 'EPCExpiry',
+      selectedValues: this.data.filterProps?.EPCExpiry,
     },
   ];
   glazingFilters: MultiButtonFilterOption[] = [
@@ -163,7 +170,7 @@ export class FilterPanelComponent implements OnDestroy {
       this.otherPanels.forEach(panel => {
         panel.filters.forEach(filter => {
           if (filter.formControlName === key) {
-            filter.data = allOptions[key] ?? [];
+            filter.data = allOptions[key] ?? filter.data;
           }
         });
       });
@@ -174,11 +181,12 @@ export class FilterPanelComponent implements OnDestroy {
     const validOptions = this.utilService.getValidFilters(
       this.advancedFiltersForm.value
     );
+    validOptions.EPCExpiry = this.expiredOptions;
     Object.keys(validOptions).forEach(key => {
       this.otherPanels.forEach(panel => {
         panel.filters.forEach(filter => {
           if (filter.formControlName === key) {
-            filter.validOptions = validOptions[key] ?? [];
+            filter.validOptions = validOptions[key];
           }
         });
       });

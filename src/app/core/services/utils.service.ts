@@ -396,12 +396,29 @@ export class UtilService {
       filterKeys.every(key => {
         if (!filterProps[key as keyof FilterProps]?.length) return true;
         // remove additional quotes for year filter
+        // may not need this any more?
         const removeQuotes = filterProps[key as keyof FilterProps]?.map(k =>
           k.replace(/['"]+/g, '')
         );
         /** if flagged filter exists return the building if it has a flag */
         if (key === 'Flagged' && building.Flagged !== undefined) {
           return true;
+        }
+        // compare inspection dates to 10 years ago
+        else if (key === 'EPCExpiry') {
+          const tenYearsAgo = new Date();
+          tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
+          if (
+            building.InspectionDate &&
+            ((filterProps[key as keyof FilterProps]?.includes('EPC Expired') &&
+              new Date(building.InspectionDate) < tenYearsAgo) ||
+              (filterProps[key as keyof FilterProps]?.includes('EPC In Date') &&
+                new Date(building.InspectionDate) >= tenYearsAgo))
+          ) {
+            return true;
+          } else {
+            return false;
+          }
         } else {
           return removeQuotes?.includes(
             // eslint-disable-next-line
@@ -842,10 +859,12 @@ export class UtilService {
   getAllUniqueFilterOptions(filters: FilterProps) {
     const unfilteredBuildings = this.dataService.buildings();
     const flattenedBuildings = Object.values(unfilteredBuildings!).flat();
-    const options = this.getUniqueOptions(
-      Object.keys(filters),
-      flattenedBuildings
-    );
+    const filterKeys = Object.keys(filters);
+    // Do not fetch EPC Expiry values from data as these are static
+    if (filterKeys.includes('EPCExpiry')) {
+      filterKeys.splice(filterKeys.indexOf('EPCExpiry'), 1);
+    }
+    const options = this.getUniqueOptions(filterKeys, flattenedBuildings);
     return options;
   }
 
