@@ -471,9 +471,9 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     }
     /** if there is only a spatial filter, delete and redraw map */
     if (
-      this.filterProps &&
-      Object.keys(this.filterProps).length === 0 &&
-      this.spatialFilterEnabled()
+      !this.filterProps ||
+      (Object.keys(this.filterProps).length === 0 &&
+        this.spatialFilterEnabled())
     ) {
       this.utilService.deleteSpatialFilter();
       this.updateBuildingLayerColour();
