@@ -23,6 +23,7 @@ import { URLStateModel } from '@core/models/url-state.model';
 import { environment } from 'src/environments/environment';
 
 import { from, forkJoin, take } from 'rxjs';
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 /**
  * Service for the MapboxGLJS map
@@ -32,6 +33,7 @@ import { from, forkJoin, take } from 'rxjs';
 })
 export class MapService {
   mapInstance: MapboxMap;
+  drawControl!: MapboxDraw;
   mapCreated$: Observable<void>;
   mapLoaded$: Observable<void>;
   mapEvents: MapEvent;
@@ -208,9 +210,17 @@ export class MapService {
       this.addLayers();
       this.addTerrainLayer();
       this.addEPCPatterns();
+      this.addDrawControl();
       this.mapLoaded.next(undefined);
       this.mapLoaded.complete();
     });
+  }
+
+  private addDrawControl() {
+    this.drawControl = new MapboxDraw({
+      displayControlsDefault: false,
+    });
+    this.mapInstance.addControl(this.drawControl, 'top-right');
   }
 
   private async addEPCPatterns() {
