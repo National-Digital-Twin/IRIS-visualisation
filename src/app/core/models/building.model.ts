@@ -21,6 +21,8 @@ export type BuildingModel = {
   WallConstruction: string | undefined;
   WallInsulation: string | undefined;
   WindowGlazing: string | undefined;
+  longitude: string | undefined;
+  latitude: string | undefined;
 };
 
 export interface BuildingMap {

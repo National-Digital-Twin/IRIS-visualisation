@@ -56,6 +56,8 @@ export class ResultsCardExpandableComponent implements OnChanges {
     WallConstruction: undefined,
     WallInsulation: undefined,
     WindowGlazing: undefined,
+    latitude: undefined,
+    longitude: undefined,
   };
 
   public onToggleCheckedDwellings(checked: boolean) {

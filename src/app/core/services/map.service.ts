@@ -8,6 +8,7 @@ import { AsyncSubject, Observable, first, EMPTY, catchError, tap } from 'rxjs';
 import { MapEvent, Map as MapboxMap } from '!mapbox-gl';
 import {
   Expression,
+  GeoJSONSource,
   Layer,
   LngLatBounds,
   RasterDemSource,
@@ -56,7 +57,7 @@ export class MapService {
     });
   }
 
-  addMapSource(name: string, source: Source | RasterDemSource) {
+  addMapSource(name: string, source: Source | RasterDemSource | GeoJSONSource) {
     this.zone.runOutsideAngular(() => {
       this.mapInstance.addSource(name, source);
 
