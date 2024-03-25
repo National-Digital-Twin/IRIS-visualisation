@@ -26,4 +26,7 @@ export type NoEPCBuildingResponseModel = Omit<
   | 'InsulationThicknessLowerBound'
   | 'PartTypes'
   | 'PropertyType'
->;
+> & {
+  latitude: string;
+  longitude: string;
+};

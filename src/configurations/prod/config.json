@@ -192,5 +192,40 @@
         ]
       }
     }
+  ],
+  "contextLayers": [
+    {
+      "displayName": "Wards",
+      "filename": "wards.geojson",
+      "source": "wards",
+      "id": "wards",
+      "labelProperty": "WD23NM",
+      "maxzoom": 15,
+      "type": "fill",
+      "layout": {
+        "visibility": "visible"
+      },
+      "paint": {
+        "fill-opacity": 0.8,
+        "fill-outline-color": "#51406C"
+      }
+    },
+    {
+      "displayName": "Selected Ward",
+      "filename": "wards.geojson",
+      "source": "wards",
+      "id": "wards-selected",
+      "labelProperty": "WD23NM",
+      "maxzoom": 15,
+      "type": "line",
+      "filter": ["==", "WD23NM", ""],
+      "layout": {
+        "visibility": "visible"
+      },
+      "paint": {
+        "line-color": "#51406C",
+        "line-width": 2
+      }
+    }
   ]
 }
