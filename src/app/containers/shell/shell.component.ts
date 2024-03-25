@@ -414,24 +414,38 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   }
 
   clearAllFilters() {
-    this.utilService.deleteSpatialFilter();
-    const params = this.createQueryParams({
-      EPC: [],
-      PropertyType: [],
-      PostCode: [],
-      BuildForm: [],
-      WindowGlazing: [],
-      WallConstruction: [],
-      WallInsulation: [],
-      FloorConstruction: [],
-      FloorInsulation: [],
-      RoofConstruction: [],
-      RoofInsulationLocation: [],
-      RoofInsulationThickness: [],
-      YearOfAssessment: [],
-      Flagged: [],
-    });
-    this.navigate(params);
+    if (this.filterProps && Object.keys(this.filterProps).length > 0) {
+      const params = this.createQueryParams({
+        EPC: [],
+        PropertyType: [],
+        PostCode: [],
+        BuildForm: [],
+        WindowGlazing: [],
+        WallConstruction: [],
+        WallInsulation: [],
+        FloorConstruction: [],
+        FloorInsulation: [],
+        RoofConstruction: [],
+        RoofInsulationLocation: [],
+        RoofInsulationThickness: [],
+        YearOfAssessment: [],
+        Flagged: [],
+      });
+      this.navigate(params);
+      /** delete spatial filter if it exists */
+      if (this.spatialFilterEnabled()) {
+        this.utilService.deleteSpatialFilter();
+      }
+    }
+    /** if there is only a spatial filter, delete and redraw map */
+    if (
+      this.filterProps &&
+      Object.keys(this.filterProps).length === 0 &&
+      this.spatialFilterEnabled()
+    ) {
+      this.utilService.deleteSpatialFilter();
+      this.updateBuildingLayerColour();
+    }
   }
 
   private navigate(queryParams: Params) {
