@@ -390,7 +390,6 @@ export class UtilService {
         const removeQuotes = filterProps[key as keyof FilterProps]?.map(k =>
           k.replace(/['"]+/g, '')
         );
-        console.log(building.InspectionDate);
         /** if flagged filter exists return the building if it has a flag */
         if (key === 'Flagged' && building.Flagged !== undefined) {
           return true;
