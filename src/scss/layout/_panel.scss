@@ -7,9 +7,15 @@
   height: calc(100vh - 10rem);
 
   @include md {
-    left: var(--arc-spacing-x-small);
+    left: var(--arc-spacing-small);
     right: var(--arc-spacing-x-small);
     height: calc(100vh - 15rem);
+    bottom: var(--arc-spacing-small);
+  }
+
+  @include xs {
+    bottom: 5rem;
+    height: calc(100vh - 19.25rem);
   }
 
   .panel {

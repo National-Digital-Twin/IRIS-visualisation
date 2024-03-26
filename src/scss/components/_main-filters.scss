@@ -10,10 +10,11 @@
     top: 4rem;
     left: var(--arc-spacing-small);
     flex-direction: column;
+    width: $md-results-panel-width;
   }
 
   .search {
-    width: 26.5rem;
+    width: $panel-width;
     margin-right: var(--arc-spacing-x-small);
     .mdc-text-field--filled:not(.mdc-text-field--disabled) {
       background: var(--bg);
@@ -21,6 +22,7 @@
     }
 
     @include md {
+      width: $md-results-panel-width;
       .mat-mdc-form-field-subscript-wrapper {
         height: var(--arc-spacing-x-small);
       }
@@ -37,7 +39,7 @@
     box-shadow: $box-shadow;
 
     @include md {
-      width: 26.5rem;
+      width: $md-results-panel-width;
       margin-left: 0;
     }
 
@@ -77,6 +79,15 @@
     }
   }
 
+  .filters-button-container {
+    @include md {
+      display: flex;
+      justify-content: space-between;
+      width: $md-results-panel-width;
+      gap: var(--arc-spacing-x-small);
+    }
+  }
+
   .filters-button {
     margin-top: 0;
     margin-left: var(--arc-spacing-x-small);
@@ -86,10 +97,15 @@
       var(--arc-container-color)
     ) !important;
 
+    .mat-badge-active {
+      z-index: $panel-z-index;
+    }
+
     @include md {
       margin-top: var(--arc-spacing-x-small);
       margin-left: 0;
       height: auto;
+      width: 100%;
     }
   }
 

@@ -7,31 +7,35 @@
       (updatePanelStatus)="panelOpen = $event" />
     @if (panelOpen) {
       <section>
-        <div class="results-panel__header results-panel__toggle">
-          <mat-slide-toggle [color]="'primary'" [(ngModel)]="selectMultiple"
-            >Select multiple</mat-slide-toggle
-          >
-        </div>
-        <div class="results-panel__header results-panel__header--download">
-          @if (selectMultiple) {
-            <button
-              mat-flat-button
-              [color]="'primary'"
-              class="results-panel__button"
-              (click)="downloadAll()">
-              <img src="assets/icons/FileArrowDown_white.svg" alt="" />Download
-              selected results
-            </button>
-          } @else {
-            <button
-              mat-flat-button
-              [color]="'primary'"
-              class="results-panel__button"
-              (click)="downloadAll()">
-              <img src="assets/icons/FileArrowDown_white.svg" alt="" />Download
-              all results
-            </button>
-          }
+        <div class="results-panel__header-container">
+          <div class="results-panel__header results-panel__toggle">
+            <mat-slide-toggle [color]="'primary'" [(ngModel)]="selectMultiple"
+              >Select multiple</mat-slide-toggle
+            >
+          </div>
+          <div class="results-panel__header results-panel__header--download">
+            @if (selectMultiple) {
+              <button
+                mat-flat-button
+                [color]="'primary'"
+                class="results-panel__button"
+                (click)="downloadAll()">
+                <img
+                  src="assets/icons/FileArrowDown_white.svg"
+                  alt="" />Download selected results
+              </button>
+            } @else {
+              <button
+                mat-flat-button
+                [color]="'primary'"
+                class="results-panel__button"
+                (click)="downloadAll()">
+                <img
+                  src="assets/icons/FileArrowDown_white.svg"
+                  alt="" />Download all results
+              </button>
+            }
+          </div>
         </div>
       </section>
       <section class="results-panel__cards-container">
