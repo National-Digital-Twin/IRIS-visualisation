@@ -72,6 +72,11 @@ import { MinimapData } from '@core/models/minimap-data.model';
 import { BuildingMap, BuildingModel } from '@core/models/building.model';
 
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
+import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
+import {
+  DownloadDataWarningData,
+  DownloadDataWarningResponse,
+} from '@core/models/download-data-warning.model';
 
 @Component({
   selector: 'c477-shell',
@@ -234,10 +239,13 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     /**
      * need to run this in zone otherwise change detection
      * isn't triggered and results panel won't open
+     * Only run when buildings are visible
      */
-    this.zone.run(() => {
-      this.utilService.createBuildingColourFilter();
-    });
+    if (this.mapConfig?.zoom && this.mapConfig?.zoom >= 15) {
+      this.zone.run(() => {
+        this.utilService.createBuildingColourFilter();
+      });
+    }
   }
 
   /**
@@ -285,6 +293,55 @@ export class ShellComponent implements AfterViewInit, OnChanges {
         ]);
       }
     }
+  }
+
+  /**
+   * Bulk download addresses within a user drawn polygon
+   */
+  downloadAddresses() {
+    const buildings = this.dataService.buildings();
+    const searchGeom = this.spatialQueryService.spatialFilterGeom();
+
+    const buildingsToDownload = this.spatialQueryService.getAddressesInPolygon(
+      buildings!,
+      searchGeom!
+    );
+
+    this.utilService.deleteSpatialFilter();
+    let addresses: string[] = [];
+    let addressCount = undefined;
+    if (buildingsToDownload.length <= 10) {
+      buildingsToDownload.forEach((building: BuildingModel) =>
+        addresses.push(building.FullAddress)
+      );
+    } else {
+      addressCount = buildingsToDownload.length;
+    }
+
+    this.dialog
+      .open<
+        DownloadWarningComponent,
+        DownloadDataWarningData,
+        DownloadDataWarningResponse
+      >(DownloadWarningComponent, {
+        panelClass: 'data-download',
+        data: {
+          addresses,
+          addressCount,
+        },
+      })
+      .afterClosed()
+      .subscribe(download => {
+        if (download) {
+          if (download === 'xlsx') {
+            this.dataDownloadService.downloadXlsxData(buildingsToDownload);
+          } else if (download === 'csv') {
+            this.dataDownloadService.downloadCSVData(buildingsToDownload);
+          }
+          addresses = [];
+          addressCount = undefined;
+        }
+      });
   }
 
   closeResults() {
