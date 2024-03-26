@@ -66,7 +66,7 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.settings.get(SETTINGS.ColorBlindMode)
   ).pipe(takeUntilDestroyed());
   private runtimeConfig = inject(RUNTIME_CONFIGURATION);
-  private mapService = inject(MapService);
+  mapService = inject(MapService);
   private utilsService = inject(UtilService);
 
   private drawControl!: MapboxDraw;
@@ -105,6 +105,8 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Output() setMinimapData: EventEmitter<MinimapData> =
     new EventEmitter<MinimapData>();
   @Output() toggleMinimap: EventEmitter<null> = new EventEmitter<null>();
+
+  @Output() downloadAddresses: EventEmitter<null> = new EventEmitter<null>();
 
   /** setup map */
   ngAfterViewInit() {
@@ -348,6 +350,7 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   wardsLayerClick(e: MapLayerMouseEvent) {
+    if (this.drawControl.getMode() === 'draw_polygon') return;
     if (e.features?.length) {
       /** highlight selected ward */
       this.mapService.filterMapLayer({
