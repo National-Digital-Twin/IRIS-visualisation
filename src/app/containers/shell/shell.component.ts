@@ -11,43 +11,36 @@ import {
   numberAttribute,
   computed,
 } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { Params, Router } from '@angular/router';
-import { DOCUMENT } from '@angular/common';
-import { Polygon } from 'geojson';
-
-import { DetailsPanelComponent } from '@components/details-panel/details-panel.component';
-import { MainFiltersComponent } from '@containers/main-filters/main-filters.component';
-import { MapComponent } from '@components/map/map.component';
-import { ResultsPanelComponent } from '@containers/results-panel/results-panel.component';
-
-import { SettingsService, SETTINGS } from '@core/services/settings.service';
-import { DataService } from '@core/services/data.service';
-import { DataDownloadService } from '@core/services/data-download.service';
-import { FilterService } from '@core/services/filter.service';
-import { MapService } from '@core/services/map.service';
-import { SpatialQueryService } from '@core/services/spatial-query.service';
-import { UtilService } from '@core/services/utils.service';
-import { Breakpoints, BreakpointObserver } from '@angular/cdk/layout';
+import { AsyncPipe, DOCUMENT } from '@angular/common';
 
 import {
-  AdvancedFiltersFormModel,
-  FilterKeys,
-  FilterProps,
-} from '@core/models/advanced-filters.model';
-import { URLStateModel } from '@core/models/url-state.model';
-import { MinimapData } from '@core/models/minimap-data.model';
+  first,
+  forkJoin,
+  map,
+  switchMap,
+  EMPTY,
+  Observable,
+  combineLatest,
+} from 'rxjs';
 
-import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
-import { BuildingModel } from '@core/models/building.model';
-import { first, forkJoin, map, switchMap, EMPTY, Observable } from 'rxjs';
+import { Breakpoints, BreakpointObserver } from '@angular/cdk/layout';
+import { ComponentType } from '@angular/cdk/portal';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
 import type { UserPreferences } from '@arc-web/components/src/components/accessibility/ArcAccessibility';
 import type { ArcAccessibility, ArcSwitch } from '@arc-web/components';
 import '@arc-web/components/src/components/container/arc-container';
 import '@arc-web/components/src/components/switch/arc-switch';
 
-import { ComponentType } from '@angular/cdk/portal';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { GeoJsonProperties, Geometry, Polygon } from 'geojson';
+import { FeatureCollection } from '@turf/helpers';
+
+import { DetailsPanelComponent } from '@components/details-panel/details-panel.component';
+import { MainFiltersComponent } from '@containers/main-filters/main-filters.component';
+import { MapComponent } from '@components/map/map.component';
+import { ResultsPanelComponent } from '@containers/results-panel/results-panel.component';
 import {
   FlagModalComponent,
   FlagModalData,
@@ -61,6 +54,25 @@ import {
   RemoveFlagModalResult,
 } from '@components/remove-flag-modal/remove-flag-modal.component';
 
+import { SettingsService, SETTINGS } from '@core/services/settings.service';
+import { DataService } from '@core/services/data.service';
+import { DataDownloadService } from '@core/services/data-download.service';
+import { FilterService } from '@core/services/filter.service';
+import { MapService } from '@core/services/map.service';
+import { SpatialQueryService } from '@core/services/spatial-query.service';
+import { UtilService } from '@core/services/utils.service';
+
+import {
+  AdvancedFiltersFormModel,
+  FilterKeys,
+  FilterProps,
+} from '@core/models/advanced-filters.model';
+import { URLStateModel } from '@core/models/url-state.model';
+import { MinimapData } from '@core/models/minimap-data.model';
+import { BuildingMap, BuildingModel } from '@core/models/building.model';
+
+import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
+
 @Component({
   selector: 'c477-shell',
   standalone: true,
@@ -71,6 +83,7 @@ import {
     MapComponent,
     MinimapComponent,
     ResultsPanelComponent,
+    AsyncPipe,
   ],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
@@ -124,14 +137,32 @@ export class ShellComponent implements AfterViewInit, OnChanges {
 
   private selectedBuildingTOID = this.spatialQueryService.selectedBuildingTOID;
 
+  contextData$: Observable<
+    FeatureCollection<Geometry, GeoJsonProperties>[] | undefined
+  >;
+
   title = 'IRIS';
   loading = this.dataService.loading;
   mapConfig?: URLStateModel;
   filterProps?: FilterProps;
   minimapData?: MinimapData;
   showMinimap: boolean = true;
-
   spatialFilterEnabled = this.spatialQueryService.spatialFilterEnabled;
+
+  constructor() {
+    this.contextData$ = combineLatest([
+      this.dataService.contextData$,
+      toObservable(this.dataService.buildings),
+    ]).pipe(
+      map(([contextData, buildings]) => {
+        if (buildings) {
+          return this.aggregateEPC(contextData, buildings!);
+        } else {
+          return undefined;
+        }
+      })
+    );
+  }
 
   public ngAfterViewInit(): void {
     const colorBlindMode = this.colorBlindMode();
@@ -413,6 +444,42 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     return queryParams;
   }
 
+  clearAllFilters() {
+    if (this.filterProps && Object.keys(this.filterProps).length > 0) {
+      const params = this.createQueryParams({
+        EPC: [],
+        PropertyType: [],
+        PostCode: [],
+        BuildForm: [],
+        WindowGlazing: [],
+        WallConstruction: [],
+        WallInsulation: [],
+        FloorConstruction: [],
+        FloorInsulation: [],
+        RoofConstruction: [],
+        RoofInsulationLocation: [],
+        RoofInsulationThickness: [],
+        YearOfAssessment: [],
+        Flagged: [],
+        EPCExpiry: [],
+      });
+      this.navigate(params);
+      /** delete spatial filter if it exists */
+      if (this.spatialFilterEnabled()) {
+        this.utilService.deleteSpatialFilter();
+      }
+    }
+    /** if there is only a spatial filter, delete and redraw map */
+    if (
+      !this.filterProps ||
+      (Object.keys(this.filterProps).length === 0 &&
+        this.spatialFilterEnabled())
+    ) {
+      this.utilService.deleteSpatialFilter();
+      this.updateBuildingLayerColour();
+    }
+  }
+
   private navigate(queryParams: Params) {
     this.zone.run(() => {
       this.router.navigate(['/'], {
@@ -420,5 +487,16 @@ export class ShellComponent implements AfterViewInit, OnChanges {
         queryParamsHandling: 'merge',
       });
     });
+  }
+
+  private aggregateEPC(
+    contextData: FeatureCollection<Geometry, GeoJsonProperties>[],
+    buildings: BuildingMap
+  ) {
+    const aggregateData = this.utilService.createAddressPoints(
+      Object.values(buildings).flat(),
+      contextData
+    );
+    return aggregateData;
   }
 }

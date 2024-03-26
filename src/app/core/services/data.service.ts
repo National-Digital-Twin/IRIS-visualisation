@@ -13,10 +13,13 @@ import {
 } from 'rxjs';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 
+import { FeatureCollection } from 'geojson';
+
 import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
 import { WRITE_BACK_ENDPOINT } from '@core/tokens/write-back-endpoint.token';
 import { SPARQLReturn, TableRow } from '@core/models/rdf-data.model';
 import { BuildingMap, BuildingModel } from '@core/models/building.model';
+import { MapLayerConfig } from '@core/models/map-layer-config.model';
 
 import { Queries } from './Queries';
 
@@ -35,6 +38,7 @@ import {
 import { FlagMap, FlagResponse } from '@core/types/flag-response';
 import { SAPPointMap, SAPPoint } from '@core/types/sap-point';
 import { FlagHistory } from '@core/types/flag-history';
+import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 
 type Loading<T> = T | 'loading';
 
@@ -45,6 +49,7 @@ export class DataService {
   private readonly http: HttpClient = inject(HttpClient);
   private readonly searchEndpoint: string = inject(SEARCH_ENDPOINT);
   private readonly writeBackEndpoint = inject(WRITE_BACK_ENDPOINT);
+  private runtimeConfig = inject(RUNTIME_CONFIGURATION);
 
   private queries = new Queries();
 
@@ -68,6 +73,9 @@ export class DataService {
   sapPoints$ = this.selectTable(this.queries.getSAPPoints()).pipe(
     map(points => this.mapSAPPointsToToids(points as unknown as SAPPoint[]))
   );
+
+  contextData$ = this.loadContextData();
+
   /** load all flags */
   flags$ = this.selectTable(this.queries.getAllFlaggedBuildings()).pipe(
     map(res => {
@@ -110,9 +118,9 @@ export class DataService {
     this.buildingsNoEPC$,
     this.buildingsFlagged$,
   ]).pipe(
-    map(([epc, noEPC, flagged]) => {
-      return this.combineBuildingData(epc, noEPC, flagged);
-    }),
+    map(([epc, noEPC, flagged]) =>
+      this.combineBuildingData(epc, noEPC, flagged)
+    ),
     tap(() => {
       this.loading.set(false);
     })
@@ -167,6 +175,20 @@ export class DataService {
       }
     );
     return tableObservable;
+  }
+
+  /**
+   * Loads all spatial context data
+   * @returns FeatureCollection[] Array of geojson
+   */
+  loadContextData(): Observable<FeatureCollection[]> {
+    const requests = this.runtimeConfig.contextLayers.map(
+      (mapLayerConfig: MapLayerConfig) =>
+        this.http.get<FeatureCollection>(
+          `assets/data/${mapLayerConfig.filename}`
+        )
+    );
+    return forkJoin(requests).pipe(map((data: FeatureCollection[]) => data));
   }
 
   /**
@@ -271,6 +293,8 @@ export class DataService {
         WallConstruction: parts.WallConstruction,
         WallInsulation: parts.WallInsulation,
         WindowGlazing: parts.WindowGlazing,
+        latitude: sapPoint?.latitude,
+        longitude: sapPoint?.longitude,
       };
       if (buildingMap[toid]) {
         buildingMap[toid].push(building);

@@ -29,6 +29,7 @@
     }
     <c477-main-filters
       [filterProps]="filterProps"
+      (clearAllFilters)="clearAllFilters()"
       (setRouteParams)="setFilterParams($event)"
       (setAdvancedFilters)="setAdvancedFilters($event)"
       (addressSelected)="setSelectedBuildingTOID($event)"></c477-main-filters>
@@ -46,6 +47,7 @@
 
     <div class="content__map-container">
       <c477-map
+        [contextData]="contextData$ | async"
         [spatialFilterEnabled]="spatialFilterEnabled()"
         [mapConfig]="mapConfig"
         (setRouteParams)="setRouteMapParams($event)"

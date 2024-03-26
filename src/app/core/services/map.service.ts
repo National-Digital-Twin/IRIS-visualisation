@@ -8,6 +8,7 @@ import { AsyncSubject, Observable, first, EMPTY, catchError, tap } from 'rxjs';
 import { MapEvent, Map as MapboxMap } from '!mapbox-gl';
 import {
   Expression,
+  GeoJSONSource,
   Layer,
   LngLatBounds,
   RasterDemSource,
@@ -22,6 +23,7 @@ import { URLStateModel } from '@core/models/url-state.model';
 import { environment } from 'src/environments/environment';
 
 import { from, forkJoin, take } from 'rxjs';
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 /**
  * Service for the MapboxGLJS map
@@ -31,6 +33,7 @@ import { from, forkJoin, take } from 'rxjs';
 })
 export class MapService {
   mapInstance: MapboxMap;
+  drawControl!: MapboxDraw;
   mapCreated$: Observable<void>;
   mapLoaded$: Observable<void>;
   mapEvents: MapEvent;
@@ -56,7 +59,7 @@ export class MapService {
     });
   }
 
-  addMapSource(name: string, source: Source | RasterDemSource) {
+  addMapSource(name: string, source: Source | RasterDemSource | GeoJSONSource) {
     this.zone.runOutsideAngular(() => {
       this.mapInstance.addSource(name, source);
 
@@ -207,9 +210,17 @@ export class MapService {
       this.addLayers();
       this.addTerrainLayer();
       this.addEPCPatterns();
+      this.addDrawControl();
       this.mapLoaded.next(undefined);
       this.mapLoaded.complete();
     });
+  }
+
+  private addDrawControl() {
+    this.drawControl = new MapboxDraw({
+      displayControlsDefault: false,
+    });
+    this.mapInstance.addControl(this.drawControl, 'top-right');
   }
 
   private async addEPCPatterns() {
