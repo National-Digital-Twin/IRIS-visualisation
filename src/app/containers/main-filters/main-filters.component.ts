@@ -63,6 +63,7 @@ import {
 import { AddressSearchService } from '@core/services/address-search.service';
 import { AddressSearchData } from '@core/models/address-search-results.model';
 import { MapService } from '@core/services/map.service';
+import { SpatialQueryService } from '@core/services/spatial-query.service';
 
 @Component({
   selector: 'c477-main-filters',
@@ -96,6 +97,7 @@ export class MainFiltersComponent implements OnChanges {
   private fb: FormBuilder = inject(FormBuilder);
   private addressSearchService = inject(AddressSearchService);
   private mapService = inject(MapService);
+  private spatialQueryService = inject(SpatialQueryService);
   epcRatings: { [key: string]: string } = EPCRating;
   propertyTypes: { [key: string]: string } = PropertyType;
   addressSearch = new FormControl('');
@@ -104,6 +106,7 @@ export class MainFiltersComponent implements OnChanges {
   results$: Observable<AddressSearchData[]>;
   firstAddress?: AddressSearchData;
   numberFilters: number = 0;
+  spatialFilterEnabled = this.spatialQueryService.spatialFilterEnabled;
 
   filterFlagged: boolean = false;
 
@@ -313,7 +316,10 @@ export class MainFiltersComponent implements OnChanges {
   }
 
   filtersExist() {
-    return this.filterProps && Object.keys(this.filterProps).length > 0;
+    return (
+      (this.filterProps && Object.keys(this.filterProps).length > 0) ||
+      this.spatialFilterEnabled()
+    );
   }
 
   /**
