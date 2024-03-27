@@ -9,6 +9,16 @@
   padding: 1.5rem;
   box-shadow: $box-shadow;
   width: 15.5rem;
+
+  @include md {
+    top: auto;
+    bottom: max(
+      var(--arc-spacing-x-small),
+      calc(100vh - (55px + 1rem + (7 * 48px) + (4 * 10px) + 341px))
+    );
+    width: 12rem;
+  }
+
   h1 {
     font-size: var(--arc-font-size-large);
     margin-top: 0;
