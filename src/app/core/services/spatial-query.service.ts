@@ -3,10 +3,13 @@ import { Injectable, inject, signal } from '@angular/core';
 import bbox from '@turf/bbox';
 import { LngLat, LngLatBounds } from 'mapbox-gl';
 import { BBox, Polygon } from 'geojson';
+import { point } from '@turf/helpers';
+import booleanWithin from '@turf/boolean-within';
 
 import { MapService } from './map.service';
 
 import { MapLayerFilter } from '@core/models/layer-filter.model';
+import { BuildingMap, BuildingModel } from '@core/models/building.model';
 
 /**
  * Service for selecting and filtering buildings
@@ -111,5 +114,27 @@ export class SpatialQueryService {
     const sw = this.mapService.mapInstance.project(latlngBounds._sw);
     const ne = this.mapService.mapInstance.project(latlngBounds._ne);
     return [sw, ne];
+  }
+
+  /**
+   * Find buildings within a polygon
+   * @param buildings buildings to check if within polygon
+   * @param polygon search area
+   * @returns
+   */
+  getAddressesInPolygon(
+    buildings: BuildingMap,
+    polygon: GeoJSON.Feature<Polygon>
+  ): BuildingModel[] {
+    const addresses: BuildingModel[] = [];
+    Object.values(buildings)
+      .flat()
+      .forEach((b: BuildingModel) => {
+        const pt = point([+b.longitude!, +b.latitude!]);
+        if (booleanWithin(pt, polygon)) {
+          addresses.push(b);
+        }
+      });
+    return addresses;
   }
 }
