@@ -12,14 +12,20 @@
   &__text {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     @include md {
       font-size: var(--arc-font-size-x-small);
     }
   }
+  &__text-epc,
+  &__expired-text {
+    display: flex;
+    align-items: center;
+  }
 
   &__epc {
     display: grid;
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: 1fr 2.5fr;
 
     @include md {
       grid-template-columns: 1fr 3fr;
@@ -87,6 +93,9 @@
         background-image: url('../../assets/icons/Spots.svg');
         background-repeat: repeat;
       }
+    }
+    &--expired {
+      color: $color-warn;
     }
   }
 

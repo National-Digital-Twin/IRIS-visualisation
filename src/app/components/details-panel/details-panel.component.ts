@@ -105,6 +105,10 @@ export class DetailsPanelComponent implements OnInit {
     );
   }
 
+  epcExpired() {
+    return this.utilService.epcExpired(this.buildingDetails()?.InspectionDate);
+  }
+
   openDownloadWarning() {
     this.dialog
       .open<
