@@ -162,6 +162,11 @@ export class ShellComponent implements AfterViewInit, OnChanges {
         }
       })
     );
+
+    // close minimap by default on smaller screens
+    if (window.innerWidth < 1280) {
+      this.showMinimap = false;
+    }
   }
 
   public ngAfterViewInit(): void {

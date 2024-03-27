@@ -1,14 +1,21 @@
 .label {
   border-radius: 4px;
-  padding-right: 1rem;
+  padding-right: var(--arc-spacing-small);
   margin: 0;
   line-height: var(--arc-line-height-dense);
   border: 1px solid;
+
+  @include md {
+    padding-right: var(--arc-spacing-x-small);
+  }
 
   &__text {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    @include md {
+      font-size: var(--arc-font-size-x-small);
+    }
   }
   &__text-epc,
   &__expired-text {
@@ -20,8 +27,16 @@
     display: grid;
     grid-template-columns: 1fr 2.5fr;
 
+    @include md {
+      grid-template-columns: 1fr 3fr;
+    }
+
     p {
-      margin: 0 0 0 1rem;
+      margin: 0 0 0 var(--arc-spacing-small);
+
+      @include md {
+        margin-left: var(--arc-spacing-x-small);
+      }
     }
     &--a {
       border-color: var(--c477-color--epc-a);

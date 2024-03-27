@@ -9,6 +9,14 @@
 
     border: 5px solid white;
     border-radius: 0.25rem;
+
+    @include md {
+      bottom: 4rem;
+    }
+
+    @include xs {
+      bottom: 8.5rem;
+    }
   }
 
   &__map {

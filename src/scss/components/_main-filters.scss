@@ -6,12 +6,26 @@
   display: flex;
   align-items: flex-start;
 
+  @include md {
+    top: 4rem;
+    left: var(--arc-spacing-small);
+    flex-direction: column;
+    width: $md-results-panel-width;
+  }
+
   .search {
-    width: 26.5rem;
+    width: $panel-width;
     margin-right: var(--arc-spacing-x-small);
     .mdc-text-field--filled:not(.mdc-text-field--disabled) {
       background: var(--bg);
       box-shadow: $box-shadow;
+    }
+
+    @include md {
+      width: $md-results-panel-width;
+      .mat-mdc-form-field-subscript-wrapper {
+        height: var(--arc-spacing-x-small);
+      }
     }
   }
 
@@ -24,7 +38,13 @@
     border-radius: 4px;
     box-shadow: $box-shadow;
 
+    @include md {
+      width: $md-results-panel-width;
+      margin-left: 0;
+    }
+
     .flag-filter {
+      display: flex;
       span {
         font-size: 1rem;
         margin: 0 var(--arc-spacing-x-small) 0 var(--arc-spacing-small);
@@ -59,14 +79,34 @@
     }
   }
 
+  .filters-button-container {
+    @include md {
+      display: flex;
+      justify-content: space-between;
+      width: $md-results-panel-width;
+      gap: var(--arc-spacing-x-small);
+    }
+  }
+
   .filters-button {
     margin-top: 0;
-    margin-left: 0.5rem;
+    margin-left: var(--arc-spacing-x-small);
     height: 3.5rem;
     box-shadow: $box-shadow;
     --mdc-filled-button-container-color: rgb(
       var(--arc-container-color)
     ) !important;
+
+    .mat-badge-active {
+      z-index: $panel-z-index;
+    }
+
+    @include md {
+      margin-top: var(--arc-spacing-x-small);
+      margin-left: 0;
+      height: auto;
+      width: 100%;
+    }
   }
 
   .mdc-text-field--filled:not(.mdc-text-field--disabled) {
@@ -94,5 +134,17 @@
     border-color: $color-warn;
     border: solid;
     border-width: 1px;
+  }
+}
+
+@include md {
+  .mat-mdc-option {
+    padding-left: var(--arc-spacing-x-small) !important;
+    padding-right: var(--arc-spacing-x-small) !important;
+    min-height: 2.5rem !important;
+
+    .mat-pseudo-checkbox-full {
+      margin-right: var(--arc-spacing-x-small) !important;
+    }
   }
 }
