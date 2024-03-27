@@ -15,8 +15,22 @@
   flex-direction: column;
   justify-content: space-between;
 
+  @include md {
+    width: 16rem;
+    top: 4rem;
+    height: calc(100vh - 4.75rem);
+  }
+
+  @include xs {
+    height: calc(100vh - 9.25rem);
+  }
+
   &--results-open {
-    left: 28.5rem;
+    left: calc($panel-width + 2rem);
+
+    @include md {
+      left: calc($md-results-panel-width + 1.5rem);
+    }
   }
 
   &__info-container {
@@ -123,6 +137,7 @@
         align-items: center !important;
         gap: 0.5rem;
         font-size: var(--arc-font-size-x-small);
+        line-height: var(--arc-line-height-dense);
       }
     }
   }

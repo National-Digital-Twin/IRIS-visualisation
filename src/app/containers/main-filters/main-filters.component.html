@@ -82,18 +82,22 @@
         (change)="flaggedFilterChange($event)"></mat-slide-toggle>
     </div>
   </div>
-  <button
-    class="filters-button"
-    mat-flat-button
-    [matBadge]="numberFilters"
-    [matBadgeHidden]="numberFilters === 0"
-    (click)="openAdvancedFilters()">
-    Advanced Filters <mat-icon iconPositionEnd>add</mat-icon>
-  </button>
-  <button class="filters-button clear" mat-flat-button (click)="clearAll()">
-    <mat-icon iconPositionStart class="material-icons-outlined"
-      >cancel</mat-icon
-    >
-    Clear All Filters
-  </button>
+  <div class="filters-button-container">
+    <button
+      class="filters-button"
+      mat-flat-button
+      [matBadge]="numberFilters"
+      [matBadgeHidden]="numberFilters === 0"
+      (click)="openAdvancedFilters()">
+      Advanced Filters <mat-icon iconPositionEnd>add</mat-icon>
+    </button>
+    @if (filtersExist()) {
+      <button class="filters-button clear" mat-flat-button (click)="clearAll()">
+        <mat-icon iconPositionStart class="material-icons-outlined"
+          >cancel</mat-icon
+        >
+        Clear All Filters
+      </button>
+    }
+  </div>
 </div>
