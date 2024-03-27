@@ -306,8 +306,6 @@ export class ShellComponent implements AfterViewInit, OnChanges {
       buildings!,
       searchGeom!
     );
-
-    this.utilService.deleteSpatialFilter();
     let addresses: string[] = [];
     let addressCount = undefined;
     if (buildingsToDownload.length <= 10) {
