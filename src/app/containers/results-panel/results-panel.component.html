@@ -1,4 +1,8 @@
-@if (buildingSelection()) {
+@if (
+  buildingSelection() &&
+  this.mapService.mapInstance &&
+  this.mapService.mapInstance.getZoom() > 15
+) {
   <div
     class="panel results-panel"
     [ngClass]="{ 'results-panel--closed': !panelOpen }">

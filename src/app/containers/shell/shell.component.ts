@@ -402,6 +402,10 @@ export class ShellComponent implements AfterViewInit, OnChanges {
 
   setRouteMapParams(params: URLStateModel) {
     const { bearing, center, pitch, zoom } = params;
+    /** deselect building if buildings no longer visible */
+    if (zoom < 15) {
+      this.setSelectedBuildingTOID(null);
+    }
     const queryParams = {
       bearing,
       lat: center[1],
