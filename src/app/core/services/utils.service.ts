@@ -433,6 +433,15 @@ export class UtilService {
     return filteredBuildings;
   }
 
+  epcExpired(inspectionDate: string | undefined): boolean {
+    if (!inspectionDate) {
+      return false;
+    }
+    const tenYearsAgo = new Date();
+    tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
+    return new Date(inspectionDate) < tenYearsAgo;
+  }
+
   /**
    * Find buildings based on TOID
    * @param toid toid of building

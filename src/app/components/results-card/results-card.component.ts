@@ -66,6 +66,10 @@ export class ResultsCardComponent {
     return this.utilService.splitAddress(index, this.card?.FullAddress);
   }
 
+  epcExpired() {
+    return this.utilService.epcExpired(this.card.InspectionDate);
+  }
+
   openDownloadWarning() {
     this.dialog
       .open(DownloadWarningComponent, {

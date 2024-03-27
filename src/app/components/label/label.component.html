@@ -1,11 +1,17 @@
 <div
   *ngIf="epcRating; else BuildingType"
-  class="label label__epc"
-  [ngClass]="'label__epc--' + epcRating.toLowerCase()">
+  class="label label__epc label__epc--{{ epcRating.toLowerCase() }}"
+  [ngClass]="{ 'label__epc--expired': expired }">
   <div></div>
   @if (epcRating !== 'none' && epcRating !== 'avg') {
     <p class="label__text">
-      <span>EPC: {{ epcRating }}</span>
+      <span class="label__text-epc">
+        <span class="label__expired-text" *ngIf="expired">
+          <img src="assets/icons/Warning.svg" alt="" />
+          &nbsp; Expired&nbsp;
+        </span>
+        EPC: {{ epcRating }}</span
+      >
       @if (sapPoints) {
         <span> {{ sapPoints }}</span>
       }

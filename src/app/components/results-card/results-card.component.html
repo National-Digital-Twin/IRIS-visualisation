@@ -30,7 +30,9 @@
         {{ card.FullAddress }}
       </p>
       <div class="results-card__labels">
-        <c477-label [epcRating]="card.EPC"></c477-label>
+        <c477-label
+          [epcRating]="card.EPC"
+          [expired]="epcExpired()"></c477-label>
         @if (card.PropertyType) {
           <c477-label>{{ card.PropertyType }}</c477-label>
         }

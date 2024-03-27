@@ -17,7 +17,8 @@
         <div class="labels">
           <c477-label
             [epcRating]="buildingDetails()?.EPC"
-            [sapPoints]="buildingDetails()?.SAPPoints"></c477-label>
+            [sapPoints]="buildingDetails()?.SAPPoints"
+            [expired]="epcExpired()"></c477-label>
           @if (buildingDetails()?.PropertyType) {
             <c477-label>{{ buildingDetails()?.PropertyType }}</c477-label>
           }
@@ -43,7 +44,12 @@
               <p>
                 <span class="field">Inspection date:</span>
                 @if (buildingDetails()?.InspectionDate) {
-                  <span>{{ buildingDetails()?.InspectionDate | date }}</span>
+                  <span [class.expired]="epcExpired()"
+                    ><ng-container *ngIf="epcExpired()">
+                      <img src="assets/icons/Warning.svg" alt="" />
+                      &nbsp;</ng-container
+                    >{{ buildingDetails()?.InspectionDate | date }}</span
+                  >
                 } @else {
                   <span>No data</span>
                 }

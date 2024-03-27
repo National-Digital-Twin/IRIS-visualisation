@@ -30,6 +30,7 @@
     margin: 0;
     line-height: var(--arc-line-height-dense);
   }
+
   &__header {
     display: flex;
     align-items: center;
@@ -75,6 +76,12 @@
 
     .field {
       font-weight: 300;
+    }
+
+    .expired {
+      color: $color-warn;
+      display: flex;
+      align-items: center;
     }
 
     &--overview {
