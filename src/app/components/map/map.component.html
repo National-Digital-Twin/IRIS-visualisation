@@ -25,8 +25,8 @@
       <img
         [src]="
           theme === 'light'
-            ? 'assets/icons/NavigationArrow.svg'
-            : 'assets/icons/NavigationArrow_white.svg'
+            ? 'assets/icons/Compass.svg'
+            : 'assets/icons/Compass_white.svg'
         "
         [style]="'transform: rotate(' + bearing + 'deg)'"
         alt="reset to north" />
@@ -100,6 +100,22 @@
         [src]="'assets/icons/SpatialSearch_white.svg'"
         alt="draw polygon" />
     </button>
+    @if (spatialFilterEnabled && this.mapService.mapInstance.getZoom() < 15) {
+      <button
+        mat-icon-button
+        class="map-button"
+        (click)="downloadAddresses.emit()"
+        matTooltipPosition="before"
+        matTooltip="Download addresses">
+        <img
+          [src]="
+            theme === 'light'
+              ? 'assets/icons/Download.svg'
+              : 'assets/icons/Download_white.svg'
+          "
+          alt="download addresses" />
+      </button>
+    }
     <button
       [disabled]="!spatialFilterEnabled"
       [ngClass]="{

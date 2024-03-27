@@ -26,6 +26,7 @@ import { ResultsCardExpandableComponent } from '@components/results-card-expanda
 import { SettingsService, SETTINGS } from '@core/services/settings.service';
 import { DataService } from '@core/services/data.service';
 import { DataDownloadService } from '@core/services/data-download.service';
+import { MapService } from '@core/services/map.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { UtilService } from '@core/services/utils.service';
 
@@ -66,6 +67,7 @@ export class ResultsPanelComponent {
   private spatialQueryService = inject(SpatialQueryService);
   private utilService = inject(UtilService);
   private dataDownloadService = inject(DataDownloadService);
+  mapService = inject(MapService);
 
   selectedCardUPRN = this.utilService.selectedCardUPRN;
   selectedParentTOID = this.utilService.multiDwelling;

@@ -29,6 +29,7 @@ import {
   FillPaint,
   GeoJSONSourceRaw,
   MapLayerMouseEvent,
+  MapboxGeoJSONFeature,
   Popup,
 } from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
@@ -66,7 +67,7 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.settings.get(SETTINGS.ColorBlindMode)
   ).pipe(takeUntilDestroyed());
   private runtimeConfig = inject(RUNTIME_CONFIGURATION);
-  private mapService = inject(MapService);
+  mapService = inject(MapService);
   private utilsService = inject(UtilService);
 
   private drawControl!: MapboxDraw;
@@ -106,6 +107,8 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
     new EventEmitter<MinimapData>();
   @Output() toggleMinimap: EventEmitter<null> = new EventEmitter<null>();
 
+  @Output() downloadAddresses: EventEmitter<null> = new EventEmitter<null>();
+
   /** setup map */
   ngAfterViewInit() {
     if (this.runtimeConfig.map.style) {
@@ -130,6 +133,11 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
   ngOnChanges(changes: SimpleChanges) {
     if (changes.contextData && changes.contextData.currentValue) {
       this.addContextLayers();
+      /**
+       * add draw controls last so the draw layers are above
+       * all other layers
+       */
+      this.addControls();
     }
   }
 
@@ -138,7 +146,6 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.mapSubscription = this.mapService.mapLoaded$
       .pipe(
         tap(() => {
-          this.addControls();
           this.initMapEvents();
           this.updateMinimap();
         })
@@ -216,16 +223,32 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
       'click',
       'wards',
       (e: MapLayerMouseEvent) => {
-        this.wardsLayerClick(e);
+        /** check if the active draw layer is being clicked */
+        const features: MapboxGeoJSONFeature[] = this.mapService.mapInstance
+          .queryRenderedFeatures(e.point)
+          .filter(
+            (feature: MapboxGeoJSONFeature) =>
+              feature.source === 'mapbox-gl-draw-hot'
+          );
+        /** display popup if active draw layer is not being clicked */
+        if (features.length === 0) {
+          if (this.drawControl.getMode() !== 'draw_polygon') {
+            this.wardsLayerClick(e);
+          }
+        }
       }
     );
 
     this.mapService.mapInstance.on('mouseenter', 'wards', () => {
-      this.mapService.mapInstance.getCanvas().style.cursor = 'pointer';
+      if (this.drawControl.getMode() !== 'draw_polygon') {
+        this.mapService.mapInstance.getCanvas().style.cursor = 'pointer';
+      }
     });
 
     this.mapService.mapInstance.on('mouseleave', 'wards', () => {
-      this.mapService.mapInstance.getCanvas().style.cursor = '';
+      if (this.drawControl.getMode() !== 'draw_polygon') {
+        this.mapService.mapInstance.getCanvas().style.cursor = '';
+      }
     });
 
     /** update the minimap as the map moves */
@@ -253,10 +276,11 @@ export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   /**
-   * Add draw tool to the map but hide
-   * ui as we're using custom buttons
+   * Add draw tool to the map
    */
   addControls(): void {
+    /** add draw control to map instance */
+    this.mapService.addDrawControl();
     this.drawControl = this.mapService.drawControl;
   }
 
