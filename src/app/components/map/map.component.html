@@ -100,9 +100,7 @@
         [src]="'assets/icons/SpatialSearch_white.svg'"
         alt="draw polygon" />
     </button>
-    @if (
-      this.mapService.mapInstance && this.mapService.mapInstance.getZoom() < 15
-    ) {
+    @if (spatialFilterEnabled && this.mapService.mapInstance.getZoom() < 15) {
       <button
         mat-icon-button
         class="map-button"
