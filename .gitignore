@@ -46,3 +46,9 @@ Thumbs.db
 /src/configurations/local
 /src/environments/environment.local.ts
 /src/environments/keys.environment.ts
+
+# Nix
+result
+
+# SCI
+powerstat-*.log
