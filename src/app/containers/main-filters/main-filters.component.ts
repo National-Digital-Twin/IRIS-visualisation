@@ -312,6 +312,10 @@ export class MainFiltersComponent implements OnChanges {
     this.clearAllFilters.emit();
   }
 
+  filtersExist() {
+    return this.filterProps && Object.keys(this.filterProps).length > 0;
+  }
+
   /**
    * Check if search string is a IoW postcode.
    * @param query search string

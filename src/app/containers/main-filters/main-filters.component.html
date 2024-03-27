@@ -91,11 +91,13 @@
       (click)="openAdvancedFilters()">
       Advanced Filters <mat-icon iconPositionEnd>add</mat-icon>
     </button>
-    <button class="filters-button clear" mat-flat-button (click)="clearAll()">
-      <mat-icon iconPositionStart class="material-icons-outlined"
-        >cancel</mat-icon
-      >
-      Clear All Filters
-    </button>
+    @if (filtersExist()) {
+      <button class="filters-button clear" mat-flat-button (click)="clearAll()">
+        <mat-icon iconPositionStart class="material-icons-outlined"
+          >cancel</mat-icon
+        >
+        Clear All Filters
+      </button>
+    }
   </div>
 </div>
