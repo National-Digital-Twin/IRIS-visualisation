@@ -63,4 +63,9 @@
   // set viewport height to display cards
   height: calc(100vh - 10rem - 122px);
   width: $panel-width;
+
+  @include md {
+    height: calc(100vh - 15rem - 122px);
+    width: $md-results-panel-width;
+  }
 }
