@@ -1,9 +1,10 @@
-import { Injectable, inject } from '@angular/core';
-import { BuildingModel } from '@core/models/building.model';
+import { Injectable } from '@angular/core';
+
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { DataService } from './data.service';
 import { utils, writeFileXLSX } from 'xlsx';
+
+import { BuildingModel } from '@core/models/building.model';
 
 @Injectable({
   providedIn: 'root',
@@ -15,8 +16,6 @@ export class DataDownloadService {
   Any subsequent updates or modifications made to the original dataset will not be reflected in this downloaded version.
   Please ensure that you verify the currency of the data for your specific needs. We recommend referring back to the online version or consulting the relevant authoritative sources for the most up-to-date information.
 `;
-
-  private dataService = inject(DataService);
 
   downloadXlsxData(data: BuildingModel[]): void {
     const dateData = data.map(d => ({
