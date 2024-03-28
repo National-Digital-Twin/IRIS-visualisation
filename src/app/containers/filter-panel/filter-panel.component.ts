@@ -181,7 +181,6 @@ export class FilterPanelComponent implements OnDestroy {
     const validOptions = this.utilService.getValidFilters(
       this.advancedFiltersForm.value
     );
-    validOptions.EPCExpiry = this.expiredOptions;
     Object.keys(validOptions).forEach(key => {
       this.otherPanels.forEach(panel => {
         panel.filters.forEach(filter => {
