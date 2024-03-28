@@ -31,6 +31,10 @@
   &--results-open {
     left: calc($panel-width + 2rem);
     @include transition(left 0.5s ease);
+    @include md {
+      @include transition(left 0.5s ease);
+      left: calc($md-results-panel-width + 1.5rem);
+    }
   }
 
   &--results-collapsed {
