@@ -442,6 +442,15 @@ export class UtilService {
     return new Date(inspectionDate) < tenYearsAgo;
   }
 
+  epcInDate(inspectionDate: string | undefined): boolean {
+    if (!inspectionDate) {
+      return false;
+    }
+    const tenYearsAgo = new Date();
+    tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
+    return new Date(inspectionDate) >= tenYearsAgo;
+  }
+
   /**
    * Find buildings based on TOID
    * @param toid toid of building
@@ -863,7 +872,27 @@ export class UtilService {
       potentiallyFilteredBuildings
     ).flat();
 
-    return this.getUniqueOptions(advancedFilterKeys, flattenedBuildings);
+    const uniqueOptions = this.getUniqueOptions(
+      advancedFilterKeys,
+      flattenedBuildings
+    );
+
+    // determine which epc expiry options are valid
+    const validExpiry: string[] = [];
+    const expiredEPCValid = flattenedBuildings.find(b =>
+      this.epcExpired(b.InspectionDate)
+    );
+    const inDateEPCValid = flattenedBuildings.find(b =>
+      this.epcInDate(b.InspectionDate)
+    );
+    if (expiredEPCValid) {
+      validExpiry.push('EPC Expired');
+    }
+    if (inDateEPCValid) {
+      validExpiry.push('EPC In Date');
+    }
+
+    return { ...uniqueOptions, EPCExpiry: validExpiry };
   }
 
   getAllUniqueFilterOptions(filters: FilterProps) {
