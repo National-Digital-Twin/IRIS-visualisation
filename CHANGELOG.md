@@ -1,5 +1,40 @@
 # Changelog
 
+## [1.7.0](https://github.com/arup-group/C477-DBT-Vis/compare/v1.6.0...v1.7.0) (2024-03-28)
+
+
+### Features
+
+* :iphone: update responsiveness ([5bf6f2f](https://github.com/arup-group/C477-DBT-Vis/commit/5bf6f2f7e3164ee301b02294f350a600e3c93e6e))
+* :lipstick: first pass at responsive UI ([fbca4e8](https://github.com/arup-group/C477-DBT-Vis/commit/fbca4e88045d328822a2f3d26c7048a81037f200))
+* **data download:** add data download button and handlers ([fc7d3a8](https://github.com/arup-group/C477-DBT-Vis/commit/fc7d3a80a02c24af60977b5892dee1d2606d74de))
+* **data download:** display warning for large area download ([a445292](https://github.com/arup-group/C477-DBT-Vis/commit/a445292cc7709b4644f55fedf07e300ce67dd14e))
+* **data download:** find addresses in polygon ([a295b3b](https://github.com/arup-group/C477-DBT-Vis/commit/a295b3baf2ddab10cb854875f9607fa8e5c64628))
+* **data download:** hide results and details ([64a1077](https://github.com/arup-group/C477-DBT-Vis/commit/64a107722aa4b89967a98fdb215ce4aaaa2d768c))
+* **Details Panel:** :sparkles: add expired EPC styling to UI ([05940a7](https://github.com/arup-group/C477-DBT-Vis/commit/05940a79230b400c3fe2eeac30b7e914dbee04da))
+* **Filters:** :sparkles: add expired EPC filter ([9ded0ec](https://github.com/arup-group/C477-DBT-Vis/commit/9ded0ecaf800769d0d4aee13440995e0690f55e3))
+* **Filters:** :sparkles: hide clear all filters button when no filters are applied ([d1c7af7](https://github.com/arup-group/C477-DBT-Vis/commit/d1c7af7acf38930158954efe8e06d57e105d5598))
+* **filters:** add clear all filters button ([e138a58](https://github.com/arup-group/C477-DBT-Vis/commit/e138a5805425f9494fc23a48abe9fa360f81eb28))
+* **filters:** clear flagged filter ([6f23dad](https://github.com/arup-group/C477-DBT-Vis/commit/6f23dada8b74c40f32baff9edcbaeedd01472fa8))
+* **filters:** reset form when all filters cleared ([2dee419](https://github.com/arup-group/C477-DBT-Vis/commit/2dee41908e658705571fff8c1a9650e518fbf6f2))
+* **Map:** :sparkles: rotate north arrow with bearing ([8de88a7](https://github.com/arup-group/C477-DBT-Vis/commit/8de88a7a104606cf5ef76fcba436aa0845fc7683))
+* **spatial filter:** override draw tool styling ([08b50ec](https://github.com/arup-group/C477-DBT-Vis/commit/08b50ec090f5414888de3a64aba77e9d4d16d620))
+* **spatial filter:** set button styles for button state ([ef6771f](https://github.com/arup-group/C477-DBT-Vis/commit/ef6771fa14a885ec07a2a5606f500d24ddb24a98))
+
+
+### Bug Fixes
+
+* **buildings:** deselect building if not in filter ([bac9bf8](https://github.com/arup-group/C477-DBT-Vis/commit/bac9bf80d9e5eeff5000b6faaea0a1481f10f3ab))
+* **Details Panel:** :bug: fix gap between results and details panel for smaller screens ([889f8d4](https://github.com/arup-group/C477-DBT-Vis/commit/889f8d411f49567e536c9533bb08c736ed70d9a1))
+* **Details Panel:** :bug: move details panel to the left when results panel is collapsed ([3b8629d](https://github.com/arup-group/C477-DBT-Vis/commit/3b8629d5f5ad645b05bdc90ba335657278530c90))
+* **Filters:** :bug: add spatial filter to conditional clear all button ([5abaa8f](https://github.com/arup-group/C477-DBT-Vis/commit/5abaa8f6ffca33d6f12854b9b513bcb752f97b58))
+* **Filters:** :bug: add to clear all, remove console log ([905c950](https://github.com/arup-group/C477-DBT-Vis/commit/905c950a465c303c7c87627fa67450599a14c485))
+* **Filters:** :bug: fix advanced filters warning ([f7e5eac](https://github.com/arup-group/C477-DBT-Vis/commit/f7e5eac94f5f38e111dca5a432ed80619eee4bfb))
+* **filters:** delete polygon from draw tool on clear all ([6b8430e](https://github.com/arup-group/C477-DBT-Vis/commit/6b8430e41df86195e39c6fa50136ea5dda7b8c37))
+* **Results:** :bug: fixes viewport sizing cutting off results cards ([ea2fe74](https://github.com/arup-group/C477-DBT-Vis/commit/ea2fe74dc0df2ee3ec02a87c48599f72d1e5986b))
+* **spatial filter:** ensure all related state is cleared on deletion ([d83af25](https://github.com/arup-group/C477-DBT-Vis/commit/d83af255c68bff0f0df084f931f6b4c1851ed317))
+* **spatial filter:** remove spatial filter on draw create ([2ec5d66](https://github.com/arup-group/C477-DBT-Vis/commit/2ec5d665e734313d78cd3956f9326856d167e9a0))
+
 ## [1.6.0](https://github.com/arup-group/C477-DBT-Vis/compare/v1.5.0...v1.6.0) (2024-03-18)
 
 
