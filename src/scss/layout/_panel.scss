@@ -2,19 +2,30 @@
   position: absolute;
   z-index: $panel-z-index;
   left: 1rem;
-  bottom: 1rem;
+  top: 9rem;
   display: flex;
   height: calc(100vh - 10rem);
 
   @include md {
     left: var(--arc-spacing-small);
     height: calc(100vh - 15rem);
-    bottom: var(--arc-spacing-small);
+    top: 14.25rem;
   }
 
   @include xs {
-    bottom: 5rem;
     height: calc(100vh - 19.25rem);
+  }
+
+  &--collapsed {
+    height: $collapsed-panel-height;
+
+    @include md {
+      height: $md-collapsed-panel-height;
+    }
+
+    @include xs {
+      height: $md-collapsed-panel-height;
+    }
   }
 
   .panel {

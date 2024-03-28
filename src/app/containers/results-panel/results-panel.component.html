@@ -8,7 +8,7 @@
     [ngClass]="{ 'results-panel--closed': !panelOpen }">
     <c477-results-panel-button
       [numberResults]="buildingSelection()?.flat()?.length ?? 0"
-      (updatePanelStatus)="panelOpen = $event" />
+      (updatePanelStatus)="updatePanelOpen($event)" />
     @if (panelOpen) {
       <section>
         <div class="results-panel__header-container">

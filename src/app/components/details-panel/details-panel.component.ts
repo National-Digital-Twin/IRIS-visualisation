@@ -5,6 +5,7 @@ import {
   Output,
   OnInit,
   inject,
+  Input,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -62,6 +63,7 @@ export class DetailsPanelComponent implements OnInit {
   private readonly dataService = inject(DataService);
   private utilService = inject(UtilService);
 
+  @Input() resultsPanelCollapsed = false;
   @Output() closePanel: EventEmitter<null> = new EventEmitter();
   @Output() downloadData: EventEmitter<DownloadDataWarningResponse> =
     new EventEmitter();

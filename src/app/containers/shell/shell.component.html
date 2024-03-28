@@ -34,16 +34,22 @@
       (setAdvancedFilters)="setAdvancedFilters($event)"
       (addressSelected)="setSelectedBuildingTOID($event)"></c477-main-filters>
 
-    <div class="panel-container">
+    <div
+      class="panel-container"
+      [ngClass]="{ 'panel-container--collapsed': resultsPanelCollapsed }">
       <c477-results-panel
         (flag)="onFlag($event)"
-        (removeFlag)="onRemoveFlag($event)"></c477-results-panel>
+        (removeFlag)="onRemoveFlag($event)"
+        (resultsPanelCollapsed)="
+          resultsPanelCollapsed = $event
+        "></c477-results-panel>
     </div>
     <c477-details-panel
       (closePanel)="closeDetails()"
       (downloadData)="downloadData($event)"
       (flag)="onFlag($event)"
-      (removeFlag)="onRemoveFlag($event)"></c477-details-panel>
+      (removeFlag)="onRemoveFlag($event)"
+      [resultsPanelCollapsed]="resultsPanelCollapsed"></c477-details-panel>
 
     <div class="content__map-container">
       <c477-map

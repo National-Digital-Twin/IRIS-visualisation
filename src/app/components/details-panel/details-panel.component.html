@@ -1,7 +1,10 @@
 @if (buildingDetails()) {
   <div
     class="panel details-panel"
-    [ngClass]="{ 'details-panel--results-open': buildingSelection() }">
+    [ngClass]="{
+      'details-panel--results-open': buildingSelection(),
+      'details-panel--results-collapsed': resultsPanelCollapsed
+    }">
     <div class="details-panel__info-container">
       <div class="details-panel__header">
         <h1>

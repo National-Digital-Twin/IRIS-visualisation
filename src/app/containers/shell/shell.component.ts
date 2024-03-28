@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Params, Router } from '@angular/router';
-import { AsyncPipe, DOCUMENT } from '@angular/common';
+import { AsyncPipe, CommonModule, DOCUMENT } from '@angular/common';
 
 import {
   first,
@@ -82,6 +82,7 @@ import {
   selector: 'c477-shell',
   standalone: true,
   imports: [
+    CommonModule,
     DetailsPanelComponent,
     LoadingScreenComponent,
     MainFiltersComponent,
@@ -153,6 +154,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   minimapData?: MinimapData;
   showMinimap: boolean = true;
   spatialFilterEnabled = this.spatialQueryService.spatialFilterEnabled;
+  resultsPanelCollapsed: boolean = false;
 
   constructor() {
     this.contextData$ = combineLatest([
