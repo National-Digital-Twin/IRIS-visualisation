@@ -273,17 +273,16 @@ export class DataService {
       const parts = this.parseBuildingParts(row);
 
       const building: BuildingModel = {
-        BuildForm: row.BuildForm,
-        EPC: epc,
+        UPRN: row.UPRN,
+        TOID: toid,
+        ParentTOID: row.ParentTOID,
         FullAddress: row.FullAddress,
-        InspectionDate: row.InspectionDate,
         PostCode: row.PostCode,
         PropertyType: row.PropertyType,
-        UPRN: row.UPRN,
+        BuildForm: row.BuildForm,
+        InspectionDate: row.InspectionDate,
         YearOfAssessment: yearOfAssessment,
-        ParentTOID: row.ParentTOID,
-        TOID: toid,
-        Flagged: undefined,
+        EPC: epc,
         SAPPoints: sapPoint?.SAPPoint ? sapPoint.SAPPoint : undefined,
         FloorConstruction: parts.FloorConstruction,
         FloorInsulation: parts.FloorInsulation,
@@ -293,6 +292,7 @@ export class DataService {
         WallConstruction: parts.WallConstruction,
         WallInsulation: parts.WallInsulation,
         WindowGlazing: parts.WindowGlazing,
+        Flagged: undefined,
         latitude: sapPoint?.latitude,
         longitude: sapPoint?.longitude,
       };
