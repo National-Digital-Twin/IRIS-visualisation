@@ -15,10 +15,13 @@
   flex-direction: column;
   justify-content: space-between;
 
+  @include transition(left 0.5s ease);
+
   @include md {
     width: 16rem;
     top: 4rem;
     height: calc(100vh - 4.75rem);
+    left: calc($md-results-panel-width + 1.5rem);
   }
 
   @include xs {
@@ -27,8 +30,15 @@
 
   &--results-open {
     left: calc($panel-width + 2rem);
+    @include transition(left 0.5s ease);
+  }
+
+  &--results-collapsed {
+    @include transition(left 0.5s ease);
+    left: calc($collapsed-panel-width + 2rem);
 
     @include md {
+      @include transition(left 0.5s ease);
       left: calc($md-results-panel-width + 1.5rem);
     }
   }

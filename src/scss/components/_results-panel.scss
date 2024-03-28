@@ -6,7 +6,8 @@
   overflow-y: hidden;
   overflow-x: hidden;
 
-  @include transition(width 0.5s ease, height 0.4s ease);
+  @include transition2(width 0.5s ease, height 0.4s ease);
+
   @include md {
     padding: 0;
     width: $md-results-panel-width;
@@ -46,12 +47,14 @@
   }
 
   &--closed {
-    @include transition(width 0.5s ease, height 0.4s ease);
-    width: 18rem;
-    height: 5rem;
+    @include transition2(width 0.5s ease, height 0.4s ease);
+    width: $collapsed-panel-width;
+    height: $collapsed-panel-height;
 
     @include md {
-      height: 3.5rem;
+      @include transition(height 0.4s ease);
+      width: $md-results-panel-width;
+      height: $md-collapsed-panel-height;
     }
   }
 }

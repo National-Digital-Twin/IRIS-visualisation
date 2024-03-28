@@ -60,6 +60,7 @@ export class ResultsPanelComponent {
 
   @Output() flag = new EventEmitter<BuildingModel[]>();
   @Output() removeFlag = new EventEmitter<BuildingModel>();
+  @Output() resultsPanelCollapsed = new EventEmitter<boolean>();
 
   @ViewChild(CdkVirtualScrollViewport) viewPort?: CdkVirtualScrollViewport;
 
@@ -175,6 +176,11 @@ export class ResultsPanelComponent {
   getZoomCenter(TOID: string): number[] {
     const geomBB = this.spatialQueryService.getFeatureGeomBB(TOID);
     return [geomBB.getCenter().lng - 0.0005, geomBB.getCenter().lat];
+  }
+
+  updatePanelOpen(event: boolean) {
+    this.panelOpen = event;
+    this.resultsPanelCollapsed.emit(!event);
   }
 
   downloadAll() {
