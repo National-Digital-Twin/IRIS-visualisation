@@ -1,0 +1,19 @@
+<div class="information__modal">
+  <h1 mat-dialog-title>
+    <span> Download IRIS user guide </span>
+  </h1>
+  <div mat-dialog-content>
+    <p>
+      The user guide contains informations on the different features and
+      functionality of the IRIS tool, as well as a troubleshooting guide. The
+      troubleshooting guide is there to help with any issues you might encounter
+      when using the tool.
+    </p>
+  </div>
+  <div mat-dialog-actions>
+    <button (click)="downloadUserGuide()" mat-flat-button [color]="'primary'">
+      Download user guide
+    </button>
+    <button mat-button mat-dialog-close>Cancel</button>
+  </div>
+</div>

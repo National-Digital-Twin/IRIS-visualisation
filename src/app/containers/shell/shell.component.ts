@@ -33,6 +33,7 @@ import type { UserPreferences } from '@arc-web/components/src/components/accessi
 import type { ArcAccessibility, ArcSwitch } from '@arc-web/components';
 import '@arc-web/components/src/components/container/arc-container';
 import '@arc-web/components/src/components/switch/arc-switch';
+import '@arc-web/components/src/components/ph-icon/question/ph-icon-question';
 
 import { GeoJsonProperties, Geometry, Polygon } from 'geojson';
 import { FeatureCollection } from '@turf/helpers';
@@ -77,6 +78,7 @@ import {
   DownloadDataWarningData,
   DownloadDataWarningResponse,
 } from '@core/models/download-data-warning.model';
+import { InformationComponent } from '@components/information/information.component';
 
 @Component({
   selector: 'c477-shell',
@@ -564,5 +566,11 @@ export class ShellComponent implements AfterViewInit, OnChanges {
       contextData
     );
     return aggregateData;
+  }
+
+  showInfo() {
+    this.dialog.open<InformationComponent>(InformationComponent, {
+      panelClass: 'information',
+    });
   }
 }
