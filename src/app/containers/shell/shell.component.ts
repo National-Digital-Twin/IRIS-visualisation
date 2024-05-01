@@ -78,6 +78,7 @@ import {
   DownloadDataWarningData,
   DownloadDataWarningResponse,
 } from '@core/models/download-data-warning.model';
+import { InformationComponent } from '@components/information/information.component';
 
 @Component({
   selector: 'c477-shell',
@@ -568,6 +569,8 @@ export class ShellComponent implements AfterViewInit, OnChanges {
   }
 
   showInfo() {
-    console.log('show info');
+    this.dialog.open<InformationComponent>(InformationComponent, {
+      panelClass: 'information',
+    });
   }
 }
