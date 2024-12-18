@@ -137,12 +137,30 @@ export class MapService {
     });
   }
 
+  public transformUrlForProxy(
+    url: string,
+    domain: string,
+    proxy_path: string,
+    strip_auth: string
+  ): string {
+    const urlParts = url.split(domain);
+    let routeParams = urlParts[urlParts.length - 1];
+    const routeParamsNoToken = routeParams.split(strip_auth);
+    routeParams = routeParamsNoToken[0];
+
+    //TODO: replace with window.location/transparent-proxy when this is placed behind nginx
+    if (routeParams.startsWith('/')) {
+      return `http://localhost:5013/${proxy_path}/${routeParams.substring(1)}`;
+    } else {
+      return `http://localhost:5013/${proxy_path}/${routeParams}`;
+    }
+  }
+
   private createMap(config: URLStateModel) {
     NgZone.assertNotInAngularZone();
     const { bearing, center, pitch, zoom, style } = config;
 
     const accessToken = environment.mapbox.apiKey;
-    const apiKey = environment.os.apiKey;
 
     this.mapInstance = new MapboxMap({
       container: 'map',
@@ -155,17 +173,30 @@ export class MapService {
       // append OS api key and srs details to OS VTS requests
       transformRequest: (url: string) => {
         if (url.indexOf('api.os.uk') > -1) {
-          if (!/[?&]key=/.test(url)) url += '?key=' + apiKey;
-          return {
-            url: url + '&srs=3857',
-          };
-        } else {
-          return {
-            url: url,
-          };
+          // if (!/[?&]key=/.test(url)) url += '?key=' + apiKey;
+          url = this.transformUrlForProxy(url, 'api.os.uk', 'os', 'key');
+          url += '?srs=3857';
+        } else if (url.indexOf('api.mapbox.com') > -1) {
+          url = this.transformUrlForProxy(
+            url,
+            'api.mapbox.com',
+            'mapbox-api',
+            'access_token'
+          );
+        } else if (url.indexOf('events.mapbox.com') > -1) {
+          url = this.transformUrlForProxy(
+            url,
+            'events.mapbox.com',
+            'mapbox-events',
+            'access_token'
+          );
         }
+        return {
+          url: url,
+        };
       },
     });
+    // mapboxgl.setTelemetryEnabled(false);
   }
 
   addTerrainLayer() {

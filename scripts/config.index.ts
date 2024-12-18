@@ -6,8 +6,6 @@ const production = env == 'prod' ? true : false;
 
 const mapboxKey = process.env.MAPBOX_API_KEY;
 
-const osAPIKey = process.env.OS_API_KEY;
-
 const posthogAPIKey = process.env.POSTHOG_KEY;
 
 const targetPath = `./src/environments/environment.ts`;

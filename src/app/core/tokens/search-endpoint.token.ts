@@ -7,7 +7,7 @@ import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token'
  * Factory function to create an search endpoint string.
  */
 function searchEndpointFactory(): string {
-  return `${inject(RUNTIME_CONFIGURATION).apiURL}/api/sparql/knowledge/query`;
+  return `${inject(RUNTIME_CONFIGURATION).apiURL}/knowledge/query`;
 }
 
 /**
