@@ -184,20 +184,17 @@ export class MapService {
     NgZone.assertNotInAngularZone();
     const { bearing, center, pitch, zoom, style } = config;
 
-    const accessToken = environment.mapbox.apiKey;
-
     this.mapInstance = new MapboxMap({
       container: 'map',
-      accessToken,
+      accessToken: 'undefined',
       pitch,
       zoom,
       center,
       bearing,
       style,
-      // append OS api key and srs details to OS VTS requests
+      // transform requests to use proxy
       transformRequest: (url: string) => {
         if (url.indexOf('api.os.uk') > -1) {
-          // if (!/[?&]key=/.test(url)) url += '?key=' + apiKey;
           url = this.transformUrlForProxy(url, 'api.os.uk', 'os', 'key');
           url = url.slice(-1) == '?' ? url + 'srs=3857' : url + '?srs=3857';
         } else if (url.indexOf('api.mapbox.com') > -1) {

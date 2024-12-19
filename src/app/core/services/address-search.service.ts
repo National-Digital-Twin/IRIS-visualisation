@@ -49,6 +49,7 @@ export class AddressSearchService {
    * @param queryString address search query
    * @returns suggested address matches
    */
+  // TODO: this also needs replacing with a proxy forward but cannot be properly tested until data is loaded into IRIS
   getAddresses(queryString: string): Observable<AddressSearchData[]> {
     return this.http
       .get<AddressSearchResponse>(

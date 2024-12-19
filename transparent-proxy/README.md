@@ -11,16 +11,16 @@ It's nginx, in a Docker container. The config is brought in from files in this d
 Building it, as an example:
 
 ```bash
-docker build --tag paralog-transparent-proxy:latest .
+docker build --tag iris-transparent-proxy:latest .
 ```
 
 When run, various access keys need to be passed in as environment variables. Currently this is:
 
-- `ADMIRALTY_API_KEY`, and
-- `REALTIME_TRAINS_API_KEY`.
+- `OS_API_KEY`, and
+- `MAPBOX_ACCESS_TOKEN`.
 
 It can be run for example as:
 
 ```bash
-docker run -ti -p 5013:80 --env ADMIRALTY_API_KEY=... --env REALTIME_TRAINS_API_KEY=... paralog-transparent-proxy:latest
+docker run -ti -p 5013:80 --env OS_API_KEY=... --env MAPBOX_ACCESS_TOKEN=... iris-transparent-proxy:latest
 ```

@@ -1,6 +1,5 @@
 import { Component, Input, inject, OnChanges, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { environment } from 'src/environments/environment';
 import mapboxgl, { GeoJSONSource } from 'mapbox-gl';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
@@ -35,14 +34,12 @@ export class MinimapComponent implements OnInit, OnChanges {
     if (
       this.runtimeConfig.map.style &&
       this.runtimeConfig.map.center &&
-      this.runtimeConfig.minimap.zoom &&
-      environment.mapbox.apiKey
+      this.runtimeConfig.minimap.zoom
     ) {
-      const accessToken = environment.mapbox.apiKey;
       const theme = this.theme();
       this.arrow = theme === 'dark' ? 'arrow-light' : 'arrow-dark';
       this.map = new mapboxgl.Map({
-        accessToken,
+        accessToken: 'undefined',
         container: 'minimap',
         style: this.runtimeConfig.map.style[theme],
         zoom: this.runtimeConfig.minimap.zoom,
@@ -58,7 +55,7 @@ export class MinimapComponent implements OnInit, OnChanges {
               'os',
               'key'
             );
-            url += '?srs=3857';
+            url = url.slice(-1) == '?' ? url + 'srs=3857' : url + '?srs=3857';
           }
 
           return {
