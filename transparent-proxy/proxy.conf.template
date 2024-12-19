@@ -33,14 +33,26 @@ server {
 
         set $api_key_qs ${delimeter}key=$OS_API_KEY;
 
-        if ($request_uri ~ ^/os/(.*)) {
-            set $requested_path $1;
+         set $rewritten "false";
+
+        # rewrite the url to place the fonts query string in correct place in the route.
+        if ($request_uri ~ ^/os/(.*)/fonts/(.*)(&fonts=.*)(.*)) {
+            rewrite ^ $request_uri;
+            rewrite ^/os/(.*)/fonts/(.*)(&fonts=.*)(.*) $1/fonts/$arg_fonts/$2$4 break;
+            return 400;
+            set $rewritten "true";
+        }
+
+        if ($rewritten = "false") {
+            rewrite ^ $request_uri;
+            rewrite ^/os/(.*) $1 break;
+            return 400;
         }
 
         proxy_ssl_server_name on;
         proxy_ssl_name "api.os.uk";
         proxy_set_header Host api.os.uk;
-        proxy_pass https://api.os.uk/$requested_path$api_key_qs;
+        proxy_pass https://api.os.uk/$uri$api_key_qs;
     }
 
     # Mapbox

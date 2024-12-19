@@ -137,23 +137,47 @@ export class MapService {
     });
   }
 
+  public encodeFonts(routeParams: string, url: string): string {
+    // pick out the request font from the path parameters, encode it and include it in the query string parameters.
+    if (routeParams.includes('fonts')) {
+      const requestedFont = routeParams.match(/fonts\/(.*)\//);
+      if (requestedFont) {
+        const encodedRequestedFont = encodeURIComponent(requestedFont[1]);
+
+        if (routeParams.includes('?')) {
+          url += `&fonts=${encodedRequestedFont}`;
+        } else {
+          url += `?fonts=${encodedRequestedFont}`;
+        }
+
+        return url.replace(`/${requestedFont}/`, '/');
+      }
+    }
+
+    return url;
+  }
+
   public transformUrlForProxy(
     url: string,
     domain: string,
     proxy_path: string,
     strip_auth: string
   ): string {
+    const proxyUrl = environment.transparent_proxy.url;
     const urlParts = url.split(domain);
     let routeParams = urlParts[urlParts.length - 1];
     const routeParamsNoToken = routeParams.split(strip_auth);
     routeParams = routeParamsNoToken[0];
+    let transformedUrl = '';
 
     //TODO: replace with window.location/transparent-proxy when this is placed behind nginx
     if (routeParams.startsWith('/')) {
-      return `http://localhost:5013/${proxy_path}/${routeParams.substring(1)}`;
+      transformedUrl = `${proxyUrl}/${proxy_path}/${routeParams.substring(1)}`;
     } else {
-      return `http://localhost:5013/${proxy_path}/${routeParams}`;
+      transformedUrl = `${proxyUrl}/${proxy_path}/${routeParams}`;
     }
+
+    return this.encodeFonts(routeParams, transformedUrl);
   }
 
   private createMap(config: URLStateModel) {
@@ -175,7 +199,7 @@ export class MapService {
         if (url.indexOf('api.os.uk') > -1) {
           // if (!/[?&]key=/.test(url)) url += '?key=' + apiKey;
           url = this.transformUrlForProxy(url, 'api.os.uk', 'os', 'key');
-          url += '?srs=3857';
+          url = url.slice(-1) == '?' ? url + 'srs=3857' : url + '?srs=3857';
         } else if (url.indexOf('api.mapbox.com') > -1) {
           url = this.transformUrlForProxy(
             url,

@@ -9,4 +9,7 @@ export const environment = {
   posthog: {
     apiKey: 'undefined',
   },
+  transparent_proxy: {
+    url: 'undefined',
+  },
 };
