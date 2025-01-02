@@ -31,9 +31,15 @@ server {
             set $delimeter "&";
         }
 
-        set $api_key_qs ${delimeter}key=$OS_API_KEY;
+        if ($request_uri ~ ^/os/maps/vector/(.*)) {
+            set $api_key_qs ${delimeter}key=$OS_VECTOR_API_KEY;
+        }
 
-         set $rewritten "false";
+        if ($request_uri ~ ^/os/search/places/(.*)) {
+            set $api_key_qs ${delimeter}key=$OS_PLACES_API_KEY;
+        }
+
+        set $rewritten "false";
 
         # rewrite the url to place the fonts query string in correct place in the route.
         if ($request_uri ~ ^/os/(.*)/fonts/(.*)(&fonts=.*)(.*)) {

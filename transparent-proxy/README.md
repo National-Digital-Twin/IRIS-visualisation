@@ -16,11 +16,12 @@ docker build --tag iris-transparent-proxy:latest .
 
 When run, various access keys need to be passed in as environment variables. Currently this is:
 
-- `OS_API_KEY`, and
+- `OS_VECTOR_API_KEY`, and
+- `OS_PLACES_API_KEY`, and
 - `MAPBOX_ACCESS_TOKEN`.
 
 It can be run for example as:
 
 ```bash
-docker run -ti -p 5013:80 --env OS_API_KEY=... --env MAPBOX_ACCESS_TOKEN=... iris-transparent-proxy:latest
+docker run -ti -p 5013:80 --env OS_VECTOR_API_KEY=... --env OS_PLACES_API_KEY=... --env MAPBOX_ACCESS_TOKEN=... iris-transparent-proxy:latest
 ```
