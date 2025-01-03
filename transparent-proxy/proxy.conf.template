@@ -30,14 +30,14 @@ server {
     ## BEGIN UPSTREAM DEFINITIONS
 
     # OS vector
-    location /os/ {
+    location transparent-proxy/os/ {
         set $delimeter "?";
 
         if ($is_args) {
             set $delimeter "&";
         }
 
-        if ($request_uri ~ ^/os/(.*)) {
+        if ($request_uri ~ ^transparent-proxy/os/(.*)) {
             set $requested_path $1;
         }
 
