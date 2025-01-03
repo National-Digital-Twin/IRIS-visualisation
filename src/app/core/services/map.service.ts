@@ -157,9 +157,6 @@ export class MapService {
       transformedUrl = `${proxyUrl}/${proxy_path}/${routeParams}`;
     }
 
-    // remove the api key query string parameter from the transformed url.
-    transformedUrl = transformedUrl.replace(/\?key=[^&]+&/, '?');
-
     return transformedUrl;
   }
 
