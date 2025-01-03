@@ -37,7 +37,7 @@ server {
             set $delimeter "&";
         }
 
-        if ($request_uri ~ ^/transparent-proxy/os/(.*)) {
+        if ($uri ~ ^/transparent-proxy/os/(.*)) {
             set $requested_path $1;
         }
 
@@ -51,7 +51,7 @@ server {
 
         proxy_ssl_server_name on;
         proxy_ssl_name "api.os.uk";
-        proxy_pass https://api.os.uk/$requested_path$api_key_qs;
+        proxy_pass https://api.os.uk/$requested_path?$args$api_key_qs;
     }
 
     # Mapbox
