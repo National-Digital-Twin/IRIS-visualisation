@@ -157,7 +157,7 @@ export class MapService {
       transformedUrl = `${proxyUrl}/${proxy_path}/${routeParams}`;
     }
 
-    return transformedUrl;
+    return decodeURI(transformedUrl);
   }
 
   private createMap(config: URLStateModel) {
