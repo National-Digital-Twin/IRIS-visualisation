@@ -1,0 +1,9 @@
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: "cognito-authentication-request"
+
+spec:
+  jwtRules:
+    - issuer: "https://cognito-idp.eu-west-2.amazonaws.com/eu-west-2_24fOCjndV"
+      jwksUri: "https://cognito-idp.eu-west-2.amazonaws.com/eu-west-2_24fOCjndV/.well-known/jwks.json"

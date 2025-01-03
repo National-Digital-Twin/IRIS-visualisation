@@ -1,0 +1,34 @@
+resources:
+  - ../../base
+
+namespace: iris
+
+configMapGenerator:
+  - name: iris-visualiser-configs
+    envs:
+      - params.env
+secretGenerator:
+  - name: iris-visualiser-secrets
+    envs:
+      - secrets.env
+
+patches:
+  - path: patches/gateway.yaml
+    target:
+      kind: Gateway
+  - path: patches/allow-ingress-to-visualiser.yaml
+    target:
+      kind: AuthorizationPolicy
+
+
+labels:
+  - pairs:
+      env: demo
+
+
+images:
+  - name: iris-visualiser-image
+    newName: 503561419905.dkr.ecr.eu-west-2.amazonaws.com/iris/visualiser
+    newTag: '1735904372'
+
+

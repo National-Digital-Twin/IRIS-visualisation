@@ -21,6 +21,12 @@ server {
     # Don't pass on Authorization headers if we receive them
     proxy_set_header Authorization "";
 
+  location  /transparent-proxy/health {
+            access_log off;
+            add_header 'Content-Type' 'application/json';
+            return 200 '{"status":"UP"}';
+    }
+
     ## BEGIN UPSTREAM DEFINITIONS
 
     # OS vector
@@ -49,7 +55,7 @@ server {
     }
 
     # Mapbox
-    location /mapbox-api/ {
+    location /transparent-proxy/mapbox-api/ {
         set $delimeter "?";
 
         if ($is_args) {
@@ -58,7 +64,7 @@ server {
 
         set $access_token_qs ${delimeter}access_token=$MAPBOX_ACCESS_TOKEN;
 
-        if ($request_uri ~ ^/mapbox-api/(.*)) {
+        if ($request_uri ~ ^/transparent-proxy/mapbox-api/(.*)) {
             set $requested_path $1;
         }
         proxy_ssl_server_name on;
@@ -75,7 +81,7 @@ server {
 
         set $access_token_qs ${delimeter}access_token=$MAPBOX_ACCESS_TOKEN;
 
-        if ($request_uri ~ ^/mapbox-events/(.*)) {
+        if ($request_uri ~ ^/transparent-proxy/mapbox-events/(.*)) {
             set $requested_path $1;
         }
         proxy_ssl_server_name on;
