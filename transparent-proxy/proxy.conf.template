@@ -21,48 +21,31 @@ server {
     # Don't pass on Authorization headers if we receive them
     proxy_set_header Authorization "";
 
+  location  /transparent-proxy/health {
+            access_log off;
+            add_header 'Content-Type' 'application/json';
+            return 200 '{"status":"UP"}';
+    }
+
     ## BEGIN UPSTREAM DEFINITIONS
 
     # OS vector
-    location /os/ {
-        set $delimeter "?";
 
-        if ($is_args) {
-            set $delimeter "&";
-        }
+    location /transparent-proxy/os/ {
+    set $delimeter "?";
 
-        if ($request_uri ~ ^/os/maps/vector/(.*)) {
-            set $api_key_qs ${delimeter}key=$OS_VECTOR_API_KEY;
-        }
+    if ($is_args) {
+    set $delimeter "&";
+    }
+    set $api_key_qs ${delimeter}key=$OS_VECTOR_API_KEY;
 
-        if ($request_uri ~ ^/os/search/places/(.*)) {
-            set $api_key_qs ${delimeter}key=$OS_PLACES_API_KEY;
-        }
-
-        set $rewritten "false";
-
-        # rewrite the url to place the fonts query string in correct place in the route.
-        if ($request_uri ~ ^/os/(.*)/fonts/(.*)(&fonts=.*)(.*)) {
-            rewrite ^ $request_uri;
-            rewrite ^/os/(.*)/fonts/(.*)(&fonts=.*)(.*) $1/fonts/$arg_fonts/$2$4 break;
-            return 400;
-            set $rewritten "true";
-        }
-
-        if ($rewritten = "false") {
-            rewrite ^ $request_uri;
-            rewrite ^/os/(.*) $1 break;
-            return 400;
-        }
-
-        proxy_ssl_server_name on;
-        proxy_ssl_name "api.os.uk";
-        proxy_set_header Host api.os.uk;
-        proxy_pass https://api.os.uk/$uri$api_key_qs;
+    proxy_pass https://api.os.uk/$request_uri$api_key_qs;
     }
 
+
+
     # Mapbox
-    location /mapbox-api/ {
+    location /transparent-proxy/mapbox-api/ {
         set $delimeter "?";
 
         if ($is_args) {
@@ -71,7 +54,7 @@ server {
 
         set $access_token_qs ${delimeter}access_token=$MAPBOX_ACCESS_TOKEN;
 
-        if ($request_uri ~ ^/mapbox-api/(.*)) {
+        if ($request_uri ~ ^/transparent-proxy/mapbox-api/(.*)) {
             set $requested_path $1;
         }
         proxy_ssl_server_name on;
@@ -88,7 +71,7 @@ server {
 
         set $access_token_qs ${delimeter}access_token=$MAPBOX_ACCESS_TOKEN;
 
-        if ($request_uri ~ ^/mapbox-events/(.*)) {
+        if ($request_uri ~ ^/transparent-proxy/mapbox-events/(.*)) {
             set $requested_path $1;
         }
         proxy_ssl_server_name on;

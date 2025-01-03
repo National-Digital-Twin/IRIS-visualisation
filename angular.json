@@ -44,7 +44,7 @@
           },
           "configurations": {
             "production": {
-              "baseHref": "/hostedapps/iris/",
+              "baseHref": "/",
               "assets": [
                 "src/favicon.ico",
                 "src/assets",
