@@ -137,26 +137,6 @@ export class MapService {
     });
   }
 
-  public encodeFonts(routeParams: string, url: string): string {
-    // pick out the request font from the path parameters, encode it and include it in the query string parameters.
-    if (routeParams.includes('fonts')) {
-      const requestedFont = routeParams.match(/fonts\/(.*)\//);
-      if (requestedFont) {
-        const encodedRequestedFont = encodeURIComponent(requestedFont[1]);
-
-        if (routeParams.includes('?')) {
-          url += `&fonts=${encodedRequestedFont}`;
-        } else {
-          url += `?fonts=${encodedRequestedFont}`;
-        }
-
-        return url.replace(`/${requestedFont}/`, '/');
-      }
-    }
-
-    return url;
-  }
-
   public transformUrlForProxy(
     url: string,
     domain: string,
@@ -177,7 +157,10 @@ export class MapService {
       transformedUrl = `${proxyUrl}/${proxy_path}/${routeParams}`;
     }
 
-    return this.encodeFonts(routeParams, transformedUrl);
+    // remove the api key query string parameter from the transformed url.
+    transformedUrl = transformedUrl.replace(/\?key=[^&]+&/, '?');
+
+    return transformedUrl;
   }
 
   private createMap(config: URLStateModel) {
