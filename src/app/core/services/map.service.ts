@@ -150,7 +150,6 @@ export class MapService {
     routeParams = routeParamsNoToken[0];
     let transformedUrl = '';
 
-    //TODO: replace with window.location/transparent-proxy when this is placed behind nginx
     if (routeParams.startsWith('/')) {
       transformedUrl = `${proxyUrl}/${proxy_path}/${routeParams.substring(1)}`;
     } else {
