@@ -543,7 +543,7 @@ export class DataService {
         `${this.writeBackEndpoint}/invalidate-flag`,
         {
           flagUri: building.Flagged,
-          assessmentTypeOverride: `ndt_ont:${key}`,
+          assessmentTypeOverride: `http://nationaldigitaltwin.gov.uk/ontology#${key}`,
         },
         { withCredentials: true }
       )
