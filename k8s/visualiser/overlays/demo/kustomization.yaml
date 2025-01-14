@@ -29,6 +29,6 @@ labels:
 images:
   - name: iris-visualiser-image
     newName: 503561419905.dkr.ecr.eu-west-2.amazonaws.com/iris/visualiser
-    newTag: '1735904372'
+    newTag: '1736456950'
 
 

@@ -28,7 +28,7 @@ spec:
 
       rewrite:
         uriRegexRewrite:
-          match: ^/transparent-proxy/(/|$)(.*)
+          match: ^/(/|$)(.*)
           rewrite: /\2
       route:
         - destination:

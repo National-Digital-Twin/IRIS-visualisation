@@ -29,6 +29,6 @@ labels:
 images:
   - name: iris-transparent-proxy-image
     newName: 503561419905.dkr.ecr.eu-west-2.amazonaws.com/iris/transparent-proxy
-    newTag: "1735903022"
+    newTag: "1736292556"
 
 
