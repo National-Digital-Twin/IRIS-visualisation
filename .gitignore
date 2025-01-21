@@ -52,3 +52,6 @@ result
 
 # SCI
 powerstat-*.log
+
+# Data
+/src/assets/data/*.json
