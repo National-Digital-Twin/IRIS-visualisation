@@ -39,6 +39,11 @@ import { FlagMap, FlagResponse } from '@core/types/flag-response';
 import { SAPPointMap, SAPPoint } from '@core/types/sap-point';
 import { FlagHistory } from '@core/types/flag-history';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
+import {
+  EPC_DATA_FILE_NAME,
+  NON_EPC_DATA_FILE_NAME,
+  SAP_DATA_FILE_NAME,
+} from '@core/tokens/cache.token';
 
 type Loading<T> = T | 'loading';
 
@@ -70,7 +75,10 @@ export class DataService {
 
   loading = signal<boolean>(true);
 
-  sapPoints$ = this.selectTable(this.queries.getSAPPoints()).pipe(
+  sapPoints$ = this.selectTable(
+    this.queries.getSAPPoints(),
+    inject(SAP_DATA_FILE_NAME)
+  ).pipe(
     map(points => this.mapSAPPointsToToids(points as unknown as SAPPoint[]))
   );
 
@@ -90,7 +98,7 @@ export class DataService {
   buildingsEPC$ = forkJoin([
     this.flags$,
     this.sapPoints$,
-    this.selectTable(this.queries.getEPCData()),
+    this.selectTable(this.queries.getEPCData(), inject(EPC_DATA_FILE_NAME)),
   ]).pipe(
     map(([flagMap, points, epc]) => {
       /** set flags */
@@ -102,7 +110,10 @@ export class DataService {
     })
   );
 
-  buildingsNoEPC$ = this.selectTable(this.queries.getNoEPCData()).pipe(
+  buildingsNoEPC$ = this.selectTable(
+    this.queries.getNoEPCData(),
+    inject(NON_EPC_DATA_FILE_NAME)
+  ).pipe(
     map(noEPC =>
       this.mapNonEPCBuildings(noEPC as unknown as NoEPCBuildingResponseModel[])
     )
@@ -156,9 +167,10 @@ export class DataService {
    * @param query SPARQL query
    * @returns observable of parsed data
    */
-  selectTable(query: string) {
+  selectTable(query: string, cacheUrl?: string) {
+    const url =
+      cacheUrl || `${this.searchEndpoint}?query=${encodeURIComponent(query)}`;
     let newTable: Array<TableRow>;
-    const uri = encodeURIComponent(query);
     const httpOptions = {
       withCredentials: true,
     };
@@ -166,7 +178,7 @@ export class DataService {
     const tableObservable = new Observable(
       (observer: Subscriber<TableRow[]>) => {
         this.http
-          .get<SPARQLReturn>(`${this.searchEndpoint}?query=${uri}`, httpOptions)
+          .get<SPARQLReturn>(url, httpOptions)
           .subscribe((data: SPARQLReturn) => {
             newTable = this.buildTable(data);
             observer.next(newTable);

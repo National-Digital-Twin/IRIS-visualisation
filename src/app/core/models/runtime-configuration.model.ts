@@ -28,6 +28,11 @@ export interface RuntimeConfigurationModel {
     localCustodianCode: number;
     maxResults: number;
   };
+  cache: {
+    epc: string;
+    sap: string;
+    nonEpc: string;
+  };
   /* Mapbox minimap config */
   minimap: {
     zoom: number;

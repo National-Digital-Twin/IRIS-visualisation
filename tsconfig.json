@@ -22,6 +22,7 @@
     "lib": ["ES2022", "dom"],
     "skipLibCheck": true,
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     "paths": {
       "@components/*": ["src/app/components/*"],
       "@containers/*": ["src/app/containers/*"],
