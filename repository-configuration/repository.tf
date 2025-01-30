@@ -45,6 +45,6 @@ resource "github_branch_protection" "main_branch_protection" {
 resource "github_repository_autolink_reference" "autolink" {
   repository = github_repository.repository.name
 
-  key_prefix = "${var.jira_project_id}-"
-  target_url_template = "https://ndtp.atlassian.net/browse/${var.jira_project_id}-<num>"
+  key_prefix = "${var.requirement_tracking_id}-"
+  target_url_template = "${var.requirement_tracking_url_base}/${var.requirement_tracking_id}-<num>"
 }
