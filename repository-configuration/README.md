@@ -4,17 +4,13 @@ This directory holds [OpenTofu](https://opentofu.org/) resources for managing th
 
 `export TF_VAR_token=<<GitHub access token>>`
 
-These resources apply branch protection policies consistent with the use of a [GitFlow](https://www.gitkraken.com/learn/git/git-flow) branching strategy. Given a repository may be in varying states of maturity, branches are not in themselves created programmatically. It is assumed develop, release/* and main branches already exist. If they do not, you can still apply these resources and later can create the target branches manually in your repository.
+These resources apply branch protection policies consistent with the use of a [GitFlow](https://nvie.com/posts/a-successful-git-branching-model/) branching strategy. Given a repository may be in varying states of maturity, branches are not in themselves created programmatically. It is assumed develop, release/* and main branches already exist. If they do not, you can still apply these resources and later can create the target branches manually in your repository.
 
 A second variable that must be supplied is that of your requirement tracking system. As an example, if the link to see the original issue or requirement was to be linked to https://example.com/requirement-system/DPAV-142, you would set this variable to "https://example.com/requirement-system" using the below command:
 
 `export TF_VAR_requirement_tracking_url_base=https://example.com/requirement-system`
 
 Once environment variables have been been set, you can initialise OpenTofu by running `tofu init`, followed by `tofu apply` to apply the configuration. If you are working on an existing repository, you must import the repository and any existing protection rules using the commands in the Importing existing resources section.
-
-## State Management
-
-The OpenTofu resources in this directory do not produce a statefile containing sensitive content or secrets. To avoid a need to store state in a remote (that may require access controls), the small statefile is managed via the repository itself. If you make changes to these resources that means sensitive values are persisted to the statefile, you will need to look at remote state management options (e.g., S3). Equally, consideration should be applied if a repository is being converted to a public repository on whether information about approval gates is appropriate for public consumption.
 
 ## Importing existing resources
 
