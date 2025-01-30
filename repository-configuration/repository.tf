@@ -40,3 +40,11 @@ resource "github_branch_protection" "main_branch_protection" {
     strict   = true
   }
 }
+
+# Autolink references
+resource "github_repository_autolink_reference" "autolink" {
+  repository = github_repository.repository.name
+
+  key_prefix = "${var.jira_project_id}-"
+  target_url_template = "https://ndtp.atlassian.net/browse/${var.jira_project_id}-<num>"
+}
