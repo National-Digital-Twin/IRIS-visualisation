@@ -55,3 +55,6 @@ powerstat-*.log
 
 # Data
 /src/assets/data/*.json
+
+# kubernetees secrets
+**/secrets.env
