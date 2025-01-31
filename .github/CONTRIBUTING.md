@@ -36,7 +36,7 @@ Before submitting a PR, ensure the following:
 
 - Your branch is based on the latest `develop` branch.
 - You have completed all required sections of the PR template.
-- The PR title follows the format: `[Feature/Fix] Short description` (e.g., `[Feature] Implement user authentication`).
+- The PR title follows the format: `[Feature/Fix] [Ticket ID] Short description` (e.g., `[Feature] [REQID-1] Implement user authentication`).
 - The code is properly formatted and linted.
 - Tests are included and pass.
 
