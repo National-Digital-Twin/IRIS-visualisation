@@ -1,0 +1,14 @@
+# Gzip a little more aggressively than the default
+gzip on;
+gzip_types
+    text/css
+    application/javascript
+    application/json
+    image/svg+xml
+    application/xml
+    text/xml
+    text/json
+;
+gzip_vary on;
+gzip_proxied any;
+gzip_comp_level 6;

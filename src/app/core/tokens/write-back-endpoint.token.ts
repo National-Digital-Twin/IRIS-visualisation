@@ -5,6 +5,6 @@ export const WRITE_BACK_ENDPOINT = new InjectionToken<string>(
   'WRITE_BACK_ENDPOINT',
   {
     providedIn: 'root',
-    factory: () => `${inject(RUNTIME_CONFIGURATION).apiURL}/api/write-back`,
+    factory: () => `/write-api`,
   }
 );

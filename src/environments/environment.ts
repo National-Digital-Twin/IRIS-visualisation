@@ -1,12 +1,16 @@
 export const environment = {
   production: true,
   mapbox: {
-    apiKey: 'undefined',
+    apiKeyapiKey:
+      'none',
   },
   os: {
-    apiKey: 'undefined',
+    apiKey: 'none',
   },
   posthog: {
-    apiKey: 'undefined',
+    apiKey: '',
+  },
+  transparent_proxy: {
+    url: 'https://iris.demo.ndtp.co.uk/transparent-proxy',
   },
 };

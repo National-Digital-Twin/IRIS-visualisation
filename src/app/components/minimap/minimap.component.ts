@@ -1,9 +1,9 @@
 import { Component, Input, inject, OnChanges, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { environment } from 'src/environments/environment';
 import mapboxgl, { GeoJSONSource } from 'mapbox-gl';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
+import { MapService } from '@core/services/map.service';
 import { skip } from 'rxjs';
 import { toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Feature, GeoJsonProperties, Geometry } from 'geojson';
@@ -22,6 +22,7 @@ export class MinimapComponent implements OnInit, OnChanges {
   private runtimeConfig = inject(RUNTIME_CONFIGURATION);
   private readonly theme = inject(SettingsService).get(SETTINGS.Theme);
   public readonly theme$ = toObservable(this.theme).pipe(takeUntilDestroyed());
+  mapService = inject(MapService);
   private arrow: string = 'arrow-dark';
   data = {
     type: 'Feature',
@@ -33,15 +34,12 @@ export class MinimapComponent implements OnInit, OnChanges {
     if (
       this.runtimeConfig.map.style &&
       this.runtimeConfig.map.center &&
-      this.runtimeConfig.minimap.zoom &&
-      environment.mapbox.apiKey
+      this.runtimeConfig.minimap.zoom
     ) {
-      const accessToken = environment.mapbox.apiKey;
-      const apiKey = environment.os.apiKey;
       const theme = this.theme();
       this.arrow = theme === 'dark' ? 'arrow-light' : 'arrow-dark';
       this.map = new mapboxgl.Map({
-        accessToken,
+        accessToken: 'undefined',
         container: 'minimap',
         style: this.runtimeConfig.map.style[theme],
         zoom: this.runtimeConfig.minimap.zoom,
@@ -51,15 +49,18 @@ export class MinimapComponent implements OnInit, OnChanges {
         // append OS api key and srs details to OS VTS requests
         transformRequest: (url: string) => {
           if (url.indexOf('api.os.uk') > -1) {
-            if (!/[?&]key=/.test(url)) url += '?key=' + apiKey;
-            return {
-              url: url + '&srs=3857',
-            };
-          } else {
-            return {
-              url: url,
-            };
+            url = this.mapService.transformUrlForProxy(
+              url,
+              'api.os.uk',
+              'os',
+              'key'
+            );
+            url = url.slice(-1) == '?' ? url + 'srs=3857' : url + '?srs=3857';
           }
+
+          return {
+            url: url,
+          };
         },
       });
 

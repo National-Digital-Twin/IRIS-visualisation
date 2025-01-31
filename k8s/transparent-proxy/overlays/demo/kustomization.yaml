@@ -1,0 +1,34 @@
+resources:
+  - ../../base
+
+namespace: iris
+
+configMapGenerator:
+  - name: iris-transparent-proxy-configs
+    envs:
+      - params.env
+secretGenerator:
+  - name: iris-transparent-proxy-secrets
+    envs:
+      - secrets.env
+
+patches:
+  - path: patches/gateway.yaml
+    target:
+      kind: Gateway
+  - path: patches/allow-ingress-to-transparent-proxy.yaml
+    target:
+      kind: AuthorizationPolicy
+
+
+labels:
+  - pairs:
+      env: demo
+
+
+images:
+  - name: iris-transparent-proxy-image
+    newName: 503561419905.dkr.ecr.eu-west-2.amazonaws.com/iris/transparent-proxy
+    newTag: "1736292556"
+
+

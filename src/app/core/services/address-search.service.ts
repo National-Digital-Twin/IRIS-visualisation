@@ -10,6 +10,7 @@ import {
   AddressSearchData,
   AddressSearchResponse,
 } from '@core/models/address-search-results.model';
+import { MapService } from '@core/services/map.service';
 import { OSNamesSearchResponse } from '@core/models/os-names-search-results.model';
 
 /**
@@ -33,6 +34,7 @@ export class AddressSearchService {
   private readonly maxResults: number =
     this.runtimeConfiguration.addressSearch.maxResults;
   private readonly fq: string = `LOCAL_CUSTODIAN_CODE:${this.runtimeConfiguration.addressSearch.localCustodianCode}`;
+  mapService = inject(MapService);
 
   constructor() {
     /**
@@ -49,15 +51,19 @@ export class AddressSearchService {
    * @param queryString address search query
    * @returns suggested address matches
    */
+  // TODO: this also needs replacing with a proxy forward but cannot be properly tested until data is loaded into IRIS
   getAddresses(queryString: string): Observable<AddressSearchData[]> {
+    const url: string = `${this.placesAPIURL}/find?query=${encodeURIComponent(
+      queryString
+    )}&maxresults=${this.maxResults}&FQ=${this.fq}&output_srs=EPSG:4326`;
+    const transformedUrl: string = this.mapService.transformUrlForProxy(
+      url,
+      'api.os.uk',
+      'os',
+      'key'
+    );
     return this.http
-      .get<AddressSearchResponse>(
-        `${this.placesAPIURL}/find?query=${encodeURIComponent(
-          queryString
-        )}&maxresults=${this.maxResults}&FQ=${
-          this.fq
-        }&output_srs=EPSG:4326&key=${environment.os.apiKey}`
-      )
+      .get<AddressSearchResponse>(transformedUrl)
       .pipe(
         map((res: AddressSearchResponse) =>
           res.results?.length ? res.results.map(r => r.DPA) : []
