@@ -22,7 +22,7 @@ This repository follows the Git Flow workflow. Please adhere to the following br
   git checkout -b feature/<feature-name>
   ```
 - **Committing Changes:**
-  - Follow conventional commit messages (e.g., `feat: add login functionality` or `fix: resolve API bug`).
+  - Follow conventional commit messages and include a ticket number where relevant (e.g., `feat: [JIRA-1] add login functionality` or `fix: [JIRA-2] resolve API bug`).
   - Keep commits atomic and focused.
   - **Squash commits when merging into `develop`** to keep the history clean.
 - **Merging Changes:**
