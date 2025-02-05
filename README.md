@@ -68,3 +68,6 @@ When writing documentation use the JSDoc format:
 
 - [Comments](https://compodoc.app/guides/comments.html)
 - [Tags](https://compodoc.app/guides/jsdoc-tags.html)
+
+## Contributors
+Development of these works have been made possible with thanks to our [contributors](https://github.com/National-Digital-Twin/IRIS-visualisation/graphs/contributors).
