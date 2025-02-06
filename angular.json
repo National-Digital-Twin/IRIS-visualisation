@@ -1,211 +1,198 @@
 {
-  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
-  "version": 1,
-  "newProjectRoot": "projects",
-  "projects": {
-    "c477-vis": {
-      "projectType": "application",
-      "schematics": {
-        "@schematics/angular:component": {
-          "style": "scss",
-          "standalone": true
-        },
-        "@schematics/angular:directive": {
-          "standalone": true
-        },
-        "@schematics/angular:pipe": {
-          "standalone": true
-        }
-      },
-      "root": "",
-      "sourceRoot": "src",
-      "prefix": "c477",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-angular:browser",
-          "options": {
-            "outputPath": "dist/c477-vis",
-            "index": "src/index.html",
-            "main": "src/main.ts",
-            "polyfills": ["zone.js"],
-            "tsConfig": "tsconfig.app.json",
-            "inlineStyleLanguage": "scss",
-            "assets": ["src/favicon.ico", "src/assets"],
-            "styles": [
-              "@angular/material/prebuilt-themes/indigo-pink.css",
-              "mapbox-gl/dist/mapbox-gl.css",
-              "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css",
-              "@arc-web/components/themes/index.css",
-              "@arc-web/components/themes/light.css",
-              "@arc-web/components/themes/dark.css",
-              "src/scss/main.scss"
-            ],
-            "allowedCommonJsDependencies": ["mapbox-gl", "papaparse"]
-          },
-          "configurations": {
-            "production": {
-              "baseHref": "/",
-              "assets": [
-                "src/favicon.ico",
-                "src/assets",
-                {
-                  "input": "src/configurations/prod",
-                  "output": "configuration/",
-                  "glob": "*.json"
+    "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+    "version": 1,
+    "newProjectRoot": "projects",
+    "projects": {
+        "c477-vis": {
+            "projectType": "application",
+            "schematics": {
+                "@schematics/angular:component": {
+                    "style": "scss"
                 }
-              ],
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "3mb",
-                  "maximumError": "4.5mb"
+            },
+            "root": "",
+            "sourceRoot": "src",
+            "prefix": "c477",
+            "architect": {
+                "build": {
+                    "builder": "@angular/build:application",
+                    "options": {
+                        "outputPath": {
+                            "base": "dist/c477-vis"
+                        },
+                        "index": "src/index.html",
+                        "polyfills": ["zone.js"],
+                        "tsConfig": "tsconfig.app.json",
+                        "inlineStyleLanguage": "scss",
+                        "assets": ["src/favicon.ico", "src/assets"],
+                        "styles": [
+                            "@angular/material/prebuilt-themes/indigo-pink.css",
+                            "mapbox-gl/dist/mapbox-gl.css",
+                            "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css",
+                            "@arc-web/components/themes/index.css",
+                            "src/scss/main.scss"
+                        ],
+                        "stylePreprocessorOptions": {
+                            "sass": {
+                                "silenceDeprecations": ["mixed-decls", "import"]
+                            }
+                        },
+                        "allowedCommonJsDependencies": ["mapbox-gl", "papaparse"],
+                        "browser": "src/main.ts"
+                    },
+                    "configurations": {
+                        "production": {
+                            "baseHref": "/",
+                            "assets": [
+                                "src/favicon.ico",
+                                "src/assets",
+                                {
+                                    "input": "src/configurations/prod",
+                                    "output": "configuration/",
+                                    "glob": "*.json"
+                                }
+                            ],
+                            "budgets": [
+                                {
+                                    "type": "initial",
+                                    "maximumWarning": "3mb",
+                                    "maximumError": "4.5mb"
+                                },
+                                {
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "2kb",
+                                    "maximumError": "4kb"
+                                }
+                            ],
+                            "outputHashing": "all"
+                        },
+                        "development": {
+                            "baseHref": "/",
+                            "optimization": false,
+                            "extractLicenses": false,
+                            "sourceMap": true,
+                            "namedChunks": true
+                        },
+                        "dev": {
+                            "baseHref": "/hostedapps/c477-vis/",
+                            "optimization": false,
+                            "extractLicenses": false,
+                            "sourceMap": true,
+                            "namedChunks": true,
+                            "assets": [
+                                "src/assets",
+                                "src/favicon.ico",
+                                {
+                                    "input": "src/configurations/dev",
+                                    "output": "configuration/",
+                                    "glob": "*.json"
+                                }
+                            ]
+                        },
+                        "local": {
+                            "baseHref": "/",
+                            "optimization": false,
+                            "extractLicenses": false,
+                            "sourceMap": true,
+                            "namedChunks": true,
+                            "assets": [
+                                "src/favicon.ico",
+                                "src/assets",
+                                {
+                                    "input": "src/configurations/local",
+                                    "output": "configuration/",
+                                    "glob": "*.json"
+                                }
+                            ],
+                            "fileReplacements": [
+                                {
+                                    "replace": "src/environments/environment.ts",
+                                    "with": "src/environments/environment.local.ts"
+                                }
+                            ]
+                        }
+                    },
+                    "defaultConfiguration": "production"
                 },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
+                "serve": {
+                    "builder": "@angular/build:dev-server",
+                    "configurations": {
+                        "production": {
+                            "buildTarget": "c477-vis:build:production"
+                        },
+                        "development": {
+                            "buildTarget": "c477-vis:build:development"
+                        },
+                        "dev": {
+                            "buildTarget": "c477-vis:build:dev"
+                        },
+                        "local": {
+                            "buildTarget": "c477-vis:build:local"
+                        }
+                    },
+                    "defaultConfiguration": "development"
+                },
+                "extract-i18n": {
+                    "builder": "@angular/build:extract-i18n",
+                    "options": {
+                        "buildTarget": "c477-vis:build"
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-eslint/builder:lint",
+                    "options": {
+                        "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
+                    }
+                },
+                "cypress-run": {
+                    "builder": "@cypress/schematic:cypress",
+                    "options": {
+                        "devServerTarget": "c477-vis:serve"
+                    },
+                    "configurations": {
+                        "production": {
+                            "devServerTarget": "c477-vis:serve:production"
+                        }
+                    }
+                },
+                "cypress-open": {
+                    "builder": "@cypress/schematic:cypress",
+                    "options": {
+                        "watch": true,
+                        "headless": false
+                    }
+                },
+                "ct": {
+                    "builder": "@cypress/schematic:cypress",
+                    "options": {
+                        "devServerTarget": "c477-vis:serve",
+                        "watch": true,
+                        "headless": false,
+                        "testingType": "component"
+                    },
+                    "configurations": {
+                        "development": {
+                            "devServerTarget": "c477-vis:serve:development"
+                        }
+                    }
+                },
+                "e2e": {
+                    "builder": "@cypress/schematic:cypress",
+                    "options": {
+                        "devServerTarget": "c477-vis:serve",
+                        "watch": true,
+                        "headless": false
+                    },
+                    "configurations": {
+                        "production": {
+                            "devServerTarget": "c477-vis:serve:production"
+                        }
+                    }
                 }
-              ],
-              "outputHashing": "all"
-            },
-            "development": {
-              "baseHref": "/",
-              "buildOptimizer": false,
-              "optimization": false,
-              "vendorChunk": true,
-              "extractLicenses": false,
-              "sourceMap": true,
-              "namedChunks": true
-            },
-            "dev": {
-              "baseHref": "/hostedapps/c477-vis/",
-              "buildOptimizer": false,
-              "optimization": false,
-              "vendorChunk": true,
-              "extractLicenses": false,
-              "sourceMap": true,
-              "namedChunks": true,
-              "assets": [
-                "src/assets",
-                "src/favicon.ico",
-                {
-                  "input": "src/configurations/dev",
-                  "output": "configuration/",
-                  "glob": "*.json"
-                }
-              ]
-            },
-            "local": {
-              "baseHref": "/",
-              "buildOptimizer": false,
-              "optimization": false,
-              "vendorChunk": true,
-              "extractLicenses": false,
-              "sourceMap": true,
-              "namedChunks": true,
-              "assets": [
-                "src/favicon.ico",
-                "src/assets",
-                {
-                  "input": "src/configurations/local",
-                  "output": "configuration/",
-                  "glob": "*.json"
-                }
-              ],
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.local.ts"
-                }
-              ]
             }
-          },
-          "defaultConfiguration": "production"
-        },
-        "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
-          "configurations": {
-            "production": {
-              "buildTarget": "c477-vis:build:production"
-            },
-            "development": {
-              "buildTarget": "c477-vis:build:development"
-            },
-            "dev": {
-              "buildTarget": "c477-vis:build:dev"
-            },
-            "local": {
-              "buildTarget": "c477-vis:build:local"
-            }
-          },
-          "defaultConfiguration": "development"
-        },
-        "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "buildTarget": "c477-vis:build"
-          }
-        },
-        "lint": {
-          "builder": "@angular-eslint/builder:lint",
-          "options": {
-            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
-          }
-        },
-        "cypress-run": {
-          "builder": "@cypress/schematic:cypress",
-          "options": {
-            "devServerTarget": "c477-vis:serve"
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "c477-vis:serve:production"
-            }
-          }
-        },
-        "cypress-open": {
-          "builder": "@cypress/schematic:cypress",
-          "options": {
-            "watch": true,
-            "headless": false
-          }
-        },
-        "ct": {
-          "builder": "@cypress/schematic:cypress",
-          "options": {
-            "devServerTarget": "c477-vis:serve",
-            "watch": true,
-            "headless": false,
-            "testingType": "component"
-          },
-          "configurations": {
-            "development": {
-              "devServerTarget": "c477-vis:serve:development"
-            }
-          }
-        },
-        "e2e": {
-          "builder": "@cypress/schematic:cypress",
-          "options": {
-            "devServerTarget": "c477-vis:serve",
-            "watch": true,
-            "headless": false
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "c477-vis:serve:production"
-            }
-          }
         }
-      }
+    },
+    "cli": {
+        "analytics": false
     }
-  },
-  "cli": {
-    "schematicCollections": [
-      "@cypress/schematic",
-      "@angular-eslint/schematics",
-      "@schematics/angular"
-    ],
-    "analytics": false
-  }
 }

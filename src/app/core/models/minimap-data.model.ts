@@ -1,6 +1,6 @@
 import { LngLat } from 'mapbox-gl';
 
 export interface MinimapData {
-  position: LngLat;
-  bearing: number;
+    position: LngLat;
+    bearing: number;
 }

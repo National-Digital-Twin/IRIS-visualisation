@@ -1,8 +1,8 @@
 export interface URLStateModel {
-  bearing: number;
-  center: [number, number];
-  pitch: number;
-  style?: string;
-  zoom: number;
-  filter?: string;
+    bearing: number;
+    center: [number, number];
+    pitch: number;
+    style?: string;
+    zoom: number;
+    filter?: string;
 }

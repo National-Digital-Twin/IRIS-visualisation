@@ -1,97 +1,80 @@
-import {
-  Component,
-  EventEmitter,
-  HostListener,
-  Input,
-  Output,
-  inject,
-} from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { Component, EventEmitter, HostListener, Input, Output, Signal, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-
 import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
 import { LabelComponent } from '@components/label/label.component';
-
-import { UtilService } from '@core/services/utils.service';
-import { SettingsService, SETTINGS } from '@core/services/settings.service';
-
 import { BuildingModel } from '@core/models/building.model';
 import { DownloadBuilding } from '@core/models/download-data-warning.model';
+import { SETTINGS, SettingsService } from '@core/services/settings.service';
+import { UtilService } from '@core/services/utils.service';
+import { Theme } from '@core/types/theme';
 
 @Component({
-  selector: 'c477-results-card[card]',
-  standalone: true,
-  imports: [
-    CommonModule,
-    LabelComponent,
-    MatButtonModule,
-    MatCheckboxModule,
-    MatIconModule,
-  ],
-  templateUrl: './results-card.component.html',
-  styleUrl: './results-card.component.css',
+    selector: 'c477-results-card[card]',
+    imports: [CommonModule, LabelComponent, MatButtonModule, MatCheckboxModule, MatIconModule],
+    templateUrl: './results-card.component.html',
 })
 export class ResultsCardComponent {
-  public readonly theme = inject(SettingsService).get(SETTINGS.Theme);
-  private utilService = inject(UtilService);
+    #dialog: MatDialog = inject(MatDialog);
+    #theme: Signal<Theme> = inject(SettingsService).get(SETTINGS.Theme);
+    #utilService: UtilService = inject(UtilService);
 
-  @HostListener('click', ['$event'])
-  onClick($event: MouseEvent) {
-    $event.stopPropagation();
-    this.selectCard();
-  }
+    @Input() public buildingUPRN?: string;
+    @Input() public card!: BuildingModel;
+    @Input() public checked: boolean = false;
+    @Input() public parent: boolean = false;
+    @Input() public select: boolean = false;
 
-  @Input() card!: BuildingModel;
-  @Input() buildingUPRN?: string;
-  @Input() select: boolean = false;
-  @Input() parent: boolean = false;
-  @Input() checked: boolean = false;
-  @Output() downloadData: EventEmitter<DownloadBuilding> =
-    new EventEmitter<DownloadBuilding>();
-  @Output() emitViewDetails: EventEmitter<BuildingModel> =
-    new EventEmitter<BuildingModel>();
-  @Output() cardSelected: EventEmitter<BuildingModel> =
-    new EventEmitter<BuildingModel>();
-  @Output() toggleChecked = new EventEmitter<boolean>();
-  @Output() flag = new EventEmitter<void>();
-  @Output() removeFlag = new EventEmitter<void>();
+    @Output() public cardSelected: EventEmitter<BuildingModel> = new EventEmitter<BuildingModel>();
+    @Output() public downloadData: EventEmitter<DownloadBuilding> = new EventEmitter<DownloadBuilding>();
+    @Output() public emitViewDetails: EventEmitter<BuildingModel> = new EventEmitter<BuildingModel>();
+    @Output() public flag = new EventEmitter<void>();
+    @Output() public removeFlag = new EventEmitter<void>();
+    @Output() public toggleChecked = new EventEmitter<boolean>();
 
-  constructor(public dialog: MatDialog) {}
+    get theme(): Signal<Theme> {
+        return this.#theme;
+    }
 
-  getAddressSegment(index: number) {
-    return this.utilService.splitAddress(index, this.card?.FullAddress);
-  }
+    public getAddressSegment(index: number): string {
+        return this.#utilService.splitAddress(index, this.card?.FullAddress);
+    }
 
-  epcExpired() {
-    return this.utilService.epcExpired(this.card.InspectionDate);
-  }
+    public epcExpired(): boolean {
+        return this.#utilService.epcExpired(this.card.InspectionDate);
+    }
 
-  openDownloadWarning() {
-    this.dialog
-      .open(DownloadWarningComponent, {
-        panelClass: 'data-download',
-        data: {
-          addresses: [this.card?.FullAddress],
-        },
-      })
-      .afterClosed()
-      .subscribe(download => {
-        if (download) {
-          this.downloadData.emit({ building: this.card, format: download });
-        }
-      });
-  }
+    public openDownloadWarning(): void {
+        this.#dialog
+            .open(DownloadWarningComponent, {
+                panelClass: 'data-download',
+                data: {
+                    addresses: [this.card?.FullAddress],
+                },
+            })
+            .afterClosed()
+            .subscribe((download) => {
+                if (download) {
+                    this.downloadData.emit({ building: this.card, format: download });
+                }
+            });
+    }
 
-  selectCard() {
-    this.cardSelected.emit(this.card);
-  }
+    private selectCard(): void {
+        this.cardSelected.emit(this.card);
+    }
 
-  viewDetails($event: Event) {
-    $event.stopPropagation();
-    this.emitViewDetails.emit(this.card);
-  }
+    public viewDetails($event: Event): void {
+        $event.stopPropagation();
+        this.emitViewDetails.emit(this.card);
+    }
+
+    @HostListener('click', ['$event'])
+    public onClick($event: MouseEvent): void {
+        $event.stopPropagation();
+        this.selectCard();
+    }
 }

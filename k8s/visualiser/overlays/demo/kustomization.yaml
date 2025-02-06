@@ -20,15 +20,11 @@ patches:
     target:
       kind: AuthorizationPolicy
 
-
 labels:
   - pairs:
       env: demo
-
 
 images:
   - name: iris-visualiser-image
     newName: 503561419905.dkr.ecr.eu-west-2.amazonaws.com/iris/visualiser
     newTag: '1737626576'
-
-

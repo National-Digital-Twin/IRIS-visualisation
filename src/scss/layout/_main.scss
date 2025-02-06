@@ -1,13 +1,13 @@
 .content {
-  width: 100%;
-  height: 100%;
-
-  &__map-container {
     width: 100%;
     height: 100%;
-    /** force mapbox logo to display */
-    .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {
-      display: block !important;
+
+    &__map-container {
+        width: 100%;
+        height: 100%;
+        /** force mapbox logo to display */
+        .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {
+            display: block !important;
+        }
     }
-  }
 }

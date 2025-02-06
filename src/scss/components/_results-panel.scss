@@ -1,71 +1,75 @@
 .results-panel {
-  width: $panel-width;
-  height: 100%;
-  padding: 1rem 0 1rem 0;
-  margin-right: 1rem;
-  overflow-y: hidden;
-  overflow-x: hidden;
+    overflow-x: hidden;
+    overflow-y: hidden;
 
-  @include transition2(width 0.5s ease, height 0.4s ease);
+    width: $panel-width;
+    height: 100%;
+    margin-right: 1rem;
+    padding: 1rem 0 1rem 0;
 
-  @include md {
-    padding: 0;
-    width: $md-results-panel-width;
-  }
-
-  &__header-container {
-    @include md {
-      display: flex;
-      justify-content: space-between;
-    }
-  }
-
-  &__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 0 1rem 1rem 1rem;
-    gap: 1rem;
-
-    &--download {
-      justify-content: center;
-    }
-  }
-
-  &__button {
-    width: 100%;
-    .mdc-button__label {
-      display: flex !important;
-      align-items: center !important;
-      gap: 0.5rem;
-      letter-spacing: 0.004rem;
-    }
-  }
-
-  &__toggle {
-    margin-left: 1.5rem;
-  }
-
-  &--closed {
     @include transition2(width 0.5s ease, height 0.4s ease);
-    width: $collapsed-panel-width;
-    height: $collapsed-panel-height;
 
     @include md {
-      @include transition(height 0.4s ease);
-      width: $md-results-panel-width;
-      height: $md-collapsed-panel-height;
+        width: $md-results-panel-width;
+        padding: 0;
     }
-  }
+
+    &__header-container {
+        @include md {
+            display: flex;
+            justify-content: space-between;
+        }
+    }
+
+    &__header {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        justify-content: space-between;
+
+        margin: 0 1rem 1rem 1rem;
+
+        &--download {
+            justify-content: center;
+        }
+    }
+
+    &__button {
+        width: 100%;
+        .mdc-button__label {
+            display: flex !important;
+            gap: 0.5rem;
+            align-items: center !important;
+            letter-spacing: 0.004rem;
+        }
+    }
+
+    &__toggle {
+        margin-left: 1.5rem;
+    }
+
+    &--closed {
+        width: $collapsed-panel-width;
+        height: $collapsed-panel-height;
+
+        @include transition2(width 0.5s ease, height 0.4s ease);
+
+        @include md {
+            width: $md-results-panel-width;
+            height: $md-collapsed-panel-height;
+
+            @include transition(height 0.4s ease);
+        }
+    }
 }
 
 .viewport {
-  // set viewport height to display cards
-  height: calc(100vh - 10rem - 122px);
-  width: $panel-width;
+    width: $panel-width;
+    // set viewport height to display cards
+    height: calc(100vh - 10rem - 122px);
 
-  @include md {
-    height: calc(100vh - 15rem - 122px);
-    width: $md-results-panel-width;
-  }
+    @include md {
+        width: $md-results-panel-width;
+        height: calc(100vh - 15rem - 122px);
+    }
 }

@@ -1,15 +1,13 @@
-import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, Input } from '@angular/core';
 
 @Component({
-  selector: 'c477-label',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './label.component.html',
-  styleUrl: './label.component.css',
+    selector: 'c477-label',
+    imports: [CommonModule],
+    templateUrl: './label.component.html',
 })
 export class LabelComponent {
-  @Input() epcRating?: string;
-  @Input() sapPoints?: string;
-  @Input() expired?: boolean = false;
+    @Input() public epcRating?: string;
+    @Input() public sapPoints?: string;
+    @Input() public expired?: boolean = false;
 }

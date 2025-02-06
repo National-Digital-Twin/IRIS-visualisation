@@ -1,36 +1,38 @@
 .panel-container {
-  position: absolute;
-  z-index: $panel-z-index;
-  left: 1rem;
-  top: 9rem;
-  display: flex;
-  height: calc(100vh - 10rem);
+    position: absolute;
+    z-index: $panel-z-index;
+    top: 9rem;
+    left: 1rem;
 
-  @include md {
-    left: var(--arc-spacing-small);
-    height: calc(100vh - 15rem);
-    top: 14.25rem;
-  }
+    display: flex;
 
-  @include xs {
-    height: calc(100vh - 19.25rem);
-  }
-
-  &--collapsed {
-    height: $collapsed-panel-height;
+    height: calc(100vh - 10rem);
 
     @include md {
-      height: $md-collapsed-panel-height;
+        top: 14.25rem;
+        left: var(--arc-spacing-small);
+        height: calc(100vh - 15rem);
     }
 
     @include xs {
-      height: $md-collapsed-panel-height;
+        height: calc(100vh - 19.25rem);
     }
-  }
 
-  .panel {
-    background-color: rgb(var(--arc-container-color));
-    box-shadow: $box-shadow;
-    border-radius: 4px;
-  }
+    &--collapsed {
+        height: $collapsed-panel-height;
+
+        @include md {
+            height: $md-collapsed-panel-height;
+        }
+
+        @include xs {
+            height: $md-collapsed-panel-height;
+        }
+    }
+
+    .panel {
+        border-radius: 4px;
+        background-color: rgb(var(--arc-container-color));
+        box-shadow: $box-shadow;
+    }
 }

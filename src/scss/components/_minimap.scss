@@ -1,29 +1,28 @@
 .minimap {
-  &__container {
-    width: 17.5rem;
-    height: 10rem;
+    &__container {
+        position: absolute;
+        right: 1rem;
+        bottom: 4.5rem;
 
-    position: absolute;
-    bottom: 4.5rem;
-    right: 1rem;
+        width: 17.5rem;
+        height: 10rem;
+        border: 5px solid white;
+        border-radius: 0.25rem;
 
-    border: 5px solid white;
-    border-radius: 0.25rem;
+        @include md {
+            bottom: 4rem;
+        }
 
-    @include md {
-      bottom: 4rem;
+        @include xs {
+            bottom: 8.5rem;
+        }
     }
 
-    @include xs {
-      bottom: 8.5rem;
+    &__map {
+        width: 100%;
+        height: 100%;
+        .mapboxgl-ctrl-bottom-left {
+            display: none !important;
+        }
     }
-  }
-
-  &__map {
-    width: 100%;
-    height: 100%;
-    .mapboxgl-ctrl-bottom-left {
-      display: none !important;
-    }
-  }
 }

@@ -3,16 +3,14 @@ import { RouterOutlet } from '@angular/router';
 import { PosthogService } from '@core/services/posthog.service';
 
 @Component({
-  selector: 'c477-root',
-  standalone: true,
-  imports: [RouterOutlet],
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
+    selector: 'c477-root',
+    imports: [RouterOutlet],
+    templateUrl: './app.component.html',
 })
 export class AppComponent implements OnInit {
-  private readonly posthogService = inject(PosthogService);
+    #posthogService = inject(PosthogService);
 
-  ngOnInit() {
-    this.posthogService.initialize();
-  }
+    public ngOnInit(): void {
+        this.#posthogService.initialize();
+    }
 }

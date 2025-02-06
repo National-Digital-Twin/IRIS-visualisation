@@ -1,261 +1,198 @@
-import {
-  Component,
-  ViewChild,
-  Output,
-  EventEmitter,
-  effect,
-  inject,
-  signal,
-} from '@angular/core';
+import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Output, ViewChild, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import {
-  CdkVirtualScrollViewport,
-  ScrollingModule,
-} from '@angular/cdk/scrolling';
-
 import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
-import { ResultsPanelButtonComponent } from '@components/results-panel-button/results-panel-button.component';
 import { ResultsCardComponent } from '@components/results-card/results-card.component';
 import { ResultsCardExpandableComponent } from '@components/results-card-expandable/results-card-expandable.component';
-
-import { SettingsService, SETTINGS } from '@core/services/settings.service';
-import { DataService } from '@core/services/data.service';
+import { ResultsPanelButtonComponent } from '@components/results-panel-button/results-panel-button.component';
+import { BuildingModel } from '@core/models/building.model';
+import { DownloadBuilding, DownloadDataWarningData, DownloadDataWarningResponse } from '@core/models/download-data-warning.model';
 import { DataDownloadService } from '@core/services/data-download.service';
+import { DataService } from '@core/services/data.service';
 import { MapService } from '@core/services/map.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { UtilService } from '@core/services/utils.service';
-
-import { BuildingModel } from '@core/models/building.model';
-
-import {
-  DownloadBuilding,
-  DownloadDataWarningData,
-  DownloadDataWarningResponse,
-} from '@core/models/download-data-warning.model';
+import mapboxgl, { LngLat } from 'mapbox-gl';
 
 @Component({
-  selector: 'c477-results-panel',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSlideToggleModule,
-    ResultsPanelButtonComponent,
-    ResultsCardComponent,
-    ResultsCardExpandableComponent,
-    ScrollingModule,
-  ],
-  templateUrl: './results-panel.component.html',
-  styleUrl: './results-panel.component.scss',
+    selector: 'c477-results-panel',
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatButtonModule,
+        MatIconModule,
+        MatSlideToggleModule,
+        ResultsPanelButtonComponent,
+        ResultsCardComponent,
+        ResultsCardExpandableComponent,
+        ScrollingModule,
+    ],
+    templateUrl: './results-panel.component.html',
 })
 export class ResultsPanelComponent {
-  public readonly theme = inject(SettingsService).get(SETTINGS.Theme);
+    #dataService = inject(DataService);
+    #spatialQueryService = inject(SpatialQueryService);
+    #utilService = inject(UtilService);
+    #dataDownloadService = inject(DataDownloadService);
+    #mapService = inject(MapService);
 
-  @Output() flag = new EventEmitter<BuildingModel[]>();
-  @Output() removeFlag = new EventEmitter<BuildingModel>();
-  @Output() resultsPanelCollapsed = new EventEmitter<boolean>();
+    public buildingSelection = this.#dataService.buildingsSelection;
+    public checkedCards = signal<BuildingModel[]>([]);
+    public panelOpen: boolean = true;
+    public selectMultiple: boolean = false;
+    public selectedCardUPRN = this.#utilService.selectedCardUPRN;
+    public selectedParentTOID = this.#utilService.multiDwelling;
 
-  @ViewChild(CdkVirtualScrollViewport) viewPort?: CdkVirtualScrollViewport;
+    @Output() public flag = new EventEmitter<BuildingModel[]>();
+    @Output() public removeFlag = new EventEmitter<BuildingModel>();
+    @Output() public resultsPanelCollapsed = new EventEmitter<boolean>();
 
-  private readonly dataService = inject(DataService);
-  private spatialQueryService = inject(SpatialQueryService);
-  private utilService = inject(UtilService);
-  private dataDownloadService = inject(DataDownloadService);
-  mapService = inject(MapService);
+    @ViewChild(CdkVirtualScrollViewport) public viewPort?: CdkVirtualScrollViewport;
 
-  selectedCardUPRN = this.utilService.selectedCardUPRN;
-  selectedParentTOID = this.utilService.multiDwelling;
+    constructor(public dialog: MatDialog) {
+        /** listen for UPRN set from map click */
+        effect(() => {
+            const selectedUPRN = this.#utilService.selectedUPRN();
+            const selectedTOID = this.#utilService.multiDwelling();
+            if (selectedUPRN) {
+                const idx = this.buildingSelection()?.findIndex((building) => building[0].UPRN === selectedUPRN);
+                if (idx! > -1) {
+                    /** scroll to index*/
+                    this.viewPort?.scrollToIndex(idx!);
+                }
+            }
+            if (selectedTOID) {
+                const idx = this.buildingSelection()?.findIndex((building) => building[0].ParentTOID === selectedTOID);
+                if (idx! > -1) {
+                    /** scroll to index*/
+                    this.viewPort?.scrollToIndex(idx!);
+                }
+            }
+        });
+    }
 
-  buildingSelection = this.dataService.buildingsSelection;
+    get mapInstance(): mapboxgl.Map {
+        return this.#mapService.mapInstance;
+    }
 
-  selectMultiple: boolean = false;
-  panelOpen: boolean = true;
+    public cardIsChecked(buildings: BuildingModel[]): boolean {
+        const checkedCards = this.checkedCards();
+        return buildings.some((b) => checkedCards.find((cc) => cc.UPRN === b.UPRN));
+    }
 
-  public readonly checkedCards = signal<BuildingModel[]>([]);
+    public onToggleChecked(building: BuildingModel): void {
+        this.checkedCards.update((cards) => (this.cardIsChecked([building]) ? cards.filter((c) => c.UPRN !== building.UPRN) : [...cards, building]));
+    }
 
-  public canFlagSelected() {
-    const selected = this.checkedCards();
-    return selected.length > 0 && selected.some(s => !s.Flagged);
-  }
-  public cardIsChecked(buildings: BuildingModel[]): boolean {
-    const checkedCards = this.checkedCards();
-    return buildings.some(b => checkedCards.find(cc => cc.UPRN === b.UPRN));
-  }
-
-  public onToggleChecked(building: BuildingModel) {
-    this.checkedCards.update(cards =>
-      this.cardIsChecked([building])
-        ? cards.filter(c => c.UPRN !== building.UPRN)
-        : [...cards, building]
-    );
-  }
-
-  constructor(public dialog: MatDialog) {
-    /** listen for UPRN set from map click */
-    effect(() => {
-      const selectedUPRN = this.utilService.selectedUPRN();
-      const selectedTOID = this.utilService.multiDwelling();
-      if (selectedUPRN) {
-        const idx = this.buildingSelection()?.findIndex(
-          building => building[0].UPRN === selectedUPRN
-        );
-        if (idx! > -1) {
-          /** scroll to index*/
-          this.viewPort?.scrollToIndex(idx!);
-        }
-      }
-      if (selectedTOID) {
-        const idx = this.buildingSelection()?.findIndex(
-          building => building[0].ParentTOID === selectedTOID
-        );
-        if (idx! > -1) {
-          /** scroll to index*/
-          this.viewPort?.scrollToIndex(idx!);
-        }
-      }
-    });
-  }
-
-  /**
-   * View Details button handler
-   * @param building selected building
-   */
-  viewDetails(selectedBuilding: BuildingModel) {
-    const TOID = selectedBuilding.TOID
-      ? selectedBuilding.TOID
-      : selectedBuilding.ParentTOID;
-
-    const center = this.getZoomCenter(TOID!);
-    this.utilService.viewDetailsButtonClick(
-      TOID!,
-      selectedBuilding.UPRN,
-      center
-    );
-  }
-
-  /**
-   * Single dwelling results card handler
-   * @param selectedBuilding building for selected card
-   */
-  cardSelected(selectedBuilding: BuildingModel) {
-    const TOID = selectedBuilding.TOID
-      ? selectedBuilding.TOID
-      : selectedBuilding.ParentTOID;
-    const UPRN = selectedBuilding.UPRN;
     /**
-     * if selected card building uprn === the current selected card uprn
-     * deselect card and building
+     * View Details button handler
+     * @param building selected building
      */
-    if (
-      this.utilService.selectedCardUPRN() === selectedBuilding.UPRN ||
-      this.utilService.multiDwelling() === TOID
-    ) {
-      /** deselect card */
-      this.utilService.resultsCardDeselected();
-    } else {
-      /** select card */
-      this.utilService.resultsCardSelected(TOID!, UPRN);
+    public viewDetails(selectedBuilding: BuildingModel): void {
+        const TOID = selectedBuilding.TOID ? selectedBuilding.TOID : selectedBuilding.ParentTOID;
+
+        const center = this.getZoomCenter(TOID!);
+        this.#utilService.viewDetailsButtonClick(TOID!, selectedBuilding.UPRN, center);
     }
-  }
 
-  trackByUPRN(index: number, item: BuildingModel[]) {
-    if (item.length == 1) {
-      return item[0].UPRN;
-    } else {
-      return item[0].ParentTOID;
-    }
-  }
-
-  getZoomCenter(TOID: string): number[] {
-    const geomBB = this.spatialQueryService.getFeatureGeomBB(TOID);
-    return [geomBB.getCenter().lng - 0.0005, geomBB.getCenter().lat];
-  }
-
-  updatePanelOpen(event: boolean) {
-    this.panelOpen = event;
-    this.resultsPanelCollapsed.emit(!event);
-  }
-
-  downloadAll() {
-    let addresses: string[] = [];
-    let addressCount = undefined;
-    /** download selected */
-    if (this.selectMultiple) {
-      if (this.checkedCards().length <= 10) {
-        this.checkedCards().forEach((building: BuildingModel) =>
-          addresses.push(building.FullAddress)
-        );
-      } else {
-        addressCount = this.checkedCards().length;
-      }
-    } else {
-      /** download all */
-      if (
-        this.buildingSelection() &&
-        this.buildingSelection()!.flat().length <= 10
-      ) {
-        this.buildingSelection()
-          ?.flat()
-          .forEach((building: BuildingModel) =>
-            addresses.push(building.FullAddress)
-          );
-      } else if (
-        this.buildingSelection() &&
-        this.buildingSelection()!.flat().length > 10
-      ) {
-        addressCount = this.buildingSelection()!.flat().length;
-      }
-    }
-    this.dialog
-      .open<
-        DownloadWarningComponent,
-        DownloadDataWarningData,
-        DownloadDataWarningResponse
-      >(DownloadWarningComponent, {
-        panelClass: 'data-download',
-        data: {
-          addresses,
-          addressCount,
-        },
-      })
-      .afterClosed()
-      .subscribe(download => {
-        if (download) {
-          if (this.selectMultiple) {
-            if (download === 'xlsx') {
-              this.dataDownloadService.downloadXlsxData(this.checkedCards());
-            } else if (download === 'csv') {
-              this.dataDownloadService.downloadCSVData(this.checkedCards());
-            }
-          } else {
-            if (download === 'xlsx') {
-              this.dataDownloadService.downloadXlsxData(
-                this.buildingSelection()!.flat()
-              );
-            } else if (download === 'csv') {
-              this.dataDownloadService.downloadCSVData(
-                this.buildingSelection()!.flat()
-              );
-            }
-          }
-          addresses = [];
-          addressCount = undefined;
+    /**
+     * Single dwelling results card handler
+     * @param selectedBuilding building for selected card
+     */
+    public cardSelected(selectedBuilding: BuildingModel): void {
+        const TOID = selectedBuilding.TOID ? selectedBuilding.TOID : selectedBuilding.ParentTOID;
+        const UPRN = selectedBuilding.UPRN;
+        /**
+         * if selected card building uprn === the current selected card uprn
+         * deselect card and building
+         */
+        if (this.#utilService.selectedCardUPRN() === selectedBuilding.UPRN || this.#utilService.multiDwelling() === TOID) {
+            /** deselect card */
+            this.#utilService.resultsCardDeselected();
+        } else {
+            /** select card */
+            this.#utilService.resultsCardSelected(TOID!, UPRN);
         }
-      });
-  }
-
-  downloadBuilding(result: DownloadBuilding) {
-    if (result.format === 'xlsx') {
-      this.dataDownloadService.downloadXlsxData([result.building]);
-    } else if (result.format === 'csv') {
-      this.dataDownloadService.downloadCSVData([result.building]);
     }
-  }
+
+    public trackByUPRN(index: number, item: BuildingModel[]): string | undefined {
+        if (item.length == 1) {
+            return item[0].UPRN;
+        } else {
+            return item[0].ParentTOID;
+        }
+    }
+
+    private getZoomCenter(TOID: string): LngLat {
+        const geomBB = this.#spatialQueryService.getFeatureGeomBB(TOID);
+        return new LngLat(geomBB.getCenter().lng - 0.0005, geomBB.getCenter().lat);
+    }
+
+    public updatePanelOpen(event: boolean): void {
+        this.panelOpen = event;
+        this.resultsPanelCollapsed.emit(!event);
+    }
+
+    public downloadAll(): void {
+        let addresses: string[] = [];
+        let addressCount = undefined;
+        /** download selected */
+        if (this.selectMultiple) {
+            if (this.checkedCards().length <= 10) {
+                this.checkedCards().forEach((building: BuildingModel) => addresses.push(building.FullAddress));
+            } else {
+                addressCount = this.checkedCards().length;
+            }
+        } else {
+            /** download all */
+            if (this.buildingSelection() && this.buildingSelection()!.flat().length <= 10) {
+                this.buildingSelection()
+                    ?.flat()
+                    .forEach((building: BuildingModel) => addresses.push(building.FullAddress));
+            } else if (this.buildingSelection() && this.buildingSelection()!.flat().length > 10) {
+                addressCount = this.buildingSelection()!.flat().length;
+            }
+        }
+        this.dialog
+            .open<DownloadWarningComponent, DownloadDataWarningData, DownloadDataWarningResponse>(DownloadWarningComponent, {
+                panelClass: 'data-download',
+                data: {
+                    addresses,
+                    addressCount,
+                },
+            })
+            .afterClosed()
+            .subscribe((download) => {
+                if (download) {
+                    if (this.selectMultiple) {
+                        if (download === 'xlsx') {
+                            this.#dataDownloadService.downloadXlsxData(this.checkedCards());
+                        } else if (download === 'csv') {
+                            this.#dataDownloadService.downloadCSVData(this.checkedCards());
+                        }
+                    } else {
+                        if (download === 'xlsx') {
+                            this.#dataDownloadService.downloadXlsxData(this.buildingSelection()!.flat());
+                        } else if (download === 'csv') {
+                            this.#dataDownloadService.downloadCSVData(this.buildingSelection()!.flat());
+                        }
+                    }
+                    addresses = [];
+                    addressCount = undefined;
+                }
+            });
+    }
+
+    public downloadBuilding(result: DownloadBuilding): void {
+        if (result.format === 'xlsx') {
+            this.#dataDownloadService.downloadXlsxData([result.building]);
+        } else if (result.format === 'csv') {
+            this.#dataDownloadService.downloadCSVData([result.building]);
+        }
+    }
 }
