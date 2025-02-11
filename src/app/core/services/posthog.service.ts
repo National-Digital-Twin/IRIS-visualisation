@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
+import { environment } from '@environment';
 import { posthog } from 'posthog-js';
-import { environment } from 'src/environments/environment';
 
 @Injectable({
     providedIn: 'root',
