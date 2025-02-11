@@ -1,5 +1,4 @@
 import { Injectable, NgZone, inject, signal } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FilterProps } from '@core/models/advanced-filters.model';
 import { BuildingMap, BuildingModel } from '@core/models/building.model';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
@@ -11,7 +10,6 @@ import { featureCollection, point } from '@turf/helpers';
 import { pointsWithinPolygon } from '@turf/points-within-polygon';
 import { Feature, FeatureCollection, GeoJsonProperties, Geometry, MultiPoint, Point, Polygon } from 'geojson';
 import { Expression, LngLat, PaintSpecification } from 'mapbox-gl';
-import { combineLatest, tap } from 'rxjs';
 import { DataService } from './data.service';
 import { MapService } from './map.service';
 import { SpatialQueryService } from './spatial-query.service';
@@ -29,38 +27,22 @@ type CurrentExpressions = Record<MapLayerPaintKeys, ExpressionAndMapLayerFilter>
     providedIn: 'root',
 })
 export class UtilService {
-    #dataService = inject(DataService);
-    #mapService = inject(MapService);
-    #runtimeConfig = inject(RUNTIME_CONFIGURATION);
-    #settings = inject(SettingsService);
-    #spatialQueryService = inject(SpatialQueryService);
-    #zone = inject(NgZone);
+    readonly #dataService = inject(DataService);
+    readonly #mapService = inject(MapService);
+    readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
+    readonly #settings = inject(SettingsService);
+    readonly #spatialQueryService = inject(SpatialQueryService);
+    readonly #zone = inject(NgZone);
 
     private readonly colorBlindMode = this.#settings.get(SETTINGS.ColorBlindMode);
-    private readonly colorBlindEpcColors = this.#runtimeConfig.epcColoursCD;
 
     public multiDwelling = signal<string | undefined>(undefined);
     public selectedCardUPRN = signal<string | undefined>(undefined);
     public selectedUPRN = signal<string | undefined>(undefined);
 
-    private currentMapViewExpressions = signal<CurrentExpressions | undefined>(undefined);
-    private epcColours = this.#runtimeConfig.epcColours;
-    private filteredBuildings = signal<BuildingMap | undefined>(undefined);
-    private filterProps = signal<FilterProps>({});
-
-    /**
-     * Watch for when the buildings data is added to the buildings signal
-     * as this indicates first app load.  Then create map layer filter
-     * to colour buildings layer
-     */
-    private buildingData$ = combineLatest([toObservable(this.#dataService.buildings), toObservable(this.colorBlindMode)]).pipe(
-        tap(([buildings]) => {
-            if (buildings) {
-                this.createBuildingColourFilter();
-            }
-        }),
-    );
-    public readOnlyBuildingData = toSignal(this.buildingData$, {} as BuildingMap);
+    private readonly currentMapViewExpressions = signal<CurrentExpressions | undefined>(undefined);
+    private readonly filteredBuildings = signal<BuildingMap | undefined>(undefined);
+    private readonly filterProps = signal<FilterProps>({});
 
     public setFilters(filters: FilterProps): void {
         this.filterProps.set(filters);
@@ -73,14 +55,16 @@ export class UtilService {
      */
     public createBuildingColourFilter(): void {
         const unfilteredBuildings = this.#dataService.buildings();
+
         if (!unfilteredBuildings || !Object.keys(unfilteredBuildings).length) {
             return;
         }
+
         const filterProps = this.filterProps();
         const buildings = this.filterBuildings(unfilteredBuildings, filterProps);
 
         const spatialFilter = this.#spatialQueryService.spatialFilterBounds();
-        const filteredBuildings = this.filterBuildingsWithinBounds(buildings!, spatialFilter);
+        const filteredBuildings = this.filterBuildingsWithinBounds(buildings, spatialFilter);
 
         // set the filtered buildings so that the filters can search it
         this.filteredBuildings.set(filteredBuildings);
@@ -89,7 +73,7 @@ export class UtilService {
          * Get the default colors and patterns
          * for tolids.
          */
-        const defaultColor = this.epcColours['default'];
+        const defaultColor = this.#runtimeConfig.epcColours['default'];
         const defaultPattern = 'default-pattern';
 
         /**
@@ -203,8 +187,9 @@ export class UtilService {
          * If there is a building currently selected, check if it's in the
          * filtered buildings data and if not deselect it
          */
-        if (this.#dataService.selectedUPRN()) {
-            const exists = this.uprnInFilteredBuildings(this.#dataService.selectedUPRN()!, filteredBuildings);
+        const selectedUPRN = this.#dataService.selectedUPRN();
+        if (selectedUPRN) {
+            const exists = this.uprnInFilteredBuildings(selectedUPRN, filteredBuildings);
             if (!exists) this.singleDwellingDeselected();
         }
 
@@ -304,7 +289,12 @@ export class UtilService {
 
     public getEPCColour(epcRating: string): string {
         const colorBlindMode = this.colorBlindMode();
-        return this[colorBlindMode ? 'colorBlindEpcColors' : 'epcColours'][epcRating ? epcRating : 'default'];
+
+        if (colorBlindMode) {
+            return this.#runtimeConfig.epcColoursCD[epcRating || 'default'];
+        } else {
+            return this.#runtimeConfig.epcColours[epcRating || 'default'];
+        }
     }
 
     public filterBuildingsWithinBounds(buildings: BuildingMap, spatialQueryBounds?: mapboxgl.Point[]): BuildingMap {
@@ -322,7 +312,7 @@ export class UtilService {
                 spatialFilter ? booleanWithin(feature.geometry as Polygon, spatialFilter?.geometry as Polygon) : feature,
             )
             .sort((a, b) => (a.properties!.TOID < b.properties!.TOID ? -1 : 1))
-            .forEach((feature) => {
+            .map((feature) => {
                 const building = buildings[feature.properties!.TOID];
                 if (building) {
                     filteredToids[feature.properties!.TOID] = building;
@@ -384,7 +374,7 @@ export class UtilService {
         return filteredBuildings;
     }
 
-    public epcExpired(inspectionDate: string | undefined): boolean {
+    public epcExpired(inspectionDate?: string): boolean {
         if (!inspectionDate) {
             return false;
         }
@@ -393,7 +383,7 @@ export class UtilService {
         return new Date(inspectionDate) < tenYearsAgo;
     }
 
-    public epcInDate(inspectionDate: string | undefined): boolean {
+    public epcInDate(inspectionDate?: string): boolean {
         if (!inspectionDate) {
             return false;
         }
@@ -454,14 +444,16 @@ export class UtilService {
         const aggregateData: FeatureCollection<Geometry, GeoJsonProperties>[] = [];
         /** create array of address geojson points */
         data.forEach((p) => {
-            if (!p.latitude) {
+            if (!p.longitude || !p.latitude) {
                 return;
             }
-            const pt = point([+p.longitude!, +p.latitude!], {
+
+            const pt = point([+p.longitude, +p.latitude], {
                 UPRN: p.UPRN,
                 TOID: p.TOID ? p.TOID : p.ParentTOID,
                 EPC: p.EPC,
             });
+
             coordArray.push(pt);
         });
         /** create points geojson FeatureCollection */
@@ -472,7 +464,7 @@ export class UtilService {
             let newCollection: FeatureCollection<Geometry, GeoJsonProperties> | undefined = undefined;
             const featuresWithEPC: Feature<Polygon>[] = [];
             /** iterate through each polygon feature */
-            collection.features.forEach((feature: Feature) => {
+            collection.features.map((feature: Feature) => {
                 const f = feature as unknown as Polygon;
                 /** find address points within polygon */
                 const featuresInPolygon = pointsWithinPolygon(addressPointsFC, f);
@@ -483,7 +475,7 @@ export class UtilService {
                     properties: {
                         ...feature.properties!,
                         /** assign the lowest EPC value to the ward */
-                        aggEPC: aggEPC.sort().reverse()[0],
+                        aggEPC: aggEPC.sort((a, b) => b.localeCompare(a, undefined, { sensitivity: 'base' }))[0],
                         ...epcCounts,
                     },
                 };
@@ -509,7 +501,7 @@ export class UtilService {
         }
         const store: { [key: string]: number } = {};
         let maxCount = 0;
-        buildings.features.forEach((b) => {
+        buildings.features.map((b) => {
             if (!store[b.properties!.EPC]) {
                 store[b.properties!.EPC] = 0;
             }
@@ -798,8 +790,13 @@ export class UtilService {
         const newFilter = { ...mainFilterProps, ...filterCopy };
 
         const unfilteredBuildings = this.#dataService.buildings();
+
+        if (!unfilteredBuildings) {
+            return {};
+        }
+
         // filter buildings based on potential filter
-        const potentiallyFilteredBuildings = this.filterBuildings(unfilteredBuildings!, newFilter);
+        const potentiallyFilteredBuildings = this.filterBuildings(unfilteredBuildings, newFilter);
 
         // get unique set of valid options for each advanced filter
         const flattenedBuildings = Object.values(potentiallyFilteredBuildings).flat();
@@ -822,7 +819,12 @@ export class UtilService {
 
     public getAllUniqueFilterOptions(filters: FilterProps): FilterProps {
         const unfilteredBuildings = this.#dataService.buildings();
-        const flattenedBuildings = Object.values(unfilteredBuildings!).flat();
+
+        if (!unfilteredBuildings) {
+            return {};
+        }
+
+        const flattenedBuildings = Object.values(unfilteredBuildings).flat();
         const filterKeys = Object.keys(filters);
         // Do not fetch EPC Expiry values from data as these are static
         if (filterKeys.includes('EPCExpiry')) {
@@ -836,19 +838,18 @@ export class UtilService {
         const availableValues: FilterProps = {};
         filterKeys.forEach((key) => {
             const keyProp = key as keyof BuildingModel;
-            const options = [
-                ...new Set(
-                    flattenedBuildings.map((b) => {
-                        return b[keyProp] ?? '';
-                    }),
-                ),
-            ].sort();
+            const options = [...new Set(flattenedBuildings.map((b) => b[keyProp] ?? ''))].sort((a, b) =>
+                a.localeCompare(b, undefined, { sensitivity: 'base' }),
+            );
+
             if (options.includes('NoData')) {
                 options.push(options.splice(options.indexOf('NoData'), 1)[0]);
             }
+
             if (options.includes('')) {
                 options.splice(options.indexOf(''), 1);
             }
+
             availableValues[key as keyof FilterProps] = options;
         });
         return availableValues;

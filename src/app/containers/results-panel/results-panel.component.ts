@@ -17,7 +17,8 @@ import { DataService } from '@core/services/data.service';
 import { MapService } from '@core/services/map.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { UtilService } from '@core/services/utils.service';
-import mapboxgl, { LngLat } from 'mapbox-gl';
+import { LngLat } from 'mapbox-gl';
+import { filter, map } from 'rxjs';
 
 @Component({
     selector: 'c477-results-panel',
@@ -35,11 +36,11 @@ import mapboxgl, { LngLat } from 'mapbox-gl';
     templateUrl: './results-panel.component.html',
 })
 export class ResultsPanelComponent {
-    #dataService = inject(DataService);
-    #spatialQueryService = inject(SpatialQueryService);
-    #utilService = inject(UtilService);
-    #dataDownloadService = inject(DataDownloadService);
-    #mapService = inject(MapService);
+    readonly #dataService = inject(DataService);
+    readonly #spatialQueryService = inject(SpatialQueryService);
+    readonly #utilService = inject(UtilService);
+    readonly #dataDownloadService = inject(DataDownloadService);
+    readonly #mapService = inject(MapService);
 
     public buildingSelection = this.#dataService.buildingsSelection;
     public checkedCards = signal<BuildingModel[]>([]);
@@ -61,16 +62,16 @@ export class ResultsPanelComponent {
             const selectedTOID = this.#utilService.multiDwelling();
             if (selectedUPRN) {
                 const idx = this.buildingSelection()?.findIndex((building) => building[0].UPRN === selectedUPRN);
-                if (idx! > -1) {
+                if (idx && idx > -1) {
                     /** scroll to index*/
-                    this.viewPort?.scrollToIndex(idx!);
+                    this.viewPort?.scrollToIndex(idx);
                 }
             }
             if (selectedTOID) {
                 const idx = this.buildingSelection()?.findIndex((building) => building[0].ParentTOID === selectedTOID);
-                if (idx! > -1) {
+                if (idx && idx > -1) {
                     /** scroll to index*/
-                    this.viewPort?.scrollToIndex(idx!);
+                    this.viewPort?.scrollToIndex(idx);
                 }
             }
         });
@@ -121,7 +122,7 @@ export class ResultsPanelComponent {
     }
 
     public trackByUPRN(index: number, item: BuildingModel[]): string | undefined {
-        if (item.length == 1) {
+        if (item.length === 1) {
             return item[0].UPRN;
         } else {
             return item[0].ParentTOID;
@@ -142,22 +143,21 @@ export class ResultsPanelComponent {
         let addresses: string[] = [];
         let addressCount = undefined;
         /** download selected */
+
+        const buildingSelection = this.buildingSelection();
+
         if (this.selectMultiple) {
             if (this.checkedCards().length <= 10) {
-                this.checkedCards().forEach((building: BuildingModel) => addresses.push(building.FullAddress));
+                this.checkedCards().map((building: BuildingModel) => addresses.push(building.FullAddress));
             } else {
                 addressCount = this.checkedCards().length;
             }
-        } else {
-            /** download all */
-            if (this.buildingSelection() && this.buildingSelection()!.flat().length <= 10) {
-                this.buildingSelection()
-                    ?.flat()
-                    .forEach((building: BuildingModel) => addresses.push(building.FullAddress));
-            } else if (this.buildingSelection() && this.buildingSelection()!.flat().length > 10) {
-                addressCount = this.buildingSelection()!.flat().length;
-            }
+        } else if (buildingSelection && buildingSelection.flat().length <= 10) {
+            buildingSelection.flat().map((building: BuildingModel) => addresses.push(building.FullAddress));
+        } else if (buildingSelection && buildingSelection.flat().length > 10) {
+            addressCount = buildingSelection.flat().length;
         }
+
         this.dialog
             .open<DownloadWarningComponent, DownloadDataWarningData, DownloadDataWarningResponse>(DownloadWarningComponent, {
                 panelClass: 'data-download',
@@ -167,25 +167,33 @@ export class ResultsPanelComponent {
                 },
             })
             .afterClosed()
-            .subscribe((download) => {
-                if (download) {
-                    if (this.selectMultiple) {
-                        if (download === 'xlsx') {
-                            this.#dataDownloadService.downloadXlsxData(this.checkedCards());
-                        } else if (download === 'csv') {
-                            this.#dataDownloadService.downloadCSVData(this.checkedCards());
-                        }
-                    } else {
-                        if (download === 'xlsx') {
-                            this.#dataDownloadService.downloadXlsxData(this.buildingSelection()!.flat());
-                        } else if (download === 'csv') {
-                            this.#dataDownloadService.downloadCSVData(this.buildingSelection()!.flat());
-                        }
+            .pipe(
+                filter((download) => !!download),
+                map((download) => {
+                    const checkedCards = this.checkedCards();
+                    const buildingSelection = this.buildingSelection();
+
+                    switch (download) {
+                        case 'xlsx':
+                            if (this.selectMultiple) {
+                                this.#dataDownloadService.downloadXlsxData(checkedCards);
+                            } else if (buildingSelection) {
+                                this.#dataDownloadService.downloadXlsxData(buildingSelection.flat());
+                            }
+                            break;
+                        case 'csv':
+                            if (this.selectMultiple) {
+                                this.#dataDownloadService.downloadCSVData(checkedCards);
+                            } else if (buildingSelection) {
+                                this.#dataDownloadService.downloadCSVData(buildingSelection.flat());
+                            }
+                            break;
                     }
                     addresses = [];
                     addressCount = undefined;
-                }
-            });
+                }),
+            )
+            .subscribe();
     }
 
     public downloadBuilding(result: DownloadBuilding): void {

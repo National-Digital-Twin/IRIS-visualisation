@@ -24,36 +24,24 @@ type Loading<T> = T | 'loading';
     providedIn: 'root',
 })
 export class DataService {
-    #http: HttpClient = inject(HttpClient);
-    #searchEndpoint: string = inject(SEARCH_ENDPOINT);
-    #writeBackEndpoint = inject(WRITE_BACK_ENDPOINT);
-    #runtimeConfig = inject(RUNTIME_CONFIGURATION);
+    readonly #http: HttpClient = inject(HttpClient);
+    readonly #searchEndpoint: string = inject(SEARCH_ENDPOINT);
+    readonly #writeBackEndpoint = inject(WRITE_BACK_ENDPOINT);
+    readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
 
-    private queries = new Queries();
-
-    // single uprn
-    public selectedUPRN = signal<string | undefined>(undefined);
-    public selectedBuilding = signal<BuildingModel | undefined>(undefined);
-    public flagHistory = signal<Loading<FlagHistory[]>>([]);
     public activeFlag = signal<Loading<FlagHistory> | undefined>(undefined);
-
-    // multiple buildings
     public buildingsSelection = signal<BuildingModel[][] | undefined>(undefined);
-
-    /** Building objects with a flagged uri */
-    private buildingsFlagged = signal<FlagMap>({});
-    private buildingsFlagged$ = toObservable(this.buildingsFlagged);
-
-    public loading = signal<boolean>(true);
-
-    private sapPoints$ = this.selectTable(this.queries.getSAPPoints(), inject(SAP_DATA_FILE_NAME)).pipe(
-        map((points) => this.mapSAPPointsToToids(points as unknown as SAPPoint[])),
-    );
-
     public contextData$ = this.loadContextData();
+    public flagHistory = signal<Loading<FlagHistory[]>>([]);
+    public loading = signal<boolean>(true);
+    public selectedBuilding = signal<BuildingModel | undefined>(undefined);
+    public selectedUPRN = signal<string | undefined>(undefined);
 
-    /** load all flags */
-    private flags$ = this.selectTable(this.queries.getAllFlaggedBuildings()).pipe(
+    private readonly buildingsFlagged = signal<FlagMap>({});
+    private readonly buildingsFlagged$ = toObservable(this.buildingsFlagged);
+    private readonly queries = new Queries();
+
+    private readonly flags$ = this.selectTable(this.queries.getAllFlaggedBuildings()).pipe(
         map((res) => {
             const currentFlags = this.getCurrentFlags(res as unknown as FlagResponse[]);
             const flagMap = this.mapFlagsToToids(currentFlags);
@@ -61,36 +49,32 @@ export class DataService {
         }),
     );
 
-    private buildingsEPC$ = forkJoin([this.flags$, this.sapPoints$, this.selectTable(this.queries.getEPCData(), inject(EPC_DATA_FILE_NAME))]).pipe(
+    private readonly sapPoints$ = this.selectTable(this.queries.getSAPPoints(), inject(SAP_DATA_FILE_NAME)).pipe(
+        map((points) => this.mapSAPPointsToToids(points as unknown as SAPPoint[])),
+    );
+
+    private readonly buildingsEPC$ = forkJoin([this.flags$, this.sapPoints$, this.selectTable(this.queries.getEPCData(), inject(EPC_DATA_FILE_NAME))]).pipe(
         map(([flagMap, points, epc]) => {
-            /** set flags */
             this.buildingsFlagged.set(flagMap);
             return this.mapEPCBuildings(epc as unknown as EPCBuildingResponseModel[], points);
         }),
     );
 
-    private buildingsNoEPC$ = this.selectTable(this.queries.getNoEPCData(), inject(NON_EPC_DATA_FILE_NAME)).pipe(
+    private readonly buildingsNoEPC$ = this.selectTable(this.queries.getNoEPCData(), inject(NON_EPC_DATA_FILE_NAME)).pipe(
         map((noEPC) => this.mapNonEPCBuildings(noEPC as unknown as NoEPCBuildingResponseModel[])),
     );
 
-    /**
-     * Get all building data
-     * @returns Observable<BuildingMap>
-     */
-
-    private allData$ = combineLatest([this.buildingsEPC$, this.buildingsNoEPC$, this.buildingsFlagged$]).pipe(
+    private readonly allData$ = combineLatest([this.buildingsEPC$, this.buildingsNoEPC$, this.buildingsFlagged$]).pipe(
         map(([epc, noEPC, flagged]) => this.combineBuildingData(epc, noEPC, flagged)),
         tap(() => {
             this.loading.set(false);
         }),
     );
 
-    private buildingResults = toSignal(this.allData$, {
-        initialValue: undefined,
-    });
-    public buildings = computed(() => this.buildingResults());
+    private readonly buildingData = toSignal(this.allData$, { initialValue: undefined });
+    public buildings = computed(() => this.buildingData());
 
-    public setSelectedUPRN(uprn: string | undefined): void {
+    public setSelectedUPRN(uprn?: string): void {
         this.selectedUPRN.set(uprn);
     }
 
@@ -98,16 +82,16 @@ export class DataService {
      * Set individual building
      * @param building individual building
      */
-    public setSelectedBuilding(building: BuildingModel | undefined): void {
-        this.selectedBuilding.set(building ? building : undefined);
+    public setSelectedBuilding(building?: BuildingModel): void {
+        this.selectedBuilding.set(building);
     }
 
     /**
      * Set multiple buildings
      * @param building buildings
      */
-    public setSelectedBuildings(buildings: BuildingModel[][] | undefined): void {
-        this.buildingsSelection.set(buildings ? buildings : undefined);
+    public setSelectedBuildings(buildings?: BuildingModel[][]): void {
+        this.buildingsSelection.set(buildings);
     }
 
     /**
@@ -116,10 +100,8 @@ export class DataService {
      * @returns observable of parsed data
      */
     private selectTable(query: string, cacheUrl?: string): Observable<TableRow[]> {
-        const url = cacheUrl || `${this.#searchEndpoint}?query=${encodeURIComponent(query)}`;
-        const httpOptions = {
-            withCredentials: true,
-        };
+        const url = cacheUrl ?? `${this.#searchEndpoint}?query=${encodeURIComponent(query)}`;
+        const httpOptions = { withCredentials: true };
 
         const tableObservable = new Observable((observer: Subscriber<TableRow[]>) => {
             this.#http.get<SPARQLReturn>(url, httpOptions).subscribe((data: SPARQLReturn) => {
@@ -128,6 +110,7 @@ export class DataService {
                 observer.complete();
             });
         });
+
         return tableObservable;
     }
 
@@ -151,24 +134,20 @@ export class DataService {
     private buildTable(SPARQLReturn: SPARQLReturn): TableRow[] {
         const heads = SPARQLReturn.head.vars;
         const data = SPARQLReturn.results.bindings;
-        const table: Array<TableRow> = [];
 
-        // build empty table
-        for (let row = 0; row < data.length; row++) {
-            const rows: TableRow = {};
-            for (let head = 0; head < heads.length; head++) {
-                const colname: string = heads[head];
-                const cellEntry = '';
-                rows[colname] = cellEntry;
+        const table = data.map(() => {
+            return heads.reduce((row, colname) => {
+                row[colname] = '';
+                return row;
+            }, {} as TableRow);
+        });
+
+        data.forEach((rowData, rowIndex) => {
+            for (const [colName, { value }] of Object.entries(rowData)) {
+                table[rowIndex][colName] = value;
             }
-            table.push(rows);
-        }
-        // fill table with data
-        for (const rowNumber in data) {
-            for (const colName in data[rowNumber]) {
-                table[rowNumber][colName] = data[rowNumber][colName].value;
-            }
-        }
+        });
+
         return table;
     }
 
@@ -191,7 +170,7 @@ export class DataService {
             if (toid && buildingMap[toid]) {
                 buildingMap[toid].push(row);
             } else {
-                buildingMap[toid!] = [row];
+                buildingMap[toid] = [row];
             }
         });
         return buildingMap;
@@ -207,11 +186,17 @@ export class DataService {
      */
     private mapEPCBuildings(buildings: EPCBuildingResponseModel[], sapPoints: SAPPointMap): BuildingMap {
         const buildingMap: BuildingMap = {};
+
         buildings.forEach((row: EPCBuildingResponseModel) => {
             const toid = row.TOID ? row.TOID : row.ParentTOID;
+
             /** if there is no TOID the building cannot be visualised */
-            if (!toid) return;
-            const sapPoint = sapPoints[toid].find((p) => p.UPRN === row.UPRN);
+            if (!toid) {
+                return;
+            }
+
+            const sapPoint = sapPoints[toid]?.find((p) => p.UPRN === row.UPRN) || { SAPPoint: undefined, latitude: undefined, longitude: undefined };
+
             /** add 'none' for buildings with no EPC rating */
             const epc = row.EPC ? row.EPC : EPCRating.none;
             const yearOfAssessment = row.InspectionDate ? new Date(row.InspectionDate).getFullYear().toString() : '';
@@ -229,7 +214,7 @@ export class DataService {
                 InspectionDate: row.InspectionDate,
                 YearOfAssessment: yearOfAssessment,
                 EPC: epc,
-                SAPPoints: sapPoint?.SAPPoint ? sapPoint.SAPPoint : undefined,
+                SAPPoints: sapPoint.SAPPoint,
                 FloorConstruction: parts.FloorConstruction,
                 FloorInsulation: parts.FloorInsulation,
                 RoofConstruction: parts.RoofConstruction,
@@ -239,15 +224,16 @@ export class DataService {
                 WallInsulation: parts.WallInsulation,
                 WindowGlazing: parts.WindowGlazing,
                 Flagged: undefined,
-                latitude: sapPoint?.latitude,
-                longitude: sapPoint?.longitude,
+                latitude: sapPoint.latitude,
+                longitude: sapPoint.longitude,
             };
             if (buildingMap[toid]) {
                 buildingMap[toid].push(building);
             } else {
-                buildingMap[toid!] = [building];
+                buildingMap[toid] = [building];
             }
         });
+
         return buildingMap;
     }
 
@@ -281,9 +267,9 @@ export class DataService {
             const toid = building.TOID ? building.TOID : building.ParentTOID;
             if (!toid) return;
             if (buildingMap[toid]) {
-                buildingMap[toid].push(building as BuildingModel);
+                buildingMap[toid].push(building);
             } else {
-                buildingMap[toid!] = [building as BuildingModel];
+                buildingMap[toid] = [building];
             }
         });
         return buildingMap;
@@ -297,21 +283,22 @@ export class DataService {
      */
     private combineBuildingData(epcBuildings: BuildingMap, nonEPCBuildings: BuildingMap, flaggedBuildings: FlagMap): BuildingMap {
         const allBuildings: BuildingMap = { ...epcBuildings };
-        Object.keys(nonEPCBuildings).forEach((toid: string) => {
+
+        Object.entries(nonEPCBuildings).forEach(([toid, building]) => {
             if (allBuildings[toid]) {
-                allBuildings[toid].concat(nonEPCBuildings[toid]);
+                allBuildings[toid] = allBuildings[toid].concat(building);
             } else {
-                allBuildings[toid] = nonEPCBuildings[toid];
+                allBuildings[toid] = building;
             }
         });
 
-        /* combine flagged buildings to all buildings */
-        Object.keys(flaggedBuildings).forEach((toid) => {
+        Object.entries(flaggedBuildings).forEach(([toid, flaggedList]) => {
             if (allBuildings[toid]) {
-                flaggedBuildings[toid].forEach((fb) => {
-                    /* overwrite flagged property on building */
-                    const index = allBuildings[toid].findIndex((b) => b.UPRN === fb.UPRN);
-                    allBuildings[toid][index].Flagged = fb.Flagged;
+                flaggedList.forEach(({ UPRN, Flagged }) => {
+                    const building = allBuildings[toid].find((b) => b.UPRN === UPRN);
+                    if (building) {
+                        building.Flagged = Flagged;
+                    }
                 });
             }
         });
@@ -329,10 +316,16 @@ export class DataService {
     }
 
     public getBuildingByUPRN(uprn: string): BuildingModel {
-        const allBuildings = this.buildings();
-        const flatBuildings: BuildingModel[] = Object.values(allBuildings!).flat();
+        const buildings = this.buildings();
+
+        if (!buildings) {
+            return {} as BuildingModel;
+        }
+
+        const flatBuildings: BuildingModel[] = Object.values(buildings).flat();
         const building = flatBuildings.find((building) => building.UPRN === uprn);
-        return building!;
+
+        return building ?? ({} as BuildingModel);
     }
 
     private isWallKey(value: string): value is keyof typeof WallConstruction {
@@ -429,7 +422,7 @@ export class DataService {
                         TOID: building.TOID,
                         ParentTOID: building.ParentTOID,
                         Flagged: flagUri,
-                        FlagDate: new Date().toISOString() as string,
+                        FlagDate: new Date().toISOString(),
                     };
                     this.buildingsFlagged.update((f) => ({
                         ...f,

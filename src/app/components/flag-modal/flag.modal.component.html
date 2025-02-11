@@ -8,7 +8,7 @@
     </ul>
 </div>
 
-<div mat-dialog-actions align="end">
+<div mat-dialog-actions>
     <button mat-flat-button mat-dialog-close>Cancel</button>
     <button mat-flat-button cdkFocusInitial color="primary" [mat-dialog-close]="true">
         <span *ngIf="data.length === 1; else createFlagsCopy">Create flag</span>

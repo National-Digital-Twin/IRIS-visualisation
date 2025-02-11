@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class HandleHttpErrorInterceptor implements HttpInterceptor {
-    #exceptionService = inject(ExceptionService);
+    readonly #exceptionService = inject(ExceptionService);
 
     /**
      * Intercept Http Request.

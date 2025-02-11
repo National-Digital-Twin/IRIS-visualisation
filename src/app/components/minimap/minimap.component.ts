@@ -15,22 +15,25 @@ import { skip } from 'rxjs';
     templateUrl: './minimap.component.html',
 })
 export class MinimapComponent implements OnInit, OnChanges {
-    #mapService = inject(MapService);
-    #runtimeConfig = inject(RUNTIME_CONFIGURATION);
-    #theme = inject(SettingsService).get(SETTINGS.Theme);
+    readonly #mapService = inject(MapService);
+    readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
+    readonly #theme = inject(SettingsService).get(SETTINGS.Theme);
 
     public theme$ = toObservable(this.#theme).pipe(takeUntilDestroyed());
 
     private map?: mapboxgl.Map;
     private arrow: string = 'arrow-dark';
+    private readonly data: Feature<Geometry, GeoJsonProperties>;
 
     @Input() public minimapData?: MinimapData;
 
-    private data = {
-        type: 'Feature',
-        geometry: { type: 'Point', coordinates: this.#runtimeConfig.map.center },
-        properties: {},
-    } as Feature<Geometry, GeoJsonProperties>;
+    constructor() {
+        this.data = {
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: this.#runtimeConfig.map.center },
+            properties: {},
+        };
+    }
 
     public ngOnChanges(): void {
         if (this.map && this.minimapData) {
@@ -48,16 +51,21 @@ export class MinimapComponent implements OnInit, OnChanges {
             this.arrow = theme === 'dark' ? 'arrow-light' : 'arrow-dark';
             this.map = new mapboxgl.Map({
                 container: 'minimap',
-                style: this.#runtimeConfig.map.style[theme],
+                accessToken: 'undefined',
                 zoom: this.#runtimeConfig.minimap.zoom,
                 center: this.#runtimeConfig.map.center,
                 interactive: false,
                 attributionControl: false,
+                style: this.#runtimeConfig.map.style[theme],
                 // append OS api key and srs details to OS VTS requests
                 transformRequest: (url: string): Record<'url', string> => {
                     if (url.indexOf('api.os.uk') > -1) {
                         url = this.#mapService.transformUrlForProxy(url, 'api.os.uk', 'os', 'key');
-                        url = url.slice(-1) == '?' ? url + 'srs=3857' : url + '?srs=3857';
+                        url = url.endsWith('?') ? url + 'srs=3857' : url + '?srs=3857';
+                    } else if (url.indexOf('api.mapbox.com') > -1) {
+                        url = this.#mapService.transformUrlForProxy(url, 'api.mapbox.com', 'mapbox-api', 'access_token');
+                    } else if (url.indexOf('events.mapbox.com') > -1) {
+                        url = this.#mapService.transformUrlForProxy(url, 'events.mapbox.com', 'mapbox-events', 'access_token');
                     }
                     return {
                         url: url,

@@ -1,11 +1,13 @@
+@let hasSpatialFilter = spatialFilterEnabled();
+
 <div *ngIf="theme$ | async as theme" class="map-controls-container">
     <div class="map-controls">
-        <button mat-icon-button class="map-button" (click)="resetMapView.emit()" matTooltipPosition="before" matTooltip="Reset view">
+        <button mat-icon-button class="map-button" (click)="resetMapView.emit(null)" matTooltipPosition="before" matTooltip="Reset view">
             <img [src]="theme === 'light' ? 'assets/icons/House.svg' : 'assets/icons/House_white.svg'" alt="reset map view" />
         </button>
     </div>
     <div class="map-controls">
-        <button mat-icon-button class="map-button" (click)="resetNorth.emit()" matTooltipPosition="before" matTooltip="Reset to north">
+        <button mat-icon-button class="map-button" (click)="resetNorth.emit(null)" matTooltipPosition="before" matTooltip="Reset to north">
             <img
                 [src]="theme === 'light' ? 'assets/icons/Compass.svg' : 'assets/icons/Compass_white.svg'"
                 [style]="'transform: rotate(' + bearing + 'deg)'"
@@ -27,10 +29,10 @@
         </button>
     </div>
     <div class="map-controls">
-        <button class="map-button" mat-icon-button (click)="zoomIn.emit()" matTooltipPosition="before" matTooltip="Zoom in">
+        <button class="map-button" mat-icon-button (click)="zoomIn.emit(null)" matTooltipPosition="before" matTooltip="Zoom in">
             <img [src]="theme === 'light' ? 'assets/icons/Plus.svg' : 'assets/icons/Plus_white.svg'" alt="zoom in" />
         </button>
-        <button class="map-button" mat-icon-button (click)="zoomOut.emit()" matTooltipPosition="before" matTooltip="Zoom out">
+        <button class="map-button" mat-icon-button (click)="zoomOut.emit(null)" matTooltipPosition="before" matTooltip="Zoom out">
             <img [src]="theme === 'light' ? 'assets/icons/Minus.svg' : 'assets/icons/Minus_white.svg'" alt="zoom out" />
         </button>
     </div>
@@ -53,16 +55,16 @@
             />
             <img *ngIf="theme === 'dark'" [src]="'assets/icons/SpatialSearch_white.svg'" alt="draw polygon" />
         </button>
-        @if (spatialFilterEnabled && mapInstance.getZoom() < 15) {
-            <button mat-icon-button class="map-button" (click)="downloadAddresses.emit()" matTooltipPosition="before" matTooltip="Download addresses">
+        @if (hasSpatialFilter && mapInstance.getZoom() < 15) {
+            <button mat-icon-button class="map-button" (click)="downloadAddresses.emit(null)" matTooltipPosition="before" matTooltip="Download addresses">
                 <img [src]="theme === 'light' ? 'assets/icons/Download.svg' : 'assets/icons/Download_white.svg'" alt="download addresses" />
             </button>
         }
         <button
-            [disabled]="!spatialFilterEnabled"
+            [disabled]="!hasSpatialFilter"
             [ngClass]="{
-                'map-button--inactive': theme === 'light' && !spatialFilterEnabled,
-                'map-button--inactive_dark': theme === 'dark' && !spatialFilterEnabled,
+                'map-button--inactive': theme === 'light' && !hasSpatialFilter,
+                'map-button--inactive_dark': theme === 'dark' && !hasSpatialFilter,
             }"
             mat-icon-button
             class="map-button"
@@ -79,7 +81,7 @@
         </button>
     </div>
     <div class="map-controls map-controls--bottom">
-        <button mat-icon-button class="map-button" (click)="toggleMinimap.emit()" matTooltipPosition="before" matTooltip="Minimap">
+        <button mat-icon-button class="map-button" (click)="toggleMinimap.emit(null)" matTooltipPosition="before" matTooltip="Minimap">
             <img [src]="theme === 'light' ? 'assets/icons/MapTrifold.svg' : 'assets/icons/MapTrifold_white.svg'" alt="open minimap" />
         </button>
     </div>

@@ -33,9 +33,9 @@ import { EMPTY, switchMap } from 'rxjs';
     templateUrl: './details-panel.component.html',
 })
 export class DetailsPanelComponent implements OnInit {
-    #dataService = inject(DataService);
-    #dialog = inject(MatDialog);
-    #utilService = inject(UtilService);
+    readonly #dataService = inject(DataService);
+    readonly #dialog = inject(MatDialog);
+    readonly #utilService = inject(UtilService);
 
     @Input() public resultsPanelCollapsed = false;
 
@@ -60,7 +60,7 @@ export class DetailsPanelComponent implements OnInit {
     public wallInsulation: Record<string, string> = WallInsulation;
     public windowGlazing: Record<string, string> = WindowGlazing;
 
-    private updateFlagHistory$ = toObservable(this.buildingDetails).pipe(
+    private readonly updateFlagHistory$ = toObservable(this.buildingDetails).pipe(
         takeUntilDestroyed(),
         switchMap((b) => (b ? this.#dataService.updateFlagHistory(b.UPRN) : EMPTY)),
     );

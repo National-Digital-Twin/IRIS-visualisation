@@ -14,7 +14,7 @@ export class FilterService {
      */
     public createFilterString(filter: { [key: string]: string[] }, currentFilters?: FilterProps): string {
         // format EPC rating
-        if (currentFilters && currentFilters['EPC']) {
+        if (currentFilters?.['EPC']) {
             currentFilters['EPC'] = currentFilters['EPC'].map((rating) => rating);
         }
         const combinedFilters = [filter];

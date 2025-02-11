@@ -16,7 +16,7 @@ export type FlagModalResult = true;
     imports: [CommonModule, MatDialogModule, MatButtonModule],
 })
 export class FlagModalComponent {
-    #data = inject<FlagModalData>(MAT_DIALOG_DATA);
+    readonly #data = inject<FlagModalData>(MAT_DIALOG_DATA);
 
     public today = new Date(Date.now()).toLocaleDateString('en-GB');
 

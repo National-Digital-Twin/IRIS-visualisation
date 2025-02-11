@@ -7,9 +7,9 @@ import { EMPTY, OperatorFunction, catchError, switchMap, tap, throwError } from 
 
 @Injectable({ providedIn: 'root' })
 export class ExceptionService implements ErrorHandler {
-    #snackBar = inject(MatSnackBar);
-    #location = inject(DOCUMENT).location;
-    #telicentBaseURL = inject(RUNTIME_CONFIGURATION).apiURL;
+    readonly #snackBar = inject(MatSnackBar);
+    readonly #location = inject(DOCUMENT).location;
+    readonly #telicentBaseURL = inject(RUNTIME_CONFIGURATION).apiURL;
 
     /**
      * Handle Error.
@@ -31,45 +31,22 @@ export class ExceptionService implements ErrorHandler {
             request$.pipe(
                 catchError((httpError: HttpErrorResponse) => {
                     const { url, status, error } = httpError;
+                    const message = error instanceof ErrorEvent ? `Client-side/network error: ${error.message}` : `Server error ${status}: ${error.message}`;
 
-                    /**
-                     * If the error is from the Telicent API, and the error is an
-                     * 401 or 403, then reload the page causing the user to be
-                     * presented with the login screen. This ocures when a requests
-                     * cookies have expired or the user has invalid credentials.
-                     */
-                    if (url?.includes(this.#telicentBaseURL)) {
-                        const unauthorized = status === HttpStatusCode.Unauthorized || status === HttpStatusCode.Forbidden;
-                        if (unauthorized) {
-                            /* create a new error object and handle it */
-                            const message = `Unauthorized telicent API request. ${error.message}`;
-                            const newError = new Error(message);
-                            this.handleError(newError);
+                    if (url?.includes(this.#telicentBaseURL) && (status === HttpStatusCode.Unauthorized || status === HttpStatusCode.Forbidden)) {
+                        this.handleError(new Error(`Unauthorized Telicent API request. ${error.message}`));
 
-                            /* open snackbar and reload the browsers page once dismissed */
-                            return this.#snackBar
-                                .open('Your session has expired. Please login again.', 'Ok', {
-                                    duration: 0,
-                                    politeness: 'assertive',
-                                })
-                                .afterDismissed()
-                                .pipe(
-                                    tap(() => this.#location.reload()),
-                                    switchMap(() => throwError(() => EMPTY)),
-                                );
-                        }
+                        return this.#snackBar
+                            .open('Your session has expired. Please login again.', 'Ok', { duration: 0, politeness: 'assertive' })
+                            .afterDismissed()
+                            .pipe(
+                                tap(() => this.#location.reload()),
+                                switchMap(() => throwError(() => EMPTY)),
+                            );
                     }
 
-                    /* create a new error object and handle it for all other http erors */
-                    const message =
-                        error instanceof ErrorEvent
-                            ? `A client-side or network error occurred: ${error.message}`
-                            : `Server returned code: ${status}, error message is: ${error.message}`;
-                    const newError = new Error(message);
-                    this.handleError(newError);
-
-                    /* thorw the error to the next error handler */
-                    return throwError(() => newError);
+                    this.handleError(new Error(message));
+                    return throwError(() => new Error(message));
                 }),
             );
     }

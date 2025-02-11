@@ -10,7 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
     templateUrl: './information.component.html',
 })
 export class InformationComponent {
-    #renderer = inject(Renderer2);
+    readonly #renderer = inject(Renderer2);
 
     public downloadUserGuide(): void {
         const link = this.#renderer.createElement('a');

@@ -8,7 +8,7 @@ import { PosthogService } from '@core/services/posthog.service';
     templateUrl: './app.component.html',
 })
 export class AppComponent implements OnInit {
-    #posthogService = inject(PosthogService);
+    readonly #posthogService = inject(PosthogService);
 
     public ngOnInit(): void {
         this.#posthogService.initialize();

@@ -18,9 +18,9 @@ import { Theme } from '@core/types/theme';
     templateUrl: './results-card.component.html',
 })
 export class ResultsCardComponent {
-    #dialog: MatDialog = inject(MatDialog);
-    #theme: Signal<Theme> = inject(SettingsService).get(SETTINGS.Theme);
-    #utilService: UtilService = inject(UtilService);
+    readonly #dialog: MatDialog = inject(MatDialog);
+    readonly #theme: Signal<Theme> = inject(SettingsService).get(SETTINGS.Theme);
+    readonly #utilService: UtilService = inject(UtilService);
 
     @Input() public buildingUPRN?: string;
     @Input() public card!: BuildingModel;
