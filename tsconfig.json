@@ -27,6 +27,7 @@
             "@components/*": ["src/app/components/*"],
             "@containers/*": ["src/app/containers/*"],
             "@core/*": ["src/app/core/*"],
+            "@environment": ["src/environments/environment"],
             "@models/*": ["src/app/models/*"]
         }
     },

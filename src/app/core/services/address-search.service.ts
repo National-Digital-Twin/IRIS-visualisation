@@ -3,9 +3,9 @@ import { Injectable, inject } from '@angular/core';
 import { AddressSearchData, AddressSearchResponse } from '@core/models/address-search-results.model';
 import { OSNamesSearchResponse } from '@core/models/os-names-search-results.model';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
+import { environment } from '@environment';
 import proj4 from 'proj4';
 import { Observable, map } from 'rxjs';
-import { environment } from 'src/environments/environment';
 import { MapService } from './map.service';
 
 /**

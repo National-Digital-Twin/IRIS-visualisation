@@ -2,6 +2,7 @@ import { Injectable, NgZone, inject, signal } from '@angular/core';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
 import { URLStateModel } from '@core/models/url-state.model';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
+import { environment } from '@environment';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import mapboxgl, {
     AnyLayer,
@@ -14,7 +15,6 @@ import mapboxgl, {
     SourceSpecification,
 } from 'mapbox-gl';
 import { AsyncSubject, EMPTY, Observable, catchError, finalize, first, forkJoin, from, map, of, switchMap } from 'rxjs';
-import { environment } from 'src/environments/environment';
 
 /**
  * Service for the MapboxGLJS map
