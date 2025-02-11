@@ -25,7 +25,7 @@ All the elements in the SCI equation scale by the same function unit of `R`.
 
 The **IRIS** platforms frontend application sits within overall context and interacts with the following external systems:
 
-- **Telicent Graph API**
+- **Graph API**
 - **Amazon Cognito**
 - **Microsoft Active Directory**
 - **GitHub**
@@ -33,9 +33,9 @@ The **IRIS** platforms frontend application sits within overall context and inte
 
 ```mermaid
 C4Context
-  Enterprise_Boundary(telicent, "Telicent") {
+  Enterprise_Boundary(ndtp, "NDTP") {
     System(frontend, "IRIS Frontend")
-    System_Ext(graph-api, "Telicent Graph API")
+    System_Ext(graph-api, "Graph API")
   }
 
   Enterprise_Boundary(aws, "Amazon Web Services") {
@@ -69,9 +69,9 @@ The **IRIS Frontend** application consists of the following containers:
 
 ```mermaid
 C4Context
-  Enterprise_Boundary(telicent, "Telicent") {
+  Enterprise_Boundary(ndtp, "NDTP") {
     System(frontend, "Frontend", "Typescript - Angular")
-    System_Ext(graph-api, "Telicent Graph API")
+    System_Ext(graph-api, "Graph API")
   }
 
   Enterprise_Boundary(github, "GitHub") {
@@ -101,14 +101,14 @@ C4Deployment
   }
 
   Deployment_Node(aws, "AWS") {
-    Deployment_Node(aws-telicent, "AWS - Telicent Account") {
+    Deployment_Node(aws-ndtp, "AWS - NDTP Account") {
       Container(vpc, "VPC Load Balencer")
       Container(s3-frontend, "S3 - Frontend", "S3 - Cloudfront")
       System_Ext(cognito, "Cognito")
     }
   }
 
-  System_Ext(graph-api, "Telicent Graph API")
+  System_Ext(graph-api, "Graph API")
   System_Ext(active-directory, "Active Directory")
   System_Ext(github, "GitHub")
   System_Ext(google_fonts, "Google Fonts")
@@ -133,7 +133,7 @@ The **IRIS** platforms frontend appliocation SCI calculation is performed on the
 
 - **Browser - Frontend**
 - **Network Traffic**
-  - **Bwowser - Frontend** - **Telicent Graph API**
+  - **Bwowser - Frontend** - **Graph API**
   - **Browser - Frontend** - **GitHub**
   - **Browser - Frontend** - **Google Fonts**
 

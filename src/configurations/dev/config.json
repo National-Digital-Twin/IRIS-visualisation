@@ -1,7 +1,7 @@
 {
     "production": false,
     "env": "dev",
-    "apiURL": "https://thirdp-test.telicent.live",
+    "apiURL": "https://ia.demo.ndtp.co.uk",
     "addressSearch": {
         "placesAPIURL": "https://api.os.uk/search/places/v1",
         "namesAPIURL": "https://api.os.uk/search/names/v1",

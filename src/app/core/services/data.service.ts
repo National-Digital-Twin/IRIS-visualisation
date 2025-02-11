@@ -95,7 +95,7 @@ export class DataService {
     }
 
     /**
-     * Query Telicent IA
+     * Query Integration Architecture via SPARQL
      * @param query SPARQL query
      * @returns observable of parsed data
      */
@@ -126,9 +126,9 @@ export class DataService {
     }
 
     /**
-     * Converts a query result from the Telicent IA to an
+     * Converts a query result from the Integration Architecture to an
      * array of objects
-     * @param SPARQLReturn Query result from Telicent IA
+     * @param SPARQLReturn Query result from Integration Architecture
      * @returns Array of parsed data
      */
     private buildTable(SPARQLReturn: SPARQLReturn): TableRow[] {
