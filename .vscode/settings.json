@@ -1,13 +1,3 @@
 {
-  "conventionalCommits.scopes": [
-    "Results",
-    "Details Panel",
-    "Filters",
-    "Map",
-    "AddressSearch",
-    "Data Download",
-    "Flag",
-    "Loading Screen",
-    "Minimap"
-  ]
+    "conventionalCommits.scopes": ["Results", "Details Panel", "Filters", "Map", "AddressSearch", "Data Download", "Flag", "Loading Screen", "Minimap"]
 }

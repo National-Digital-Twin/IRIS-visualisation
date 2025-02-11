@@ -1,29 +1,32 @@
 <mat-expansion-panel class="results-card-expansion" [togglePosition]="'before'">
-  <mat-expansion-panel-header
-    class="results-card-expansion__header"
-    [collapsedHeight]="'143px'"
-    [expandedHeight]="'auto'"
-    [ngClass]="{
-      'results-card--select': parentDataset.ParentTOID === buildingTOID
-    }">
-    <c477-results-card
-      class="results-card-expansion__fullwidth"
-      [card]="parentDataset"
-      [select]="select"
-      [parent]="true"
-      [checked]="cardIsChecked(dwellings)"
-      (toggleChecked)="onToggleCheckedDwellings($event)"
-      (cardSelected)="cardSelected.emit($event)"></c477-results-card>
-  </mat-expansion-panel-header>
-  @for (dwelling of sortedDwellings(); track dwelling.UPRN) {
-    <c477-results-card
-      [card]="dwelling"
-      [select]="select"
-      [checked]="cardIsChecked([dwelling])"
-      (emitViewDetails)="emitViewDetails.emit($event)"
-      (toggleChecked)="toggleChecked.emit(dwelling)"
-      (flag)="flag.emit([dwelling])"
-      (removeFlag)="removeFlag.emit(dwelling)">
-    </c477-results-card>
-  }
+    <mat-expansion-panel-header
+        class="results-card-expansion__header"
+        [collapsedHeight]="'143px'"
+        [expandedHeight]="'auto'"
+        [ngClass]="{
+            'results-card--select': parentDataset.ParentTOID === buildingTOID,
+        }"
+    >
+        <c477-results-card
+            class="results-card-expansion__fullwidth"
+            [card]="parentDataset"
+            [select]="select"
+            [parent]="true"
+            [checked]="cardIsChecked(dwellings)"
+            (toggleChecked)="onToggleCheckedDwellings($event)"
+            (cardSelected)="cardSelected.emit($event)"
+        ></c477-results-card>
+    </mat-expansion-panel-header>
+    @for (dwelling of sortedDwellings(); track dwelling.UPRN) {
+        <c477-results-card
+            [card]="dwelling"
+            [select]="select"
+            [checked]="cardIsChecked([dwelling])"
+            (emitViewDetails)="emitViewDetails.emit($event)"
+            (toggleChecked)="toggleChecked.emit(dwelling)"
+            (flag)="flag.emit([dwelling])"
+            (removeFlag)="removeFlag.emit(dwelling)"
+        >
+        </c477-results-card>
+    }
 </mat-expansion-panel>

@@ -1,236 +1,180 @@
 {
-  "production": false,
-  "env": "dev",
-  "apiURL": "https://thirdp-test.telicent.live",
-  "addressSearch": {
-    "placesAPIURL": "https://api.os.uk/search/places/v1",
-    "namesAPIURL": "https://api.os.uk/search/names/v1",
-    "maxResults": 100,
-    "localCustodianCode": 2114
-  },
-  "cache": {
-    "epc": "/assets/data/epc-data.json",
-    "sap": "/assets/data/SAP-data.json",
-    "nonEpc": "/assets/data/non-epc-data.json"
-  },
-  "companyLogo": {
-    "light": "assets/NDTP-HM-02-highres.png",
-    "dark": "assets/NDTP-HM-04-highres.png"
-  },
-  "minimap": {
-    "zoom": 8
-  },
-  "map": {
-    "style": {
-      "light": "https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Light.json",
-      "dark": "https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Dark.json"
+    "production": false,
+    "env": "dev",
+    "apiURL": "https://thirdp-test.telicent.live",
+    "addressSearch": {
+        "placesAPIURL": "https://api.os.uk/search/places/v1",
+        "namesAPIURL": "https://api.os.uk/search/names/v1",
+        "maxResults": 100,
+        "localCustodianCode": 2114
     },
-    "zoom": 15.05,
-    "pitch": 58,
-    "center": [-1.29512, 50.69523],
-    "bearing": 0
-  },
-  "epcColours": {
-    "A": "#3D4E3B",
-    "B": "#4BA046",
-    "C": "#A3EB9F",
-    "D": "#FFD10A",
-    "E": "#FFCC99",
-    "F": "#E66E23",
-    "G": "#B60007",
-    "none": "#BEBEBE",
-    "default": "#F2ECDF"
-  },
-  "epcColoursCD": {
-    "A": "#0051F2",
-    "B": "#377CF6",
-    "C": "#6DA7FB",
-    "D": "#DAFFA5",
-    "E": "#FFD173",
-    "F": "#D9963A",
-    "G": "#B35A00",
-    "none": "#BEBEBE",
-    "default": "#F2ECDF"
-  },
-  "mapLayers": [
-    {
-      "id": "OS/TopographicArea_2/Building/1_2D",
-      "type": "fill",
-      "source": "esri",
-      "source-layer": "TopographicArea_2",
-      "filter": ["==", "_symbol", 4],
-      "paint": {
-        "fill-opacity": 0
-      }
+    "cache": {
+        "epc": "/assets/data/epc-data.json",
+        "sap": "/assets/data/SAP-data.json",
+        "nonEpc": "/assets/data/non-epc-data.json"
     },
-    {
-      "id": "OS/TopographicArea_2/Building/1_3D",
-      "type": "fill-extrusion",
-      "source": "esri",
-      "source-layer": "TopographicArea_2",
-      "filter": ["==", "_symbol", 4],
-      "minzoom": 15,
-      "layout": {},
-      "paint": {
-        "fill-extrusion-color": "#F2ECDF",
-        "fill-extrusion-height": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          15,
-          0,
-          15.05,
-          ["get", "RelHMax"]
-        ]
-      }
+    "companyLogo": {
+        "light": "assets/NDTP-HM-02-highres.png",
+        "dark": "assets/NDTP-HM-04-highres.png"
     },
-    {
-      "id": "OS/TopographicArea_2/Building/1_3D-Single-Dwelling",
-      "type": "fill-extrusion",
-      "source": "esri",
-      "source-layer": "TopographicArea_2",
-      "filter": ["==", "_symbol", 4],
-      "minzoom": 15,
-      "layout": {},
-      "paint": {
-        "fill-extrusion-color": "#F2ECDF",
-        "fill-extrusion-height": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          15,
-          0,
-          15.05,
-          ["get", "RelHMax"]
-        ]
-      }
+    "minimap": {
+        "zoom": 8
     },
-    {
-      "id": "OS/TopographicArea_2/Building/1_3D-Multi-Dwelling",
-      "type": "fill-extrusion",
-      "source": "esri",
-      "source-layer": "TopographicArea_2",
-      "minzoom": 15,
-      "layout": {},
-      "paint": {
-        "fill-extrusion-color": "#F2ECDF",
-        "fill-extrusion-height": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          15,
-          0,
-          15.05,
-          ["get", "RelHMax"]
-        ]
-      }
+    "map": {
+        "style": {
+            "light": "https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Light.json",
+            "dark": "https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Dark.json"
+        },
+        "zoom": 15.05,
+        "pitch": 58,
+        "center": [-1.29512, 50.69523],
+        "bearing": 0
     },
-    {
-      "id": "OS/TopographicArea_2/Building/1_3D-Dwelling-Flagged",
-      "type": "fill-extrusion",
-      "source": "esri",
-      "source-layer": "TopographicArea_2",
-      "filter": ["all", ["==", "_symbol", 4], ["in", "TOID", ""]],
-      "minzoom": 15,
-      "layout": {},
-      "paint": {
-        "fill-extrusion-color": "#000000",
-        "fill-extrusion-base": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          15,
-          0,
-          15.05,
-          ["get", "RelHMax"]
-        ],
-        "fill-extrusion-height": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          15,
-          0,
-          15.05,
-          ["+", ["get", "RelHMax"], 1]
-        ]
-      }
+    "epcColours": {
+        "A": "#3D4E3B",
+        "B": "#4BA046",
+        "C": "#A3EB9F",
+        "D": "#FFD10A",
+        "E": "#FFCC99",
+        "F": "#E66E23",
+        "G": "#B60007",
+        "none": "#BEBEBE",
+        "default": "#F2ECDF"
     },
-    {
-      "id": "OS/TopographicArea_2/Building/1_3D-Single-Dwelling-Selected",
-      "type": "fill-extrusion",
-      "source": "esri",
-      "source-layer": "TopographicArea_2",
-      "filter": ["all", ["==", "_symbol", 4], ["in", "TOID", ""]],
-      "minzoom": 15,
-      "layout": {},
-      "paint": {
-        "fill-extrusion-color": "#51406C",
-        "fill-extrusion-height": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          15,
-          0,
-          15.05,
-          ["get", "RelHMax"]
-        ]
-      }
+    "epcColoursCD": {
+        "A": "#0051F2",
+        "B": "#377CF6",
+        "C": "#6DA7FB",
+        "D": "#DAFFA5",
+        "E": "#FFD173",
+        "F": "#D9963A",
+        "G": "#B35A00",
+        "none": "#BEBEBE",
+        "default": "#F2ECDF"
     },
-    {
-      "id": "OS/TopographicArea_2/Building/1_3D-Multi-Dwelling-Selected",
-      "type": "fill-extrusion",
-      "source": "esri",
-      "source-layer": "TopographicArea_2",
-      "filter": ["all", ["==", "_symbol", 4], ["in", "TOID", ""]],
-      "minzoom": 15,
-      "layout": {},
-      "paint": {
-        "fill-extrusion-pattern": "selected-pattern",
-        "fill-extrusion-height": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          15,
-          0,
-          15.05,
-          ["get", "RelHMax"]
-        ]
-      }
-    }
-  ],
-  "contextLayers": [
-    {
-      "displayName": "Wards",
-      "filename": "wards.geojson",
-      "source": "wards",
-      "id": "wards",
-      "labelProperty": "WD23NM",
-      "maxzoom": 15,
-      "type": "fill",
-      "layout": {
-        "visibility": "visible"
-      },
-      "paint": {
-        "fill-opacity": 0.8,
-        "fill-outline-color": "#51406C"
-      }
-    },
-    {
-      "displayName": "Selected Ward",
-      "filename": "wards.geojson",
-      "source": "wards",
-      "id": "wards-selected",
-      "labelProperty": "WD23NM",
-      "maxzoom": 15,
-      "type": "line",
-      "filter": ["==", "WD23NM", ""],
-      "layout": {
-        "visibility": "visible"
-      },
-      "paint": {
-        "line-color": "#51406C",
-        "line-width": 2
-      }
-    }
-  ]
+    "mapLayers": [
+        {
+            "id": "OS/TopographicArea_2/Building/1_2D",
+            "type": "fill",
+            "source": "esri",
+            "source-layer": "TopographicArea_2",
+            "filter": ["==", "_symbol", 4],
+            "paint": {
+                "fill-opacity": 0
+            }
+        },
+        {
+            "id": "OS/TopographicArea_2/Building/1_3D",
+            "type": "fill-extrusion",
+            "source": "esri",
+            "source-layer": "TopographicArea_2",
+            "filter": ["==", "_symbol", 4],
+            "minzoom": 15,
+            "layout": {},
+            "paint": {
+                "fill-extrusion-color": "#F2ECDF",
+                "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "RelHMax"]]
+            }
+        },
+        {
+            "id": "OS/TopographicArea_2/Building/1_3D-Single-Dwelling",
+            "type": "fill-extrusion",
+            "source": "esri",
+            "source-layer": "TopographicArea_2",
+            "filter": ["==", "_symbol", 4],
+            "minzoom": 15,
+            "layout": {},
+            "paint": {
+                "fill-extrusion-color": "#F2ECDF",
+                "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "RelHMax"]]
+            }
+        },
+        {
+            "id": "OS/TopographicArea_2/Building/1_3D-Multi-Dwelling",
+            "type": "fill-extrusion",
+            "source": "esri",
+            "source-layer": "TopographicArea_2",
+            "minzoom": 15,
+            "layout": {},
+            "paint": {
+                "fill-extrusion-color": "#F2ECDF",
+                "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "RelHMax"]]
+            }
+        },
+        {
+            "id": "OS/TopographicArea_2/Building/1_3D-Dwelling-Flagged",
+            "type": "fill-extrusion",
+            "source": "esri",
+            "source-layer": "TopographicArea_2",
+            "filter": ["all", ["==", "_symbol", 4], ["in", "TOID", ""]],
+            "minzoom": 15,
+            "layout": {},
+            "paint": {
+                "fill-extrusion-color": "#000000",
+                "fill-extrusion-base": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "RelHMax"]],
+                "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["+", ["get", "RelHMax"], 1]]
+            }
+        },
+        {
+            "id": "OS/TopographicArea_2/Building/1_3D-Single-Dwelling-Selected",
+            "type": "fill-extrusion",
+            "source": "esri",
+            "source-layer": "TopographicArea_2",
+            "filter": ["all", ["==", "_symbol", 4], ["in", "TOID", ""]],
+            "minzoom": 15,
+            "layout": {},
+            "paint": {
+                "fill-extrusion-color": "#51406C",
+                "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "RelHMax"]]
+            }
+        },
+        {
+            "id": "OS/TopographicArea_2/Building/1_3D-Multi-Dwelling-Selected",
+            "type": "fill-extrusion",
+            "source": "esri",
+            "source-layer": "TopographicArea_2",
+            "filter": ["all", ["==", "_symbol", 4], ["in", "TOID", ""]],
+            "minzoom": 15,
+            "layout": {},
+            "paint": {
+                "fill-extrusion-pattern": "selected-pattern",
+                "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "RelHMax"]]
+            }
+        }
+    ],
+    "contextLayers": [
+        {
+            "displayName": "Wards",
+            "filename": "wards.geojson",
+            "source": "wards",
+            "id": "wards",
+            "labelProperty": "WD23NM",
+            "maxzoom": 15,
+            "type": "fill",
+            "layout": {
+                "visibility": "visible"
+            },
+            "paint": {
+                "fill-opacity": 0.8,
+                "fill-outline-color": "#51406C"
+            }
+        },
+        {
+            "displayName": "Selected Ward",
+            "filename": "wards.geojson",
+            "source": "wards",
+            "id": "wards-selected",
+            "labelProperty": "WD23NM",
+            "maxzoom": 15,
+            "type": "line",
+            "filter": ["==", "WD23NM", ""],
+            "layout": {
+                "visibility": "visible"
+            },
+            "paint": {
+                "line-color": "#51406C",
+                "line-width": 2
+            }
+        }
+    ]
 }

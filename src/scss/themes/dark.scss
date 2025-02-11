@@ -1,32 +1,33 @@
 @use '@angular/material' as mat;
 
-$c477-dark-theme: mat.define-dark-theme(
-  mat.define-palette($c477-primary-palette, 50),
-  mat.define-palette($c477-accent-palette),
-  mat.define-palette(mat.$red-palette)
+$c477-dark-theme: mat.m2-define-dark-theme(
+    (
+        color: (
+            primary: mat.m2-define-palette($c477-primary-palette, 50),
+            accent: mat.m2-define-palette($c477-accent-palette),
+            warn: mat.m2-define-palette(mat.$m2-red-palette),
+        ),
+        typography: mat.m2-define-typography-config(),
+        density: 0,
+    )
 );
 
 body[theme='dark'],
 body[theme='dark'] * {
-  @include mat.core-theme($c477-dark-theme);
-  @include mat.all-component-themes($c477-dark-theme);
+    --c477-color--btn-background: transparent;
+    --arc-container-color: 9, 34, 66;
+    --c477-color--hover: 15, 58, 112;
+    --c477-color--selected: 21, 81, 157;
+    --mdc-dialog-container-color: rgb(var(--arc-container-color));
+    --mat-expansion-container-background-color: rgb(var(--arc-container-color));
+    --mat-select-panel-background-color: rgb(var(--arc-container-color));
+    --mat-autocomplete-background-color: rgb(var(--arc-container-color));
+    --mdc-filled-button-container-color: var(--c477-color--btn-background);
+    --mat-standard-button-toggle-background-color: var(--c477-color--btn-background);
 
-  --c477-color--btn-background: transparent;
-
-  --arc-container-color: 9, 34, 66;
-  --c477-color--hover: 15, 58, 112;
-  --c477-color--selected: 21, 81, 157;
-  --mdc-dialog-container-color: rgb(var(--arc-container-color));
-  --mat-expansion-container-background-color: rgb(var(--arc-container-color));
-  --mat-select-panel-background-color: rgb(var(--arc-container-color));
-  --mat-autocomplete-background-color: rgb(var(--arc-container-color));
-  --mdc-filled-button-container-color: var(--c477-color--btn-background);
-  --mdc-filled-button-container-color: var(--c477-color--btn-background);
-  --mat-standard-button-toggle-background-color: var(
-    --c477-color--btn-background
-  );
+    @include mat.all-component-colors($c477-dark-theme);
 }
 
 body[theme='dark'] {
-  background: rgb(var(--arc-container-color));
+    background: rgb(var(--arc-container-color));
 }

@@ -1,25 +1,27 @@
 .information {
-  .mdc-dialog .mdc-dialog__content {
-    padding: 3.125rem 0 3.125rem 0 !important;
-  }
-
-  .mdc-dialog .mdc-dialog__actions {
-    padding: 0 !important;
-  }
-
-  &__modal {
-    max-width: 37.5rem;
-    padding: 4.5625rem 6.875rem;
-    h1 {
-      padding-left: 0;
-      color: $color-primary !important;
-      line-height: var(--arc-line-height-dense) !important;
-      display: flex;
-      align-items: flex-start;
-      gap: 1rem;
+    .mdc-dialog .mdc-dialog__content {
+        padding: 3.125rem 0 3.125rem 0 !important;
     }
-    .mdc-dialog__title::before {
-      display: none !important;
+
+    .mdc-dialog .mdc-dialog__actions {
+        padding: 0 !important;
     }
-  }
+
+    &__modal {
+        max-width: 37.5rem;
+        padding: 4.5625rem 6.875rem;
+        h1 {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+
+            padding-left: 0;
+
+            line-height: var(--arc-line-height-dense) !important;
+            color: $color-primary !important;
+        }
+        .mdc-dialog__title::before {
+            display: none !important;
+        }
+    }
 }

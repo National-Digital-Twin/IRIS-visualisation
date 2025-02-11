@@ -4,15 +4,16 @@ import { Pipe, PipeTransform } from '@angular/core';
  * also add space between a lowercase letter and 2002
  * and 2002 and an uppercase letter to handle glazing
  */
+
 @Pipe({
-  standalone: true,
-  name: 'pascalCaseSpace',
+    standalone: true,
+    name: 'pascalCaseSpace',
 })
 export class PascalCaseSpacePipe implements PipeTransform {
-  transform(value: string): string {
-    return value
-      .replace(/([a-z])([A-Z])/g, '$1 $2')
-      .replace(/(2002)([A-Z])/g, '$1 $2')
-      .replace(/([a-z])([2002])/g, '$1 $2');
-  }
+    public transform(value: string): string {
+        return value
+            .replace(/([a-z])([A-Z])/g, '$1 $2')
+            .replace(/(2002)([A-Z])/g, '$1 $2')
+            .replace(/([a-z])([2002])/g, '$1 $2');
+    }
 }

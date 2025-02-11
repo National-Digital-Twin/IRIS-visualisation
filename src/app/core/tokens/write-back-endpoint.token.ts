@@ -1,10 +1,6 @@
-import { InjectionToken, inject } from '@angular/core';
-import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
+import { InjectionToken } from '@angular/core';
 
-export const WRITE_BACK_ENDPOINT = new InjectionToken<string>(
-  'WRITE_BACK_ENDPOINT',
-  {
+export const WRITE_BACK_ENDPOINT = new InjectionToken<string>('WRITE_BACK_ENDPOINT', {
     providedIn: 'root',
-    factory: () => `/write-api`,
-  }
-);
+    factory: (): string => `/write-api`,
+});
