@@ -2,7 +2,6 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.0.0.
 
-- [Cypress](https://cypress.io/)
 - [ES Lint](https://eslint.org)
 - [Prettier](https://prettier.io)
 - [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary)
@@ -46,10 +45,6 @@ Run `ng generate component component-name` to generate a new component. You can 
 ## Build
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests with [Cypress](https://cypress.io/)
 
 ## Linting & code style
 
