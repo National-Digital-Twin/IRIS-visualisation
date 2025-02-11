@@ -2,7 +2,7 @@ import { writeFile } from 'fs';
 
 const env = process.env.ENV;
 
-const production = env == 'prod' ? true : false;
+const production = env === 'prod';
 
 const osAPIKey = process.env.OS_API_KEY;
 

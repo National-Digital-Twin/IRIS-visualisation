@@ -13,8 +13,8 @@ export const SETTINGS = {
 
 @Injectable({ providedIn: 'root' })
 export class SettingsService {
-    #storage = inject(STORAGE);
-    #storageKey = inject(STORAGE_KEY);
+    readonly #storage = inject(STORAGE);
+    readonly #storageKey = inject(STORAGE_KEY);
 
     public settings: WritableSignal<SettingsModel>;
 
@@ -31,7 +31,7 @@ export class SettingsService {
        * it exsits, set it can the value for the setting
        */
             if (setting.store) {
-                const storageKey = `${this.#storageKey}-${setting}`;
+                const storageKey = `${this.#storageKey}-${setting.key}`;
                 const storageString = this.#storage.getItem(storageKey);
                 if (storageString !== null) {
                     value = JSON.parse(storageString);
@@ -43,10 +43,10 @@ export class SettingsService {
         this.settings = signal(settings);
     }
 
-    public set<T extends JSONValue>(key: SettingsKey<T>, value: T & JSONValue): void {
-        this.settings.update((current) => ({ ...current, [key.key]: value }));
-        if (key.store) {
-            const storageKey = `${this.#storageKey}-${key}`;
+    public set<T extends JSONValue>(setting: SettingsKey<T>, value: T & JSONValue): void {
+        this.settings.update((current) => ({ ...current, [setting.key]: value }));
+        if (setting.store) {
+            const storageKey = `${this.#storageKey}-${setting.key}`;
             const storageString = JSON.stringify(value);
             this.#storage.setItem(storageKey, storageString);
         }

@@ -55,10 +55,10 @@ import { Observable, debounceTime, distinctUntilChanged, of, switchMap, tap } fr
     templateUrl: './main-filters.component.html',
 })
 export class MainFiltersComponent implements OnChanges {
-    #fb: FormBuilder = inject(FormBuilder);
-    #addressSearchService = inject(AddressSearchService);
-    #mapService = inject(MapService);
-    #spatialQueryService = inject(SpatialQueryService);
+    readonly #fb: FormBuilder = inject(FormBuilder);
+    readonly #addressSearchService = inject(AddressSearchService);
+    readonly #mapService = inject(MapService);
+    readonly #spatialQueryService = inject(SpatialQueryService);
 
     @Input() public filterProps?: FilterProps;
 
@@ -73,15 +73,14 @@ export class MainFiltersComponent implements OnChanges {
     public propertyTypes: { [key: string]: string } = PropertyType;
     public results$: Observable<AddressSearchData[]>;
 
-    private addressSearch = new FormControl('');
     private advancedFiltersForm?: FormGroup;
     private firstAddress?: AddressSearchData;
-    private spatialFilterEnabled = this.#spatialQueryService.spatialFilterEnabled;
 
     constructor(public dialog: MatDialog) {
-        this.addressForm = new FormGroup({ address: this.addressSearch });
+        const addressSearch = new FormControl('');
+        this.addressForm = new FormGroup({ address: addressSearch });
 
-        this.results$ = this.addressSearch.valueChanges.pipe(
+        this.results$ = addressSearch.valueChanges.pipe(
             debounceTime(200),
             distinctUntilChanged(),
             switchMap((value): Observable<AddressSearchData[]> => {
@@ -179,9 +178,9 @@ export class MainFiltersComponent implements OnChanges {
             },
         });
         dialogRef.afterClosed().subscribe((res) => {
-            if (res && res.value) {
+            if (res?.value) {
                 this.setAdvancedFilters.emit(res.value);
-            } else if (res && res.clear) {
+            } else if (res?.clear) {
                 this.numberFilters = 0;
                 this.setAdvancedFilters.emit({
                     PostCode: [],
@@ -262,7 +261,7 @@ export class MainFiltersComponent implements OnChanges {
     }
 
     public filtersExist(): boolean {
-        return (this.filterProps && Object.keys(this.filterProps).length > 0) || this.spatialFilterEnabled();
+        return (this.filterProps && Object.keys(this.filterProps).length > 0) || this.#spatialQueryService.spatialFilterEnabled();
     }
 
     /**

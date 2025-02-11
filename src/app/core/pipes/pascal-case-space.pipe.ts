@@ -14,6 +14,6 @@ export class PascalCaseSpacePipe implements PipeTransform {
         return value
             .replace(/([a-z])([A-Z])/g, '$1 $2')
             .replace(/(2002)([A-Z])/g, '$1 $2')
-            .replace(/([a-z])([2002])/g, '$1 $2');
+            .replace(/([a-z])(2002)/g, '$1 $2');
     }
 }

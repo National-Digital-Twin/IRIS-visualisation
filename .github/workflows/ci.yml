@@ -25,7 +25,7 @@ jobs:
       - name: Run linter
         run: npm run lint
   deploy-dev:
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    if: github.ref === 'refs/heads/main' && (github.event_name === 'push' || github.event_name === 'workflow_dispatch')
     needs: [lint]
     environment: dev
     runs-on: ubuntu-latest

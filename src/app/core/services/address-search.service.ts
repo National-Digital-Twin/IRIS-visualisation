@@ -17,18 +17,12 @@ import { MapService } from './map.service';
     providedIn: 'root',
 })
 export class AddressSearchService {
-    #http: HttpClient = inject(HttpClient);
-    #mapService = inject(MapService);
-    #runtimeConfiguration = inject(RUNTIME_CONFIGURATION);
-
-    private proj4 = proj4;
-    private placesAPIURL: string = this.#runtimeConfiguration.addressSearch.placesAPIURL;
-    private namesAPIURL: string = this.#runtimeConfiguration.addressSearch.namesAPIURL;
-    private maxResults: number = this.#runtimeConfiguration.addressSearch.maxResults;
-    private fq: string = `LOCAL_CUSTODIAN_CODE:${this.#runtimeConfiguration.addressSearch.localCustodianCode}`;
+    readonly #http: HttpClient = inject(HttpClient);
+    readonly #mapService = inject(MapService);
+    readonly #runtimeConfiguration = inject(RUNTIME_CONFIGURATION);
 
     constructor() {
-        this.proj4.defs(
+        proj4.defs(
             'EPSG:27700',
             '+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +towgs84=446.448,-125.157,542.06,0.15,0.247,0.842,-20.489 +units=m +no_defs',
         );
@@ -40,9 +34,9 @@ export class AddressSearchService {
      * @returns suggested address matches
      */
     public getAddresses(queryString: string): Observable<AddressSearchData[]> {
-        const url: string = `${this.placesAPIURL}/find?query=${encodeURIComponent(
+        const url: string = `${this.#runtimeConfiguration.addressSearch.placesAPIURL}/find?query=${encodeURIComponent(
             queryString,
-        )}&maxresults=${this.maxResults}&FQ=${this.fq}&output_srs=EPSG:4326`;
+        )}&maxresults=${this.#runtimeConfiguration.addressSearch.maxResults}&FQ=LOCAL_CUSTODIAN_CODE:${this.#runtimeConfiguration.addressSearch.localCustodianCode}&output_srs=EPSG:4326`;
         const transformedUrl: string = this.#mapService.transformUrlForProxy(url, 'api.os.uk', 'os', 'key');
 
         return this.#http
@@ -60,7 +54,7 @@ export class AddressSearchService {
         return this.#http
             .get<OSNamesSearchResponse>(
                 `
-        ${this.namesAPIURL}/find?query=${encodeURIComponent(queryString)}&maxresults=${this.maxResults}&FQ=LOCAL_TYPE:Postcode&key=${environment.os.apiKey}
+        ${this.#runtimeConfiguration.addressSearch.namesAPIURL}/find?query=${encodeURIComponent(queryString)}&maxresults=${this.#runtimeConfiguration.addressSearch.maxResults}&FQ=LOCAL_TYPE:Postcode&key=${environment.os.apiKey}
       `,
             )
             .pipe(map((res: OSNamesSearchResponse) => this.convertNamesToAddresses(res)));
@@ -75,7 +69,7 @@ export class AddressSearchService {
                     /**
                      * Convert OSGB National Grid to WGS84
                      */
-                    const coords = this.proj4('EPSG:27700', 'EPSG:4326', [name.GAZETTEER_ENTRY.GEOMETRY_X, name.GAZETTEER_ENTRY.GEOMETRY_Y]);
+                    const coords = proj4('EPSG:27700', 'EPSG:4326', [name.GAZETTEER_ENTRY.GEOMETRY_X, name.GAZETTEER_ENTRY.GEOMETRY_Y]);
                     const address: AddressSearchData = {
                         ADDRESS: '',
                         BLPU_STATE_CODE: '',

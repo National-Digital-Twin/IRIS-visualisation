@@ -2,7 +2,7 @@
     <h1 mat-dialog-title>Advanced Filters</h1>
     <div mat-dialog-content [formGroup]="advancedFiltersForm">
         <mat-accordion class="filter-expansion" [displayMode]="'flat'" [multi]="true">
-            @for (panel of otherPanels; track panel.panelTitle) {
+            @for (panel of otherPanels(); track panel.panelTitle) {
                 <mat-expansion-panel [expanded]="checkFiltersApplied(panel.panelTitle)">
                     <mat-expansion-panel-header
                         ><h2>{{ panel.panelTitle }}</h2></mat-expansion-panel-header
@@ -28,10 +28,10 @@
                 </p>
             }
         </div>
-        <div mat-dialog-actions [align]="'end'">
+        <div mat-dialog-actions>
             <button mat-button (click)="clearAll()">Clear all</button>
             <button mat-stroked-button mat-dialog-close>Cancel</button>
-            <button mat-flat-button [mat-dialog-close]="data.form" [color]="'primary'">Apply filters</button>
+            <button mat-flat-button [mat-dialog-close]="dialogData.form" [color]="'primary'">Apply filters</button>
         </div>
     </div>
 </section>

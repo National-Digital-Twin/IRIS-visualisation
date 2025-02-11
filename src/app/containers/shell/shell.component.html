@@ -1,7 +1,7 @@
 <arc-container fullscreen="true" theme="light">
     <arc-navbar slot="nav" logo="assets/iris_logo.svg" (arc-show-accessibility)="handleShowAccessibility($event)">
         <span slot="name">{{ title }}</span>
-        <arc-icon-button name="question-circle" label="Information" (click)="showInfo()">
+        <arc-icon-button name="question-circle" label="Information" (keydown.space)="showInfo()" (click)="showInfo()" tabindex="0">
             <ph-icon-question slot="icon"></ph-icon-question>
         </arc-icon-button>
         <img slot="company-logo" alt="Company Logo" [src]="companyLogoSrc()" />
@@ -19,33 +19,30 @@
     <div class="content">
         @if (loading()) {
             <c477-loading-screen />
-        }
-        <c477-main-filters
-            [filterProps]="filterProps"
-            (clearAllFilters)="clearAllFilters()"
-            (setRouteParams)="setFilterParams($event)"
-            (setAdvancedFilters)="setAdvancedFilters($event)"
-            (addressSelected)="setSelectedBuildingTOID($event)"
-        ></c477-main-filters>
+        } @else {
+            <c477-main-filters
+                [filterProps]="filterProps"
+                (clearAllFilters)="clearAllFilters()"
+                (setRouteParams)="setFilterParams($event)"
+                (setAdvancedFilters)="setAdvancedFilters($event)"
+                (addressSelected)="setSelectedBuildingTOID($event)"
+            />
 
-        <div class="panel-container" [ngClass]="{ 'panel-container--collapsed': resultsPanelCollapsed }">
-            <c477-results-panel
+            <div class="panel-container" [ngClass]="{ 'panel-container--collapsed': resultsPanelCollapsed }">
+                <c477-results-panel (flag)="onFlag($event)" (removeFlag)="onRemoveFlag($event)" (resultsPanelCollapsed)="resultsPanelCollapsed = $event" />
+            </div>
+
+            <c477-details-panel
+                (closePanel)="closeDetails()"
+                (downloadData)="downloadData($event)"
                 (flag)="onFlag($event)"
                 (removeFlag)="onRemoveFlag($event)"
-                (resultsPanelCollapsed)="resultsPanelCollapsed = $event"
-            ></c477-results-panel>
-        </div>
-        <c477-details-panel
-            (closePanel)="closeDetails()"
-            (downloadData)="downloadData($event)"
-            (flag)="onFlag($event)"
-            (removeFlag)="onRemoveFlag($event)"
-            [resultsPanelCollapsed]="resultsPanelCollapsed"
-        ></c477-details-panel>
-
+                [resultsPanelCollapsed]="resultsPanelCollapsed"
+            />
+        }
         <div class="content__map-container">
             <c477-map
-                [contextData]="contextData$ | async"
+                [contextData]="(contextData$ | async) || []"
                 [spatialFilterEnabled]="spatialFilterEnabled()"
                 [mapConfig]="mapConfig"
                 (setRouteParams)="setRouteMapParams($event)"
@@ -60,7 +57,7 @@
                 (setSelectedBuildingTOID)="setSelectedBuildingTOID($event)"
                 (setMinimapData)="minimapData = $event"
                 (toggleMinimap)="showMinimap = !showMinimap"
-            ></c477-map>
+            />
         </div>
         @if (showMinimap) {
             <c477-minimap [minimapData]="minimapData" />

@@ -46,7 +46,7 @@ import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { UtilService } from '@core/services/utils.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { FeatureCollection, GeoJsonProperties, Geometry, Polygon } from 'geojson';
-import { EMPTY, Observable, combineLatest, first, forkJoin, map, switchMap } from 'rxjs';
+import { EMPTY, Observable, combineLatest, filter, first, forkJoin, map, switchMap, take } from 'rxjs';
 
 @Component({
     selector: 'c477-shell',
@@ -65,33 +65,29 @@ import { EMPTY, Observable, combineLatest, first, forkJoin, map, switchMap } fro
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ShellComponent implements AfterViewInit, OnChanges {
-    #breakpointObserver = inject(BreakpointObserver);
-    #dataDownloadService = inject(DataDownloadService);
-    #dataService = inject(DataService);
-    #dialog = inject(MatDialog);
-    #document = inject(DOCUMENT);
-    #filterService = inject(FilterService);
-    #mapService = inject(MapService);
-    #router = inject(Router);
-    #runtimeConfig = inject(RUNTIME_CONFIGURATION);
-    #settings = inject(SettingsService);
-    #spatialQueryService = inject(SpatialQueryService);
-    #utilService = inject(UtilService);
-    #zone = inject(NgZone);
+    readonly #breakpointObserver = inject(BreakpointObserver);
+    readonly #dataDownloadService = inject(DataDownloadService);
+    readonly #dataService = inject(DataService);
+    readonly #dialog = inject(MatDialog);
+    readonly #document = inject(DOCUMENT);
+    readonly #filterService = inject(FilterService);
+    readonly #mapService = inject(MapService);
+    readonly #router = inject(Router);
+    readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
+    readonly #settings = inject(SettingsService);
+    readonly #spatialQueryService = inject(SpatialQueryService);
+    readonly #utilService = inject(UtilService);
+    readonly #zone = inject(NgZone);
 
-    public contextData$: Observable<FeatureCollection<Geometry, GeoJsonProperties>[] | undefined>;
+    public contextData$: Observable<FeatureCollection<Geometry, GeoJsonProperties>[]>;
     public filterProps?: FilterProps;
     public loading = this.#dataService.loading;
-    public mapConfig?: URLStateModel;
+    public mapConfig!: URLStateModel;
     public minimapData?: MinimapData;
     public resultsPanelCollapsed: boolean = false;
     public showMinimap: boolean = true;
     public spatialFilterEnabled = this.#spatialQueryService.spatialFilterEnabled;
     public title = 'IRIS';
-
-    private colorBlindMode = this.#settings.get(SETTINGS.ColorBlindMode);
-    private selectedBuildingTOID = this.#spatialQueryService.selectedBuildingTOID;
-    private theme = this.#settings.get(SETTINGS.Theme);
 
     // get map state from route query params
     @Input({ transform: numberAttribute }) public bearing: number = 0;
@@ -115,34 +111,29 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     @ViewChild('colorBlindSwitch') public colorBlindSwitch?: ElementRef<ArcSwitch>;
 
     public companyLogoSrc = computed(() => {
-        const theme = this.theme();
-        if (!theme) return '';
-        const imageSrc = this.#runtimeConfig.companyLogo[theme];
-        return imageSrc ? imageSrc : '';
+        const theme = this.#settings.get(SETTINGS.Theme);
+
+        if (!theme()) {
+            return '';
+        }
+
+        const imageSrc = this.#runtimeConfig.companyLogo[theme()];
+        return imageSrc || '';
     });
 
     constructor() {
         this.contextData$ = combineLatest([this.#dataService.contextData$, toObservable(this.#dataService.buildings)]).pipe(
-            map(([contextData, buildings]) => {
-                if (buildings) {
-                    return this.aggregateEPC(contextData, buildings!);
-                } else {
-                    return undefined;
+            map(([contextData, buildingData]) => {
+                if (!buildingData) {
+                    return [];
                 }
+                return this.aggregateEPC(contextData, buildingData);
             }),
         );
 
         // close minimap by default on smaller screens
         if (window.innerWidth < 1280) {
             this.showMinimap = false;
-        }
-    }
-
-    public ngAfterViewInit(): void {
-        const colorBlindMode = this.colorBlindMode();
-        this.setColorBlindMode(colorBlindMode);
-        if (this.colorBlindSwitch) {
-            this.colorBlindSwitch.nativeElement.checked = colorBlindMode;
         }
     }
 
@@ -165,7 +156,20 @@ export class ShellComponent implements AfterViewInit, OnChanges {
          * or filters, a condition statement
          * will need to be added
          */
-        this.updateBuildingLayerColour();
+        this.#mapService.mapLoaded$
+            .pipe(
+                take(1),
+                map(() => this.updateBuildingLayerColour()),
+            )
+            .subscribe();
+    }
+
+    public ngAfterViewInit(): void {
+        const colorBlindMode = this.#settings.get(SETTINGS.ColorBlindMode);
+        this.setColorBlindMode(colorBlindMode());
+        if (this.colorBlindSwitch) {
+            this.colorBlindSwitch.nativeElement.checked = colorBlindMode();
+        }
     }
 
     public handleShowAccessibility(event: Event): void {
@@ -219,25 +223,18 @@ export class ShellComponent implements AfterViewInit, OnChanges {
      * @param TOID TOID of building selected on the map
      */
     public setSelectedBuildingTOID(TOID: string | null): void {
-        const currentTOID = this.selectedBuildingTOID();
-        /** new selection on map */
+        const currentTOID = this.#spatialQueryService.selectedBuildingTOID();
         if (TOID && currentTOID !== TOID) {
-            /** Get building UPRNs */
             const buildings = this.#utilService.getBuildings(TOID);
-            /** single dwelling */
             if (buildings.length === 1) {
                 this.#utilService.singleDwellingSelectedOnMap(TOID, buildings[0].UPRN);
             } else if (buildings.length > 1) {
-                /** multiple dwelling */
                 this.#zone.run(() => this.#utilService.multipleDwellingSelectedOnMap(TOID));
             }
+        } else if (this.#utilService.multiDwelling() === undefined) {
+            this.#utilService.singleDwellingDeselected();
         } else {
-            /** deselecting current map selection */
-            if (this.#utilService.multiDwelling() === undefined) {
-                this.#utilService.singleDwellingDeselected();
-            } else {
-                this.#utilService.multiDwellingDeselected();
-            }
+            this.#utilService.multiDwellingDeselected();
         }
     }
 
@@ -246,12 +243,13 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     }
 
     public downloadData(format: string): void {
-        if (format === 'xlsx') {
-            this.#dataDownloadService.downloadXlsxData([this.#dataService.selectedBuilding()!]);
-        } else if (format === 'csv') {
-            {
+        switch (format) {
+            case 'xlsx':
+                this.#dataDownloadService.downloadXlsxData([this.#dataService.selectedBuilding()!]);
+                break;
+            case 'csv':
                 this.#dataDownloadService.downloadCSVData([this.#dataService.selectedBuilding()!]);
-            }
+                break;
         }
     }
 
@@ -259,14 +257,20 @@ export class ShellComponent implements AfterViewInit, OnChanges {
      * Bulk download addresses within a user drawn polygon
      */
     public downloadAddresses(): void {
-        const buildings = this.#dataService.buildings();
+        const buildingData = this.#dataService.buildings();
+
         const searchGeom = this.#spatialQueryService.spatialFilterGeom();
 
-        const buildingsToDownload = this.#spatialQueryService.getAddressesInPolygon(buildings!, searchGeom!);
+        if (!buildingData || !searchGeom) {
+            return;
+        }
+
+        const buildingsToDownload = this.#spatialQueryService.getAddressesInPolygon(buildingData, searchGeom);
         let addresses: string[] = [];
         let addressCount = undefined;
+
         if (buildingsToDownload.length <= 10) {
-            buildingsToDownload.forEach((building: BuildingModel) => addresses.push(building.FullAddress));
+            buildingsToDownload.map((building: BuildingModel) => addresses.push(building.FullAddress));
         } else {
             addressCount = buildingsToDownload.length;
         }
@@ -280,17 +284,22 @@ export class ShellComponent implements AfterViewInit, OnChanges {
                 },
             })
             .afterClosed()
-            .subscribe((download) => {
-                if (download) {
-                    if (download === 'xlsx') {
-                        this.#dataDownloadService.downloadXlsxData(buildingsToDownload);
-                    } else if (download === 'csv') {
-                        this.#dataDownloadService.downloadCSVData(buildingsToDownload);
+            .pipe(
+                filter((download) => !!download),
+                map((download) => {
+                    switch (download) {
+                        case 'xlsx':
+                            this.#dataDownloadService.downloadXlsxData(buildingsToDownload);
+                            break;
+                        case 'csv':
+                            this.#dataDownloadService.downloadCSVData(buildingsToDownload);
+                            break;
                     }
                     addresses = [];
                     addressCount = undefined;
-                }
-            });
+                }),
+            )
+            .subscribe();
     }
 
     private closeResults(): void {
@@ -371,7 +380,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
         this.openFlagModal<FlagModalComponent, FlagModalData, FlagModalResult>(FlagModalComponent, toFlag)
             .pipe(
                 switchMap((modal) => modal.afterClosed()),
-                switchMap((flag) => (flag !== undefined && flag == true ? forkJoin(...toFlag.map((b) => this.#dataService.flagToInvestigate(b))) : EMPTY)),
+                switchMap((flag) => (flag !== undefined && flag === true ? forkJoin(...toFlag.map((b) => this.#dataService.flagToInvestigate(b))) : EMPTY)),
             )
             .subscribe();
     }
@@ -380,7 +389,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
         this.openFlagModal<RemoveFlagModalComponent, RemoveFlagModalData, RemoveFlagModalResult>(RemoveFlagModalComponent, building)
             .pipe(
                 switchMap((modal) => modal.afterClosed()),
-                switchMap((reason) => (reason !== undefined ? this.#dataService.invalidateFlag(building, reason!) : EMPTY)),
+                switchMap((reason) => (reason !== undefined ? this.#dataService.invalidateFlag(building, reason) : EMPTY)),
             )
             .subscribe();
     }
@@ -418,7 +427,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
 
     private createQueryParams(filter: { [key: string]: string[] }): Record<'filter', string | undefined> {
         Object.keys(filter).forEach((key: string) => {
-            if (this.filterProps && this.filterProps[key as FilterKeys]) {
+            if (this.filterProps?.[key as FilterKeys]) {
                 delete this.filterProps[key as FilterKeys];
             }
         });

@@ -8,7 +8,7 @@ import { utils, writeFileXLSX } from 'xlsx';
     providedIn: 'root',
 })
 export class DataDownloadService {
-    private warning = `
+    private readonly warning = `
       Warning: The downloaded data is static and will not refresh after download. We advise using the tool for accessing the most current data available.
       The data you have downloaded represents a point-in-time snapshot and will not reflect real-time updates or changes. It is valid and accurate only at the moment of download.
       Any subsequent updates or modifications made to the original dataset will not be reflected in this downloaded version.
@@ -16,10 +16,11 @@ export class DataDownloadService {
   `;
 
     public downloadXlsxData(data: BuildingModel[]): void {
-        const dateData = data.map((d) => ({
-            ...d,
-            InspectionDate: d.InspectionDate ? new Date(d.InspectionDate) : '',
+        const dateData = data.map((date) => ({
+            ...date,
+            InspectionDate: date.InspectionDate ? new Date(date.InspectionDate) : '',
         }));
+
         const ws = utils.json_to_sheet(dateData, {
             cellDates: true,
             header: [
@@ -45,11 +46,13 @@ export class DataDownloadService {
                 'Flagged',
             ],
         });
+
         const warningWS = utils.aoa_to_sheet([[this.warning]]);
         const wb = utils.book_new();
+        const filename = this.generateFileName() + '.xlsx';
+
         utils.book_append_sheet(wb, warningWS, 'WARNING');
         utils.book_append_sheet(wb, ws, 'Data');
-        const filename = this.generateFileName() + '.xlsx';
         writeFileXLSX(wb, filename);
     }
 

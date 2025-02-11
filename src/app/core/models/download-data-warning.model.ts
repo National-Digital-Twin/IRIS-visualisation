@@ -2,7 +2,7 @@ import { BuildingModel } from './building.model';
 
 export type DownloadDataWarningData = {
     addresses: string[];
-    addressCount: number | undefined;
+    addressCount?: number;
 };
 export type DownloadDataWarningResponse = 'xlsx' | 'csv';
 

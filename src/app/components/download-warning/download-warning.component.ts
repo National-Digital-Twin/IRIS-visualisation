@@ -11,7 +11,7 @@ import { DownloadDataWarningData } from '@core/models/download-data-warning.mode
     templateUrl: './download-warning.component.html',
 })
 export class DownloadWarningComponent {
-    #data = inject<DownloadDataWarningData>(MAT_DIALOG_DATA);
+    readonly #data = inject<DownloadDataWarningData>(MAT_DIALOG_DATA);
 
     get data(): DownloadDataWarningData {
         return this.#data;

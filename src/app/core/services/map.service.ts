@@ -13,7 +13,7 @@ import mapboxgl, {
     RasterDEMSourceSpecification,
     SourceSpecification,
 } from 'mapbox-gl';
-import { AsyncSubject, EMPTY, Observable, catchError, first, forkJoin, from, take, tap } from 'rxjs';
+import { AsyncSubject, EMPTY, Observable, catchError, finalize, first, forkJoin, from, map, of, switchMap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 /**
@@ -23,43 +23,42 @@ import { environment } from 'src/environments/environment';
     providedIn: 'root',
 })
 export class MapService {
-    #runtimeConfig = inject(RUNTIME_CONFIGURATION);
+    readonly #zone = inject(NgZone);
+    readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
 
     public mapInstance!: mapboxgl.Map;
     public drawControl!: MapboxDraw;
-    public mapLoaded$: Observable<void>;
+    public mapLoaded$: Observable<boolean>;
 
     public currentMapBounds = signal<LngLatBounds | undefined>(undefined);
 
-    private mapLoaded = new AsyncSubject<void>();
+    private readonly mapLoaded = new AsyncSubject<boolean>();
 
-    constructor(private zone: NgZone) {
+    constructor() {
         this.mapLoaded$ = this.mapLoaded.asObservable();
     }
 
     public setup(config: URLStateModel): void {
         // Need onStable to wait for a potential @angular/route transition to end
-        this.zone.onStable.pipe(first()).subscribe(() => {
+        this.#zone.onStable.pipe(first()).subscribe(() => {
             this.createMap(config);
             this.hookEvents();
         });
     }
 
     public addMapSource(name: string, source: SourceSpecification): void {
-        this.zone.runOutsideAngular(() => {
-            this.mapInstance.addSource(name, source);
+        this.#zone.runOutsideAngular(() => {
+            const createdSource = this.mapInstance.addSource(name, source);
 
             if (source.type === 'raster-dem') {
                 // add the DEM source as a terrain layer
-                this.mapInstance.setTerrain({
-                    source: name,
-                });
+                createdSource.setTerrain({ source: name });
             }
         });
     }
 
     public addMapLayer(layerConfig: AnyLayer): void {
-        this.zone.runOutsideAngular(() => {
+        this.#zone.runOutsideAngular(() => {
             this.mapInstance.addLayer(layerConfig);
         });
     }
@@ -70,14 +69,14 @@ export class MapService {
      * Adds an image to the map instance. Runs outside of the ZoneJS.
      */
     private addMapImage(imageId: string, image: HTMLImageElement | ImageBitmap): void {
-        this.zone.runOutsideAngular(() => {
+        this.#zone.runOutsideAngular(() => {
             this.mapInstance.addImage(imageId, image);
         });
     }
 
     public filterMapLayer(filter: MapLayerFilter): void {
         const { layerId, expression } = filter;
-        this.zone.runOutsideAngular(() => {
+        this.#zone.runOutsideAngular(() => {
             this.mapInstance.setFilter(layerId, expression);
         });
     }
@@ -90,14 +89,14 @@ export class MapService {
      */
     public setMapLayerPaint(layerId: string, paintProperty: keyof PaintSpecification, value: Expression): void {
         if (value.length <= 3) return;
-        this.zone.runOutsideAngular(() => {
+        this.#zone.runOutsideAngular(() => {
             this.mapInstance.setPaintProperty(layerId, paintProperty, value);
         });
     }
 
     /** Query map features within current map bounds */
     public queryFeatures(): GeoJSON.Feature[] {
-        return this.zone.runOutsideAngular(() => {
+        return this.#zone.runOutsideAngular(() => {
             return this.mapInstance.queryRenderedFeatures({
                 layers: ['OS/TopographicArea_2/Building/1_2D'],
             });
@@ -105,7 +104,7 @@ export class MapService {
     }
 
     public setStyle(style: string): void {
-        this.zone.runOutsideAngular(() => {
+        this.#zone.runOutsideAngular(() => {
             this.mapInstance.setStyle(style);
         });
     }
@@ -143,7 +142,7 @@ export class MapService {
             transformRequest: (url: string): Record<'url', string> => {
                 if (url.indexOf('api.os.uk') > -1) {
                     url = this.transformUrlForProxy(url, 'api.os.uk', 'os', 'key');
-                    url = url.slice(-1) == '?' ? url + 'srs=3857' : url + '?srs=3857';
+                    url = url.endsWith('?') ? url + 'srs=3857' : url + '?srs=3857';
                 } else if (url.indexOf('api.mapbox.com') > -1) {
                     url = this.transformUrlForProxy(url, 'api.mapbox.com', 'mapbox-api', 'access_token');
                 } else if (url.indexOf('events.mapbox.com') > -1) {
@@ -156,14 +155,14 @@ export class MapService {
         });
     }
 
-    private addTerrainLayer(): void {
+    private addTerrainLayer(): Observable<void> {
         const config: RasterDEMSourceSpecification = {
             type: 'raster-dem',
             url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
             tileSize: 512,
             maxzoom: 14,
         };
-        this.addMapSource('mapbox-dem', config);
+        return of(this.addMapSource('mapbox-dem', config));
     }
 
     /**
@@ -172,12 +171,12 @@ export class MapService {
      *  - 3d buildings layer for extruding
      *  - 3d buildings layer for highlighting
      */
-    public addLayers(): void {
-        this.#runtimeConfig.mapLayers.forEach((layer: AnyLayer) => this.addMapLayer(layer));
+    public addLayers(): Observable<void[]> {
+        return of(this.#runtimeConfig.mapLayers.map((layer: AnyLayer) => this.addMapLayer(layer)));
     }
 
     public zoomToCoords(center: LngLatLike, zoom: number = 18): void {
-        this.zone.runOutsideAngular(() => {
+        this.#zone.runOutsideAngular(() => {
             this.mapInstance.flyTo({
                 center,
                 zoom,
@@ -193,15 +192,20 @@ export class MapService {
 
     private hookEvents(): void {
         this.mapInstance.on('load', () => {
-            this.addLayers();
-            this.addTerrainLayer();
-            this.addEPCPatterns();
-            this.mapLoaded.next(undefined);
-            this.mapLoaded.complete();
+            this.addEPCPatterns()
+                .pipe(
+                    switchMap(() => this.addLayers()),
+                    switchMap(() => this.addTerrainLayer()),
+                    finalize(() => {
+                        this.mapLoaded.next(true);
+                        this.mapLoaded.complete();
+                    }),
+                )
+                .subscribe();
         });
     }
 
-    public addDrawControl(): void {
+    public addDrawControl(): MapboxDraw {
         const styles = [
             // ACTIVE (being drawn)
             // line stroke
@@ -294,10 +298,12 @@ export class MapService {
             displayControlsDefault: false,
             styles,
         });
+
         this.mapInstance.addControl(this.drawControl, 'top-right');
+        return this.drawControl;
     }
 
-    private async addEPCPatterns(): Promise<void> {
+    private addEPCPatterns(): Observable<void[]> {
         const { epcColours, epcColoursCD } = this.#runtimeConfig;
 
         /**
@@ -314,33 +320,39 @@ export class MapService {
             selected: (layer?.paint as unknown as { 'fill-extrusion-color': string } | undefined)?.['fill-extrusion-color'] ?? '#CCCCCC',
         };
 
-        /** Rasterize each pattern and add it to the map */
-        forkJoin(
-            ...Object.keys(colors).map((key) =>
-                from(this.rasterizePattern(colors[key])).pipe(
-                    catchError((error) => {
-                        console.error('error rasterizing pattern', error);
-                        return EMPTY;
-                    }),
-                    tap((rasterizedPattern) => {
-                        this.mapInstance.loadImage(rasterizedPattern, (error, result) => {
-                            if (error) {
-                                console.error(error);
-                                return;
-                            }
+        const imageLoad = (pattern: string): Observable<ImageBitmap | ImageData | HTMLImageElement> =>
+            new Observable((observer) => {
+                this.mapInstance.loadImage(pattern, (error, success) => {
+                    if (error) {
+                        throw error;
+                    }
 
-                            if (!result) {
-                                return;
-                            }
+                    if (!success) {
+                        throw new Error(`Failed to create ${pattern}`);
+                    }
 
-                            this.addMapImage(`${key.toLowerCase()}-pattern`, result as HTMLImageElement);
-                        });
-                    }),
-                ),
+                    observer.next(success);
+                    observer.complete();
+                });
+            });
+
+        const mapImages = Object.keys(colors).map((color) =>
+            from(this.rasterizePattern(colors[color])).pipe(
+                catchError((error) => {
+                    console.error('error rasterizing pattern', error);
+                    return EMPTY;
+                }),
+                switchMap((rasterizedPattern) => imageLoad(rasterizedPattern)),
+                map((result) => this.addMapImage(`${color.toLowerCase()}-pattern`, result as HTMLImageElement)),
+                catchError((e) => {
+                    console.log(e);
+                    return of();
+                }),
             ),
-        )
-            .pipe(take(1))
-            .subscribe();
+        );
+
+        /** Rasterize each pattern and add it to the map */
+        return forkJoin(mapImages);
     }
 
     /**
@@ -357,7 +369,7 @@ export class MapService {
         function genSVG(epcColor: string): HTMLElement {
             /** Contrast colour of Epc colour */
             function contrastColor(epcColor: string, lightColor: string, darkColor: string): string {
-                const color = epcColor.charAt(0) === '#' ? epcColor.substring(1, 7) : epcColor;
+                const color = epcColor.startsWith('#') ? epcColor.substring(1, 7) : epcColor;
                 const r = parseInt(color.substring(0, 2), 16);
                 const g = parseInt(color.substring(2, 4), 16);
                 const b = parseInt(color.substring(4, 6), 16);
@@ -391,7 +403,7 @@ export class MapService {
         const rasterizeSvgBase64String = (svgBase64: string): Promise<string> => {
             return new Promise((resolve, reject) => {
                 /** Create image element and set the src to the svg base64 string */
-                const img = document.createElement('img') as HTMLImageElement;
+                const img = document.createElement('img');
                 img.src = `data:image/svg+xml;base64,${svgBase64}`;
 
                 /**
@@ -400,7 +412,7 @@ export class MapService {
                  * used as a mapbox image.
                  */
                 img.onload = (): void => {
-                    const canvas = document.createElement('canvas') as HTMLCanvasElement;
+                    const canvas = document.createElement('canvas');
                     canvas.width = width;
                     canvas.height = canvas.width;
                     const ctx = canvas.getContext('2d');
@@ -408,11 +420,11 @@ export class MapService {
                     try {
                         const data = canvas.toDataURL('image/png');
                         resolve(data);
-                    } catch (error) {
-                        reject(error);
+                    } catch {
+                        reject(new Error('Failed to create canvas'));
                     }
                 };
-                img.onerror = (error): void => reject(error);
+                img.onerror = (): void => reject(new Error('Failed to load image'));
             });
         };
 

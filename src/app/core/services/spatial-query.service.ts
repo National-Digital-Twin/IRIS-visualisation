@@ -16,7 +16,7 @@ import { MapService } from './map.service';
     providedIn: 'root',
 })
 export class SpatialQueryService {
-    #mapService = inject(MapService);
+    readonly #mapService = inject(MapService);
 
     public selectedBuildingTOID = signal<string | undefined>(undefined);
     public spatialFilterBounds = signal<Point[] | undefined>(undefined);
@@ -43,7 +43,7 @@ export class SpatialQueryService {
         this.spatialFilterEnabled.set(enabled);
     }
 
-    public setSpatialFilterBounds(bounds: Point[] | undefined): void {
+    public setSpatialFilterBounds(bounds?: Point[]): void {
         this.spatialFilterBounds.set(bounds);
     }
 
@@ -51,7 +51,7 @@ export class SpatialQueryService {
      * Filter map to show selection of multiple buildings
      * @param geom user drawn geometry
      */
-    public setSpatialGeom(geom: GeoJSON.Feature<Polygon> | undefined): void {
+    public setSpatialGeom(geom?: GeoJSON.Feature<Polygon>): void {
         this.spatialFilterGeom.set(geom);
         // get bounding box of drawn geometry as this
         // is the input required by mapbox to query

@@ -12,7 +12,7 @@ import { UtilService } from '@core/services/utils.service';
     templateUrl: './results-card-expandable.component.html',
 })
 export class ResultsCardExpandableComponent implements OnChanges {
-    #utilService = inject(UtilService);
+    readonly #utilService = inject(UtilService);
 
     @Input() public buildingTOID?: string;
     @Input() public cardIsChecked!: (_: BuildingModel[]) => boolean;

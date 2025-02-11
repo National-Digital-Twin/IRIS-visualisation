@@ -22,8 +22,8 @@ export type RemoveFlagModalResult = InvalidateFlagReason;
     imports: [CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatSelectModule, MatButtonModule],
 })
 export class RemoveFlagModalComponent {
-    #data = inject<RemoveFlagModalData>(MAT_DIALOG_DATA);
-    #dialogRef = inject(MatDialogRef<RemoveFlagModalComponent>);
+    readonly #data = inject<RemoveFlagModalData>(MAT_DIALOG_DATA);
+    readonly #dialogRef = inject(MatDialogRef<RemoveFlagModalComponent>);
 
     public reason = new FormControl<InvalidateFlagReason | null>(null, [Validators.required]);
     public reasons = InvalidateFlagReason;
