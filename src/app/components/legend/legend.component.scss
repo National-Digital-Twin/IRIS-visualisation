@@ -1,0 +1,16 @@
+:host {
+    position: absolute;
+    right: calc(100% + 0.5rem);
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    width: 16rem;
+    padding: 1rem;
+
+    color: var(--mat-sys-on-surface);
+
+    background-color: var(--mat-sys-surface);
+    box-shadow: var(--mat-sys-level2);
+}

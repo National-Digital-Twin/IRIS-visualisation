@@ -1,7 +1,7 @@
-<div *ngIf="epcRating; else BuildingType" class="label label__epc label__epc--{{ epcRating.toLowerCase() }}" [ngClass]="{ 'label__epc--expired': expired }">
+<!-- <div *ngIf="epcRating; else BuildingType" class="label label__epc label__epc--{{ epcRating }}" [ngClass]="{ 'label__epc--expired': expired }">
     <div></div>
     @if (epcRating !== 'none' && epcRating !== 'avg') {
-        <p class="label__text">
+        <div class="label__text">
             <span class="label__text-epc">
                 <span class="label__expired-text" *ngIf="expired">
                     <img src="assets/icons/Warning.svg" alt="" />
@@ -12,15 +12,43 @@
             @if (sapPoints) {
                 <span> {{ sapPoints }}</span>
             }
-        </p>
+        </div>
     } @else if (epcRating === 'none') {
-        <p class="label__text">No EPC</p>
+        <div class="label__text">No EPC</div>
     } @else if (epcRating === 'avg') {
-        <p class="label__text">Averaged EPC</p>
+        <div class="label__text">Averaged EPC</div>
     }
 </div>
 <ng-template #BuildingType>
-    <p class="label label__type">
+    <div class="label label__type">
         <ng-content></ng-content>
-    </p>
-</ng-template>
+    </div>
+</ng-template> -->
+
+@if (epcRating) {
+    <div class="label" ngClass="epc-rating-{{ epcRating.toLowerCase() }}">
+        @switch (epcRating) {
+            @case ('none') {
+                <div>No EPC</div>
+            }
+            @case ('avg') {
+                <div>Averaged EPC</div>
+            }
+            @default {
+                @if (expired) {
+                    <div class="expired">
+                        <img src="assets/icons/Warning.svg" alt="" />
+                        <span>Expired EPC: {{ epcRating }}</span>
+                    </div>
+                } @else {
+                    <span>EPC: {{ epcRating }}</span>
+                }
+                @if (sapPoints) {
+                    <span>{{ sapPoints }}</span>
+                }
+            }
+        }
+    </div>
+} @else {
+    <ng-content></ng-content>
+}

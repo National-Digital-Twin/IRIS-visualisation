@@ -689,7 +689,7 @@ export class UtilService {
         this.#spatialQueryService.setSpatialGeom(undefined);
         this.#spatialQueryService.setSpatialFilter(false);
         this.#spatialQueryService.setSpatialFilterBounds(undefined);
-        this.#mapService.drawControl.deleteAll();
+        this.#mapService.drawControl?.deleteAll();
         this.#zone.run(() => this.closeResultsPanel());
     }
 

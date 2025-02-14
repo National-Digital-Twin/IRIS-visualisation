@@ -5,8 +5,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
@@ -44,7 +43,6 @@ import { Observable, debounceTime, distinctUntilChanged, of, switchMap, tap } fr
         MatAutocompleteModule,
         MatBadgeModule,
         MatButtonModule,
-        MatDividerModule,
         MatFormFieldModule,
         MatIconModule,
         MatInputModule,
@@ -53,6 +51,8 @@ import { Observable, debounceTime, distinctUntilChanged, of, switchMap, tap } fr
         ReactiveFormsModule,
     ],
     templateUrl: './main-filters.component.html',
+    styleUrl: './main-filters.component.scss',
+    providers: [{ provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { subscriptSizing: 'dynamic' } }],
 })
 export class MainFiltersComponent implements OnChanges {
     readonly #fb: FormBuilder = inject(FormBuilder);

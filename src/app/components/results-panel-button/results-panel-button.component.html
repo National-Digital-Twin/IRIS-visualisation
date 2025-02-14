@@ -1,8 +1,8 @@
-<div class="results-button__container">
-    <p class="results-button__number">{{ numberResults }} results in view</p>
+<div class="results-panel-button">
+    <h2>{{ numberResults() }} results in view</h2>
     <button
-        class="results-button"
-        [ngClass]="{ 'results-button--open': panelOpen }"
+        class="toggle"
+        [ngClass]="{ open: panelOpen }"
         mat-icon-button
         matTooltipPosition="after"
         [matTooltip]="panelOpen ? 'Close panel' : 'Open panel'"

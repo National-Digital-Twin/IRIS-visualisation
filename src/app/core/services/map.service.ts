@@ -27,7 +27,7 @@ export class MapService {
     readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
 
     public mapInstance!: mapboxgl.Map;
-    public drawControl!: MapboxDraw;
+    public drawControl?: MapboxDraw;
     public mapLoaded$: Observable<boolean>;
 
     public currentMapBounds = signal<LngLatBounds | undefined>(undefined);

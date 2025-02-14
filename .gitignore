@@ -54,7 +54,8 @@ result
 powerstat-*.log
 
 # Data
-/src/assets/data/*.json
+/src/assets/data/*
+!/src/assets/data/wards.geojson
 
 # kubernetees secrets
 **/secrets.env
