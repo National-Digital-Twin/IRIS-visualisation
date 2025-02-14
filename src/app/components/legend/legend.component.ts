@@ -6,6 +6,7 @@ import { LabelComponent } from '@components/label/label.component';
     selector: 'c477-legend',
     imports: [CommonModule, LabelComponent],
     templateUrl: './legend.component.html',
+    styleUrl: './legend.component.scss',
 })
 export class LegendComponent {
     public epcItems = [

@@ -1,0 +1,17 @@
+.results-panel {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: max-content auto;
+    min-height: 100%;
+
+    .header {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .download {
+        width: 100%;
+    }
+}

@@ -10,6 +10,7 @@ import { DownloadWarningComponent } from '@components/download-warning/download-
 import { ResultsCardComponent } from '@components/results-card/results-card.component';
 import { ResultsCardExpandableComponent } from '@components/results-card-expandable/results-card-expandable.component';
 import { ResultsPanelButtonComponent } from '@components/results-panel-button/results-panel-button.component';
+import { InfoPanelComponent } from '@containers/info-panel';
 import { BuildingModel } from '@core/models/building.model';
 import { DownloadBuilding, DownloadDataWarningData, DownloadDataWarningResponse } from '@core/models/download-data-warning.model';
 import { DataDownloadService } from '@core/services/data-download.service';
@@ -32,8 +33,10 @@ import { filter, map } from 'rxjs';
         ResultsCardComponent,
         ResultsCardExpandableComponent,
         ScrollingModule,
+        InfoPanelComponent,
     ],
     templateUrl: './results-panel.component.html',
+    styleUrl: './results-panel.component.scss',
 })
 export class ResultsPanelComponent {
     readonly #dataService = inject(DataService);

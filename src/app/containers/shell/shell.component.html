@@ -28,9 +28,11 @@
                 (addressSelected)="setSelectedBuildingTOID($event)"
             />
 
-            <div class="panel-container" [ngClass]="{ 'panel-container--collapsed': resultsPanelCollapsed }">
+            <!-- <div class="panel-container" [ngClass]="{ 'panel-container--collapsed': resultsPanelCollapsed }"> -->
+            @if (!resultsPanelCollapsed) {
                 <c477-results-panel (flag)="onFlag($event)" (removeFlag)="onRemoveFlag($event)" (resultsPanelCollapsed)="resultsPanelCollapsed = $event" />
-            </div>
+            }
+            <!-- </div> -->
 
             <c477-details-panel
                 (closePanel)="closeDetails()"
@@ -40,7 +42,7 @@
                 [resultsPanelCollapsed]="resultsPanelCollapsed"
             />
         }
-        <div class="content__map-container">
+        <div class="map-container">
             <c477-map
                 [contextData]="(contextData$ | async) || []"
                 [spatialFilterEnabled]="spatialFilterEnabled()"

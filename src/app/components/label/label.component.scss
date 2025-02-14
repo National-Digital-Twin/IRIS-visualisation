@@ -1,0 +1,34 @@
+$rates: ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'none', 'avg');
+
+.label {
+    display: grid;
+    grid-auto-columns: 3rem;
+    grid-auto-flow: column;
+    grid-template-columns: max-content minmax(4rem, auto);
+    gap: 0.5rem;
+
+    border-radius: var(--border-radius);
+
+    @each $rate in $rates {
+        &.epc-rating-#{$rate} {
+            border: 1px solid var(--color-epc-#{$rate});
+            &::before {
+                content: ' ';
+                display: inline-block;
+                width: 2rem;
+                background-color: var(--color-epc-#{$rate});
+
+                @if ($rate == 'avg') {
+                    background-image: url('/assets/icons/Spots.svg');
+                }
+            }
+        }
+    }
+
+    .expired {
+        display: flex;
+        gap: 0.25rem;
+        align-content: center;
+        color: var(--mat-sys-error);
+    }
+}

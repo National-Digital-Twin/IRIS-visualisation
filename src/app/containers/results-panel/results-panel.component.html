@@ -1,26 +1,22 @@
 @if (buildingSelection() && mapInstance && mapInstance.getZoom() > 15) {
-    <div class="panel results-panel" [ngClass]="{ 'results-panel--closed': !panelOpen }">
-        <c477-results-panel-button [numberResults]="buildingSelection()?.flat()?.length ?? 0" (updatePanelStatus)="updatePanelOpen($event)" />
-        @if (panelOpen) {
-            <section>
-                <div class="results-panel__header-container">
-                    <div class="results-panel__header results-panel__toggle">
-                        <mat-slide-toggle [color]="'primary'" [(ngModel)]="selectMultiple">Select multiple</mat-slide-toggle>
-                    </div>
-                    <div class="results-panel__header results-panel__header--download">
-                        @if (selectMultiple) {
-                            <button mat-flat-button [color]="'primary'" class="results-panel__button" (click)="downloadAll()">
-                                <img src="assets/icons/FileArrowDown_white.svg" alt="" />Download selected results
-                            </button>
-                        } @else {
-                            <button mat-flat-button [color]="'primary'" class="results-panel__button" (click)="downloadAll()">
-                                <img src="assets/icons/FileArrowDown_white.svg" alt="" />Download all results
-                            </button>
-                        }
-                    </div>
-                </div>
-            </section>
-            <section class="results-panel__cards-container">
+    <c477-info-panel [expanded]="panelOpen">
+        <div class="results-panel">
+            <div class="header">
+                <c477-results-panel-button [numberResults]="buildingSelection()?.flat()?.length ?? 0" (updatePanelStatus)="updatePanelOpen($event)" />
+                @if (panelOpen) {
+                    <mat-slide-toggle [color]="'primary'" [(ngModel)]="selectMultiple">Select multiple</mat-slide-toggle>
+                    @if (selectMultiple) {
+                        <button mat-flat-button [color]="'primary'" class="download" (click)="downloadAll()">
+                            <img src="assets/icons/FileArrowDown_white.svg" alt="" />Download selected results
+                        </button>
+                    } @else {
+                        <button mat-flat-button [color]="'primary'" class="download" (click)="downloadAll()">
+                            <img src="assets/icons/FileArrowDown_white.svg" alt="" />Download all results
+                        </button>
+                    }
+                }
+            </div>
+            @if (panelOpen) {
                 <cdk-virtual-scroll-viewport minBufferPx="500" maxBufferPx="1000" class="viewport" itemSize="143">
                     <div *cdkVirtualFor="let dwellingSet of buildingSelection(); templateCacheSize: 0; trackBy: trackByUPRN">
                         @if (dwellingSet.length === 1) {
@@ -51,7 +47,7 @@
                         }
                     </div>
                 </cdk-virtual-scroll-viewport>
-            </section>
-        }
-    </div>
+            }
+        </div>
+    </c477-info-panel>
 }
