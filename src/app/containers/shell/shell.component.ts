@@ -95,6 +95,7 @@ export class ShellComponent implements AfterViewInit {
     public showMinimap: boolean = true;
     public spatialFilterEnabled = this.#spatialQueryService.spatialFilterEnabled;
     public title = 'IRIS';
+    public irisLogo = new URL('../../../assets/iris-ndtp-logo.svg', import.meta.url);
 
     // get map state from route query params
     public bearing: InputSignal<number> = input<number, number>(0, { transform: numberAttribute });

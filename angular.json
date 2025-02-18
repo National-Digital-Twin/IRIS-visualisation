@@ -24,7 +24,15 @@
                         "polyfills": ["zone.js"],
                         "tsConfig": "tsconfig.app.json",
                         "inlineStyleLanguage": "scss",
-                        "assets": ["src/favicon.ico", "src/assets"],
+                        "assets": [
+                            "src/favicon.ico",
+                            "src/assets",
+                            {
+                                "glob": "**/*",
+                                "input": "./node_modules/ndtp-styling-assets/dist/assets",
+                                "output": "/assets/"
+                            }
+                        ],
                         "styles": [
                             "mapbox-gl/dist/mapbox-gl.css",
                             "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css",
@@ -45,6 +53,11 @@
                             "assets": [
                                 "src/favicon.ico",
                                 "src/assets",
+                                {
+                                    "glob": "**/*",
+                                    "input": "./node_modules/ndtp-styling-assets/dist/assets",
+                                    "output": "/assets/"
+                                },
                                 {
                                     "input": "src/configurations/prod",
                                     "output": "configuration/",
@@ -82,6 +95,11 @@
                                 "src/assets",
                                 "src/favicon.ico",
                                 {
+                                    "glob": "**/*",
+                                    "input": "./node_modules/ndtp-styling-assets/dist/assets",
+                                    "output": "/assets/"
+                                },
+                                {
                                     "input": "src/configurations/dev",
                                     "output": "configuration/",
                                     "glob": "*.json"
@@ -97,6 +115,11 @@
                             "assets": [
                                 "src/favicon.ico",
                                 "src/assets",
+                                {
+                                    "glob": "**/*",
+                                    "input": "./node_modules/ndtp-styling-assets/dist/assets",
+                                    "output": "/assets/"
+                                },
                                 {
                                     "input": "src/configurations/local",
                                     "output": "configuration/",

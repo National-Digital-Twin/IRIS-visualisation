@@ -1,4 +1,5 @@
 @use '@angular/material' as mat;
+@use '../../../../node_modules/ndtp-styling-assets/dist/scss/main.scss' as ndtp;
 
 arc-accessibility {
     z-index: 1002;
@@ -32,63 +33,54 @@ arc-accessibility {
     }
 }
 
-.navbar {
+.toolbar-container {
     @include mat.toolbar-overrides((
-        container-background-color: #002244,
-        standard-height: 40px,
-        container-text-color: #f0f2f2,
+        container-background-color: ndtp.$secondary-color,
+        standard-height: ndtp.$toolbar-height,
+        container-text-color: ndtp.$off-white,
     ));
+}
 
+.toolbar-left-side {
+
+    img {
+        object-fit: cover;
+        height: 50%;
+    }
+
+    .divider {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    span {
+        font-size: 1.5em;
+        font-weight: 500;
+    }
+
+    .headline {
+        letter-spacing: 2.5px;
+    }
+}
+
+.toolbar-right-side {
+    width: 50%;
     display: flex;
-    flex-direction: row;
-    padding: 10px;
+    justify-content: end;
+    align-items: center;
 
-    .left-side {
-        width: 50%;
-        height: inherit;
-        display: flex;
-        justify-content: start;
-        align-items: center;
-
-        img {
-            object-fit: cover;
-            height: 50%;
-        }
-
-        .divider {
-            padding-left: 10px;
-            padding-right: 10px;
-        }
-
-        span {
-            font-size: 1.5em;
-            font-weight: 500;
-        }
-
-        .headline {
-            letter-spacing: 2.5px;
-        }
+    button {
+        padding-left: 10px;
     }
+}
 
-    .right-side {
-        width: 50%;
-        display: flex;
-        justify-content: end;
-        align-items: center;
+.help-icon {
+    color: ndtp.$accent-yellow;
+    font-size: 18px;
+}
 
-        button {
-            padding-left: 10px;
-        }
-    }
-
-    .help-icon {
-        color: #ffcf06;
-        font-size: 18px;
-    }
-
-    .accessibility-icon {
-        color: #f0f2f2;
-        font-size: 15px;
-        border-radius: 20px;
-    }
+.accessibility-icon {
+    color: ndtp.$off-white;
+    font-size: 15px;
+    border-radius: 20px;
 }
