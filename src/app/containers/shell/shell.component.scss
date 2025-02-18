@@ -1,3 +1,5 @@
+@use '@angular/material' as mat;
+
 arc-accessibility {
     z-index: 1002;
 
@@ -31,6 +33,12 @@ arc-accessibility {
 }
 
 .navbar {
+    @include mat.toolbar-overrides((
+        container-background-color: #002244,
+        standard-height: 40px,
+        container-text-color: #f0f2f2,
+    ));
+
     display: flex;
     flex-direction: row;
     padding: 10px;

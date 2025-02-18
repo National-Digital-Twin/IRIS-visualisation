@@ -1,6 +1,5 @@
 @use '@angular/material' as mat;
-@use 'light-theme' as light;
-@use 'dark-theme' as dark;
+@use './app_theme-colors.scss' as ndtp-theme;
 
 :root {
     // EPC Colors
@@ -18,12 +17,6 @@
     // Core overrides
 
     --border-radius: 4px;
-
-    @include mat.toolbar-overrides((
-        container-background-color: #002244,
-        standard-height: 40px,
-        container-text-color: #f0f2f2,
-    ));
 }
 
 html {
@@ -32,8 +25,8 @@ html {
     @include mat.theme(
         (
             color: (
-                primary: light.$primary-palette,
-                tertiary: light.$tertiary-palette,
+                primary: ndtp-theme.$primary-palette,
+                tertiary: ndtp-theme.$tertiary-palette,
                 theme-type: light,
             ),
             typography: Roboto,
@@ -73,8 +66,8 @@ body {
         @include mat.theme(
             (
                 color: (
-                    primary: dark.$primary-palette,
-                    tertiary: dark.$tertiary-palette,
+                    primary: ndtp-theme.$primary-palette,
+                    tertiary: ndtp-theme.$tertiary-palette,
                     theme-type: dark,
                 ),
                 typography: Roboto,
