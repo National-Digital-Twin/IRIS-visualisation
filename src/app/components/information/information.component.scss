@@ -1,0 +1,19 @@
+@use '@angular/material' as mat;
+
+.information__modal {
+    @include mat.dialog-overrides(
+        (
+            container-shape: 1px,
+            actions-padding: 0 6.875rem 4.875rem,
+            with-actions-content-padding: 3.125rem 6.875rem,
+            headline-padding: 4.875rem 0 3.125rem 6.875rem,
+            container-max-width: 37.5rem,
+            actions-alignment: start,
+            supporting-text-size: 16px,
+        )
+    );
+
+    .mdc-dialog__title::before {
+        display: none;
+    }
+}

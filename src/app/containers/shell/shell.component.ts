@@ -49,6 +49,9 @@ import { UtilService } from '@core/services/utils.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { FeatureCollection, GeoJsonProperties, Geometry, Polygon } from 'geojson';
 import { EMPTY, Observable, combineLatest, filter, first, forkJoin, map, switchMap, take } from 'rxjs';
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { MatIconModule } from "@angular/material/icon";
+import { MatButtonModule } from "@angular/material/button";
 
 @Component({
     selector: 'c477-shell',
@@ -61,6 +64,9 @@ import { EMPTY, Observable, combineLatest, filter, first, forkJoin, map, switchM
         MinimapComponent,
         ResultsPanelComponent,
         AsyncPipe,
+        MatToolbarModule,
+        MatIconModule,
+        MatButtonModule
     ],
     templateUrl: './shell.component.html',
     styleUrl: './shell.component.scss',
@@ -112,17 +118,6 @@ export class ShellComponent implements AfterViewInit {
     @ViewChild('colorBlindSwitch') public colorBlindSwitch?: ElementRef<ArcSwitch>;
 
     public loading = computed(() => this.#dataService.loading());
-
-    public companyLogoSrc = computed(() => {
-        const theme = this.#settings.get(SETTINGS.Theme);
-
-        if (!theme()) {
-            return '';
-        }
-
-        const imageSrc = this.#runtimeConfig.companyLogo[theme()];
-        return imageSrc || '';
-    });
 
     constructor() {
         this.contextData$ = combineLatest([this.#dataService.contextData$, toObservable(this.#dataService.buildings)]).pipe(
