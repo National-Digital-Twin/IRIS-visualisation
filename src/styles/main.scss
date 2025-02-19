@@ -1,6 +1,6 @@
 @use '@angular/material' as mat;
-@use './app_theme-colors.scss' as ndtp-theme;
-@use '../node_modules/ndtp-styling-assets/dist/scss/main.scss' as ndtp;
+@use '../app_theme-colors.scss' as ndtp-theme;
+@use '../../node_modules/ndtp-styling-assets/dist/scss/main.scss' as ndtp;
 
 :root {
     // EPC Colors
