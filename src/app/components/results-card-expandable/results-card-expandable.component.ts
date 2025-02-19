@@ -4,6 +4,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { ResultsCardComponent } from '@components/results-card/results-card.component';
 import { EPCRating } from '@core/enums';
 import { BuildingModel } from '@core/models/building.model';
+import { DownloadBuilding } from '@core/models/download-data-warning.model';
 import { UtilService } from '@core/services/utils.service';
 
 @Component({
@@ -24,6 +25,7 @@ export class ResultsCardExpandableComponent implements OnChanges {
     @Output() public flag = new EventEmitter<BuildingModel[]>();
     @Output() public removeFlag = new EventEmitter<BuildingModel>();
     @Output() public toggleChecked = new EventEmitter<BuildingModel>();
+    @Output() public downloadData: EventEmitter<DownloadBuilding> = new EventEmitter<DownloadBuilding>();
 
     public parentDataset: BuildingModel = {
         BuildForm: undefined,
