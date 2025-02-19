@@ -6,6 +6,8 @@ jobs:
     dependencies:
         name: Install dependencies
         runs-on: ubuntu-latest
+        env:
+            GITHUB_PERSONAL_TOKEN: ${{secrets.GITHUB_TOKEN}}
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-node@v4
@@ -16,8 +18,6 @@ jobs:
                   always-auth: true
                   registry-url: https://npm.pkg.github.com
             - run: npm install
-            - env:
-                GITHUB_PERSONAL_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
     build_code:
         name: Build code
@@ -34,8 +34,6 @@ jobs:
                   registry-url: https://npm.pkg.github.com
             - run: npm install
             - run: npm run build
-            - env:
-                GITHUB_PERSONAL_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
     execute_tests:
         name: Execute unit tests
