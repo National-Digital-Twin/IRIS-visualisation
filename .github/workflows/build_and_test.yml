@@ -13,7 +13,11 @@ jobs:
                   node-version-file: '.nvmrc'
                   cache: 'npm'
                   cache-dependency-path: package-lock.json
+                  always-auth: true
+                  registry-url: https://npm.pkg.github.com
             - run: npm install
+            - env:
+                GITHUB_PERSONAL_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
     build_code:
         name: Build code
