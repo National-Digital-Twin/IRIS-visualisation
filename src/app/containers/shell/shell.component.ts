@@ -7,11 +7,13 @@ import {
     Component,
     ElementRef,
     Input,
+    InputSignal,
     NgZone,
-    OnChanges,
     ViewChild,
     computed,
+    effect,
     inject,
+    input,
     numberAttribute,
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
@@ -64,7 +66,7 @@ import { EMPTY, Observable, combineLatest, filter, first, forkJoin, map, switchM
     styleUrl: './shell.component.scss',
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ShellComponent implements AfterViewInit, OnChanges {
+export class ShellComponent implements AfterViewInit {
     readonly #breakpointObserver = inject(BreakpointObserver);
     readonly #dataDownloadService = inject(DataDownloadService);
     readonly #dataService = inject(DataService);
@@ -81,7 +83,6 @@ export class ShellComponent implements AfterViewInit, OnChanges {
 
     public contextData$: Observable<FeatureCollection<Geometry, GeoJsonProperties>[]>;
     public filterProps?: FilterProps;
-    public loading = this.#dataService.loading;
     public mapConfig!: URLStateModel;
     public minimapData?: MinimapData;
     public resultsPanelCollapsed: boolean = false;
@@ -90,11 +91,11 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     public title = 'IRIS';
 
     // get map state from route query params
-    @Input({ transform: numberAttribute }) public bearing: number = 0;
-    @Input({ transform: numberAttribute }) public lat: number = 0;
-    @Input({ transform: numberAttribute }) public lng: number = 0;
-    @Input({ transform: numberAttribute }) public pitch: number = 0;
-    @Input({ transform: numberAttribute }) public zoom: number = 0;
+    public bearing: InputSignal<number> = input<number, number>(0, { transform: numberAttribute });
+    public lat: InputSignal<number> = input<number, number>(0, { transform: numberAttribute });
+    public lng: InputSignal<number> = input<number, number>(0, { transform: numberAttribute });
+    public pitch: InputSignal<number> = input<number, number>(0, { transform: numberAttribute });
+    public zoom: InputSignal<number> = input<number, number>(0, { transform: numberAttribute });
 
     // get filters from route query params
     @Input() set filter(filter: string) {
@@ -109,6 +110,8 @@ export class ShellComponent implements AfterViewInit, OnChanges {
 
     @ViewChild('accessibility') public accessibility?: ElementRef<ArcAccessibility>;
     @ViewChild('colorBlindSwitch') public colorBlindSwitch?: ElementRef<ArcSwitch>;
+
+    public loading = computed(() => this.#dataService.loading());
 
     public companyLogoSrc = computed(() => {
         const theme = this.#settings.get(SETTINGS.Theme);
@@ -135,33 +138,28 @@ export class ShellComponent implements AfterViewInit, OnChanges {
         if (window.innerWidth < 1280) {
             this.showMinimap = false;
         }
-    }
 
-    public ngOnChanges(): void {
-        const mapConfig: URLStateModel = {
-            bearing: this.bearing,
-            pitch: this.pitch,
-            zoom: this.zoom,
-            center: [this.lat, this.lng],
-        };
-        this.mapConfig = mapConfig;
+        effect(() => {
+            const bearing = this.bearing();
+            const pitch = this.pitch();
+            const zoom = this.zoom();
+            const lat = this.lat();
+            const lng = this.lng();
+            this.mapConfig = { bearing, pitch, zoom, center: [lat, lng] };
 
-        /**
-         * Trigger a update of building color
-         * whenever an input changes.
-         * This should be done on any map
-         * or filter related change.
-         * However if @Input()'s are added
-         * which are unrelated to the map
-         * or filters, a condition statement
-         * will need to be added
-         */
-        this.#mapService.mapLoaded$
-            .pipe(
-                take(1),
-                map(() => this.updateBuildingLayerColour()),
-            )
-            .subscribe();
+            const loading = this.loading();
+
+            if (loading) {
+                return;
+            }
+
+            this.#mapService.mapLoaded$
+                .pipe(
+                    take(1),
+                    map(() => this.updateBuildingLayerColour()),
+                )
+                .subscribe();
+        });
     }
 
     public ngAfterViewInit(): void {

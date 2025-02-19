@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, HostListener, Input, Output, Signal, inject } from '@angular/core';
+import { NgClass } from '@angular/common';
+import { Component, InputSignal, OutputEmitterRef, Signal, inject, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
@@ -14,67 +14,76 @@ import { Theme } from '@core/types/theme';
 
 @Component({
     selector: 'c477-results-card[card]',
-    imports: [CommonModule, LabelComponent, MatButtonModule, MatCheckboxModule, MatIconModule],
+    imports: [NgClass, LabelComponent, MatButtonModule, MatCheckboxModule, MatIconModule],
     templateUrl: './results-card.component.html',
+    styleUrl: './results-card.component.scss',
+    host: {
+        '[class.parent]': 'parent()',
+        '[class.selected]': 'card().UPRN === buildingUPRN()',
+        '(click)': 'onClick($event)',
+    },
 })
 export class ResultsCardComponent {
     readonly #dialog: MatDialog = inject(MatDialog);
     readonly #theme: Signal<Theme> = inject(SettingsService).get(SETTINGS.Theme);
     readonly #utilService: UtilService = inject(UtilService);
 
-    @Input() public buildingUPRN?: string;
-    @Input() public card!: BuildingModel;
-    @Input() public checked: boolean = false;
-    @Input() public parent: boolean = false;
-    @Input() public select: boolean = false;
+    public buildingUPRN: InputSignal<string | undefined> = input();
+    public card: InputSignal<BuildingModel> = input.required();
+    public checked: InputSignal<boolean> = input(false);
+    public parent: InputSignal<boolean> = input(false);
+    public select: InputSignal<boolean> = input(false);
 
-    @Output() public cardSelected: EventEmitter<BuildingModel> = new EventEmitter<BuildingModel>();
-    @Output() public downloadData: EventEmitter<DownloadBuilding> = new EventEmitter<DownloadBuilding>();
-    @Output() public emitViewDetails: EventEmitter<BuildingModel> = new EventEmitter<BuildingModel>();
-    @Output() public flag = new EventEmitter<void>();
-    @Output() public removeFlag = new EventEmitter<void>();
-    @Output() public toggleChecked = new EventEmitter<boolean>();
+    public cardSelected: OutputEmitterRef<BuildingModel> = output();
+    public downloadData: OutputEmitterRef<DownloadBuilding> = output();
+    public emitViewDetails: OutputEmitterRef<BuildingModel> = output();
+    public flag: OutputEmitterRef<void> = output();
+    public removeFlag: OutputEmitterRef<void> = output();
+    public toggleChecked: OutputEmitterRef<boolean> = output();
 
     get theme(): Signal<Theme> {
         return this.#theme;
     }
 
     public getAddressSegment(index: number): string {
-        return this.#utilService.splitAddress(index, this.card?.FullAddress);
+        const card = this.card();
+        return this.#utilService.splitAddress(index, card.FullAddress);
     }
 
     public epcExpired(): boolean {
-        return this.#utilService.epcExpired(this.card.InspectionDate);
+        const card = this.card();
+        return this.#utilService.epcExpired(card.InspectionDate);
     }
 
     public openDownloadWarning(): void {
+        const card = this.card();
+
         this.#dialog
             .open(DownloadWarningComponent, {
                 panelClass: 'data-download',
                 data: {
-                    addresses: [this.card?.FullAddress],
+                    addresses: [card.FullAddress],
                 },
             })
             .afterClosed()
             .subscribe((download) => {
                 if (download) {
-                    this.downloadData.emit({ building: this.card, format: download });
+                    this.downloadData.emit({ building: card, format: download });
                 }
             });
     }
 
-    private selectCard(): void {
-        this.cardSelected.emit(this.card);
-    }
-
     public viewDetails($event: Event): void {
         $event.stopPropagation();
-        this.emitViewDetails.emit(this.card);
+
+        const card = this.card();
+        this.emitViewDetails.emit(card);
     }
 
-    @HostListener('click', ['$event'])
     public onClick($event: MouseEvent): void {
         $event.stopPropagation();
-        this.selectCard();
+
+        const card = this.card();
+        this.cardSelected.emit(card);
     }
 }

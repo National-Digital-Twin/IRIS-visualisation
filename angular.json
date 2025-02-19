@@ -29,7 +29,7 @@
                             "mapbox-gl/dist/mapbox-gl.css",
                             "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css",
                             "@arc-web/components/themes/index.css",
-                            "src/styles.scss"
+                            "src/styles/main.scss"
                         ],
                         "stylePreprocessorOptions": {
                             "sass": {

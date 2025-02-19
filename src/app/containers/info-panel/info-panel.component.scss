@@ -3,16 +3,23 @@
     z-index: 100;
     top: calc(2rem + 57px);
     bottom: 1rem;
-    left: 1rem;
 
     overflow-x: hidden;
     overflow-y: auto;
     display: block;
 
-    width: 20rem;
+    width: 22rem;
 
-    background-color: var(--mat-sys-surface);
+    background-color: var(--mat-sys-surface-container-lowest);
     box-shadow: var(--mat-sys-level2);
+
+    &.primary {
+        left: 1rem;
+    }
+
+    &.secondary {
+        left: 28rem;
+    }
 
     &.expand {
         width: 26rem;

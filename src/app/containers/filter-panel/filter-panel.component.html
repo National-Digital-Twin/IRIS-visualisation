@@ -4,9 +4,9 @@
         <mat-accordion class="filter-expansion" [displayMode]="'flat'" [multi]="true">
             @for (panel of otherPanels(); track panel.panelTitle) {
                 <mat-expansion-panel [expanded]="checkFiltersApplied(panel.panelTitle)">
-                    <mat-expansion-panel-header
-                        ><h2>{{ panel.panelTitle }}</h2></mat-expansion-panel-header
-                    >
+                    <mat-expansion-panel-header>
+                        <h2>{{ panel.panelTitle }}</h2>
+                    </mat-expansion-panel-header>
                     @for (filter of panel.filters; track filter.title) {
                         <c477-multi-button-filter
                             [formControlName]="filter.formControlName"

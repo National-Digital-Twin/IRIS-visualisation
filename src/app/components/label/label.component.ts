@@ -1,14 +1,18 @@
-import { NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, computed, input, InputSignal } from '@angular/core';
 
 @Component({
     selector: 'c477-label',
-    imports: [NgClass],
     templateUrl: './label.component.html',
     styleUrl: './label.component.scss',
+    host: {
+        '[class]': 'clazz()',
+        '[class.expired]': 'expired()',
+    },
 })
 export class LabelComponent {
-    @Input() public epcRating?: string;
-    @Input() public sapPoints?: string;
-    @Input() public expired?: boolean = false;
+    public epcRating: InputSignal<string | undefined> = input();
+    public sapPoints: InputSignal<string | undefined> = input();
+    public expired: InputSignal<boolean> = input(false);
+
+    public clazz = computed(() => `epc-rating-${this.epcRating()?.toLowerCase()}`);
 }
