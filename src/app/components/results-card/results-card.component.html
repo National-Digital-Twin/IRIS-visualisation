@@ -1,47 +1,46 @@
-<div class="results-card" [ngClass]="{ 'results-card--select': card.UPRN === buildingUPRN }">
-    <div class="results-card__header">
-        @if (select) {
-            <mat-checkbox color="primary" [checked]="checked" (change)="toggleChecked.emit($event.checked)">
-                {{ getAddressSegment(0) }}
-                {{ getAddressSegment(1) }}
-            </mat-checkbox>
-        } @else {
-            <p class="card-title">
-                {{ getAddressSegment(0) }}
-                {{ getAddressSegment(1) }}
-            </p>
-        }
-        @if (!parent) {
-            <button mat-button (click)="viewDetails($event)">View details <mat-icon iconPositionEnd>arrow_right_alt</mat-icon></button>
-        }
-    </div>
-    <div class="results-card__details" [ngClass]="{ 'results-card__details--select': select }">
-        <div>
-            <p class="results-card__address">
-                {{ card.FullAddress }}
-            </p>
-            <div class="results-card__labels">
-                <c477-label [epcRating]="card.EPC" [expired]="epcExpired()"></c477-label>
-                @if (card.PropertyType) {
-                    <c477-label>{{ card.PropertyType }}</c477-label>
-                }
-            </div>
+@let isParent = parent();
+@let selectActive = select();
+@let building = card();
+
+<div class="header">
+    @if (selectActive) {
+        <mat-checkbox [checked]="checked()" (change)="toggleChecked.emit($event.checked)">
+            <h3>{{ getAddressSegment(0) }} {{ getAddressSegment(1) }}</h3>
+        </mat-checkbox>
+    } @else {
+        <h3>{{ getAddressSegment(0) }}{{ getAddressSegment(1) }}</h3>
+    }
+    @if (!isParent) {
+        <button mat-button (click)="viewDetails($event)">View details <mat-icon iconPositionEnd>arrow_right_alt</mat-icon></button>
+    }
+</div>
+
+<div class="content" [ngClass]="{ showCheckbox: selectActive }">
+    <div class="details">
+        <address>{{ building.FullAddress }}</address>
+
+        <div class="labels">
+            <c477-label [epcRating]="building.EPC" [expired]="epcExpired()" />
+            @if (building.PropertyType) {
+                <c477-label>{{ building.PropertyType }}</c477-label>
+            }
         </div>
-        @if (!parent) {
-            <div class="results-card__buttons">
-                <button mat-icon-button (click)="openDownloadWarning()">
-                    <img src="assets/icons/FileArrowDown.svg" alt="download the data for this dwelling" />
-                </button>
-                @if (card.Flagged === undefined) {
-                    <button mat-icon-button aria-label="Flag property" (click)="flag.emit()">
-                        <img alt="" [src]="theme() === 'light' ? 'assets/icons/FlagPennant.svg' : 'assets/icons/FlagPennant_white.svg'" />
-                    </button>
-                } @else {
-                    <button mat-icon-button aria-label="Remove flag from property" (click)="removeFlag.emit()">
-                        <img src="assets/icons/FlagPennant_red.svg" alt="" />
-                    </button>
-                }
-            </div>
-        }
     </div>
+    @if (!isParent) {
+        <div class="actions">
+            <button mat-icon-button (click)="openDownloadWarning()">
+                <img src="assets/icons/FileArrowDown.svg" alt="download the data for this dwelling" />
+            </button>
+
+            @if (building.Flagged === undefined) {
+                <button mat-icon-button aria-label="Flag property" (click)="flag.emit()">
+                    <img alt="" [src]="theme() === 'light' ? 'assets/icons/FlagPennant.svg' : 'assets/icons/FlagPennant_white.svg'" />
+                </button>
+            } @else {
+                <button mat-icon-button aria-label="Remove flag from property" (click)="removeFlag.emit()">
+                    <img src="assets/icons/FlagPennant_red.svg" alt="" />
+                </button>
+            }
+        </div>
+    }
 </div>

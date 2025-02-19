@@ -22,7 +22,9 @@
         <mat-label>EPC Rating</mat-label>
         <mat-select multiple [value]="filterProps?.EPC" (selectionChange)="ratingChange($event)">
             @for (rating of getKeys(epcRatings); track rating) {
-                <mat-option [value]="rating"><c477-label [epcRating]="epcRatings[rating]" /></mat-option>
+                <mat-option [value]="rating">
+                    <c477-label [epcRating]="epcRatings[rating]" />
+                </mat-option>
             }
         </mat-select>
         @if (filterProps?.EPC) {

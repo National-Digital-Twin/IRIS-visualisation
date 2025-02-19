@@ -1,5 +1,5 @@
 @if (buildingSelection() && mapInstance && mapInstance.getZoom() > 15) {
-    <c477-info-panel [expanded]="panelOpen">
+    <c477-info-panel [expanded]="panelOpen" [indent]="1">
         <div class="results-panel">
             <div class="header">
                 <c477-results-panel-button [numberResults]="buildingSelection()?.flat()?.length ?? 0" (updatePanelStatus)="updatePanelOpen($event)" />
@@ -17,10 +17,11 @@
                 }
             </div>
             @if (panelOpen) {
-                <cdk-virtual-scroll-viewport minBufferPx="500" maxBufferPx="1000" class="viewport" itemSize="143">
-                    <div *cdkVirtualFor="let dwellingSet of buildingSelection(); templateCacheSize: 0; trackBy: trackByUPRN">
+                <cdk-virtual-scroll-viewport minBufferPx="500" maxBufferPx="1000" itemSize="143">
+                    <div *cdkVirtualFor="let dwellingSet of buildingSelection(); templateCacheSize: 0; trackBy: trackByUPRN; let isLast = last">
                         @if (dwellingSet.length === 1) {
                             <c477-results-card
+                                [ngClass]="{ 'result-card': !isLast }"
                                 (downloadData)="downloadBuilding($event)"
                                 [buildingUPRN]="selectedCardUPRN()"
                                 (cardSelected)="cardSelected($event)"
@@ -31,9 +32,10 @@
                                 (removeFlag)="removeFlag.emit(dwellingSet[0])"
                                 [card]="dwellingSet[0]"
                                 [select]="selectMultiple"
-                            ></c477-results-card>
+                            />
                         } @else {
                             <c477-results-card-expandable
+                                [ngClass]="{ 'result-card': !isLast }"
                                 [buildingTOID]="selectedParentTOID()"
                                 [dwellings]="dwellingSet"
                                 [select]="selectMultiple"
@@ -44,7 +46,7 @@
                                 (flag)="flag.emit($event)"
                                 (removeFlag)="removeFlag.emit($event)"
                                 (downloadData)="downloadBuilding($event)"
-                            ></c477-results-card-expandable>
+                            />
                         }
                     </div>
                 </cdk-virtual-scroll-viewport>

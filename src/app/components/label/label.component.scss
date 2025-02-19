@@ -1,11 +1,10 @@
 $rates: ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'none', 'avg');
 
-.label {
+:host {
     display: grid;
-    grid-auto-columns: 3rem;
+    grid-auto-columns: minmax(max-content, auto);
     grid-auto-flow: column;
-    grid-template-columns: max-content minmax(4rem, auto);
-    gap: 0.5rem;
+    grid-template-columns: max-content auto;
 
     border-radius: var(--border-radius);
 
@@ -25,10 +24,29 @@ $rates: ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'none', 'avg');
         }
     }
 
+    &.expired {
+        color: var(--mat-sys-error);
+    }
+
+    .label {
+        overflow: hidden;
+        display: flex;
+        gap: 0.5rem;
+        justify-content: space-between;
+
+        padding: 0 0.75rem;
+    }
+
     .expired {
         display: flex;
         gap: 0.25rem;
         align-content: center;
-        color: var(--mat-sys-error);
+    }
+
+    .building {
+        padding: 0 1rem;
+        border-radius: var(--border-radius);
+        color: var(--mat-sys-on-primary-container);
+        background-color: var(--mat-sys-primary-container);
     }
 }

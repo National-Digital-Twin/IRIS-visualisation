@@ -11,6 +11,7 @@ import { UtilService } from '@core/services/utils.service';
     selector: 'c477-results-card-expandable[cardIsChecked]',
     imports: [CommonModule, MatExpansionModule, ResultsCardComponent],
     templateUrl: './results-card-expandable.component.html',
+    styleUrl: './results-card-expandable.component.scss',
 })
 export class ResultsCardExpandableComponent implements OnChanges {
     readonly #utilService = inject(UtilService);

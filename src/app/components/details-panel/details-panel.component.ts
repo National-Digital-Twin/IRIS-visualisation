@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { CUSTOM_ELEMENTS_SCHEMA, Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { AsyncPipe, DatePipe, NgClass, NgTemplateOutlet } from '@angular/common';
+import { CUSTOM_ELEMENTS_SCHEMA, Component, InputSignal, OnInit, OutputEmitterRef, inject, input, output } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -8,6 +8,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
 import { LabelComponent } from '@components/label/label.component';
+import { InfoPanelComponent } from '@containers/info-panel';
 import {
     BuildForm,
     FloorConstruction,
@@ -28,22 +29,34 @@ import { EMPTY, switchMap } from 'rxjs';
 
 @Component({
     selector: 'c477-details-panel',
-    imports: [CommonModule, LabelComponent, MatButtonModule, MatIconModule, MatTabsModule, MatProgressBarModule],
+    imports: [
+        NgTemplateOutlet,
+        NgClass,
+        AsyncPipe,
+        DatePipe,
+        LabelComponent,
+        MatButtonModule,
+        MatIconModule,
+        MatTabsModule,
+        MatProgressBarModule,
+        InfoPanelComponent,
+    ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     templateUrl: './details-panel.component.html',
+    styleUrl: './details-panel.component.scss',
 })
 export class DetailsPanelComponent implements OnInit {
     readonly #dataService = inject(DataService);
     readonly #dialog = inject(MatDialog);
     readonly #utilService = inject(UtilService);
 
-    @Input() public resultsPanelCollapsed = false;
+    public resultsPanelCollapsed: InputSignal<boolean> = input(false);
 
-    @Output() public closePanel: EventEmitter<null> = new EventEmitter();
-    @Output() public downloadData: EventEmitter<DownloadDataWarningResponse> = new EventEmitter();
-    @Output() public flag = new EventEmitter<BuildingModel[]>();
-    @Output() public getFlagHistory = new EventEmitter<string>();
-    @Output() public removeFlag = new EventEmitter<BuildingModel>();
+    public closePanel: OutputEmitterRef<void> = output();
+    public downloadData: OutputEmitterRef<DownloadDataWarningResponse> = output();
+    public flag: OutputEmitterRef<BuildingModel[]> = output();
+    public getFlagHistory: OutputEmitterRef<string> = output();
+    public removeFlag: OutputEmitterRef<BuildingModel> = output();
 
     public activeFlag$ = toObservable(this.#dataService.activeFlag);
     public buildForm: Record<string, string> = BuildForm;

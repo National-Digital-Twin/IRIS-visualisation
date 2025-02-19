@@ -19,13 +19,13 @@
         gap: 0;
         align-items: center;
 
-        background-color: var(--mat-sys-surface);
+        background-color: var(--mat-sys-surface-container-lowest);
         box-shadow: var(--mat-sys-level2);
 
         @include mat.button-overrides(
             (
                 filled-label-text-color: var(--mat-sys-on-surface),
-                filled-container-color: var(--mat-sys-surface),
+                filled-container-color: var(--mat-sys-surface-container-lowest),
                 filled-container-height: 57px,
             )
         );
@@ -40,7 +40,7 @@
             @include mat.button-overrides(
                 (
                     filled-label-text-color: var(--mat-sys-error),
-                    filled-container-color: var(--mat-sys-surface),
+                    filled-container-color: var(--mat-sys-surface-container-lowest),
                 )
             );
         }

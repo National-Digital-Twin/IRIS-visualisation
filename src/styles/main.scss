@@ -1,4 +1,6 @@
 @use '@angular/material' as mat;
+@use 'light-theme' as light;
+@use 'dark-theme' as dark;
 
 :root {
     // EPC Colors
@@ -24,8 +26,8 @@ html {
     @include mat.theme(
         (
             color: (
-                primary: mat.$azure-palette,
-                tertiary: mat.$violet-palette,
+                primary: light.$primary-palette,
+                tertiary: light.$tertiary-palette,
                 theme-type: light,
             ),
             typography: Roboto,
@@ -33,9 +35,17 @@ html {
         )
     );
 
+    @include mat.button-overrides(
+        (
+            text-container-shape: var(--border-radius),
+            filled-container-shape: var(--border-radius),
+            outlined-container-shape: var(--border-radius),
+        )
+    );
+
     @include mat.form-field-overrides(
         (
-            filled-container-color: var(--mat-sys-surface),
+            filled-container-color: var(--mat-sys-surface-container-lowest),
             filled-active-indicator-height: 0,
             filled-focus-active-indicator-height: 0,
         )
@@ -43,20 +53,22 @@ html {
 }
 
 body {
+    line-height: 1.4rem;
 
     @include mat.form-field-overrides(
         (
-            filled-container-color: var(--mat-sys-surface),
+            filled-container-color: var(--mat-sys-surface-container-lowest),
         )
     );
+
     &[theme='dark'] {
         color-scheme: dark;
 
         @include mat.theme(
             (
                 color: (
-                    primary: mat.$azure-palette,
-                    tertiary: mat.$violet-palette,
+                    primary: dark.$primary-palette,
+                    tertiary: dark.$tertiary-palette,
                     theme-type: dark,
                 ),
                 typography: Roboto,
@@ -99,4 +111,12 @@ p {
     font-family: var(--mat-sys-body-medium-font);
     font-size: var(--mat-sys-body-medium-size);
     font-weight: var(--mat-sys-body-medium-weight);
+}
+
+.mdc-button {
+    &__label {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
 }

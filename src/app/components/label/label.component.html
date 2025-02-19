@@ -1,33 +1,10 @@
-<!-- <div *ngIf="epcRating; else BuildingType" class="label label__epc label__epc--{{ epcRating }}" [ngClass]="{ 'label__epc--expired': expired }">
-    <div></div>
-    @if (epcRating !== 'none' && epcRating !== 'avg') {
-        <div class="label__text">
-            <span class="label__text-epc">
-                <span class="label__expired-text" *ngIf="expired">
-                    <img src="assets/icons/Warning.svg" alt="" />
-                    &nbsp; Expired&nbsp;
-                </span>
-                EPC: {{ epcRating }}</span
-            >
-            @if (sapPoints) {
-                <span> {{ sapPoints }}</span>
-            }
-        </div>
-    } @else if (epcRating === 'none') {
-        <div class="label__text">No EPC</div>
-    } @else if (epcRating === 'avg') {
-        <div class="label__text">Averaged EPC</div>
-    }
-</div>
-<ng-template #BuildingType>
-    <div class="label label__type">
-        <ng-content></ng-content>
-    </div>
-</ng-template> -->
+@let rating = epcRating();
+@let hasExpired = expired();
+@let points = sapPoints();
 
-@if (epcRating) {
-    <div class="label" ngClass="epc-rating-{{ epcRating.toLowerCase() }}">
-        @switch (epcRating) {
+@if (rating) {
+    <div class="label">
+        @switch (rating) {
             @case ('none') {
                 <div>No EPC</div>
             }
@@ -35,20 +12,22 @@
                 <div>Averaged EPC</div>
             }
             @default {
-                @if (expired) {
+                @if (hasExpired) {
                     <div class="expired">
                         <img src="assets/icons/Warning.svg" alt="" />
-                        <span>Expired EPC: {{ epcRating }}</span>
+                        <span>Expired EPC: {{ rating }}</span>
                     </div>
                 } @else {
-                    <span>EPC: {{ epcRating }}</span>
+                    <span>EPC: {{ rating }}</span>
                 }
-                @if (sapPoints) {
-                    <span>{{ sapPoints }}</span>
+                @if (points) {
+                    <span>{{ points }}</span>
                 }
             }
         }
     </div>
 } @else {
-    <ng-content></ng-content>
+    <div class="label building">
+        <ng-content />
+    </div>
 }
