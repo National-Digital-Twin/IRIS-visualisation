@@ -25,7 +25,6 @@
                         "tsConfig": "tsconfig.app.json",
                         "inlineStyleLanguage": "scss",
                         "assets": [
-                            "src/favicon.ico",
                             "src/assets",
                             {
                                 "glob": "**/*",
@@ -51,7 +50,6 @@
                         "production": {
                             "baseHref": "/",
                             "assets": [
-                                "src/favicon.ico",
                                 "src/assets",
                                 {
                                     "glob": "**/*",
@@ -93,7 +91,6 @@
                             "namedChunks": true,
                             "assets": [
                                 "src/assets",
-                                "src/favicon.ico",
                                 {
                                     "glob": "**/*",
                                     "input": "./node_modules/ndtp-styling-assets/dist/assets",

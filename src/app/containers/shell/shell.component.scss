@@ -45,7 +45,8 @@ arc-accessibility {
 
     img {
         object-fit: cover;
-        height: ndtp.$ndtp-logo-height;
+        height: ndtp.$logo-height;
+        width: ndtp.$logo-width;
     }
 
     .divider {
