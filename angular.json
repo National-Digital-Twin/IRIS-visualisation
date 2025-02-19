@@ -28,7 +28,7 @@
                             "src/assets",
                             {
                                 "glob": "**/*",
-                                "input": "./node_modules/ndtp-styling-assets/dist/assets",
+                                "input": "./node_modules/@national-digital-twin/ndtp-styling-assets/dist/assets",
                                 "output": "/assets/"
                             }
                         ],
@@ -41,7 +41,10 @@
                         "stylePreprocessorOptions": {
                             "sass": {
                                 "silenceDeprecations": ["mixed-decls", "import"]
-                            }
+                            },
+                            "includePaths": [
+                                "./node_modules"
+                            ]
                         },
                         "allowedCommonJsDependencies": ["mapbox-gl", "papaparse"],
                         "browser": "src/main.ts"
@@ -53,7 +56,7 @@
                                 "src/assets",
                                 {
                                     "glob": "**/*",
-                                    "input": "./node_modules/ndtp-styling-assets/dist/assets",
+                                    "input": "./node_modules/@national-digital-twin/ndtp-styling-assets/dist/assets",
                                     "output": "/assets/"
                                 },
                                 {
@@ -93,7 +96,7 @@
                                 "src/assets",
                                 {
                                     "glob": "**/*",
-                                    "input": "./node_modules/ndtp-styling-assets/dist/assets",
+                                    "input": "./node_modules/@national-digital-twin/ndtp-styling-assets/dist/assets",
                                     "output": "/assets/"
                                 },
                                 {
@@ -114,7 +117,7 @@
                                 "src/assets",
                                 {
                                     "glob": "**/*",
-                                    "input": "./node_modules/ndtp-styling-assets/dist/assets",
+                                    "input": "./node_modules/@national-digital-twin/ndtp-styling-assets/dist/assets",
                                     "output": "/assets/"
                                 },
                                 {
