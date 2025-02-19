@@ -6,8 +6,6 @@ jobs:
     dependencies:
         name: Install dependencies
         runs-on: ubuntu-latest
-        env:
-            GITHUB_PERSONAL_TOKEN: ${{secrets.GITHUB_TOKEN}}
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-node@v4
@@ -17,6 +15,7 @@ jobs:
                   cache-dependency-path: package-lock.json
                   always-auth: true
                   registry-url: https://npm.pkg.github.com
+                  token: ${{secrets.GITHUB_TOKEN}}
             - run: npm install
 
     build_code:
