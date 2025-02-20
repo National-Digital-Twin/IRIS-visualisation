@@ -85,7 +85,7 @@ export class MainFiltersComponent implements OnChanges {
             distinctUntilChanged(),
             switchMap((value): Observable<AddressSearchData[]> => {
                 if (value) {
-                    return this.searchHandler(value);
+                    return this.#addressSearchService.getAddresses(value);
                 } else {
                     return of<AddressSearchData[]>([]);
                 }
@@ -109,17 +109,6 @@ export class MainFiltersComponent implements OnChanges {
 
     public getKeys(options: { [key: string]: string }): string[] {
         return Object.keys(options);
-    }
-
-    /**
-     * Conditionally handle which OS API to call depending on user input
-     * @param query address or postcode search string
-     * @returns address or postcode suggestions
-     */
-    private searchHandler(query: string): Observable<AddressSearchData[]> {
-        const isPostcode = this.checkForPostcode(query);
-        const results = isPostcode ? this.#addressSearchService.getPostCodes(query) : this.#addressSearchService.getAddresses(query);
-        return results;
     }
 
     /**
@@ -262,18 +251,5 @@ export class MainFiltersComponent implements OnChanges {
 
     public filtersExist(): boolean {
         return (this.filterProps && Object.keys(this.filterProps).length > 0) || this.#spatialQueryService.spatialFilterEnabled();
-    }
-
-    /**
-     * Check if search string is a IoW postcode.
-     * @param query search string
-     * @returns boolean
-     */
-    private checkForPostcode(query: string): boolean {
-        if (query.slice(0, 3).toLocaleLowerCase() === 'po3' || query.slice(0, 3).toLocaleLowerCase() === 'po4') {
-            return true;
-        } else {
-            return false;
-        }
     }
 }

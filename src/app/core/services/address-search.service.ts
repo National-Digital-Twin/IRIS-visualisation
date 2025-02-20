@@ -44,22 +44,6 @@ export class AddressSearchService {
             .pipe(map((res: AddressSearchResponse) => (res.results?.length ? res.results.map((r) => r.DPA) : [])));
     }
 
-    /**
-     * Free text postcode only search
-     * @param queryString postcode
-     * @returns array of suggested postcodes reformatted to match
-     * address search response
-     */
-    public getPostCodes(queryString: string): Observable<AddressSearchData[]> {
-        return this.#http
-            .get<OSNamesSearchResponse>(
-                `
-        ${this.#runtimeConfiguration.addressSearch.namesAPIURL}/find?query=${encodeURIComponent(queryString)}&maxresults=${this.#runtimeConfiguration.addressSearch.maxResults}&FQ=LOCAL_TYPE:Postcode&key=${environment.os.apiKey}
-      `,
-            )
-            .pipe(map((res: OSNamesSearchResponse) => this.convertNamesToAddresses(res)));
-    }
-
     private convertNamesToAddresses(searchResults: OSNamesSearchResponse): AddressSearchData[] {
         const results: AddressSearchData[] = [];
         if (searchResults.results.length) {
