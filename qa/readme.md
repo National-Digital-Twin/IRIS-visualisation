@@ -1,18 +1,17 @@
 # Playwright + Cucumber (BDD)
 
-Cucumber is a popular behavior-driven development (BDD) tool that allows developers and stakeholders to collaborate on defining and testing application requirements in a human-readable format. 
+Cucumber is a popular behavior-driven development (BDD) tool that allows developers and stakeholders to collaborate on defining and testing application requirements in a human-readable format.
 TypeScript is a powerful superset of JavaScript that adds optional static typing, making it easier to catch errors before runtime. By combining these two tools, we can create more reliable and maintainable tests.
 
 ## Framewwork Features
 
 1. Awesome report with screenshots, videos & logs
-2. Execute tests on multiple environments 
+2. Execute tests on multiple environments
 3. Parallel execution
 4. Rerun only failed features
 5. Retry failed tests on CI
 6. Github Actions integrated with downloadable report
 7. Page object model
-
 
 ## Project structure
 
@@ -30,6 +29,7 @@ TypeScript is a powerful superset of JavaScript that adds optional static typing
 6. Trace of failure
 
 ## Get Started
+
 node js needs to be latest or minimum version 22
 
 ### Setup:
@@ -41,6 +41,7 @@ node js needs to be latest or minimum version 22
 5. `USERNAME="ndtp.user" PASSWORD="ndtp.pass" npm run test` to execute the tests
 
 ### Folder structure
+
 0. `src\pages` -> All the page (UI screen)
 1. `src\test\features` -> write your features here
 2. `src\test\steps` -> Your step definitions goes here
@@ -54,8 +55,8 @@ node js needs to be latest or minimum version 22
 10. `src\helper\auth` -> Storage state (Auth file)
 11. `src\helper\util` -> Read test data from json & logger
 
-
 # Performance testing
+
 npx lighthouse --version
 
 Check if Chrome is installed

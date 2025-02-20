@@ -1,12 +1,7 @@
 {
     "compilerOptions": {
-        "lib": [
-            "es2021"
-        ],
-        "typeRoots": [
-            "./node_modules/@types",
-            "src/helper/types"
-        ],
+        "lib": ["es2021"],
+        "typeRoots": ["./node_modules/@types", "src/helper/types"],
         "resolveJsonModule": true
     },
     "noImplicitAny": false,
