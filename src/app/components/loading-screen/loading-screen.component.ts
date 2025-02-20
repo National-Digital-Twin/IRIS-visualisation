@@ -8,4 +8,6 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     templateUrl: './loading-screen.component.html',
     styleUrl: './loading-screen.component.scss',
 })
-export class LoadingScreenComponent {}
+export class LoadingScreenComponent {
+    public irisLogo = new URL('../../../assets/iris-ndtp-logo.svg', import.meta.url);
+}

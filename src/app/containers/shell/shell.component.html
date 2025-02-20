@@ -1,70 +1,43 @@
-<arc-container fullscreen="true" theme="light">
-    <arc-navbar slot="nav" logo="assets/iris_logo.svg" (arc-show-accessibility)="handleShowAccessibility($event)">
-        <span slot="name">{{ title }}</span>
-        <arc-icon-button name="question-circle" label="Information" (keydown.space)="showInfo()" (click)="showInfo()" tabindex="0">
-            <ph-icon-question slot="icon" />
-        </arc-icon-button>
-        <img slot="company-logo" alt="Company Logo" [src]="companyLogoSrc()" />
-    </arc-navbar>
-
-    <arc-accessibility #accessibility slot="accessibility" (arc-accessibility-change)="handleAccessibilityChange($event)">
-        <div slot="options" class="accessibility__options">
-            <div class="accessibility__label">
-                <span>Colour Vision Deficiency</span>
-            </div>
-            <arc-switch #colorBlindSwitch (arc-change)="handleColorBlindSwitchChange($event)"> Enable </arc-switch>
+<div class="content">
+    <mat-toolbar class="toolbar-container">
+        <div class="toolbar-left-side">
+            <img [src]="irisLogo" alt="NDTP Logo"/>
         </div>
-    </arc-accessibility>
-
-    <div class="content">
-        @if (loading()) {
-            <c477-loading-screen />
-        } @else {
-            <c477-main-filters
-                [filterProps]="filterProps"
-                (clearAllFilters)="clearAllFilters()"
-                (setRouteParams)="setFilterParams($event)"
-                (setAdvancedFilters)="setAdvancedFilters($event)"
-                (addressSelected)="setSelectedBuildingTOID($event)"
-            />
-
-            <!-- <div class="panel-container" [ngClass]="{ 'panel-container--collapsed': resultsPanelCollapsed }"> -->
-            @if (!resultsPanelCollapsed) {
-                <c477-results-panel (flag)="onFlag($event)" (removeFlag)="onRemoveFlag($event)" (resultsPanelCollapsed)="resultsPanelCollapsed = $event" />
-            }
-            <!-- </div> -->
-
-            <c477-details-panel
-                (closePanel)="closeDetails()"
-                (downloadData)="downloadData($event)"
-                (flag)="onFlag($event)"
-                (removeFlag)="onRemoveFlag($event)"
-                [resultsPanelCollapsed]="resultsPanelCollapsed"
-            />
-        }
-        <div class="map-container">
-            <c477-map
-                [contextData]="(contextData$ | async) || []"
-                [spatialFilterEnabled]="spatialFilterEnabled()"
-                [mapConfig]="mapConfig"
-                (setRouteParams)="setRouteMapParams($event)"
-                (deleteSpatialFilter)="deleteSpatialFilter()"
-                (downloadAddresses)="downloadAddresses()"
-                (resetMapView)="resetMapView()"
-                (resetNorth)="resetNorth()"
-                (tilt2D)="tilt2D($event)"
-                (zoomIn)="zoomIn()"
-                (zoomOut)="zoomOut()"
-                (setSearchArea)="setSearchArea($event)"
-                (setSelectedBuildingTOID)="setSelectedBuildingTOID($event)"
-                (setMinimapData)="minimapData = $event"
-                (toggleMinimap)="showMinimap = !showMinimap"
-            />
+        <div class="toolbar-right-side">
+            <button mat-icon-button aria-label="help" (keydown.space)="showInfo()" (click)="showInfo()" tabindex="0">
+                <mat-icon class="material-icons-outlined help-icon" aria-label="help icon">help_outlined</mat-icon>
+            </button>
+            <button mat-icon-button aria-label="accessibility">
+                <mat-icon class="material-icons-outlined accessibility-icon" aria-label="accessibility icon">accessibility</mat-icon>
+            </button>
         </div>
-        @if (showMinimap) {
-            <c477-minimap [minimapData]="minimapData" />
-        }
+    </mat-toolbar>
+
+    @if (loading()) {
+    <c477-loading-screen />
+    } @else {
+    <c477-main-filters [filterProps]="filterProps" (clearAllFilters)="clearAllFilters()"
+        (setRouteParams)="setFilterParams($event)" (setAdvancedFilters)="setAdvancedFilters($event)"
+        (addressSelected)="setSelectedBuildingTOID($event)" />
+
+    <div class="panel-container" [ngClass]="{ 'panel-container--collapsed': resultsPanelCollapsed }">
+        <c477-results-panel (flag)="onFlag($event)" (removeFlag)="onRemoveFlag($event)"
+            (resultsPanelCollapsed)="resultsPanelCollapsed = $event" />
     </div>
 
-    <arc-bottombar slot="bottom" (arc-show-accessibility)="handleShowAccessibility($event)"> </arc-bottombar>
-</arc-container>
+    <c477-details-panel (closePanel)="closeDetails()" (downloadData)="downloadData($event)" (flag)="onFlag($event)"
+        (removeFlag)="onRemoveFlag($event)" [resultsPanelCollapsed]="resultsPanelCollapsed" />
+    }
+    <div class="map-container">
+        <c477-map [contextData]="(contextData$ | async) || []" [spatialFilterEnabled]="spatialFilterEnabled()"
+            [mapConfig]="mapConfig" (setRouteParams)="setRouteMapParams($event)"
+            (deleteSpatialFilter)="deleteSpatialFilter()" (downloadAddresses)="downloadAddresses()"
+            (resetMapView)="resetMapView()" (resetNorth)="resetNorth()" (tilt2D)="tilt2D($event)" (zoomIn)="zoomIn()"
+            (zoomOut)="zoomOut()" (setSearchArea)="setSearchArea($event)"
+            (setSelectedBuildingTOID)="setSelectedBuildingTOID($event)" (setMinimapData)="minimapData = $event"
+            (toggleMinimap)="showMinimap = !showMinimap" />
+    </div>
+    @if (showMinimap) {
+    <c477-minimap [minimapData]="minimapData" />
+    }
+</div>
