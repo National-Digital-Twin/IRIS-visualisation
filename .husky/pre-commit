@@ -1,3 +1,4 @@
+../set_github_token.sh
 npm outdated
 npm run lint:app
 npm run lint:styles

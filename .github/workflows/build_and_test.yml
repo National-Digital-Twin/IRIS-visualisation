@@ -14,7 +14,7 @@ jobs:
                   cache: 'npm'
                   cache-dependency-path: package-lock.json
                   always-auth: true
-                  registry-url: https://npm.pkg.github.com
+                  registry-url: https://npm.pkg.github.com/
                   token: ${{secrets.GITHUB_TOKEN}}
             - run: npm install
 
