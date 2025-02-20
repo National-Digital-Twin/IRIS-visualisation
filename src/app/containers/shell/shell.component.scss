@@ -1,19 +1,5 @@
-arc-navbar {
-    --height: 55px;
-
-    height: var(--height);
-
-    img[slot='company-logo'] {
-        height: calc(var(--height));
-    }
-}
-
-arc-container[theme='dark'] {
-    arc-navbar,
-    arc-bottombar {
-        background: rgb(var(--arc-container-color));
-    }
-}
+@use '@angular/material' as mat;
+@use '@national-digital-twin/ndtp-styling-assets/dist/scss/main.scss' as ndtp;
 
 arc-accessibility {
     z-index: 1002;
@@ -35,6 +21,7 @@ arc-accessibility {
     position: relative;
     width: 100%;
     height: 100%;
+    overflow: hidden;
 
     .map-container {
         width: 100%;
@@ -44,4 +31,57 @@ arc-accessibility {
             display: block !important;
         }
     }
+}
+
+.toolbar-container {
+    @include mat.toolbar-overrides((
+        container-background-color: ndtp.$secondary-color,
+        standard-height: ndtp.$toolbar-height,
+        container-text-color: ndtp.$off-white,
+    ));
+}
+
+.toolbar-left-side {
+
+    img {
+        object-fit: cover;
+        height: ndtp.$logo-height;
+        width: ndtp.$logo-width;
+    }
+
+    .divider {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    span {
+        font-size: 1.5em;
+        font-weight: 500;
+    }
+
+    .headline {
+        letter-spacing: 2.5px;
+    }
+}
+
+.toolbar-right-side {
+    width: 50%;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+
+    button {
+        padding-left: 10px;
+    }
+}
+
+.help-icon {
+    color: ndtp.$accent-yellow;
+    font-size: 18px;
+}
+
+.accessibility-icon {
+    color: ndtp.$off-white;
+    font-size: 15px;
+    border-radius: 20px;
 }

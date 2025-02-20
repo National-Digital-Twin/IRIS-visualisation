@@ -1,6 +1,6 @@
 @use '@angular/material' as mat;
-@use 'light-theme' as light;
-@use 'dark-theme' as dark;
+@use '../app_theme-colors.scss' as ndtp-theme;
+@use '@national-digital-twin/ndtp-styling-assets/dist/scss/main.scss' as ndtp;
 
 :root {
     // EPC Colors
@@ -26,11 +26,11 @@ html {
     @include mat.theme(
         (
             color: (
-                primary: light.$primary-palette,
-                tertiary: light.$tertiary-palette,
+                primary: ndtp-theme.$primary-palette,
+                tertiary: ndtp-theme.$tertiary-palette,
                 theme-type: light,
             ),
-            typography: Roboto,
+            typography: ndtp.$primary-font,
             density: 0,
         )
     );
@@ -67,8 +67,8 @@ body {
         @include mat.theme(
             (
                 color: (
-                    primary: dark.$primary-palette,
-                    tertiary: dark.$tertiary-palette,
+                    primary: ndtp-theme.$primary-palette,
+                    tertiary: ndtp-theme.$tertiary-palette,
                     theme-type: dark,
                 ),
                 typography: Roboto,
@@ -119,4 +119,18 @@ p {
         gap: 0.5rem;
         align-items: center;
     }
+}
+
+.information .mat-mdc-dialog-container {
+    @include mat.dialog-overrides(
+        (
+            container-shape: 1px,
+            actions-padding: 0 6.875rem 4.875rem,
+            with-actions-content-padding: 3.125rem 6.875rem,
+            headline-padding: 4.875rem 0 3.125rem 6.875rem,
+            container-max-width: 37.5rem,
+            actions-alignment: start,
+            supporting-text-size: 16px,
+        )
+    );
 }

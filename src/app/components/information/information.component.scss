@@ -1,0 +1,7 @@
+@use '@angular/material' as mat;
+
+.information__modal {
+    .mdc-dialog__title::before {
+        display: none;
+    }
+}

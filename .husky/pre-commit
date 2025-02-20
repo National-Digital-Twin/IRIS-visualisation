@@ -1,3 +1,4 @@
+export GITHUB_PERSONAL_TOKEN=
 npm outdated
 npm run lint:app
 npm run lint:styles

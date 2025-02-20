@@ -42,6 +42,7 @@
         "install": "0.13.0",
         "jszip": "3.10.1",
         "mapbox-gl": "3.10.0",
+        "@national-digital-twin/ndtp-styling-assets": "1.0.0",
         "posthog-js": "1.219.5",
         "proj4": "2.15.0",
         "rxjs": "7.8.1",

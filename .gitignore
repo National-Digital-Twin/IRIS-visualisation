@@ -41,6 +41,7 @@ documentation
 # System files
 .DS_Store
 Thumbs.db
+.env
 
 # Enviroments
 /src/configurations/local

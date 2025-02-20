@@ -24,7 +24,14 @@
                         "polyfills": ["zone.js"],
                         "tsConfig": "tsconfig.app.json",
                         "inlineStyleLanguage": "scss",
-                        "assets": ["src/favicon.ico", "src/assets"],
+                        "assets": [
+                            "src/assets",
+                            {
+                                "glob": "**/*",
+                                "input": "./node_modules/@national-digital-twin/ndtp-styling-assets/dist/assets",
+                                "output": "/assets/"
+                            }
+                        ],
                         "styles": [
                             "mapbox-gl/dist/mapbox-gl.css",
                             "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css",
@@ -34,7 +41,10 @@
                         "stylePreprocessorOptions": {
                             "sass": {
                                 "silenceDeprecations": ["mixed-decls", "import"]
-                            }
+                            },
+                            "includePaths": [
+                                "./node_modules"
+                            ]
                         },
                         "allowedCommonJsDependencies": ["mapbox-gl", "papaparse"],
                         "browser": "src/main.ts"
@@ -43,8 +53,12 @@
                         "production": {
                             "baseHref": "/",
                             "assets": [
-                                "src/favicon.ico",
                                 "src/assets",
+                                {
+                                    "glob": "**/*",
+                                    "input": "./node_modules/@national-digital-twin/ndtp-styling-assets/dist/assets",
+                                    "output": "/assets/"
+                                },
                                 {
                                     "input": "src/configurations/prod",
                                     "output": "configuration/",
@@ -80,7 +94,11 @@
                             "namedChunks": true,
                             "assets": [
                                 "src/assets",
-                                "src/favicon.ico",
+                                {
+                                    "glob": "**/*",
+                                    "input": "./node_modules/@national-digital-twin/ndtp-styling-assets/dist/assets",
+                                    "output": "/assets/"
+                                },
                                 {
                                     "input": "src/configurations/dev",
                                     "output": "configuration/",
@@ -97,6 +115,11 @@
                             "assets": [
                                 "src/favicon.ico",
                                 "src/assets",
+                                {
+                                    "glob": "**/*",
+                                    "input": "./node_modules/@national-digital-twin/ndtp-styling-assets/dist/assets",
+                                    "output": "/assets/"
+                                },
                                 {
                                     "input": "src/configurations/local",
                                     "output": "configuration/",
