@@ -5,7 +5,7 @@ import { runLighthouse } from '../../helper/wrapper/runLighthouse';
 
 let lighthouseReport: Result;
 
-When('I run Lighthouse analysis for lisa {string} page', async (pageName) => {
+When('I run Lighthouse analysis for IRIS {string} page', async (pageName) => {
     lighthouseReport = await runLighthouse(pageName);
 });
 

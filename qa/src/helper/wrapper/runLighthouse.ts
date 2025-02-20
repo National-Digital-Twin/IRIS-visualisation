@@ -17,7 +17,7 @@ export async function runLighthouse(url: string, outputDir = 'test-results/light
     const cookieHeader = await getUserLogin();
 
     // Run Lighthouse on the given URL using the Chromium instance
-    const result = await lighthouse(process.env.LISAURL, {
+    const result = await lighthouse(process.env.IRISURL, {
         port: chrome.port,
         output: ['json', 'html'],
         logLevel: 'info',
@@ -49,11 +49,11 @@ export async function runLighthouse(url: string, outputDir = 'test-results/light
 
 async function getUserLogin() {
     nloginPage = new LoginPage(basePage.page);
-    await nloginPage.navigateToLoginPage(process.env.LISAURL);
+    await nloginPage.navigateToLoginPage(process.env.IRISURL);
     basePage.logger.info('Navigated to the application');
     await nloginPage.loginUser(process.env.USERNAME, process.env.PASSWORD);
 
-    await basePage.page.waitForURL(process.env.LISAURL);
+    await basePage.page.waitForURL(process.env.IRISURL);
 
     // Get cookies after login
     const cookies = await basePage.page.context().cookies();

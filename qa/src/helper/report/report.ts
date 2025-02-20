@@ -20,7 +20,7 @@ report.generate({
     customData: {
         title: 'Test Exit Report',
         data: [
-            { label: 'Project', value: 'LISA Application' },
+            { label: 'Project', value: 'IRIS Application' },
             { label: 'Release', value: '1.2.x' },
             { label: 'Cycle', value: 'Smoke-1' },
         ],
