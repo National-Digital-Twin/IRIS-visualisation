@@ -77,14 +77,14 @@ export class MinimapComponent implements OnInit {
             });
 
             map.on('style.load', async ({ target: map }) => {
-                map.loadImage('assets/Arrow_dark.png', (error, image) => {
+                map.loadImage('assets/images/Arrow_dark.png', (error, image) => {
                     if (!image) {
                         return;
                     }
                     map.addImage('arrow-dark', image);
                 });
 
-                map.loadImage('assets/Arrow_light.png', (error, image) => {
+                map.loadImage('assets/images/Arrow_light.png', (error, image) => {
                     if (!image) {
                         return;
                     }

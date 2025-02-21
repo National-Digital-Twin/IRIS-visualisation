@@ -1,6 +1,6 @@
 import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output, ViewChild, effect, inject, signal } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild, WritableSignal, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -47,7 +47,7 @@ export class ResultsPanelComponent {
 
     public buildingSelection = this.#dataService.buildingsSelection;
     public checkedCards = signal<BuildingModel[]>([]);
-    public panelOpen: boolean = true;
+    public panelOpen: WritableSignal<boolean> = signal(true);
     public selectMultiple: boolean = false;
     public selectedCardUPRN = this.#utilService.selectedCardUPRN;
     public selectedParentTOID = this.#utilService.multiDwelling;
@@ -138,7 +138,7 @@ export class ResultsPanelComponent {
     }
 
     public updatePanelOpen(event: boolean): void {
-        this.panelOpen = event;
+        this.panelOpen.set(event);
         this.resultsPanelCollapsed.emit(!event);
     }
 
@@ -164,6 +164,8 @@ export class ResultsPanelComponent {
         this.dialog
             .open<DownloadWarningComponent, DownloadDataWarningData, DownloadDataWarningResponse>(DownloadWarningComponent, {
                 panelClass: 'data-download',
+                width: '90%',
+                maxWidth: '40rem',
                 data: {
                     addresses,
                     addressCount,

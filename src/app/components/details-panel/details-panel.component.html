@@ -1,6 +1,9 @@
 @let building = buildingDetails();
+@let expanded = resultsPanelCollapsed();
+@let indent = buildingSelection() ? 2 : 1;
+
 @if (building) {
-    <c477-info-panel [expanded]="false" [indent]="2">
+    <c477-info-panel [expanded]="expanded" [indent]="indent">
         <div class="details-panel">
             <div class="header">
                 <div class="panel-button">
@@ -34,15 +37,13 @@
 
             <div class="actions">
                 @if (building.Flagged === undefined) {
-                    <button mat-flat-button aria-label="Flag property" (click)="flag.emit([building!])">
-                        <img src="assets/icons/FlagPennant_white.svg" />Add a flag
-                    </button>
+                    <button mat-flat-button aria-label="Flag property" (click)="flag.emit([building!])"><mat-icon>flag</mat-icon> Add a flag</button>
                 } @else {
-                    <button mat-flat-button color="warn" aria-label="Add flag to property" (click)="removeFlag.emit(building!)">
-                        <img src="assets/icons/TrashFlag_white.svg" />Remove flag
+                    <button mat-flat-button color="warn" aria-label="Remove property flag" (click)="removeFlag.emit(building!)">
+                        <mat-icon>delete</mat-icon> Remove flag
                     </button>
                 }
-                <button mat-flat-button (click)="openDownloadWarning()"><img src="assets/icons/FileArrowDown_white.svg" />Download</button>
+                <button mat-flat-button (click)="openDownloadWarning()"><mat-icon>download</mat-icon> Download</button>
             </div>
         </div>
     </c477-info-panel>
@@ -65,7 +66,7 @@
             <dd [ngClass]="{ warn: expired }">
                 @if (building.InspectionDate) {
                     @if (expired) {
-                        <img src="assets/icons/Warning.svg" alt="" />
+                        <mat-icon>warning</mat-icon>
                     }
                     {{ building.InspectionDate | date }}
                 } @else {
@@ -175,7 +176,7 @@
                 @if (flagHistory.length > 0) {
                     @for (flag of flagHistory; track flag.Flagged) {
                         <div class="history">
-                            <img src="assets/icons/FlagPennant.svg" />
+                            <mat-icon>flag</mat-icon>
                             <div>
                                 <strong>Flagged on {{ flag.FlagDate | date: 'dd-MMM-YYYY' }}</strong>
 

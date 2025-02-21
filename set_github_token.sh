@@ -1,1 +1,0 @@
-export GITHUB_PERSONAL_TOKEN=

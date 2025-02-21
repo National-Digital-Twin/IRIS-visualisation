@@ -95,6 +95,8 @@ export class DetailsPanelComponent implements OnInit {
         this.#dialog
             .open<DownloadWarningComponent, DownloadDataWarningData, DownloadDataWarningResponse>(DownloadWarningComponent, {
                 panelClass: 'data-download',
+                width: '90%',
+                maxWidth: '40rem',
                 data: {
                     addresses: [this.buildingDetails()?.FullAddress ?? ''],
                     addressCount: undefined,

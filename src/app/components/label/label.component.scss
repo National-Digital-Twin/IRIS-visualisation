@@ -18,7 +18,7 @@ $rates: ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'none', 'avg');
                 background-color: var(--color-epc-#{$rate});
 
                 @if ($rate == 'avg') {
-                    background-image: url('/assets/icons/Spots.svg');
+                    background-image: url('/assets/images/Spots.svg');
                 }
             }
         }

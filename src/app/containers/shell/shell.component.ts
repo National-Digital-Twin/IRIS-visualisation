@@ -17,7 +17,10 @@ import {
     numberAttribute,
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { Params, Router } from '@angular/router';
 import type { ArcAccessibility, ArcSwitch } from '@arc-web/components';
 import type { UserPreferences } from '@arc-web/components/src/components/accessibility/ArcAccessibility';
@@ -49,9 +52,6 @@ import { UtilService } from '@core/services/utils.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { FeatureCollection, GeoJsonProperties, Geometry, Polygon } from 'geojson';
 import { EMPTY, Observable, combineLatest, filter, first, forkJoin, map, switchMap, take } from 'rxjs';
-import { MatToolbarModule } from "@angular/material/toolbar";
-import { MatIconModule } from "@angular/material/icon";
-import { MatButtonModule } from "@angular/material/button";
 
 @Component({
     selector: 'c477-shell',
@@ -66,7 +66,7 @@ import { MatButtonModule } from "@angular/material/button";
         AsyncPipe,
         MatToolbarModule,
         MatIconModule,
-        MatButtonModule
+        MatButtonModule,
     ],
     templateUrl: './shell.component.html',
     styleUrl: './shell.component.scss',
@@ -95,7 +95,6 @@ export class ShellComponent implements AfterViewInit {
     public showMinimap: boolean = true;
     public spatialFilterEnabled = this.#spatialQueryService.spatialFilterEnabled;
     public title = 'IRIS';
-    public irisLogo = new URL('../../../assets/iris-ndtp-logo.svg', import.meta.url);
 
     // get map state from route query params
     public bearing: InputSignal<number> = input<number, number>(0, { transform: numberAttribute });
@@ -272,6 +271,8 @@ export class ShellComponent implements AfterViewInit {
         this.#dialog
             .open<DownloadWarningComponent, DownloadDataWarningData, DownloadDataWarningResponse>(DownloadWarningComponent, {
                 panelClass: 'data-download',
+                width: '90%',
+                maxWidth: '40rem',
                 data: {
                     addresses,
                     addressCount,
@@ -410,9 +411,8 @@ export class ShellComponent implements AfterViewInit {
                               maxHeight: '100vh',
                           }
                         : {
-                              width: 'auto',
-                              height: 'auto',
-                              minWidth: '400px',
+                              width: '90%',
+                              maxWidth: '34rem',
                           }),
                 }),
             ),

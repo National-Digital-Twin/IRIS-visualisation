@@ -1,22 +1,24 @@
+@let expanded = panelOpen();
+
 @if (buildingSelection() && mapInstance && mapInstance.getZoom() > 15) {
-    <c477-info-panel [expanded]="panelOpen" [indent]="1">
+    <c477-info-panel [expanded]="expanded" [indent]="1">
         <div class="results-panel">
             <div class="header">
                 <c477-results-panel-button [numberResults]="buildingSelection()?.flat()?.length ?? 0" (updatePanelStatus)="updatePanelOpen($event)" />
-                @if (panelOpen) {
+                @if (expanded) {
                     <mat-slide-toggle [color]="'primary'" [(ngModel)]="selectMultiple">Select multiple</mat-slide-toggle>
                     @if (selectMultiple) {
                         <button mat-flat-button [color]="'primary'" class="download" (click)="downloadAll()">
-                            <img src="assets/icons/FileArrowDown_white.svg" alt="" />Download selected results
+                            <mat-icon>download</mat-icon> Download selected results
                         </button>
                     } @else {
                         <button mat-flat-button [color]="'primary'" class="download" (click)="downloadAll()">
-                            <img src="assets/icons/FileArrowDown_white.svg" alt="" />Download all results
+                            <mat-icon>download</mat-icon> Download all results
                         </button>
                     }
                 }
             </div>
-            @if (panelOpen) {
+            @if (expanded) {
                 <cdk-virtual-scroll-viewport minBufferPx="500" maxBufferPx="1000" itemSize="143">
                     <div *cdkVirtualFor="let dwellingSet of buildingSelection(); templateCacheSize: 0; trackBy: trackByUPRN; let isLast = last">
                         @if (dwellingSet.length === 1) {

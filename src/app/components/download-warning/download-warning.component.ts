@@ -9,6 +9,7 @@ import { DownloadDataWarningData } from '@core/models/download-data-warning.mode
     selector: 'c477-download-warning',
     imports: [CommonModule, MatButtonModule, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle, MatIconModule],
     templateUrl: './download-warning.component.html',
+    styleUrl: './download-warning.component.scss',
 })
 export class DownloadWarningComponent {
     readonly #data = inject<DownloadDataWarningData>(MAT_DIALOG_DATA);

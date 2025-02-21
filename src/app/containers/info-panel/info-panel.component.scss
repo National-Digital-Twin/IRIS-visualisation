@@ -1,27 +1,35 @@
 :host {
     position: absolute;
     z-index: 100;
-    top: calc(2rem + 57px);
-    bottom: 1rem;
+    top: calc(2rem + 56px + 56px);
 
     overflow-x: hidden;
     overflow-y: auto;
     display: block;
 
-    width: 22rem;
-
     background-color: var(--mat-sys-surface-container-lowest);
     box-shadow: var(--mat-sys-level2);
 
+    transition: all linear 350ms;
+
     &.primary {
+        bottom: auto;
         left: 1rem;
+        width: 18rem;
+
+        &.expand {
+            bottom: 1rem;
+            width: 26rem;
+        }
     }
 
     &.secondary {
+        bottom: 1rem;
         left: 28rem;
-    }
+        width: 22rem;
 
-    &.expand {
-        width: 26rem;
+        &.expand {
+            left: 20rem;
+        }
     }
 }

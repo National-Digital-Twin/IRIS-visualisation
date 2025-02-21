@@ -1,16 +1,9 @@
-<div class="multi-select-filter">
-    <h3>{{ title }}</h3>
-    <mat-button-toggle-group class="filter-buttons" name="title" [attr.aria-label]="title" (change)="filterChange($event)" multiple>
-        @for (option of options; track option) {
-            <mat-button-toggle
-                [ngClass]="{
-                    'filter-button--invalid': validOptions && !validOptions.includes(option) && !selectedValues?.includes(option),
-                    'filter-button--invalid-selected': validOptions && !validOptions.includes(option) && selectedValues?.includes(option),
-                }"
-                [value]="option"
-                [checked]="selectedValues?.includes(option)"
-                >{{ option | pascalCaseSpace }}</mat-button-toggle
-            >
-        }
-    </mat-button-toggle-group>
-</div>
+@let enabledOptions = validOptions();
+@let selected = selectedValues();
+
+<mat-button-toggle-group [attr.aria-label]="title()" [name]="title()" [multiple]="true" (change)="filterChange($event)">
+    @for (option of options(); track option) {
+        @let invalid = enabledOptions && !enabledOptions.includes(option) && !selected?.includes(option);
+        <mat-button-toggle [value]="option" [disabled]="invalid" [checked]="selected.includes(option)">{{ option | pascalCaseSpace }}</mat-button-toggle>
+    }
+</mat-button-toggle-group>

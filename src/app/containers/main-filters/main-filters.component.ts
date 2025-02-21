@@ -161,12 +161,16 @@ export class MainFiltersComponent implements OnChanges {
     public openAdvancedFilters(): void {
         const dialogRef = this.dialog.open(FilterPanelComponent, {
             panelClass: 'filter-panel',
+            width: '90%',
+            maxWidth: '60rem',
             data: {
                 filterProps: this.filterProps,
                 form: this.advancedFiltersForm,
             },
         });
+
         dialogRef.afterClosed().subscribe((res) => {
+            console.log(res);
             if (res?.value) {
                 this.setAdvancedFilters.emit(res.value);
             } else if (res?.clear) {

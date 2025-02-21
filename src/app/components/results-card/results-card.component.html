@@ -29,16 +29,16 @@
     @if (!isParent) {
         <div class="actions">
             <button mat-icon-button (click)="openDownloadWarning()">
-                <img src="assets/icons/FileArrowDown.svg" alt="download the data for this dwelling" />
+                <mat-icon>download</mat-icon>
             </button>
 
             @if (building.Flagged === undefined) {
                 <button mat-icon-button aria-label="Flag property" (click)="flag.emit()">
-                    <img alt="" [src]="theme() === 'light' ? 'assets/icons/FlagPennant.svg' : 'assets/icons/FlagPennant_white.svg'" />
+                    <mat-icon>flag</mat-icon>
                 </button>
             } @else {
                 <button mat-icon-button aria-label="Remove flag from property" (click)="removeFlag.emit()">
-                    <img src="assets/icons/FlagPennant_red.svg" alt="" />
+                    <mat-icon>flag_check</mat-icon>
                 </button>
             }
         </div>
