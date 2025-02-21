@@ -1,5 +1,8 @@
 name: Build & Test
 
+permissions:
+  packages: read
+
 on: [push, workflow_dispatch]
 
 jobs:
