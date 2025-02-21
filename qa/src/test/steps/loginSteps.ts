@@ -16,7 +16,8 @@ Given('I login to the ndtp app with the user credentials', async () => {
     await loginPage.loginUser(process.env.USERNAME, process.env.PASSWORD);
 });
 
-Given('I am a valid user login to the {string} ndtp application', async function (appName) {
+
+Given('I am a valid user logged into the {string} NDTP application', async function (appName) {
     loginPage = new LoginPage(basePage.page);
 
     const landingSite = appName === 'IRIS' ? process.env.IRISURL : process.env.BASEURL;

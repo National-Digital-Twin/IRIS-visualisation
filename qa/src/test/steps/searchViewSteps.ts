@@ -16,61 +16,73 @@ Given('I select the {string} from the dropdown list', async function (searchStri
     await sleep(10000);
 });
 
-When('I click  the property {string}', async function (string) {
+//TODO: Will be implemented in the next PR
+When('I click the property {string}', async function (string) {
     // Write code here that turns the phrase above into concrete actions
     return 'pending';
 });
 
+//TODO: Will be implemented in the next PR
 Then('I should be able to view the property details', async function () {
     // Write code here that turns the phrase above into concrete actions
     return 'pending';
 });
 
+//TODO: Will be implemented in the next PR
 Then('I should be a able to zoom on the property', async function () {
     // Write code here that turns the phrase above into concrete actions
     return 'pending';
 });
 
+//TODO: Will be implemented in the next PR
 When('I search a location by ward details', async function () {
     // Write code here that turns the phrase above into concrete actions
     return 'pending';
 });
 
+//TODO: Will be implemented in the next PR
 Then('I should be able to click on a ward', async function () {
     // Write code here that turns the phrase above into concrete actions
     return 'pending';
 });
 
+//TODO: Will be implemented in the next PR
 Then('I should be able to pan around the map', async function () {
     // Write code here that turns the phrase above into concrete actions
     return 'pending';
 });
 
+//TODO: Will be implemented in the next PR
 Then('I should be able to add a flag to the property', async function () {
     // Write code here that turns the phrase above into concrete actions
     return 'pending';
 });
 
+//TODO: Will be implemented in the next PR
 Then('I should be able to remove a flag to the property', async function () {
     // Write code here that turns the phrase above into concrete actions
     return 'pending';
 });
 
+//TODO: Will be implemented in the next PR
 Then('I should be able to view the reason for removal of a Flag from a property', async function () {
     // Write code here that turns the phrase above into concrete actions
     return 'pending';
 });
 
+//TODO: Will be implemented in the next PR
 When('I add the Filter area around the multiple properties', async function () {
     // Write code here that turns the phrase above into concrete actions
     return 'pending';
 });
 
+//TODO: Will be implemented in the next PR
 Then('I should view the filtered properties in the area', async function () {
     // Write code here that turns the phrase above into concrete actions
     return 'pending';
 });
 
+//TODO: Will be implemented in the next PR
 Then('I should be able add additional filter by {string}', async function (string) {
     // Write code here that turns the phrase above into concrete actions
     return 'pending';
