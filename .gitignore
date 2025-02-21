@@ -58,3 +58,10 @@ powerstat-*.log
 
 # kubernetees secrets
 **/secrets.env
+
+# QA artifacts
+qa/node_modules/*
+qa/test-results/
+qa/test-results/assets
+qa/@rerun.txt
+qa/*.deb
