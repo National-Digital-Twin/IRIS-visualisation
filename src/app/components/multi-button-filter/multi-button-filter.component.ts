@@ -1,38 +1,31 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, forwardRef } from '@angular/core';
-import { ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, InputSignal, WritableSignal, inject, input, signal } from '@angular/core';
+import { ControlValueAccessor, FormControlName } from '@angular/forms';
 import { MatButtonToggleChange, MatButtonToggleModule } from '@angular/material/button-toggle';
-import { AdvancedFilter } from '@core/models/advanced-filters.model';
 import { PascalCaseSpacePipe } from '@core/pipes/pascal-case-space.pipe';
-
-type MultiFilterControlValue<T extends AdvancedFilter> = T[] | null;
 
 @Component({
     selector: 'c477-multi-button-filter[title][options]',
     imports: [CommonModule, MatButtonToggleModule, PascalCaseSpacePipe],
     templateUrl: './multi-button-filter.component.html',
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => MultiButtonFilterComponent),
-            multi: true,
-        },
-        {
-            provide: NG_VALIDATORS,
-            useExisting: forwardRef(() => MultiButtonFilterComponent),
-            multi: true,
-        },
-    ],
+    styleUrl: './multi-button-filter.component.scss',
 })
-export class MultiButtonFilterComponent<T extends AdvancedFilter> implements ControlValueAccessor {
-    @Input() public options!: string[];
-    @Input() public title!: string;
-    @Input() public validOptions?: string[];
+export class MultiButtonFilterComponent implements ControlValueAccessor {
+    #input = inject(FormControlName);
 
-    public selectedValues?: string[];
+    public title: InputSignal<string> = input.required();
+    public options: InputSignal<string[]> = input.required();
+    public validOptions: InputSignal<string[]> = input<string[]>([]);
 
-    public hasChange: (selectedValues: MultiFilterControlValue<T>) => void = (): void => {};
+    public disabled: WritableSignal<boolean> = signal(false);
+    public selectedValues: WritableSignal<string[]> = signal([]);
+
+    public hasChange: (value: string[]) => void = (): void => {};
     public isTouched: () => void = (): void => {};
+
+    constructor() {
+        this.#input.valueAccessor = this;
+    }
 
     public registerOnChange(fn: () => void): void {
         this.hasChange = fn;
@@ -42,17 +35,21 @@ export class MultiButtonFilterComponent<T extends AdvancedFilter> implements Con
         this.isTouched = fn;
     }
 
-    public filterChange(e: MatButtonToggleChange): void {
-        this.isTouched();
-        this.selectedValues = e.value;
-        this.hasChange(this.selectedValues as unknown as MultiFilterControlValue<T>);
+    public setDisabledState(disabled: boolean): void {
+        this.disabled.set(disabled);
     }
 
-    public writeValue(value: MultiFilterControlValue<T> | null): void {
+    public filterChange(event: MatButtonToggleChange): void {
+        this.isTouched();
+        this.selectedValues.set(event.value);
+        this.hasChange(this.selectedValues());
+    }
+
+    public writeValue(value: string[]): void {
         if (value) {
-            this.selectedValues = value as unknown as string[];
+            this.selectedValues.set(value);
         } else {
-            this.selectedValues = [];
+            this.selectedValues.set([]);
         }
     }
 }

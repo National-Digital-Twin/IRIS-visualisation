@@ -1,0 +1,10 @@
+.title {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    color: var(--mat-sys-error);
+
+    mat-icon {
+        display: contents;
+    }
+}

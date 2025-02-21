@@ -1,26 +1,24 @@
-@use '@angular/material' as mat;
-
 :host {
-    @include mat.expansion-overrides(
-        (
-            container-shape: 0,
-            container-background-color: var(--mat-sys-surface-container-lowest),
-            header-hover-state-layer-color: var(--mat-sys-surface-bright),
-        )
-    );
-
     ::ng-deep {
         .mat-expansion-indicator {
             position: absolute;
             top: 1rem;
             right: 1rem;
         }
-        .mat-expansion-panel-header {
-            padding: 0 1rem;
+        .mat-expansion-panel {
+            background-color: var(--mat-sys-surface-container-lowest);
 
+            .mat-expansion-panel-header {
+                padding: 0 1rem;
+                background-color: var(--mat-sys-surface-container-lowest);
+            }
+
+            &:not(.mat-expanded),
             &.mat-expanded {
-                &:hover {
-                    background-color: var(--mat-sys-surface-bright);
+                .mat-expansion-panel-header {
+                    &:not([aria-disabled='true']):hover {
+                        background-color: var(--mat-sys-surface-bright);
+                    }
                 }
             }
         }

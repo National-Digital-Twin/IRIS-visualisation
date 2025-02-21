@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
     selector: 'c477-information',
     imports: [CommonModule, MatButtonModule, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogTitle, MatIconModule],
     templateUrl: './information.component.html',
-    styleUrl: './information.component.scss'
+    styleUrl: './information.component.scss',
 })
 export class InformationComponent {
     readonly #renderer = inject(Renderer2);

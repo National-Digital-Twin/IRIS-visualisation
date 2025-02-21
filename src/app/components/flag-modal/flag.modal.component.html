@@ -1,17 +1,24 @@
-<h1 mat-dialog-title>You are flagging to investigate:</h1>
+<h2 mat-dialog-title>You are flagging to investigate:</h2>
 
 <div mat-dialog-content>
-    <ul [class]="data.length > 1 ? 'buildings' : ''">
-        <li *ngFor="let building of data" class="building">
-            {{ building.FullAddress }}
-        </li>
-    </ul>
+    @if (data.length === 1) {
+        {{ data[0].FullAddress }}
+    } @else {
+        <ul>
+            @for (building of data; track $index) {
+                <li>{{ building.FullAddress }}</li>
+            }
+        </ul>
+    }
 </div>
 
 <div mat-dialog-actions>
-    <button mat-flat-button mat-dialog-close>Cancel</button>
-    <button mat-flat-button cdkFocusInitial color="primary" [mat-dialog-close]="true">
-        <span *ngIf="data.length === 1; else createFlagsCopy">Create flag</span>
-        <ng-template #createFlagsCopy>Create flags</ng-template>
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-flat-button [mat-dialog-close]="true" cdkFocusInitial>
+        @if (data.length === 1) {
+            Create flag
+        } @else {
+            Create flags
+        }
     </button>
 </div>

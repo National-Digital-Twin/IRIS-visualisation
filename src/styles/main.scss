@@ -1,6 +1,6 @@
 @use '@angular/material' as mat;
-@use '../app_theme-colors.scss' as ndtp-theme;
-@use '@national-digital-twin/ndtp-styling-assets/dist/scss/main.scss' as ndtp;
+@use 'light-theme' as light-theme;
+@use 'dark-theme' as dark-theme;
 
 :root {
     // EPC Colors
@@ -26,11 +26,11 @@ html {
     @include mat.theme(
         (
             color: (
-                primary: ndtp-theme.$primary-palette,
-                tertiary: ndtp-theme.$tertiary-palette,
+                primary: light-theme.$primary-palette,
+                tertiary: light-theme.$tertiary-palette,
                 theme-type: light,
             ),
-            typography: ndtp.$primary-font,
+            typography: Roboto,
             density: 0,
         )
     );
@@ -50,6 +50,25 @@ html {
             filled-focus-active-indicator-height: 0,
         )
     );
+
+    @include mat.expansion-overrides(
+        (
+            container-shape: 0,
+            container-background-color: var(--mat-sys-surface-container-lowest),
+            header-hover-state-layer-color: var(--mat-sys-surface-bright),
+        )
+    );
+
+    @include mat.dialog-overrides(
+        (
+            container-shape: var(--border-radius),
+            container-color: var(--mat-sys-surface-container-lowest),
+            headline-padding: 2rem 2rem 1rem,
+            content-padding: 2rem,
+            actions-padding: 1rem 2rem 2rem,
+            with-actions-content-padding: 2rem,
+        )
+    );
 }
 
 body {
@@ -67,8 +86,8 @@ body {
         @include mat.theme(
             (
                 color: (
-                    primary: ndtp-theme.$primary-palette,
-                    tertiary: ndtp-theme.$tertiary-palette,
+                    primary: dark-theme.$primary-palette,
+                    tertiary: dark-theme.$tertiary-palette,
                     theme-type: dark,
                 ),
                 typography: Roboto,
@@ -94,16 +113,21 @@ h2 {
 
 h3 {
     margin: 0;
+
     font-family: var(--mat-sys-title-medium-font);
     font-size: var(--mat-sys-title-medium-size);
     font-weight: var(--mat-sys-title-medium-weight);
+    color: var(--mat-sys-primary);
 }
 
 h4 {
     margin: 0;
+
     font-family: var(--mat-sys-title-small-font);
     font-size: var(--mat-sys-title-small-size);
     font-weight: var(--mat-sys-title-small-weight);
+    color: var(--mat-sys-secondary);
+    text-transform: uppercase;
 }
 
 div,
@@ -119,18 +143,4 @@ p {
         gap: 0.5rem;
         align-items: center;
     }
-}
-
-.information .mat-mdc-dialog-container {
-    @include mat.dialog-overrides(
-        (
-            container-shape: 1px,
-            actions-padding: 0 6.875rem 4.875rem,
-            with-actions-content-padding: 3.125rem 6.875rem,
-            headline-padding: 4.875rem 0 3.125rem 6.875rem,
-            container-max-width: 37.5rem,
-            actions-alignment: start,
-            supporting-text-size: 16px,
-        )
-    );
 }

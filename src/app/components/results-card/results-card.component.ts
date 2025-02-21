@@ -61,6 +61,8 @@ export class ResultsCardComponent {
         this.#dialog
             .open(DownloadWarningComponent, {
                 panelClass: 'data-download',
+                width: '90%',
+                maxWidth: '40rem',
                 data: {
                     addresses: [card.FullAddress],
                 },

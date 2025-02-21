@@ -1,7 +1,7 @@
 <div class="content">
     <mat-toolbar class="toolbar-container">
         <div class="toolbar-left-side">
-            <img [src]="irisLogo" alt="NDTP Logo"/>
+            <img src="/assets/iris-ndtp-logo.svg" alt="NDTP Logo" />
         </div>
         <div class="toolbar-right-side">
             <button mat-icon-button aria-label="help" (keydown.space)="showInfo()" (click)="showInfo()" tabindex="0">
@@ -14,30 +14,46 @@
     </mat-toolbar>
 
     @if (loading()) {
-    <c477-loading-screen />
+        <c477-loading-screen />
     } @else {
-    <c477-main-filters [filterProps]="filterProps" (clearAllFilters)="clearAllFilters()"
-        (setRouteParams)="setFilterParams($event)" (setAdvancedFilters)="setAdvancedFilters($event)"
-        (addressSelected)="setSelectedBuildingTOID($event)" />
+        <c477-main-filters
+            [filterProps]="filterProps"
+            (clearAllFilters)="clearAllFilters()"
+            (setRouteParams)="setFilterParams($event)"
+            (setAdvancedFilters)="setAdvancedFilters($event)"
+            (addressSelected)="setSelectedBuildingTOID($event)"
+        />
 
-    <div class="panel-container" [ngClass]="{ 'panel-container--collapsed': resultsPanelCollapsed }">
-        <c477-results-panel (flag)="onFlag($event)" (removeFlag)="onRemoveFlag($event)"
-            (resultsPanelCollapsed)="resultsPanelCollapsed = $event" />
-    </div>
+        <c477-results-panel (flag)="onFlag($event)" (removeFlag)="onRemoveFlag($event)" (resultsPanelCollapsed)="resultsPanelCollapsed = $event" />
 
-    <c477-details-panel (closePanel)="closeDetails()" (downloadData)="downloadData($event)" (flag)="onFlag($event)"
-        (removeFlag)="onRemoveFlag($event)" [resultsPanelCollapsed]="resultsPanelCollapsed" />
+        <c477-details-panel
+            (closePanel)="closeDetails()"
+            (downloadData)="downloadData($event)"
+            (flag)="onFlag($event)"
+            (removeFlag)="onRemoveFlag($event)"
+            [resultsPanelCollapsed]="resultsPanelCollapsed"
+        />
     }
     <div class="map-container">
-        <c477-map [contextData]="(contextData$ | async) || []" [spatialFilterEnabled]="spatialFilterEnabled()"
-            [mapConfig]="mapConfig" (setRouteParams)="setRouteMapParams($event)"
-            (deleteSpatialFilter)="deleteSpatialFilter()" (downloadAddresses)="downloadAddresses()"
-            (resetMapView)="resetMapView()" (resetNorth)="resetNorth()" (tilt2D)="tilt2D($event)" (zoomIn)="zoomIn()"
-            (zoomOut)="zoomOut()" (setSearchArea)="setSearchArea($event)"
-            (setSelectedBuildingTOID)="setSelectedBuildingTOID($event)" (setMinimapData)="minimapData = $event"
-            (toggleMinimap)="showMinimap = !showMinimap" />
+        <c477-map
+            [contextData]="(contextData$ | async) || []"
+            [spatialFilterEnabled]="spatialFilterEnabled()"
+            [mapConfig]="mapConfig"
+            (setRouteParams)="setRouteMapParams($event)"
+            (deleteSpatialFilter)="deleteSpatialFilter()"
+            (downloadAddresses)="downloadAddresses()"
+            (resetMapView)="resetMapView()"
+            (resetNorth)="resetNorth()"
+            (tilt2D)="tilt2D($event)"
+            (zoomIn)="zoomIn()"
+            (zoomOut)="zoomOut()"
+            (setSearchArea)="setSearchArea($event)"
+            (setSelectedBuildingTOID)="setSelectedBuildingTOID($event)"
+            (setMinimapData)="minimapData = $event"
+            (toggleMinimap)="showMinimap = !showMinimap"
+        />
     </div>
     @if (showMinimap) {
-    <c477-minimap [minimapData]="minimapData" />
+        <c477-minimap [minimapData]="minimapData" />
     }
 </div>

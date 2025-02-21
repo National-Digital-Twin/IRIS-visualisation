@@ -11,7 +11,6 @@ export type FlagModalResult = true;
 @Component({
     selector: 'c477-flag-modal',
     templateUrl: './flag.modal.component.html',
-    styleUrl: './flag.modal.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CommonModule, MatDialogModule, MatButtonModule],
 })

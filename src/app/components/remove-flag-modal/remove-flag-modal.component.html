@@ -1,7 +1,7 @@
-<h1 mat-dialog-title>
+<h2 mat-dialog-title>
     <ph-icon-warning /> You are removing a flag for:
     {{ data.FullAddress }}
-</h1>
+</h2>
 
 <div mat-dialog-content>
     <span>Provide a reason for removing of this flag</span>
@@ -9,14 +9,16 @@
     <mat-form-field>
         <mat-label>Select Reason</mat-label>
         <mat-select [formControl]="reason">
-            <mat-option *ngFor="let reason of reasons | keyvalue" [value]="reason.value">
-                {{ reason.value }}
-            </mat-option>
+            @for (reason of reasons | keyvalue; track $index) {
+                <mat-option [value]="reason.value">
+                    {{ reason.value }}
+                </mat-option>
+            }
         </mat-select>
     </mat-form-field>
 </div>
 
 <div mat-dialog-actions>
     <button mat-flat-button mat-dialog-close>Cancel</button>
-    <button mat-flat-button cdkFocusInitial color="primary" [disabled]="reason.invalid" [mat-dialog-close]="reason.value">Remove flag</button>
+    <button mat-flat-button [mat-dialog-close]="reason.value" [disabled]="reason.invalid" cdkFocusInitial>Remove flag</button>
 </div>
