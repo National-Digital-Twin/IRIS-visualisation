@@ -1,6 +1,7 @@
 name: Build & Test
 
 permissions:
+  contents: read
   packages: read
 
 on: [push, workflow_dispatch]
@@ -18,9 +19,8 @@ jobs:
               cache-dependency-path: package-lock.json
               registry-url: https://npm.pkg.github.com
               scope: '@national-digital-twin'
+              token: ${{ secrets.GITHUB_TOKEN }}
           - run: npm ci
-            env:
-              NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     build_code:
         name: Build code
@@ -37,8 +37,6 @@ jobs:
                 scope: 'national-digital-twin'
                 token: ${{ secrets.GITHUB_TOKEN }}
             - run: npm ci
-              env:
-                NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - run: npm run build
 
     execute_tests:
@@ -56,8 +54,6 @@ jobs:
                 scope: 'national-digital-twin'
                 token: ${{ secrets.GITHUB_TOKEN }}
             - run: npm ci
-              env:
-                NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             - run: npm run test
             # - uses: actions/upload-artifact@v4
             #   with:
