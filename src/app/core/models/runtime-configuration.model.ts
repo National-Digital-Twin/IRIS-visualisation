@@ -44,8 +44,6 @@ export interface RuntimeConfigurationModel {
     epcColours: { [key: string]: string };
     /** EPC Colours - Colour Deficient*/
     epcColoursCD: { [key: string]: string };
-    /* Company logo */
-    companyLogo: Record<Theme, string>;
     /* Map context layers */
     contextLayers: MapLayerConfig[];
 }
