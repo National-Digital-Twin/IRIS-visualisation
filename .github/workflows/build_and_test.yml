@@ -15,8 +15,9 @@ jobs:
               cache-dependency-path: package-lock.json
               registry-url: https://npm.pkg.github.com
               scope: 'national-digital-twin'
-              token: ${{ secrets.GITHUB_TOKEN }}
           - run: npm ci
+            env:
+              NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     build_code:
         name: Build code
