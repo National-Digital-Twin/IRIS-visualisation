@@ -1,108 +1,110 @@
 .label {
-  border-radius: 4px;
-  padding-right: var(--arc-spacing-small);
-  margin: 0;
-  line-height: var(--arc-line-height-dense);
-  border: 1px solid;
+    margin: 0;
+    padding-right: var(--arc-spacing-small);
+    border: 1px solid;
+    border-radius: 4px;
 
-  @include md {
-    padding-right: var(--arc-spacing-x-small);
-  }
-
-  &__text {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    @include md {
-      font-size: var(--arc-font-size-x-small);
-    }
-  }
-  &__text-epc,
-  &__expired-text {
-    display: flex;
-    align-items: center;
-  }
-
-  &__epc {
-    display: grid;
-    grid-template-columns: 1fr 2.5fr;
+    line-height: var(--arc-line-height-dense);
 
     @include md {
-      grid-template-columns: 1fr 3fr;
+        padding-right: var(--arc-spacing-x-small);
     }
 
-    p {
-      margin: 0 0 0 var(--arc-spacing-small);
+    &__text {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
 
-      @include md {
-        margin-left: var(--arc-spacing-x-small);
-      }
+        @include md {
+            font-size: var(--arc-font-size-x-small);
+        }
     }
-    &--a {
-      border-color: var(--c477-color--epc-a);
-      div {
-        background-color: var(--c477-color--epc-a);
-      }
+    &__text-epc,
+    &__expired-text {
+        display: flex;
+        align-items: center;
     }
-    &--b {
-      border-color: var(--c477-color--epc-b);
-      div {
-        background-color: var(--c477-color--epc-b);
-      }
-    }
-    &--c {
-      border-color: var(--c477-color--epc-c);
-      div {
-        background-color: var(--c477-color--epc-c);
-      }
-    }
-    &--d {
-      border-color: var(--c477-color--epc-d);
-      div {
-        background-color: var(--c477-color--epc-d);
-      }
-    }
-    &--e {
-      border-color: var(--c477-color--epc-e);
-      div {
-        background-color: var(--c477-color--epc-e);
-      }
-    }
-    &--f {
-      border-color: var(--c477-color--epc-f);
-      div {
-        background-color: var(--c477-color--epc-f);
-      }
-    }
-    &--g {
-      border-color: var(--c477-color--epc-g);
-      div {
-        background-color: var(--c477-color--epc-g);
-      }
-    }
-    &--none {
-      border-color: $color-epc-none;
-      div {
-        background-color: $color-epc-none;
-      }
-    }
-    &--avg {
-      border-color: black;
-      div {
-        background-color: black;
-        background-image: url('../../assets/icons/Spots.svg');
-        background-repeat: repeat;
-      }
-    }
-    &--expired {
-      color: $color-warn;
-    }
-  }
 
-  &__type {
-    border-color: $color-type;
-    background-color: $color-type;
-    color: $color-primary;
-    padding-left: 1rem;
-  }
+    &__epc {
+        display: grid;
+        grid-template-columns: 1fr 2.5fr;
+
+        @include md {
+            grid-template-columns: 1fr 3fr;
+        }
+
+        p {
+            margin: 0 0 0 var(--arc-spacing-small);
+
+            @include md {
+                margin-left: var(--arc-spacing-x-small);
+            }
+        }
+        &--a {
+            border-color: var(--c477-color--epc-a);
+            div {
+                background-color: var(--c477-color--epc-a);
+            }
+        }
+        &--b {
+            border-color: var(--c477-color--epc-b);
+            div {
+                background-color: var(--c477-color--epc-b);
+            }
+        }
+        &--c {
+            border-color: var(--c477-color--epc-c);
+            div {
+                background-color: var(--c477-color--epc-c);
+            }
+        }
+        &--d {
+            border-color: var(--c477-color--epc-d);
+            div {
+                background-color: var(--c477-color--epc-d);
+            }
+        }
+        &--e {
+            border-color: var(--c477-color--epc-e);
+            div {
+                background-color: var(--c477-color--epc-e);
+            }
+        }
+        &--f {
+            border-color: var(--c477-color--epc-f);
+            div {
+                background-color: var(--c477-color--epc-f);
+            }
+        }
+        &--g {
+            border-color: var(--c477-color--epc-g);
+            div {
+                background-color: var(--c477-color--epc-g);
+            }
+        }
+        &--none {
+            border-color: $color-epc-none;
+            div {
+                background-color: $color-epc-none;
+            }
+        }
+        &--avg {
+            border-color: black;
+            div {
+                background-color: black;
+                background-image: url('../../assets/icons/Spots.svg');
+                background-repeat: repeat;
+            }
+        }
+        &--expired {
+            color: $color-warn;
+        }
+    }
+
+    &__type {
+        padding-left: 1rem;
+        border-color: $color-type;
+        color: $color-primary;
+        background-color: $color-type;
+    }
 }

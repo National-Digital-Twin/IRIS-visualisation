@@ -1,11 +1,7 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  MAT_DIALOG_DATA,
-  MatDialogModule,
-  MatDialogRef,
-} from '@angular/material/dialog';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { BuildingModel } from '@core/models/building.model';
 
 export type FlagModalData = BuildingModel[];
@@ -13,15 +9,18 @@ export type FlagModalData = BuildingModel[];
 export type FlagModalResult = true;
 
 @Component({
-  standalone: true,
-  selector: 'c477-flag-modal',
-  templateUrl: './flag.modal.component.html',
-  styleUrls: ['./flag.modal.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, MatDialogModule, MatButtonModule],
+    selector: 'c477-flag-modal',
+    templateUrl: './flag.modal.component.html',
+    styleUrl: './flag.modal.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [CommonModule, MatDialogModule, MatButtonModule],
 })
 export class FlagModalComponent {
-  public readonly data = inject<FlagModalData>(MAT_DIALOG_DATA);
-  public readonly dialogRef = inject(MatDialogRef<FlagModalComponent>);
-  public readonly today = new Date(Date.now()).toLocaleDateString('en-GB');
+    readonly #data = inject<FlagModalData>(MAT_DIALOG_DATA);
+
+    public today = new Date(Date.now()).toLocaleDateString('en-GB');
+
+    get data(): FlagModalData {
+        return this.#data;
+    }
 }

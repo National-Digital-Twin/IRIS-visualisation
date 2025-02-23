@@ -1,43 +1,54 @@
 import { BuildForm, EPCRating, PostCode, PropertyType } from '@core/enums';
 
 export type BuildingModel = {
-  UPRN: string;
-  TOID?: string;
-  ParentTOID?: string;
-  FullAddress: string;
-  PostCode: PostCode | undefined;
-  PropertyType: PropertyType | undefined;
-  BuildForm: BuildForm | undefined;
-  InspectionDate: string | undefined;
-  YearOfAssessment: string | undefined;
-  EPC: EPCRating | undefined;
-  SAPPoints: string | undefined;
-  FloorConstruction: string | undefined;
-  FloorInsulation: string | undefined;
-  RoofConstruction: string | undefined;
-  RoofInsulationLocation: string | undefined;
-  RoofInsulationThickness: string | undefined;
-  WallConstruction: string | undefined;
-  WallInsulation: string | undefined;
-  WindowGlazing: string | undefined;
-  Flagged?: string | undefined;
-  longitude: string | undefined;
-  latitude: string | undefined;
+    UPRN: string;
+    TOID?: string;
+    ParentTOID?: string;
+    FullAddress: string;
+    PostCode?: PostCode;
+    PropertyType?: PropertyType;
+    BuildForm?: BuildForm;
+    InspectionDate?: string;
+    YearOfAssessment?: string;
+    EPC?: EPCRating;
+    SAPPoints?: string;
+    FloorConstruction?: string;
+    FloorInsulation?: string;
+    RoofConstruction?: string;
+    RoofInsulationLocation?: string;
+    RoofInsulationThickness?: string;
+    WallConstruction?: string;
+    WallInsulation?: string;
+    WindowGlazing?: string;
+    Flagged?: string;
+    longitude?: string;
+    latitude?: string;
 };
 
 export interface BuildingMap {
-  [key: string]: BuildingModel[];
+    [key: string]: BuildingModel[];
 }
 
+export type BuildingParts = {
+    FloorConstruction: string;
+    FloorInsulation: string;
+    RoofConstruction: string;
+    RoofInsulationLocation: string;
+    RoofInsulationThickness: string;
+    WallConstruction: string;
+    WallInsulation: string;
+    WindowGlazing: string;
+};
+
 export interface BuildingPart {
-  PartType: string;
-  PartSuperType: string;
-  PartInsulationType: string;
-  PartInsulationThickness: string;
-  InsulationThickness: string;
-  InsulationThicknessLowerBound: string;
+    PartType: string;
+    PartSuperType: string;
+    PartInsulationType: string;
+    PartInsulationThickness: string;
+    InsulationThickness: string;
+    InsulationThicknessLowerBound: string;
 }
 
 export interface BuildingPartMap {
-  [key: string]: BuildingPart;
+    [key: string]: BuildingPart;
 }

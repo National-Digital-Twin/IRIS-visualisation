@@ -1,88 +1,58 @@
-import { Component, Input, OnInit, forwardRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  MatButtonToggleChange,
-  MatButtonToggleModule,
-} from '@angular/material/button-toggle';
-import {
-  NG_VALUE_ACCESSOR,
-  NG_VALIDATORS,
-  ControlValueAccessor,
-} from '@angular/forms';
-
+import { Component, Input, forwardRef } from '@angular/core';
+import { ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { MatButtonToggleChange, MatButtonToggleModule } from '@angular/material/button-toggle';
 import { AdvancedFilter } from '@core/models/advanced-filters.model';
 import { PascalCaseSpacePipe } from '@core/pipes/pascal-case-space.pipe';
 
 type MultiFilterControlValue<T extends AdvancedFilter> = T[] | null;
 
 @Component({
-  selector: 'c477-multi-button-filter[title][options]',
-  standalone: true,
-  imports: [CommonModule, MatButtonToggleModule, PascalCaseSpacePipe],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => MultiButtonFilterComponent),
-      multi: true,
-    },
-    {
-      provide: NG_VALIDATORS,
-      useExisting: forwardRef(() => MultiButtonFilterComponent),
-      multi: true,
-    },
-  ],
-  templateUrl: './multi-button-filter.component.html',
-  styleUrl: './multi-button-filter.component.css',
+    selector: 'c477-multi-button-filter[title][options]',
+    imports: [CommonModule, MatButtonToggleModule, PascalCaseSpacePipe],
+    templateUrl: './multi-button-filter.component.html',
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => MultiButtonFilterComponent),
+            multi: true,
+        },
+        {
+            provide: NG_VALIDATORS,
+            useExisting: forwardRef(() => MultiButtonFilterComponent),
+            multi: true,
+        },
+    ],
 })
-export class MultiButtonFilterComponent<T extends AdvancedFilter>
-  implements OnInit, ControlValueAccessor
-{
-  @Input() title!: string;
-  @Input() options!: string[];
-  @Input() validOptions?: string[];
-  optionKeys: string[] = [];
-  selectedValues?: string[];
-  touched = false;
+export class MultiButtonFilterComponent<T extends AdvancedFilter> implements ControlValueAccessor {
+    @Input() public options!: string[];
+    @Input() public title!: string;
+    @Input() public validOptions?: string[];
 
-  ngOnInit(): void {
-    this.optionKeys = Object.keys(this.options);
-  }
+    public selectedValues?: string[];
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onChange = (selectedValues: MultiFilterControlValue<T>) => {};
+    public hasChange: (selectedValues: MultiFilterControlValue<T>) => void = (): void => {};
+    public isTouched: () => void = (): void => {};
 
-  onTouched = () => {};
-
-  writeValue(value: MultiFilterControlValue<T> | null) {
-    if (value) {
-      this.selectedValues = value as unknown as string[];
-    } else {
-      this.selectedValues = [];
+    public registerOnChange(fn: () => void): void {
+        this.hasChange = fn;
     }
-  }
 
-  registerOnChange(onChange: (value: MultiFilterControlValue<T>) => void) {
-    this.onChange = onChange;
-  }
-
-  registerOnTouched(onTouched: () => void) {
-    this.onTouched = onTouched;
-  }
-
-  validate(): boolean | null {
-    return true;
-  }
-
-  filterChange(e: MatButtonToggleChange) {
-    this.markAsTouched();
-    this.selectedValues = e.value;
-    this.onChange(this.selectedValues as unknown as MultiFilterControlValue<T>);
-  }
-
-  markAsTouched() {
-    if (!this.touched) {
-      this.onTouched();
-      this.touched = true;
+    public registerOnTouched(fn: () => void): void {
+        this.isTouched = fn;
     }
-  }
+
+    public filterChange(e: MatButtonToggleChange): void {
+        this.isTouched();
+        this.selectedValues = e.value;
+        this.hasChange(this.selectedValues as unknown as MultiFilterControlValue<T>);
+    }
+
+    public writeValue(value: MultiFilterControlValue<T> | null): void {
+        if (value) {
+            this.selectedValues = value as unknown as string[];
+        } else {
+            this.selectedValues = [];
+        }
+    }
 }

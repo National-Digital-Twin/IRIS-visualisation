@@ -1,22 +1,20 @@
-@import '../abstracts/_variables.scss';
-
 * {
-  --arc-color-primary: var(--arc-purple-050);
-  --c477-color--epc-a: #{$color-epc-a};
-  --c477-color--epc-b: #{$color-epc-b};
-  --c477-color--epc-c: #{$color-epc-c};
-  --c477-color--epc-d: #{$color-epc-d};
-  --c477-color--epc-e: #{$color-epc-e};
-  --c477-color--epc-f: #{$color-epc-f};
-  --c477-color--epc-g: #{$color-epc-g};
+    --arc-color-primary: var(--arc-purple-050);
+    --c477-color--epc-a: #{$color-epc-a};
+    --c477-color--epc-b: #{$color-epc-b};
+    --c477-color--epc-c: #{$color-epc-c};
+    --c477-color--epc-d: #{$color-epc-d};
+    --c477-color--epc-e: #{$color-epc-e};
+    --c477-color--epc-f: #{$color-epc-f};
+    --c477-color--epc-g: #{$color-epc-g};
 }
 
 body[color-blind-mode='true'] * {
-  --c477-color--epc-a: #{$color-cb-epc-a};
-  --c477-color--epc-b: #{$color-cb-epc-b};
-  --c477-color--epc-c: #{$color-cb-epc-c};
-  --c477-color--epc-d: #{$color-cb-epc-d};
-  --c477-color--epc-e: #{$color-cb-epc-e};
-  --c477-color--epc-f: #{$color-cb-epc-f};
-  --c477-color--epc-g: #{$color-cb-epc-g};
+    --c477-color--epc-a: #{$color-cb-epc-a};
+    --c477-color--epc-b: #{$color-cb-epc-b};
+    --c477-color--epc-c: #{$color-cb-epc-c};
+    --c477-color--epc-d: #{$color-cb-epc-d};
+    --c477-color--epc-e: #{$color-cb-epc-e};
+    --c477-color--epc-f: #{$color-cb-epc-f};
+    --c477-color--epc-g: #{$color-cb-epc-g};
 }

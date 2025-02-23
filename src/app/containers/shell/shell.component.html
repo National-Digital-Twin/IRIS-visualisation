@@ -1,87 +1,68 @@
 <arc-container fullscreen="true" theme="light">
-  <arc-navbar
-    slot="nav"
-    logo="assets/iris_logo.svg"
-    (arc-show-accessibility)="handleShowAccessibility($event)">
-    <span slot="name">{{ title }}</span>
-    <arc-icon-button
-      name="question-circle"
-      label="Information"
-      (click)="showInfo()">
-      <ph-icon-question slot="icon"></ph-icon-question>
-    </arc-icon-button>
-    <img slot="company-logo" alt="Company Logo" [src]="companyLogoSrc()" />
-  </arc-navbar>
+    <arc-navbar slot="nav" logo="assets/iris_logo.svg" (arc-show-accessibility)="handleShowAccessibility($event)">
+        <span slot="name">{{ title }}</span>
+        <arc-icon-button name="question-circle" label="Information" (keydown.space)="showInfo()" (click)="showInfo()" tabindex="0">
+            <ph-icon-question slot="icon"></ph-icon-question>
+        </arc-icon-button>
+        <img slot="company-logo" alt="Company Logo" [src]="companyLogoSrc()" />
+    </arc-navbar>
 
-  <arc-accessibility
-    #accessibility
-    slot="accessibility"
-    (arc-accessibility-change)="handleAccessibilityChange($event)">
-    <div slot="options" class="accessibility__options">
-      <div class="accessibility__label">
-        <span>Colour Vision Deficiency</span>
-      </div>
-      <arc-switch
-        #colorBlindSwitch
-        (arc-change)="handleColorBlindSwitchChange($event)">
-        Enable
-      </arc-switch>
+    <arc-accessibility #accessibility slot="accessibility" (arc-accessibility-change)="handleAccessibilityChange($event)">
+        <div slot="options" class="accessibility__options">
+            <div class="accessibility__label">
+                <span>Colour Vision Deficiency</span>
+            </div>
+            <arc-switch #colorBlindSwitch (arc-change)="handleColorBlindSwitchChange($event)"> Enable </arc-switch>
+        </div>
+    </arc-accessibility>
+
+    <div class="content">
+        @if (loading()) {
+            <c477-loading-screen />
+        } @else {
+            <c477-main-filters
+                [filterProps]="filterProps"
+                (clearAllFilters)="clearAllFilters()"
+                (setRouteParams)="setFilterParams($event)"
+                (setAdvancedFilters)="setAdvancedFilters($event)"
+                (addressSelected)="setSelectedBuildingTOID($event)"
+            />
+
+            <div class="panel-container" [ngClass]="{ 'panel-container--collapsed': resultsPanelCollapsed }">
+                <c477-results-panel (flag)="onFlag($event)" (removeFlag)="onRemoveFlag($event)" (resultsPanelCollapsed)="resultsPanelCollapsed = $event" />
+            </div>
+
+            <c477-details-panel
+                (closePanel)="closeDetails()"
+                (downloadData)="downloadData($event)"
+                (flag)="onFlag($event)"
+                (removeFlag)="onRemoveFlag($event)"
+                [resultsPanelCollapsed]="resultsPanelCollapsed"
+            />
+        }
+        <div class="content__map-container">
+            <c477-map
+                [contextData]="(contextData$ | async) || []"
+                [spatialFilterEnabled]="spatialFilterEnabled()"
+                [mapConfig]="mapConfig"
+                (setRouteParams)="setRouteMapParams($event)"
+                (deleteSpatialFilter)="deleteSpatialFilter()"
+                (downloadAddresses)="downloadAddresses()"
+                (resetMapView)="resetMapView()"
+                (resetNorth)="resetNorth()"
+                (tilt2D)="tilt2D($event)"
+                (zoomIn)="zoomIn()"
+                (zoomOut)="zoomOut()"
+                (setSearchArea)="setSearchArea($event)"
+                (setSelectedBuildingTOID)="setSelectedBuildingTOID($event)"
+                (setMinimapData)="minimapData = $event"
+                (toggleMinimap)="showMinimap = !showMinimap"
+            />
+        </div>
+        @if (showMinimap) {
+            <c477-minimap [minimapData]="minimapData" />
+        }
     </div>
-  </arc-accessibility>
 
-  <div class="content">
-    @if (loading()) {
-      <c477-loading-screen />
-    }
-    <c477-main-filters
-      [filterProps]="filterProps"
-      (clearAllFilters)="clearAllFilters()"
-      (setRouteParams)="setFilterParams($event)"
-      (setAdvancedFilters)="setAdvancedFilters($event)"
-      (addressSelected)="setSelectedBuildingTOID($event)"></c477-main-filters>
-
-    <div
-      class="panel-container"
-      [ngClass]="{ 'panel-container--collapsed': resultsPanelCollapsed }">
-      <c477-results-panel
-        (flag)="onFlag($event)"
-        (removeFlag)="onRemoveFlag($event)"
-        (resultsPanelCollapsed)="
-          resultsPanelCollapsed = $event
-        "></c477-results-panel>
-    </div>
-    <c477-details-panel
-      (closePanel)="closeDetails()"
-      (downloadData)="downloadData($event)"
-      (flag)="onFlag($event)"
-      (removeFlag)="onRemoveFlag($event)"
-      [resultsPanelCollapsed]="resultsPanelCollapsed"></c477-details-panel>
-
-    <div class="content__map-container">
-      <c477-map
-        [contextData]="contextData$ | async"
-        [spatialFilterEnabled]="spatialFilterEnabled()"
-        [mapConfig]="mapConfig"
-        (setRouteParams)="setRouteMapParams($event)"
-        (deleteSpatialFilter)="deleteSpatialFilter()"
-        (downloadAddresses)="downloadAddresses()"
-        (resetMapView)="resetMapView()"
-        (resetNorth)="resetNorth()"
-        (tilt2D)="tilt2D($event)"
-        (zoomIn)="zoomIn()"
-        (zoomOut)="zoomOut()"
-        (setSearchArea)="setSearchArea($event)"
-        (setSelectedBuildingTOID)="setSelectedBuildingTOID($event)"
-        (setMinimapData)="minimapData = $event"
-        (toggleMinimap)="showMinimap = !showMinimap"></c477-map>
-    </div>
-    @if (showMinimap) {
-      <c477-minimap [minimapData]="minimapData" />
-    }
-  </div>
-
-  <arc-bottombar
-    slot="bottom"
-    (arc-show-accessibility)="handleShowAccessibility($event)">
-  </arc-bottombar>
+    <arc-bottombar slot="bottom" (arc-show-accessibility)="handleShowAccessibility($event)"> </arc-bottombar>
 </arc-container>

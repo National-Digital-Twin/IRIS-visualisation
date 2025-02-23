@@ -1,88 +1,58 @@
-@if (
-  buildingSelection() &&
-  this.mapService.mapInstance &&
-  this.mapService.mapInstance.getZoom() > 15
-) {
-  <div
-    class="panel results-panel"
-    [ngClass]="{ 'results-panel--closed': !panelOpen }">
-    <c477-results-panel-button
-      [numberResults]="buildingSelection()?.flat()?.length ?? 0"
-      (updatePanelStatus)="updatePanelOpen($event)" />
-    @if (panelOpen) {
-      <section>
-        <div class="results-panel__header-container">
-          <div class="results-panel__header results-panel__toggle">
-            <mat-slide-toggle [color]="'primary'" [(ngModel)]="selectMultiple"
-              >Select multiple</mat-slide-toggle
-            >
-          </div>
-          <div class="results-panel__header results-panel__header--download">
-            @if (selectMultiple) {
-              <button
-                mat-flat-button
-                [color]="'primary'"
-                class="results-panel__button"
-                (click)="downloadAll()">
-                <img
-                  src="assets/icons/FileArrowDown_white.svg"
-                  alt="" />Download selected results
-              </button>
-            } @else {
-              <button
-                mat-flat-button
-                [color]="'primary'"
-                class="results-panel__button"
-                (click)="downloadAll()">
-                <img
-                  src="assets/icons/FileArrowDown_white.svg"
-                  alt="" />Download all results
-              </button>
-            }
-          </div>
-        </div>
-      </section>
-      <section class="results-panel__cards-container">
-        <cdk-virtual-scroll-viewport
-          minBufferPx="500"
-          maxBufferPx="1000"
-          class="viewport"
-          itemSize="143">
-          <div
-            *cdkVirtualFor="
-              let dwellingSet of buildingSelection();
-              templateCacheSize: 0;
-              trackBy: trackByUPRN
-            ">
-            @if (dwellingSet.length === 1) {
-              <c477-results-card
-                (downloadData)="downloadBuilding($event)"
-                [buildingUPRN]="selectedCardUPRN()"
-                (cardSelected)="cardSelected($event)"
-                (emitViewDetails)="viewDetails($event)"
-                [checked]="cardIsChecked([dwellingSet[0]])"
-                (toggleChecked)="onToggleChecked(dwellingSet[0])"
-                (flag)="flag.emit([dwellingSet[0]])"
-                (removeFlag)="removeFlag.emit(dwellingSet[0])"
-                [card]="dwellingSet[0]"
-                [select]="selectMultiple"></c477-results-card>
-            } @else {
-              <c477-results-card-expandable
-                [buildingTOID]="selectedParentTOID()"
-                [dwellings]="dwellingSet"
-                [select]="selectMultiple"
-                [cardIsChecked]="cardIsChecked.bind(this)"
-                (emitViewDetails)="viewDetails($event)"
-                (cardSelected)="cardSelected($event)"
-                (toggleChecked)="onToggleChecked($event)"
-                (flag)="flag.emit($event)"
-                (removeFlag)="
-                  removeFlag.emit($event)
-                "></c477-results-card-expandable>
-            }
-          </div>
-        </cdk-virtual-scroll-viewport>
-      </section>
-    }
-  </div>
+@if (buildingSelection() && mapInstance && mapInstance.getZoom() > 15) {
+    <div class="panel results-panel" [ngClass]="{ 'results-panel--closed': !panelOpen }">
+        <c477-results-panel-button [numberResults]="buildingSelection()?.flat()?.length ?? 0" (updatePanelStatus)="updatePanelOpen($event)" />
+        @if (panelOpen) {
+            <section>
+                <div class="results-panel__header-container">
+                    <div class="results-panel__header results-panel__toggle">
+                        <mat-slide-toggle [color]="'primary'" [(ngModel)]="selectMultiple">Select multiple</mat-slide-toggle>
+                    </div>
+                    <div class="results-panel__header results-panel__header--download">
+                        @if (selectMultiple) {
+                            <button mat-flat-button [color]="'primary'" class="results-panel__button" (click)="downloadAll()">
+                                <img src="assets/icons/FileArrowDown_white.svg" alt="" />Download selected results
+                            </button>
+                        } @else {
+                            <button mat-flat-button [color]="'primary'" class="results-panel__button" (click)="downloadAll()">
+                                <img src="assets/icons/FileArrowDown_white.svg" alt="" />Download all results
+                            </button>
+                        }
+                    </div>
+                </div>
+            </section>
+            <section class="results-panel__cards-container">
+                <cdk-virtual-scroll-viewport minBufferPx="500" maxBufferPx="1000" class="viewport" itemSize="143">
+                    <div *cdkVirtualFor="let dwellingSet of buildingSelection(); templateCacheSize: 0; trackBy: trackByUPRN">
+                        @if (dwellingSet.length === 1) {
+                            <c477-results-card
+                                (downloadData)="downloadBuilding($event)"
+                                [buildingUPRN]="selectedCardUPRN()"
+                                (cardSelected)="cardSelected($event)"
+                                (emitViewDetails)="viewDetails($event)"
+                                [checked]="cardIsChecked([dwellingSet[0]])"
+                                (toggleChecked)="onToggleChecked(dwellingSet[0])"
+                                (flag)="flag.emit([dwellingSet[0]])"
+                                (removeFlag)="removeFlag.emit(dwellingSet[0])"
+                                [card]="dwellingSet[0]"
+                                [select]="selectMultiple"
+                            ></c477-results-card>
+                        } @else {
+                            <c477-results-card-expandable
+                                [buildingTOID]="selectedParentTOID()"
+                                [dwellings]="dwellingSet"
+                                [select]="selectMultiple"
+                                [cardIsChecked]="cardIsChecked.bind(this)"
+                                (emitViewDetails)="viewDetails($event)"
+                                (cardSelected)="cardSelected($event)"
+                                (toggleChecked)="onToggleChecked($event)"
+                                (flag)="flag.emit($event)"
+                                (removeFlag)="removeFlag.emit($event)"
+                                (downloadData)="downloadBuilding($event)"
+                            ></c477-results-card-expandable>
+                        }
+                    </div>
+                </cdk-virtual-scroll-viewport>
+            </section>
+        }
+    </div>
 }

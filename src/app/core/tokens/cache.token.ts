@@ -7,7 +7,7 @@ import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token'
  * Factory function to create a file name string.
  */
 function epcDataFileNameFactory(): string {
-  return inject(RUNTIME_CONFIGURATION).cache.epc;
+    return inject(RUNTIME_CONFIGURATION).cache.epc;
 }
 /**
  * SAP Data File Name Factory.
@@ -15,7 +15,7 @@ function epcDataFileNameFactory(): string {
  * Factory function to create a file name string.
  */
 function sapDataFileNameFactory(): string {
-  return inject(RUNTIME_CONFIGURATION).cache.sap;
+    return inject(RUNTIME_CONFIGURATION).cache.sap;
 }
 /**
  * Non-EPC Data File Name Factory.
@@ -23,7 +23,7 @@ function sapDataFileNameFactory(): string {
  * Factory function to create a file name string.
  */
 function nonEpcDataFileNameFactory(): string {
-  return inject(RUNTIME_CONFIGURATION).cache.nonEpc;
+    return inject(RUNTIME_CONFIGURATION).cache.nonEpc;
 }
 
 /**
@@ -31,33 +31,18 @@ function nonEpcDataFileNameFactory(): string {
  *
  * The file name string.
  */
-export const EPC_DATA_FILE_NAME = new InjectionToken<string>(
-  'EPC_DATA_FILE_NAME',
-  {
-    factory: epcDataFileNameFactory,
-  }
-);
+export const EPC_DATA_FILE_NAME = new InjectionToken<string>('EPC_DATA_FILE_NAME', { factory: epcDataFileNameFactory });
 
 /**
  * SAP data file name.
  *
  * The file name string.
  */
-export const SAP_DATA_FILE_NAME = new InjectionToken<string>(
-  'SAP_DATA_FILE_NAME',
-  {
-    factory: sapDataFileNameFactory,
-  }
-);
+export const SAP_DATA_FILE_NAME = new InjectionToken<string>('SAP_DATA_FILE_NAME', { factory: sapDataFileNameFactory });
 
 /**
  * Non-EPC data file name.
  *
  * The file name string.
  */
-export const NON_EPC_DATA_FILE_NAME = new InjectionToken<string>(
-  'NON_EPC_DATA_FILE_NAME',
-  {
-    factory: nonEpcDataFileNameFactory,
-  }
-);
+export const NON_EPC_DATA_FILE_NAME = new InjectionToken<string>('NON_EPC_DATA_FILE_NAME', { factory: nonEpcDataFileNameFactory });

@@ -12,5 +12,5 @@ export const environment = {
   },
   transparent_proxy: {
     url: 'https://iris.demo.ndtp.co.uk/transparent-proxy',
-  },
+  }
 };

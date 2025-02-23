@@ -1,32 +1,32 @@
 .filter-panel {
-  width: 60rem;
+    width: 60rem;
 }
 .advanced-filters-dialog {
-  h1 {
-    height: 0;
-  }
-  .filter-expansion {
-    .mat-expansion-panel:not([class*='mat-elevation-z']) {
-      box-shadow: none;
-      border-bottom: 1px solid $color-line;
+    h1 {
+        height: 0;
     }
-  }
-
-  .filter-panel-buttons {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-left: var(--arc-spacing-x-small);
-
-    .invalid-filter-warning {
-      color: $color-warn;
-      display: flex;
-      align-items: center;
-      gap: var(--arc-spacing-x-small);
+    .filter-expansion {
+        .mat-expansion-panel:not([class*='mat-elevation-z']) {
+            border-bottom: 1px solid $color-line;
+            box-shadow: none;
+        }
     }
-  }
 
-  .mdc-dialog__content {
-    padding: 0 !important;
-  }
+    .filter-panel-buttons {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-left: var(--arc-spacing-x-small);
+
+        .invalid-filter-warning {
+            display: flex;
+            gap: var(--arc-spacing-x-small);
+            align-items: center;
+            color: $color-warn;
+        }
+    }
+
+    .mdc-dialog__content {
+        padding: 0 !important;
+    }
 }

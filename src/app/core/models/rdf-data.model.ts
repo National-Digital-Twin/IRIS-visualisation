@@ -1,21 +1,21 @@
 export interface TableRow {
-  [key: string]: string;
+    [key: string]: string;
 }
 
 export interface RDFObject {
-  type: string;
-  value: string;
+    type: string;
+    value: string;
 }
 
 export interface RDFData {
-  [key: string]: RDFObject;
+    [key: string]: RDFObject;
 }
 
 export interface SPARQLReturn {
-  head: {
-    vars: string[];
-  };
-  results: {
-    bindings: RDFData[];
-  };
+    head: {
+        vars: string[];
+    };
+    results: {
+        bindings: RDFData[];
+    };
 }

@@ -1,480 +1,393 @@
-import {
-  AfterViewInit,
-  Component,
-  EventEmitter,
-  inject,
-  Input,
-  OnDestroy,
-  Output,
-  ChangeDetectionStrategy,
-  SimpleChanges,
-  OnChanges,
-} from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, input, InputSignal, OnDestroy, output, OutputEmitterRef } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-
-import { toObservable, takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { skip, Subscription, tap } from 'rxjs';
-
-import {
-  FeatureCollection,
-  GeoJsonProperties,
-  Geometry,
-  Polygon,
-} from 'geojson';
-import {
-  FillPaint,
-  GeoJSONSourceRaw,
-  MapLayerMouseEvent,
-  MapboxGeoJSONFeature,
-  Popup,
-} from 'mapbox-gl';
-import MapboxDraw from '@mapbox/mapbox-gl-draw';
-
-import { SETTINGS, SettingsService } from '@core/services/settings.service';
-import { MapService } from '@core/services/map.service';
-import { UtilService } from '@core/services/utils.service';
-
-import { MapLayerConfig } from '@core/models/map-layer-config.model';
-import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
-import { URLStateModel } from '@core/models/url-state.model';
-import { MinimapData } from '@core/models/minimap-data.model';
-
 import { LegendComponent } from '@components/legend/legend.component';
+import { MapLayerConfig } from '@core/models/map-layer-config.model';
+import { MinimapData } from '@core/models/minimap-data.model';
+import { URLStateModel } from '@core/models/url-state.model';
+import { MapService } from '@core/services/map.service';
+import { SETTINGS, SettingsService } from '@core/services/settings.service';
+import { UtilService } from '@core/services/utils.service';
+import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
+import { FeatureCollection, GeoJsonProperties, Geometry, Polygon } from 'geojson';
+import { AnyLayer, FillLayerSpecification, MapboxGeoJSONFeature, MapLayerMouseEvent, Popup, SourceSpecification } from 'mapbox-gl';
+import { map, skip, take } from 'rxjs';
 
 @Component({
-  selector: 'c477-map',
-  standalone: true,
-  imports: [
-    CommonModule,
-    LegendComponent,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-  ],
-  templateUrl: './map.component.html',
-  styleUrls: ['./map.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'c477-map',
+    imports: [CommonModule, LegendComponent, MatButtonModule, MatIconModule, MatTooltipModule],
+    templateUrl: './map.component.html',
+    styleUrl: './map.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MapComponent implements AfterViewInit, OnChanges, OnDestroy {
-  private readonly settings = inject(SettingsService);
-  private readonly theme = this.settings.get(SETTINGS.Theme);
-  public readonly theme$ = toObservable(this.theme).pipe(takeUntilDestroyed());
-  private readonly colorBlindMode$ = toObservable(
-    this.settings.get(SETTINGS.ColorBlindMode)
-  ).pipe(takeUntilDestroyed());
-  private runtimeConfig = inject(RUNTIME_CONFIGURATION);
-  mapService = inject(MapService);
-  private utilsService = inject(UtilService);
+export class MapComponent implements AfterViewInit, OnDestroy {
+    readonly #settings = inject(SettingsService);
+    readonly #mapService = inject(MapService);
+    readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
+    readonly #utilsService = inject(UtilService);
 
-  private drawControl!: MapboxDraw;
-  private mapSubscription!: Subscription;
+    public bearing: number = 0;
+    public drawActive: boolean = false;
+    public showLegend: boolean = false;
+    public twoDimensions: boolean = false;
 
-  private epcColours = this.runtimeConfig.epcColours;
+    private drawControl?: MapboxDraw;
+    private readonly wardPopup = new Popup();
 
-  private wardPopup = new Popup();
+    public mapConfig: InputSignal<URLStateModel> = input.required();
+    public spatialFilterEnabled: InputSignal<boolean> = input(false);
+    public contextData: InputSignal<FeatureCollection<Geometry, GeoJsonProperties>[]> = input.required();
 
-  drawActive: boolean = false;
-  showLegend: boolean = false;
-  twoDimensions: boolean = false;
-  bearing: number = 0;
+    public resetMapView: OutputEmitterRef<null> = output();
+    public resetNorth: OutputEmitterRef<null> = output();
+    public tilt2D: OutputEmitterRef<boolean> = output();
+    public zoomIn: OutputEmitterRef<null> = output();
+    public zoomOut: OutputEmitterRef<null> = output();
+    public deleteSpatialFilter: OutputEmitterRef<null> = output();
+    public setSearchArea: OutputEmitterRef<GeoJSON.Feature<Polygon>> = output();
+    public setSelectedBuildingTOID: OutputEmitterRef<string | null> = output();
+    public setRouteParams: OutputEmitterRef<URLStateModel> = output();
+    public setMinimapData: OutputEmitterRef<MinimapData> = output();
+    public toggleMinimap: OutputEmitterRef<null> = output();
+    public downloadAddresses: OutputEmitterRef<null> = output();
 
-  @Input() mapConfig!: URLStateModel | undefined;
-  @Input() contextData:
-    | FeatureCollection<Geometry, GeoJsonProperties>[]
-    | undefined
-    | null;
-  @Input() spatialFilterEnabled: boolean = false;
+    public readonly theme$ = toObservable(this.#settings.get(SETTINGS.Theme)).pipe(takeUntilDestroyed());
+    private readonly colorBlindMode$ = toObservable(this.#settings.get(SETTINGS.ColorBlindMode)).pipe(takeUntilDestroyed());
 
-  @Output() resetMapView: EventEmitter<null> = new EventEmitter<null>();
-  @Output() resetNorth: EventEmitter<null> = new EventEmitter<null>();
-  @Output() tilt2D: EventEmitter<boolean> = new EventEmitter<boolean>();
-  @Output() zoomIn: EventEmitter<null> = new EventEmitter<null>();
-  @Output() zoomOut: EventEmitter<null> = new EventEmitter<null>();
+    /** on map loaded, setup layers, controls etc */
+    constructor() {
+        this.#mapService.mapLoaded$
+            .pipe(
+                map(() => {
+                    this.initMapEvents();
+                    this.updateMinimap();
+                }),
+                takeUntilDestroyed(),
+            )
+            .subscribe();
 
-  @Output() deleteSpatialFilter: EventEmitter<null> = new EventEmitter<null>();
-  @Output() setSearchArea: EventEmitter<GeoJSON.Feature<Polygon>> =
-    new EventEmitter<GeoJSON.Feature<Polygon>>();
-  @Output() setSelectedBuildingTOID: EventEmitter<string | null> =
-    new EventEmitter<string | null>();
-
-  @Output() setRouteParams: EventEmitter<URLStateModel> =
-    new EventEmitter<URLStateModel>();
-  @Output() setMinimapData: EventEmitter<MinimapData> =
-    new EventEmitter<MinimapData>();
-  @Output() toggleMinimap: EventEmitter<null> = new EventEmitter<null>();
-
-  @Output() downloadAddresses: EventEmitter<null> = new EventEmitter<null>();
-
-  /** setup map */
-  ngAfterViewInit() {
-    if (this.runtimeConfig.map.style) {
-      const theme = this.theme();
-      const style = this.runtimeConfig.map.style[theme];
-      const { bearing, zoom, pitch } = this.mapConfig!;
-      const config: URLStateModel = {
-        center: [this.mapConfig!.center[0], this.mapConfig!.center[1]],
-        style: style,
-        bearing,
-        zoom,
-        pitch,
-      };
-      this.mapService.setup(config);
-    }
-    /* skip first value as we've already set the map style based on theme */
-    this.theme$.pipe(skip(1)).subscribe(theme => {
-      this.mapService.setStyle(this.runtimeConfig.map.style[theme]);
-    });
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes.contextData && changes.contextData.currentValue) {
-      this.addContextLayers();
-      /**
-       * add draw controls last so the draw layers are above
-       * all other layers
-       */
-      this.addControls();
-    }
-  }
-
-  /** on map loaded, setup layers, controls etc */
-  constructor() {
-    this.mapSubscription = this.mapService.mapLoaded$
-      .pipe(
-        tap(() => {
-          this.initMapEvents();
-          this.updateMinimap();
-        })
-      )
-      .subscribe();
-
-    /** update context layer colors when color blind mode changes */
-    this.colorBlindMode$.subscribe({
-      next: () => {
-        this.wardPopup.remove();
-        this.updateLayerPaint();
-      },
-    });
-  }
-
-  /**
-   * Map event listeners
-   */
-  initMapEvents() {
-    /* If the map style changes, re-add layers */
-    this.mapService.mapInstance.on('style.load', () =>
-      this.mapService.addLayers()
-    );
-    /** Spatial search events */
-    this.mapService.mapInstance.on('draw.create', this.onDrawCreate);
-    this.mapService.mapInstance.on('draw.update', this.onDrawUpdate);
-    /** Select building event */
-    this.mapService.mapInstance.on(
-      'click',
-      'OS/TopographicArea_2/Building/1_3D-Single-Dwelling',
-      this.setSelectedTOID
-    );
-    this.mapService.mapInstance.on(
-      'click',
-      'OS/TopographicArea_2/Building/1_3D-Multi-Dwelling',
-      this.setSelectedTOID
-    );
-    /** Change mouse cursor on building hover */
-    this.mapService.mapInstance.on(
-      'mouseenter',
-      'OS/TopographicArea_2/Building/1_3D-Single-Dwelling',
-      () => {
-        if (this.drawControl.getMode() !== 'draw_polygon') {
-          this.mapService.mapInstance.getCanvas().style.cursor = 'pointer';
-        }
-      }
-    );
-    this.mapService.mapInstance.on(
-      'mouseenter',
-      'OS/TopographicArea_2/Building/1_3D-Multi-Dwelling',
-      () => {
-        if (this.drawControl.getMode() !== 'draw_polygon') {
-          this.mapService.mapInstance.getCanvas().style.cursor = 'pointer';
-        }
-      }
-    );
-    /** Remove mouse cursor when hovering off a building */
-    this.mapService.mapInstance.on(
-      'mouseleave',
-      'OS/TopographicArea_2/Building/1_3D-Single-Dwelling',
-      () => (this.mapService.mapInstance.getCanvas().style.cursor = '')
-    );
-    this.mapService.mapInstance.on(
-      'mouseleave',
-      'OS/TopographicArea_2/Building/1_3D-Multi-Dwelling',
-      () => (this.mapService.mapInstance.getCanvas().style.cursor = '')
-    );
-    /** Get map state whenever the map is moved */
-    this.mapService.mapInstance.on('moveend', () => {
-      this.setRouterParams();
-    });
-
-    /** wards layer click */
-    this.mapService.mapInstance.on(
-      'click',
-      'wards',
-      (e: MapLayerMouseEvent) => {
-        /** check if the active draw layer is being clicked */
-        const features: MapboxGeoJSONFeature[] = this.mapService.mapInstance
-          .queryRenderedFeatures(e.point)
-          .filter(
-            (feature: MapboxGeoJSONFeature) =>
-              feature.source === 'mapbox-gl-draw-hot'
-          );
-        /** display popup if active draw layer is not being clicked */
-        if (features.length === 0) {
-          if (this.drawControl.getMode() !== 'draw_polygon') {
-            this.wardsLayerClick(e);
-          }
-        }
-      }
-    );
-
-    this.mapService.mapInstance.on('mouseenter', 'wards', () => {
-      if (this.drawControl.getMode() !== 'draw_polygon') {
-        this.mapService.mapInstance.getCanvas().style.cursor = 'pointer';
-      }
-    });
-
-    this.mapService.mapInstance.on('mouseleave', 'wards', () => {
-      if (this.drawControl.getMode() !== 'draw_polygon') {
-        this.mapService.mapInstance.getCanvas().style.cursor = '';
-      }
-    });
-
-    /** update the minimap as the map moves */
-    this.mapService.mapInstance.on('move', () => {
-      this.updateMinimap();
-    });
-
-    /** close popup if open and zoom is > 15 and remove selection*/
-    this.mapService.mapInstance.on('zoomend', () => {
-      const zoom = this.mapService.mapInstance.getZoom();
-      if (zoom >= 15 && this.wardPopup.isOpen()) {
-        this.wardPopup.remove();
-        this.mapService.filterMapLayer({
-          layerId: 'wards-selected',
-          expression: ['==', 'WD23NM', ``],
+        /** update context layer colors when color blind mode changes */
+        this.colorBlindMode$.subscribe({
+            next: () => {
+                this.wardPopup.remove();
+                this.updateLayerPaint();
+            },
         });
-      }
-    });
-    this.wardPopup.on('close', () => {
-      this.mapService.filterMapLayer({
-        layerId: 'wards-selected',
-        expression: ['==', 'WD23NM', ``],
-      });
-    });
-  }
 
-  /**
-   * Add draw tool to the map
-   */
-  addControls(): void {
-    /** add draw control to map instance */
-    this.mapService.addDrawControl();
-    this.drawControl = this.mapService.drawControl;
-  }
+        effect(() => {
+            const contextData = this.contextData();
 
-  setDrawMode(mode: string) {
-    switch (mode) {
-      case 'polygon': {
-        this.deleteSearchArea();
-        this.drawActive = true;
-        this.updateMode('draw_polygon');
-        break;
-      }
-      case 'delete': {
-        this.deleteSearchArea();
-        break;
-      }
-      default:
-        this.updateMode('simple_select');
-        break;
+            if (contextData.length) {
+                this.addContextLayers(contextData);
+                this.addControls();
+            }
+        });
     }
-  }
 
-  updateMode(mode: string) {
-    this.drawControl.changeMode(mode);
-  }
-
-  changeDimensions(): void {
-    this.twoDimensions = !this.twoDimensions;
-    this.tilt2D.emit(this.twoDimensions);
-  }
-
-  deleteSearchArea() {
-    this.drawActive = false;
-    // delete search geom
-    this.drawControl.deleteAll();
-    // reset building colour to entire map
-    // by updating map bounds to trigger
-    // filter
-    this.deleteSpatialFilter.emit();
-  }
-
-  /**
-   * Set search area when a search area is drawn
-   * @param e Mapbox draw create event
-   */
-  onDrawCreate = (e: MapboxDraw.DrawCreateEvent) => {
-    this.drawActive = false;
-    this.setSearchArea.emit(e.features[0] as GeoJSON.Feature<Polygon>);
-  };
-
-  /**
-   * Set search area when an existing search area updated (moved)
-   * @param e Mapbox draw update event
-   */
-  onDrawUpdate = (e: MapboxDraw.DrawUpdateEvent) => {
-    this.setSearchArea.emit(e.features[0] as GeoJSON.Feature<Polygon>);
-  };
-
-  updateMinimap() {
-    this.bearing = this.mapService.mapInstance.getBearing();
-    this.setMinimapData.emit({
-      position: this.mapService.mapInstance
-        .getFreeCameraOptions()
-        ._position.toLngLat(),
-      bearing: this.mapService.mapInstance.getBearing(),
-    });
-  }
-
-  setSelectedTOID = (e: MapLayerMouseEvent) => {
-    if (e.features && this.drawControl.getMode() !== 'draw_polygon') {
-      this.setSelectedBuildingTOID.emit(e.features![0].properties!.TOID);
+    get mapInstance(): mapboxgl.Map {
+        return this.#mapService.mapInstance;
     }
-  };
 
-  setRouterParams() {
-    const zoom = this.mapService.mapInstance.getZoom();
-    const pitch = this.mapService.mapInstance.getPitch();
-    const bearing = this.mapService.mapInstance.getBearing();
-    const { lng, lat } = this.mapService.mapInstance.getCenter();
-    const mapConfig: URLStateModel = {
-      bearing,
-      center: [lat, lng],
-      pitch,
-      zoom,
-    };
-    this.setRouteParams.emit(mapConfig);
-  }
-
-  wardsLayerClick(e: MapLayerMouseEvent) {
-    if (e.features?.length) {
-      /** highlight selected ward */
-      this.mapService.filterMapLayer({
-        layerId: 'wards-selected',
-        expression: ['==', 'WD23NM', `${e.features[0].properties!.WD23NM}`],
-      });
-      const properties = e.features[0].properties;
-      /** extract ratings from properties */
-      const epcRatings = Object.keys(properties!)
-        .filter(k => !isNaN(properties![k]))
-        .map(k => {
-          return {
-            rating: k,
-            count: properties![k],
-          };
-        })
-        .sort((a, b) => a.rating.localeCompare(b.rating));
-      const histogram = this.utilsService.createHistogram(epcRatings);
-      const popupContent = `
-        <div class="popupContent">
-          <h1>${e.features[0].properties!.WD23NM}</h1>
-          ${histogram}
-          <p class="disclaimer">*Mix of domestic and commercial buildings. Excluded from ward visualisation.</p>
-        </div>
-      `;
-      this.wardPopup
-        .setLngLat(e.lngLat)
-        .setMaxWidth('none')
-        .setHTML(popupContent)
-        .addTo(this.mapService.mapInstance);
+    public ngAfterViewInit(): void {
+        if (this.#runtimeConfig.map.style) {
+            const theme = this.#settings.get(SETTINGS.Theme);
+            const style = this.#runtimeConfig.map.style[theme()];
+            const { bearing, zoom, pitch, center } = this.mapConfig();
+            const config: URLStateModel = { bearing, center, pitch, style, zoom };
+            this.#mapService.setup(config);
+        }
+        /* skip first value as we've already set the map style based on theme */
+        this.theme$.pipe(skip(1)).subscribe((theme) => {
+            this.#mapService.setStyle(this.#runtimeConfig.map.style[theme]);
+        });
     }
-  }
-  /**
-   * Add context layers to map
-   */
-  private addContextLayers(): void {
-    if (this.contextData) {
-      this.runtimeConfig.contextLayers.forEach((config: MapLayerConfig) => {
-        const data = this.contextData?.find(
-          /**
-           * find matching source data, ignore 'selected' part
-           * of layer id
-           */
-          // eslint-disable-next-line
-          // @ts-ignore
-          (d: unknown) => d.name === config.id.split('-')[0]
-        );
-        const geojsonSource = {
-          type: 'geojson',
-          data,
-        } as GeoJSONSourceRaw;
-        this.mapService.addMapSource(config.id, geojsonSource);
 
-        const paint = this.getWardLayerPaint();
+    public ngOnDestroy(): void {
+        this.#mapService.destroyMap();
+    }
 
-        const newConfig = {
-          ...config,
-          paint: {
-            ...paint,
-            ...config.paint,
-          },
+    /**
+     * Map event listeners
+     */
+    private initMapEvents(): void {
+        this.#mapService.mapInstance.on('error', (error) => console.log('[ MAP ERROR ]', { error }));
+        this.#mapService.mapInstance.on('styleimagemissing', (error) => console.log('[ Image Missing ]', { error }));
+
+        /* If the map style changes, re-add layers */
+        this.#mapService.mapInstance.on('style.load', () => this.#mapService.addLayers().pipe(take(1)).subscribe());
+
+        /** Spatial search events */
+        this.#mapService.mapInstance.on('draw.create', this.onDrawCreate.bind(this));
+        this.#mapService.mapInstance.on('draw.update', this.onDrawUpdate.bind(this));
+
+        /** Select building event */
+        this.#mapService.mapInstance.on('click', 'OS/TopographicArea_2/Building/1_3D-Single-Dwelling', this.setSelectedTOID.bind(this));
+        this.#mapService.mapInstance.on('click', 'OS/TopographicArea_2/Building/1_3D-Multi-Dwelling', this.setSelectedTOID.bind(this));
+
+        /** Change mouse cursor on building hover */
+        this.#mapService.mapInstance.on('mouseenter', 'OS/TopographicArea_2/Building/1_3D-Single-Dwelling', () => {
+            if (this.drawControl?.getMode() !== 'draw_polygon') {
+                this.#mapService.mapInstance.getCanvas().style.cursor = 'pointer';
+            }
+        });
+
+        this.#mapService.mapInstance.on('mouseenter', 'OS/TopographicArea_2/Building/1_3D-Multi-Dwelling', () => {
+            if (this.drawControl?.getMode() !== 'draw_polygon') {
+                this.#mapService.mapInstance.getCanvas().style.cursor = 'pointer';
+            }
+        });
+
+        /** Remove mouse cursor when hovering off a building */
+        this.#mapService.mapInstance.on('mouseleave', 'OS/TopographicArea_2/Building/1_3D-Single-Dwelling', () => {
+            this.#mapService.mapInstance.getCanvas().style.cursor = '';
+        });
+
+        this.#mapService.mapInstance.on('mouseleave', 'OS/TopographicArea_2/Building/1_3D-Multi-Dwelling', () => {
+            this.#mapService.mapInstance.getCanvas().style.cursor = '';
+        });
+
+        /** Get map state whenever the map is moved */
+        this.#mapService.mapInstance.on('moveend', () => {
+            this.setRouterParams();
+        });
+
+        /** wards layer click */
+        this.#mapService.mapInstance.on('click', 'wards', (e: MapLayerMouseEvent) => {
+            /** check if the active draw layer is being clicked */
+            const features: MapboxGeoJSONFeature[] = this.#mapService.mapInstance
+                .queryRenderedFeatures(e.point)
+                .filter((feature: MapboxGeoJSONFeature) => feature.source === 'mapbox-gl-draw-hot');
+            /** display popup if active draw layer is not being clicked */
+            if (features.length === 0) {
+                if (this.drawControl?.getMode() !== 'draw_polygon') {
+                    this.wardsLayerClick(e);
+                }
+            }
+        });
+
+        this.#mapService.mapInstance.on('mouseenter', 'wards', () => {
+            if (this.drawControl?.getMode() !== 'draw_polygon') {
+                this.#mapService.mapInstance.getCanvas().style.cursor = 'pointer';
+            }
+        });
+
+        this.#mapService.mapInstance.on('mouseleave', 'wards', () => {
+            if (this.drawControl?.getMode() !== 'draw_polygon') {
+                this.#mapService.mapInstance.getCanvas().style.cursor = '';
+            }
+        });
+
+        /** update the minimap as the map moves */
+        this.#mapService.mapInstance.on('move', () => {
+            this.updateMinimap();
+        });
+
+        /** close popup if open and zoom is > 15 and remove selection*/
+        this.#mapService.mapInstance.on('zoomend', () => {
+            const zoom = this.#mapService.mapInstance.getZoom();
+            if (zoom >= 15 && this.wardPopup.isOpen()) {
+                this.wardPopup.remove();
+                this.#mapService.filterMapLayer({
+                    layerId: 'wards-selected',
+                    expression: ['==', 'WD23NM', ``],
+                });
+            }
+        });
+        this.wardPopup.on('close', () => {
+            this.#mapService.filterMapLayer({
+                layerId: 'wards-selected',
+                expression: ['==', 'WD23NM', ``],
+            });
+        });
+    }
+
+    /**
+     * Add draw tool to the map
+     */
+    private addControls(): void {
+        /** add draw control to map instance */
+        this.drawControl = this.#mapService.addDrawControl();
+    }
+
+    public setDrawMode(mode: string): void {
+        switch (mode) {
+            case 'polygon': {
+                this.deleteSearchArea();
+                this.drawActive = true;
+                this.updateMode('draw_polygon');
+                break;
+            }
+            case 'delete': {
+                this.deleteSearchArea();
+                break;
+            }
+            default:
+                this.updateMode('simple_select');
+                break;
+        }
+    }
+
+    private updateMode(mode: string): void {
+        this.drawControl?.changeMode(mode);
+    }
+
+    public changeDimensions(): void {
+        this.twoDimensions = !this.twoDimensions;
+        this.tilt2D.emit(this.twoDimensions);
+    }
+
+    private deleteSearchArea(): void {
+        this.drawActive = false;
+        // delete search geom
+        this.drawControl?.deleteAll();
+        // reset building colour to entire map
+        // by updating map bounds to trigger
+        // filter
+        this.deleteSpatialFilter.emit(null);
+    }
+
+    /**
+     * Set search area when a search area is drawn
+     * @param e Mapbox draw create event
+     */
+    private onDrawCreate(e: MapboxDraw.DrawCreateEvent): void {
+        this.drawActive = false;
+        this.setSearchArea.emit(e.features[0] as GeoJSON.Feature<Polygon>);
+    }
+
+    /**
+     * Set search area when an existing search area updated (moved)
+     * @param e Mapbox draw update event
+     */
+    private onDrawUpdate(e: MapboxDraw.DrawUpdateEvent): void {
+        this.setSearchArea.emit(e.features[0] as GeoJSON.Feature<Polygon>);
+    }
+
+    private updateMinimap(): void {
+        this.bearing = this.#mapService.mapInstance.getBearing();
+        this.setMinimapData.emit({
+            position: this.#mapService.mapInstance.getFreeCameraOptions().position!.toLngLat(),
+            bearing: this.#mapService.mapInstance.getBearing(),
+        });
+    }
+
+    private setSelectedTOID(e: MapLayerMouseEvent): void {
+        if (e.features && this.drawControl?.getMode() !== 'draw_polygon') {
+            this.setSelectedBuildingTOID.emit(e.features![0].properties!.TOID);
+        }
+    }
+
+    private setRouterParams(): void {
+        const zoom = this.#mapService.mapInstance.getZoom();
+        const pitch = this.#mapService.mapInstance.getPitch();
+        const bearing = this.#mapService.mapInstance.getBearing();
+        const { lng, lat } = this.#mapService.mapInstance.getCenter();
+        const mapConfig: URLStateModel = {
+            bearing,
+            center: [lat, lng],
+            pitch,
+            zoom,
         };
-        this.mapService.addMapLayer(newConfig);
-      });
+        this.setRouteParams.emit(mapConfig);
     }
-  }
 
-  /**
-   * update context layer paint when color blind mode changes
-   */
-  private updateLayerPaint() {
-    if (!this.mapService.mapInstance) return;
-    this.runtimeConfig.contextLayers.forEach((config: MapLayerConfig) => {
-      const lyr = this.mapService.mapInstance.getLayer(config.id);
-      if (lyr && config.type !== 'line') {
-        const paint = this.getWardLayerPaint();
-        this.mapService.mapInstance.setPaintProperty(
-          lyr.id,
-          'fill-color',
-          paint['fill-color']
-        );
-      }
-    });
-  }
+    private wardsLayerClick(e: MapLayerMouseEvent): void {
+        if (e.features?.length) {
+            /** highlight selected ward */
+            this.#mapService.filterMapLayer({
+                layerId: 'wards-selected',
+                expression: ['==', 'WD23NM', `${e.features[0].properties!.WD23NM}`],
+            });
 
-  private getWardLayerPaint() {
-    const EPCRatings = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'none'];
-    const defaultColor = this.epcColours['default'];
-    const colors: string[] = [];
+            const properties = e.features[0].properties as Record<string, number>;
 
-    EPCRatings.forEach((rating: string) => {
-      colors.push(rating);
-      const color = this.utilsService.getEPCColour(rating);
-      colors.push(color);
-    });
-    colors.push(defaultColor);
+            /** extract ratings from properties */
+            const epcRatings = Object.keys(properties)
+                .filter((k) => !isNaN(properties[k]))
+                .map((k) => ({ rating: k, count: properties[k] }))
+                .sort((a, b) => a.rating.localeCompare(b.rating));
 
-    const paint = {
-      'fill-color': ['match', ['get', 'aggEPC'], ...colors],
-    } as FillPaint;
+            const histogram = this.#utilsService.createHistogram(epcRatings);
 
-    return paint;
-  }
+            const popupContent = `
+                <div class="popupContent">
+                    <h1>${e.features[0].properties!.WD23NM}</h1>
+                    ${histogram}
+                    <p class="disclaimer">*Mix of domestic and commercial buildings. Excluded from ward visualisation.</p>
+                </div>
+            `;
 
-  ngOnDestroy(): void {
-    this.mapService.destroyMap();
-    this.mapSubscription.unsubscribe();
-  }
+            this.wardPopup.setLngLat(e.lngLat).setMaxWidth('none').setHTML(popupContent).addTo(this.#mapService.mapInstance);
+        }
+    }
+
+    /**
+     * Add context layers to map
+     */
+    private addContextLayers(contextData: FeatureCollection<Geometry, GeoJsonProperties>[]): void {
+        this.#runtimeConfig.contextLayers.map((config: MapLayerConfig) => {
+            const data = contextData.find(
+                /**
+                 * find matching source data, ignore 'selected' part
+                 * of layer id
+                 */
+                // eslint-disable-next-line
+                // @ts-ignore
+                (d: unknown) => d.name === config.id.split('-')[0],
+            );
+            const geojsonSource: SourceSpecification = {
+                type: 'geojson',
+                data,
+            };
+            this.#mapService.addMapSource(config.id, geojsonSource);
+
+            const paint = this.getWardLayerPaint();
+
+            const newConfig = {
+                ...config,
+                paint: {
+                    ...paint,
+                    ...config.paint,
+                },
+            } as AnyLayer;
+            this.#mapService.addMapLayer(newConfig);
+        });
+    }
+
+    /**
+     * update context layer paint when color blind mode changes
+     */
+    private updateLayerPaint(): void {
+        if (!this.#mapService.mapInstance) return;
+        this.#runtimeConfig.contextLayers.map((config: MapLayerConfig) => {
+            const lyr = this.#mapService.mapInstance.getLayer(config.id);
+            if (lyr && config.type !== 'line') {
+                const paint = this.getWardLayerPaint();
+                this.#mapService.mapInstance.setPaintProperty(lyr.id, 'fill-color', paint['fill-color']);
+            }
+        });
+    }
+
+    private getWardLayerPaint(): NonNullable<FillLayerSpecification['paint']> {
+        const EPCRatings = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'none'];
+        const defaultColor = this.#runtimeConfig.epcColours['default'];
+        const colors: string[] = [];
+
+        EPCRatings.forEach((rating: string) => {
+            colors.push(rating);
+            const color = this.#utilsService.getEPCColour(rating);
+            colors.push(color);
+        });
+        colors.push(defaultColor);
+
+        const paint: NonNullable<FillLayerSpecification['paint']> = {
+            'fill-color': ['match', ['get', 'aggEPC'], ...colors],
+        };
+
+        return paint;
+    }
 }

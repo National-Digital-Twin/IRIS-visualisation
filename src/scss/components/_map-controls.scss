@@ -1,85 +1,90 @@
 .map-controls-container {
-  z-index: $panel-z-index;
-  position: absolute;
-  float: right;
-  right: var(--arc-spacing-medium);
-  padding: 1rem 0 0.5rem 0.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  height: calc(100vh - 55px);
+    position: absolute;
+    z-index: $panel-z-index;
+    right: var(--arc-spacing-medium);
 
-  @include md {
-    right: var(--arc-spacing-small);
-    padding-top: var(--arc-spacing-small);
-  }
+    float: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
 
-  @include xs {
-    height: calc(100vh - 8.125rem);
-  }
+    height: calc(100vh - 55px);
+    padding: 1rem 0 0.5rem 0.5rem;
 
-  .map-controls {
-    margin-bottom: 0.625rem;
-    .mat-mdc-icon-button img {
-      width: 2rem;
-      height: 2rem;
-    }
-    .mat-mdc-icon-button .mat-mdc-button-persistent-ripple {
-      border-radius: 0;
+    @include md {
+        right: var(--arc-spacing-small);
+        padding-top: var(--arc-spacing-small);
     }
 
-    :first-child {
-      border-radius: 4px 4px 0 0;
-    }
-    :last-child {
-      border-radius: 0 0 4px 4px;
-    }
-    button:not(:first-child):not(:last-child) {
-      border-radius: 0;
+    @include xs {
+        height: calc(100vh - 8.125rem);
     }
 
-    button:only-child {
-      border-radius: 4px;
-    }
-
-    .map-button {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-
-      background-color: rgb(var(--arc-container-color)) !important;
-      color: rgb(var(--arc-font-color));
-      box-shadow: 0px 2px 3px rgba(118, 118, 118, 0.2);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-      &__reset {
-        margin-bottom: 0.5rem;
-        background-color: rgb(var(--arc-container-color)) !important;
-        box-shadow: 0px 2px 3px rgba(118, 118, 118, 0.2);
-      }
-
-      &--active {
-        background-color: $color-primary !important;
-        &_dark {
-          background-color: #0f3a70 !important;
+    .map-controls {
+        margin-bottom: 0.625rem;
+        .mat-mdc-icon-button img {
+            width: 2rem;
+            height: 2rem;
         }
-      }
-
-      &--inactive {
-        background-color: rgb(var(--arc-grey-010)) !important;
-        &_dark {
-          background-color: #0f3a70 !important;
+        .mat-mdc-icon-button .mat-mdc-button-persistent-ripple {
+            border-radius: 0;
         }
-      }
-    }
 
-    &--bottom {
-      height: 100%;
-      display: flex;
-      align-items: flex-end;
+        :first-child {
+            border-radius: 4px 4px 0 0;
+        }
+        :last-child {
+            border-radius: 0 0 4px 4px;
+        }
 
-      @include md {
-        margin-bottom: 0;
-      }
+        button:only-child {
+            border-radius: 4px;
+        }
+
+        button:not(:first-child):not(:last-child) {
+            border-radius: 0;
+        }
+
+        .map-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+
+            color: rgb(var(--arc-font-color));
+
+            background-color: rgb(var(--arc-container-color)) !important;
+            box-shadow: 0px 2px 3px rgba(118, 118, 118, 0.2);
+            &__reset {
+                margin-bottom: 0.5rem;
+                background-color: rgb(var(--arc-container-color)) !important;
+                box-shadow: 0px 2px 3px rgba(118, 118, 118, 0.2);
+            }
+
+            &--active {
+                background-color: $color-primary !important;
+                &_dark {
+                    background-color: #0f3a70 !important;
+                }
+            }
+
+            &--inactive {
+                background-color: rgb(var(--arc-grey-010)) !important;
+                &_dark {
+                    background-color: #0f3a70 !important;
+                }
+            }
+        }
+
+        &--bottom {
+            display: flex;
+            align-items: flex-end;
+            height: 100%;
+
+            @include md {
+                margin-bottom: 0;
+            }
+        }
     }
-  }
 }

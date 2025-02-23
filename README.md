@@ -2,7 +2,6 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.0.0.
 
-- [Cypress](https://cypress.io/)
 - [ES Lint](https://eslint.org)
 - [Prettier](https://prettier.io)
 - [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary)
@@ -47,14 +46,14 @@ Run `ng generate component component-name` to generate a new component. You can 
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
 
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests with [Cypress](https://cypress.io/)
-
 ## Linting & code style
 
 The project uses a combination of [ES Lint](https://eslint.org) & [Prettier](https://prettier.io) to execute code
 linting and style checking. Check code linting and style using `npm run lint`
+
+## Running local code development tools
+
+See [RUNNING_CODE_DEV_TOOLS.md](./developer_docs/RUNNING_CODE_DEV_TOOLS.md) for more information.
 
 ## Code commit messages
 
@@ -68,3 +67,6 @@ When writing documentation use the JSDoc format:
 
 - [Comments](https://compodoc.app/guides/comments.html)
 - [Tags](https://compodoc.app/guides/jsdoc-tags.html)
+
+## Contributors
+The development of these works has been made possible with thanks to our [contributors](https://github.com/National-Digital-Twin/IRIS-visualisation/graphs/contributors).

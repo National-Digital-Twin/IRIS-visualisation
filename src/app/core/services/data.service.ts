@@ -1,654 +1,542 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {
-  Observable,
-  Subscriber,
-  combineLatest,
-  forkJoin,
-  map,
-  tap,
-  first,
-  switchMap,
-  EMPTY,
-} from 'rxjs';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-
-import { FeatureCollection } from 'geojson';
-
+import { EPCRating, FloorConstruction, RoofConstruction, WallConstruction, WindowGlazing } from '@core/enums';
+import { InvalidateFlagReason } from '@core/enums/invalidate-flag-reason';
+import { BuildingMap, BuildingModel, BuildingParts } from '@core/models/building.model';
+import { MapLayerConfig } from '@core/models/map-layer-config.model';
+import { SPARQLReturn, TableRow } from '@core/models/rdf-data.model';
+import { EPC_DATA_FILE_NAME, NON_EPC_DATA_FILE_NAME, SAP_DATA_FILE_NAME } from '@core/tokens/cache.token';
+import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
 import { WRITE_BACK_ENDPOINT } from '@core/tokens/write-back-endpoint.token';
-import { SPARQLReturn, TableRow } from '@core/models/rdf-data.model';
-import { BuildingMap, BuildingModel } from '@core/models/building.model';
-import { MapLayerConfig } from '@core/models/map-layer-config.model';
-
-import { Queries } from './Queries';
-
-import {
-  EPCRating,
-  FloorConstruction,
-  RoofConstruction,
-  WallConstruction,
-  WindowGlazing,
-} from '@core/enums';
-import { InvalidateFlagReason } from '@core/enums/invalidate-flag-reason';
-import {
-  EPCBuildingResponseModel,
-  NoEPCBuildingResponseModel,
-} from '@core/types/building-response';
-import { FlagMap, FlagResponse } from '@core/types/flag-response';
-import { SAPPointMap, SAPPoint } from '@core/types/sap-point';
+import { EPCBuildingResponseModel, NoEPCBuildingResponseModel } from '@core/types/building-response';
 import { FlagHistory } from '@core/types/flag-history';
-import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
-import {
-  EPC_DATA_FILE_NAME,
-  NON_EPC_DATA_FILE_NAME,
-  SAP_DATA_FILE_NAME,
-} from '@core/tokens/cache.token';
+import { FlagMap, FlagResponse } from '@core/types/flag-response';
+import { SAPPoint, SAPPointMap } from '@core/types/sap-point';
+import { FeatureCollection } from 'geojson';
+import { EMPTY, Observable, Subscriber, combineLatest, first, forkJoin, map, switchMap, tap } from 'rxjs';
+import { Queries } from './Queries';
 
 type Loading<T> = T | 'loading';
 
 @Injectable({
-  providedIn: 'root',
+    providedIn: 'root',
 })
 export class DataService {
-  private readonly http: HttpClient = inject(HttpClient);
-  private readonly searchEndpoint: string = inject(SEARCH_ENDPOINT);
-  private readonly writeBackEndpoint = inject(WRITE_BACK_ENDPOINT);
-  private runtimeConfig = inject(RUNTIME_CONFIGURATION);
+    readonly #http: HttpClient = inject(HttpClient);
+    readonly #searchEndpoint: string = inject(SEARCH_ENDPOINT);
+    readonly #writeBackEndpoint = inject(WRITE_BACK_ENDPOINT);
+    readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
 
-  private queries = new Queries();
+    public activeFlag = signal<Loading<FlagHistory> | undefined>(undefined);
+    public buildingsSelection = signal<BuildingModel[][] | undefined>(undefined);
+    public contextData$ = this.loadContextData();
+    public flagHistory = signal<Loading<FlagHistory[]>>([]);
+    public loading = signal<boolean>(true);
+    public selectedBuilding = signal<BuildingModel | undefined>(undefined);
+    public selectedUPRN = signal<string | undefined>(undefined);
 
-  // single uprn
-  selectedUPRN = signal<string | undefined>(undefined);
-  selectedBuilding = signal<BuildingModel | undefined>(undefined);
-  public readonly flagHistory = signal<Loading<FlagHistory[]>>([]);
-  public readonly activeFlag = signal<Loading<FlagHistory> | undefined>(
-    undefined
-  );
+    private readonly buildingsFlagged = signal<FlagMap>({});
+    private readonly buildingsFlagged$ = toObservable(this.buildingsFlagged);
+    private readonly queries = new Queries();
 
-  // multiple buildings
-  buildingsSelection = signal<BuildingModel[][] | undefined>(undefined);
-
-  /** Building objects with a flagged uri */
-  readonly buildingsFlagged = signal<FlagMap>({});
-  readonly buildingsFlagged$ = toObservable(this.buildingsFlagged);
-
-  loading = signal<boolean>(true);
-
-  sapPoints$ = this.selectTable(
-    this.queries.getSAPPoints(),
-    inject(SAP_DATA_FILE_NAME)
-  ).pipe(
-    map(points => this.mapSAPPointsToToids(points as unknown as SAPPoint[]))
-  );
-
-  contextData$ = this.loadContextData();
-
-  /** load all flags */
-  flags$ = this.selectTable(this.queries.getAllFlaggedBuildings()).pipe(
-    map(res => {
-      const currentFlags = this.getCurrentFlags(
-        res as unknown as FlagResponse[]
-      );
-      const flagMap = this.mapFlagsToToids(currentFlags);
-      return flagMap;
-    })
-  );
-
-  buildingsEPC$ = forkJoin([
-    this.flags$,
-    this.sapPoints$,
-    this.selectTable(this.queries.getEPCData(), inject(EPC_DATA_FILE_NAME)),
-  ]).pipe(
-    map(([flagMap, points, epc]) => {
-      /** set flags */
-      this.buildingsFlagged.set(flagMap);
-      return this.mapEPCBuildings(
-        epc as unknown as EPCBuildingResponseModel[],
-        points
-      );
-    })
-  );
-
-  buildingsNoEPC$ = this.selectTable(
-    this.queries.getNoEPCData(),
-    inject(NON_EPC_DATA_FILE_NAME)
-  ).pipe(
-    map(noEPC =>
-      this.mapNonEPCBuildings(noEPC as unknown as NoEPCBuildingResponseModel[])
-    )
-  );
-
-  /**
-   * Get all building data
-   * @returns Observable<BuildingMap>
-   */
-
-  allData$ = combineLatest([
-    this.buildingsEPC$,
-    this.buildingsNoEPC$,
-    this.buildingsFlagged$,
-  ]).pipe(
-    map(([epc, noEPC, flagged]) =>
-      this.combineBuildingData(epc, noEPC, flagged)
-    ),
-    tap(() => {
-      this.loading.set(false);
-    })
-  );
-
-  private buildingResults = toSignal(this.allData$, {
-    initialValue: undefined,
-  });
-  buildings = computed(() => this.buildingResults());
-
-  setSelectedUPRN(uprn: string | undefined) {
-    this.selectedUPRN.set(uprn);
-  }
-
-  /**
-   * Set individual building
-   * @param building individual building
-   */
-  setSelectedBuilding(building: BuildingModel | undefined) {
-    this.selectedBuilding.set(building ? building : undefined);
-  }
-
-  /**
-   * Set multiple buildings
-   * @param building buildings
-   */
-  setSelectedBuildings(buildings: BuildingModel[][] | undefined) {
-    this.buildingsSelection.set(buildings ? buildings : undefined);
-  }
-
-  /**
-   * Query Telicent IA
-   * @param query SPARQL query
-   * @returns observable of parsed data
-   */
-  selectTable(query: string, cacheUrl?: string) {
-    const url =
-      cacheUrl || `${this.searchEndpoint}?query=${encodeURIComponent(query)}`;
-    let newTable: Array<TableRow>;
-    const httpOptions = {
-      withCredentials: true,
-    };
-
-    const tableObservable = new Observable(
-      (observer: Subscriber<TableRow[]>) => {
-        this.http
-          .get<SPARQLReturn>(url, httpOptions)
-          .subscribe((data: SPARQLReturn) => {
-            newTable = this.buildTable(data);
-            observer.next(newTable);
-            observer.complete();
-          });
-      }
+    private readonly flags$ = this.selectTable(this.queries.getAllFlaggedBuildings()).pipe(
+        map((res) => {
+            const currentFlags = this.getCurrentFlags(res as unknown as FlagResponse[]);
+            const flagMap = this.mapFlagsToToids(currentFlags);
+            return flagMap;
+        }),
     );
-    return tableObservable;
-  }
 
-  /**
-   * Loads all spatial context data
-   * @returns FeatureCollection[] Array of geojson
-   */
-  loadContextData(): Observable<FeatureCollection[]> {
-    const requests = this.runtimeConfig.contextLayers.map(
-      (mapLayerConfig: MapLayerConfig) =>
-        this.http.get<FeatureCollection>(
-          `assets/data/${mapLayerConfig.filename}`
-        )
+    private readonly sapPoints$ = this.selectTable(this.queries.getSAPPoints(), inject(SAP_DATA_FILE_NAME)).pipe(
+        map((points) => this.mapSAPPointsToToids(points as unknown as SAPPoint[])),
     );
-    return forkJoin(requests).pipe(map((data: FeatureCollection[]) => data));
-  }
 
-  /**
-   * Converts a query result from the Telicent IA to an
-   * array of objects
-   * @param SPARQLReturn Query result from Telicent IA
-   * @returns Array of parsed data
-   */
-  private buildTable(SPARQLReturn: SPARQLReturn) {
-    const heads = SPARQLReturn.head.vars;
-    const data = SPARQLReturn.results.bindings;
-    const table: Array<TableRow> = [];
+    private readonly buildingsEPC$ = forkJoin([this.flags$, this.sapPoints$, this.selectTable(this.queries.getEPCData(), inject(EPC_DATA_FILE_NAME))]).pipe(
+        map(([flagMap, points, epc]) => {
+            this.buildingsFlagged.set(flagMap);
+            return this.mapEPCBuildings(epc as unknown as EPCBuildingResponseModel[], points);
+        }),
+    );
 
-    // build empty table
-    for (let row = 0; row < data.length; row++) {
-      const rows: TableRow = {};
-      for (let head = 0; head < heads.length; head++) {
-        const colname: string = heads[head];
-        const cellEntry = '';
-        rows[colname] = cellEntry;
-      }
-      table.push(rows);
+    private readonly buildingsNoEPC$ = this.selectTable(this.queries.getNoEPCData(), inject(NON_EPC_DATA_FILE_NAME)).pipe(
+        map((noEPC) => this.mapNonEPCBuildings(noEPC as unknown as NoEPCBuildingResponseModel[])),
+    );
+
+    private readonly allData$ = combineLatest([this.buildingsEPC$, this.buildingsNoEPC$, this.buildingsFlagged$]).pipe(
+        map(([epc, noEPC, flagged]) => this.combineBuildingData(epc, noEPC, flagged)),
+        tap(() => {
+            this.loading.set(false);
+        }),
+    );
+
+    private readonly buildingData = toSignal(this.allData$, { initialValue: undefined });
+    public buildings = computed(() => this.buildingData());
+
+    public setSelectedUPRN(uprn?: string): void {
+        this.selectedUPRN.set(uprn);
     }
-    // fill table with data
-    for (const rowNumber in data) {
-      for (const colName in data[rowNumber]) {
-        table[rowNumber][colName] = data[rowNumber][colName].value;
-      }
+
+    /**
+     * Set individual building
+     * @param building individual building
+     */
+    public setSelectedBuilding(building?: BuildingModel): void {
+        this.selectedBuilding.set(building);
     }
-    return table;
-  }
 
-  /**
-   * An object where TOIDS are keys, and values are an array of buildings
-   * @param buildings array of buildings data
-   * @returns an object with TOID as key, and array of buildings as values
-   */
-  mapBuildings(buildings: BuildingModel[]) {
-    const buildingMap: BuildingMap = {};
-    buildings.forEach((row: BuildingModel) => {
-      /** add 'none' for buildings with no EPC rating */
-      if (row.EPC === undefined) {
-        row.EPC = EPCRating.none;
-      }
-      const toid = row.TOID ? row.TOID : row.ParentTOID;
-      if (!toid) {
-        return;
-      }
-      if (toid && buildingMap[toid]) {
-        buildingMap[toid].push(row);
-      } else {
-        buildingMap[toid!] = [row];
-      }
-    });
-    return buildingMap;
-  }
+    /**
+     * Set multiple buildings
+     * @param building buildings
+     */
+    public setSelectedBuildings(buildings?: BuildingModel[][]): void {
+        this.buildingsSelection.set(buildings);
+    }
 
-  /**
-   * Create an object where TOIDS are keys, and values are the building(s)
-   * data, and joins SAP Ratings with each building
-   * @param buildings array of buildings with EPC data
-   * @param sapPoints array of UPRNs and SAP Points
-   * @returns an object with TOID as key, and an array of building
-   * objects with epc and sap points
-   */
-  mapEPCBuildings(
-    buildings: EPCBuildingResponseModel[],
-    sapPoints: SAPPointMap
-  ) {
-    const buildingMap: BuildingMap = {};
-    buildings.forEach((row: EPCBuildingResponseModel) => {
-      const toid = row.TOID ? row.TOID : row.ParentTOID;
-      /** if there is no TOID the building cannot be visualised */
-      if (!toid) return;
-      const sapPoint = sapPoints[toid].find(p => p.UPRN === row.UPRN);
-      /** add 'none' for buildings with no EPC rating */
-      const epc = row.EPC ? row.EPC : EPCRating.none;
-      const yearOfAssessment = row.InspectionDate
-        ? new Date(row.InspectionDate).getFullYear().toString()
-        : '';
-      /** get building parts */
-      const parts = this.parseBuildingParts(row);
+    /**
+     * Query Integration Architecture via SPARQL
+     * @param query SPARQL query
+     * @returns observable of parsed data
+     */
+    private selectTable(query: string, cacheUrl?: string): Observable<TableRow[]> {
+        const url = cacheUrl ?? `${this.#searchEndpoint}?query=${encodeURIComponent(query)}`;
+        const httpOptions = { withCredentials: true };
 
-      const building: BuildingModel = {
-        UPRN: row.UPRN,
-        TOID: toid,
-        ParentTOID: row.ParentTOID,
-        FullAddress: row.FullAddress,
-        PostCode: row.PostCode,
-        PropertyType: row.PropertyType,
-        BuildForm: row.BuildForm,
-        InspectionDate: row.InspectionDate,
-        YearOfAssessment: yearOfAssessment,
-        EPC: epc,
-        SAPPoints: sapPoint?.SAPPoint ? sapPoint.SAPPoint : undefined,
-        FloorConstruction: parts.FloorConstruction,
-        FloorInsulation: parts.FloorInsulation,
-        RoofConstruction: parts.RoofConstruction,
-        RoofInsulationLocation: parts.RoofInsulationLocation,
-        RoofInsulationThickness: parts.RoofInsulationThickness,
-        WallConstruction: parts.WallConstruction,
-        WallInsulation: parts.WallInsulation,
-        WindowGlazing: parts.WindowGlazing,
-        Flagged: undefined,
-        latitude: sapPoint?.latitude,
-        longitude: sapPoint?.longitude,
-      };
-      if (buildingMap[toid]) {
-        buildingMap[toid].push(building);
-      } else {
-        buildingMap[toid!] = [building];
-      }
-    });
-    return buildingMap;
-  }
-
-  /**
-   * An object where TOIDS are keys, and are is the building details
-   * @param buildings array of building data with no EPC ratings
-   * @returns an object with TOID as key, and object with an
-   * array of building data
-   */
-  mapNonEPCBuildings(buildings: NoEPCBuildingResponseModel[]) {
-    const buildingMap: BuildingMap = {};
-    buildings.forEach((responseRow: NoEPCBuildingResponseModel) => {
-      const building: BuildingModel = {
-        ...responseRow,
-        BuildForm: undefined,
-        EPC: EPCRating.none,
-        FloorConstruction: undefined,
-        FloorInsulation: undefined,
-        InspectionDate: undefined,
-        PropertyType: undefined,
-        RoofConstruction: undefined,
-        RoofInsulationLocation: undefined,
-        RoofInsulationThickness: undefined,
-        SAPPoints: undefined,
-        WallConstruction: undefined,
-        WallInsulation: undefined,
-        WindowGlazing: undefined,
-        YearOfAssessment: undefined,
-      };
-      /** if there is no TOID the building cannot be visualised */
-      const toid = building.TOID ? building.TOID : building.ParentTOID;
-      if (!toid) return;
-      if (buildingMap[toid]) {
-        buildingMap[toid].push(building as BuildingModel);
-      } else {
-        buildingMap[toid!] = [building as BuildingModel];
-      }
-    });
-    return buildingMap;
-  }
-
-  /**
-   * Combine the two building datasets
-   * @param epcBuildings
-   * @param nonEPCBuildings
-   * @returns BuildingMap of all buildings
-   */
-  combineBuildingData(
-    epcBuildings: BuildingMap,
-    nonEPCBuildings: BuildingMap,
-    flaggedBuildings: FlagMap
-  ) {
-    const allBuildings: BuildingMap = { ...epcBuildings };
-    Object.keys(nonEPCBuildings).forEach((toid: string) => {
-      if (allBuildings[toid]) {
-        allBuildings[toid].concat(nonEPCBuildings[toid]);
-      } else {
-        allBuildings[toid] = nonEPCBuildings[toid];
-      }
-    });
-
-    /* combine flagged buildings to all buildings */
-    Object.keys(flaggedBuildings).forEach(toid => {
-      if (allBuildings[toid]) {
-        flaggedBuildings[toid].forEach(fb => {
-          /* overwrite flagged property on building */
-          const index = allBuildings[toid].findIndex(b => b.UPRN === fb.UPRN);
-          allBuildings[toid][index].Flagged = fb.Flagged;
+        const tableObservable = new Observable((observer: Subscriber<TableRow[]>) => {
+            this.#http.get<SPARQLReturn>(url, httpOptions).subscribe((data: SPARQLReturn) => {
+                const newTable: Array<TableRow> = this.buildTable(data);
+                observer.next(newTable);
+                observer.complete();
+            });
         });
-      }
-    });
 
-    return allBuildings;
-  }
+        return tableObservable;
+    }
 
-  /**
-   * Return flag history for an individual building
-   * @param query Query string to request data from IA
-   * @returns
-   */
-  getBuildingFlagHistory(uprn: string) {
-    return this.selectTable(
-      this.queries.getFlagHistory(uprn)
-    ) as unknown as Observable<FlagHistory[]>;
-  }
+    /**
+     * Loads all spatial context data
+     * @returns FeatureCollection[] Array of geojson
+     */
+    private loadContextData(): Observable<FeatureCollection[]> {
+        const requests = this.#runtimeConfig.contextLayers.map((mapLayerConfig: MapLayerConfig) =>
+            this.#http.get<FeatureCollection>(`assets/data/${mapLayerConfig.filename}`),
+        );
+        return forkJoin(requests).pipe(map((data: FeatureCollection[]) => data));
+    }
 
-  getEPCByUPRN(uprn: string): string {
-    const allBuildings = this.buildings();
-    const flatBuildings: BuildingModel[] = Object.values(allBuildings!).flat();
+    /**
+     * Converts a query result from the Integration Architecture to an
+     * array of objects
+     * @param SPARQLReturn Query result from Integration Architecture
+     * @returns Array of parsed data
+     */
+    private buildTable(SPARQLReturn: SPARQLReturn): TableRow[] {
+        const heads = SPARQLReturn.head.vars;
+        const data = SPARQLReturn.results.bindings;
 
-    const building = flatBuildings.find(building => building.UPRN === uprn);
-    return building!.EPC!;
-  }
+        const table = data.map(() => {
+            return heads.reduce((row, colname) => {
+                row[colname] = '';
+                return row;
+            }, {} as TableRow);
+        });
 
-  getBuildingByUPRN(uprn: string): BuildingModel {
-    const allBuildings = this.buildings();
-    const flatBuildings: BuildingModel[] = Object.values(allBuildings!).flat();
-    const building = flatBuildings.find(building => building.UPRN === uprn);
-    return building!;
-  }
+        data.forEach((rowData, rowIndex) => {
+            for (const [colName, { value }] of Object.entries(rowData)) {
+                table[rowIndex][colName] = value;
+            }
+        });
 
-  private isWallKey(value: string): value is keyof typeof WallConstruction {
-    return Object.keys(WallConstruction).includes(
-      value as unknown as WallConstruction
-    );
-  }
+        return table;
+    }
 
-  private isWindowKey(value: string): value is keyof typeof WindowGlazing {
-    return Object.keys(WindowGlazing).includes(
-      value as unknown as WindowGlazing
-    );
-  }
+    /**
+     * An object where TOIDS are keys, and values are an array of buildings
+     * @param buildings array of buildings data
+     * @returns an object with TOID as key, and array of buildings as values
+     */
+    public mapBuildings(buildings: BuildingModel[]): BuildingMap {
+        const buildingMap: BuildingMap = {};
+        buildings.forEach((row: BuildingModel) => {
+            /** add 'none' for buildings with no EPC rating */
+            if (row.EPC === undefined) {
+                row.EPC = EPCRating.none;
+            }
+            const toid = row.TOID ? row.TOID : row.ParentTOID;
+            if (!toid) {
+                return;
+            }
+            if (toid && buildingMap[toid]) {
+                buildingMap[toid].push(row);
+            } else {
+                buildingMap[toid] = [row];
+            }
+        });
+        return buildingMap;
+    }
 
-  private isRoofKey(value: string): value is keyof typeof RoofConstruction {
-    return Object.keys(RoofConstruction).includes(
-      value as unknown as RoofConstruction
-    );
-  }
+    /**
+     * Create an object where TOIDS are keys, and values are the building(s)
+     * data, and joins SAP Ratings with each building
+     * @param buildings array of buildings with EPC data
+     * @param sapPoints array of UPRNs and SAP Points
+     * @returns an object with TOID as key, and an array of building
+     * objects with epc and sap points
+     */
+    private mapEPCBuildings(buildings: EPCBuildingResponseModel[], sapPoints: SAPPointMap): BuildingMap {
+        const buildingMap: BuildingMap = {};
 
-  private isFloorKey(value: string): value is keyof typeof FloorConstruction {
-    return Object.keys(FloorConstruction).includes(
-      value as unknown as FloorConstruction
-    );
-  }
+        buildings.forEach((row: EPCBuildingResponseModel) => {
+            const toid = row.TOID ? row.TOID : row.ParentTOID;
 
-  /**
-   * Building parts are returned from the IA in the format
-   * PartTypes: "CavityWall; DoubleGlazedBefore2002Window; SolidFloor; FlatRoof",
-   * InsulationTypes: "NoData; NoData; NoData; AssumedLimitedInsulation",
-   * InsulationThickness: "NoData; NoData; NoData; NoData",
-   * InsulationThicknessLowerBound: "NoData; NoData; NoData; NoData"
-   *
-   * This function:
-   * 1. Splits the PartTypes string and for each part identifies if it's a Wall,
-   * Window, Roof or Floor.
-   * 2. Using the index of the part, it then finds the corresponding insulation type
-   * and thicknesses
-   * @param row EPCBuildingResponseModel
-   * @returns object of parts and insulation types and thicknesses
-   */
-  private parseBuildingParts(row: EPCBuildingResponseModel) {
-    const parts = {
-      FloorConstruction: 'NoData',
-      FloorInsulation: 'NoData',
-      RoofConstruction: 'NoData',
-      RoofInsulationLocation: 'NoData',
-      RoofInsulationThickness: 'NoData',
-      WallConstruction: 'NoData',
-      WallInsulation: 'NoData',
-      WindowGlazing: 'NoData',
-    };
+            /** if there is no TOID the building cannot be visualised */
+            if (!toid) {
+                return;
+            }
 
-    const partTypes = row.PartTypes.replaceAll(' ', '').split(';');
-    const insulationTypes = row.InsulationTypes.replaceAll(' ', '').split(';');
-    const insulationThickness = row.InsulationThickness.replaceAll(
-      ' ',
-      ''
-    ).split(';');
-    const insulationThicknessLowerBounds =
-      row.InsulationThicknessLowerBound.replaceAll(' ', '').split(';');
+            const sapPoint = sapPoints[toid]?.find((p) => p.UPRN === row.UPRN) || { SAPPoint: undefined, latitude: undefined, longitude: undefined };
 
-    partTypes.forEach((part, i) => {
-      if (this.isWallKey(part)) {
-        parts['WallConstruction'] = part;
-        parts['WallInsulation'] = insulationTypes[i];
-      } else if (this.isFloorKey(part)) {
-        parts['FloorConstruction'] = part;
-        parts['FloorInsulation'] = insulationTypes[i];
-      } else if (this.isRoofKey(part)) {
-        parts['RoofConstruction'] = part;
-        parts['RoofInsulationLocation'] = insulationTypes[i];
-        /** check thickness types */
-        let roofInsulationThickness = 'NoData';
-        const thickness = insulationThickness[i];
-        const thicknessLB = insulationThicknessLowerBounds[i];
-        if (thickness !== 'NoData' && thicknessLB === 'NoData') {
-          roofInsulationThickness = `${thickness.split('.')[0]}mm`;
-        } else if (thickness === 'NoData' && thicknessLB !== 'NoData') {
-          roofInsulationThickness = `${thicknessLB.split('.')[0]}+mm`;
+            /** add 'none' for buildings with no EPC rating */
+            const epc = row.EPC ? row.EPC : EPCRating.none;
+            const yearOfAssessment = row.InspectionDate ? new Date(row.InspectionDate).getFullYear().toString() : '';
+            /** get building parts */
+            const parts = this.parseBuildingParts(row);
+
+            const building: BuildingModel = {
+                UPRN: row.UPRN,
+                TOID: toid,
+                ParentTOID: row.ParentTOID,
+                FullAddress: row.FullAddress,
+                PostCode: row.PostCode,
+                PropertyType: row.PropertyType,
+                BuildForm: row.BuildForm,
+                InspectionDate: row.InspectionDate,
+                YearOfAssessment: yearOfAssessment,
+                EPC: epc,
+                SAPPoints: sapPoint.SAPPoint,
+                FloorConstruction: parts.FloorConstruction,
+                FloorInsulation: parts.FloorInsulation,
+                RoofConstruction: parts.RoofConstruction,
+                RoofInsulationLocation: parts.RoofInsulationLocation,
+                RoofInsulationThickness: parts.RoofInsulationThickness,
+                WallConstruction: parts.WallConstruction,
+                WallInsulation: parts.WallInsulation,
+                WindowGlazing: parts.WindowGlazing,
+                Flagged: undefined,
+                latitude: sapPoint.latitude,
+                longitude: sapPoint.longitude,
+            };
+            if (buildingMap[toid]) {
+                buildingMap[toid].push(building);
+            } else {
+                buildingMap[toid] = [building];
+            }
+        });
+
+        return buildingMap;
+    }
+
+    /**
+     * An object where TOIDS are keys, and are is the building details
+     * @param buildings array of building data with no EPC ratings
+     * @returns an object with TOID as key, and object with an
+     * array of building data
+     */
+    private mapNonEPCBuildings(buildings: NoEPCBuildingResponseModel[]): BuildingMap {
+        const buildingMap: BuildingMap = {};
+        buildings.forEach((responseRow: NoEPCBuildingResponseModel) => {
+            const building: BuildingModel = {
+                ...responseRow,
+                BuildForm: undefined,
+                EPC: EPCRating.none,
+                FloorConstruction: undefined,
+                FloorInsulation: undefined,
+                InspectionDate: undefined,
+                PropertyType: undefined,
+                RoofConstruction: undefined,
+                RoofInsulationLocation: undefined,
+                RoofInsulationThickness: undefined,
+                SAPPoints: undefined,
+                WallConstruction: undefined,
+                WallInsulation: undefined,
+                WindowGlazing: undefined,
+                YearOfAssessment: undefined,
+            };
+            /** if there is no TOID the building cannot be visualised */
+            const toid = building.TOID ? building.TOID : building.ParentTOID;
+            if (!toid) return;
+            if (buildingMap[toid]) {
+                buildingMap[toid].push(building);
+            } else {
+                buildingMap[toid] = [building];
+            }
+        });
+        return buildingMap;
+    }
+
+    /**
+     * Combine the two building datasets
+     * @param epcBuildings
+     * @param nonEPCBuildings
+     * @returns BuildingMap of all buildings
+     */
+    private combineBuildingData(epcBuildings: BuildingMap, nonEPCBuildings: BuildingMap, flaggedBuildings: FlagMap): BuildingMap {
+        const allBuildings: BuildingMap = { ...epcBuildings };
+
+        Object.entries(nonEPCBuildings).forEach(([toid, building]) => {
+            if (allBuildings[toid]) {
+                allBuildings[toid] = allBuildings[toid].concat(building);
+            } else {
+                allBuildings[toid] = building;
+            }
+        });
+
+        Object.entries(flaggedBuildings).forEach(([toid, flaggedList]) => {
+            if (allBuildings[toid]) {
+                flaggedList.forEach(({ UPRN, Flagged }) => {
+                    const building = allBuildings[toid].find((b) => b.UPRN === UPRN);
+                    if (building) {
+                        building.Flagged = Flagged;
+                    }
+                });
+            }
+        });
+
+        return allBuildings;
+    }
+
+    /**
+     * Return flag history for an individual building
+     * @param query Query string to request data from IA
+     * @returns
+     */
+    private getBuildingFlagHistory(uprn: string): Observable<FlagHistory[]> {
+        return this.selectTable(this.queries.getFlagHistory(uprn)) as Observable<FlagHistory[]>;
+    }
+
+    public getBuildingByUPRN(uprn: string): BuildingModel {
+        const buildings = this.buildings();
+
+        if (!buildings) {
+            return {} as BuildingModel;
         }
-        parts['RoofInsulationThickness'] = roofInsulationThickness;
-      } else if (this.isWindowKey(part)) {
-        parts['WindowGlazing'] = part;
-      }
-    });
-    return parts;
-  }
 
-  public flagToInvestigate(building: BuildingModel) {
-    return this.http
-      .post<NonNullable<BuildingModel['Flagged']>>(
-        `${this.writeBackEndpoint}/flag-to-investigate`,
-        {
-          uri: `http://nationaldigitaltwin.gov.uk/data#building_${building.UPRN}`,
-        },
-        { withCredentials: true }
-      )
-      .pipe(
-        switchMap(flagUri => {
-          const toid = building.TOID ? building.TOID : building.ParentTOID;
-          if (!toid) throw new Error(`Building ${building.UPRN} has no TOID`);
-          building.Flagged = flagUri;
-          const flag: FlagResponse = {
-            UPRN: building.UPRN,
-            TOID: building.TOID,
-            ParentTOID: building.ParentTOID,
-            Flagged: flagUri,
-            FlagDate: new Date().toISOString() as string,
-          };
-          this.buildingsFlagged.update(f => ({
-            ...f,
-            [toid]: f[toid] ? [...f[toid], flag] : [flag],
-          }));
+        const flatBuildings: BuildingModel[] = Object.values(buildings).flat();
+        const building = flatBuildings.find((building) => building.UPRN === uprn);
 
-          /* if invalidaing flag for selected building, update the flag history */
-          const { UPRN } = building;
-          const selectedBuilding = this.selectedBuilding();
-          if (selectedBuilding?.UPRN === UPRN) {
-            return this.updateFlagHistory(UPRN);
-          }
-          return EMPTY;
-        })
-      );
-  }
+        return building ?? ({} as BuildingModel);
+    }
 
-  public invalidateFlag(building: BuildingModel, reason: InvalidateFlagReason) {
-    /* If building has no flag, throw error */
-    if (building.Flagged === undefined)
-      throw new Error(`Building ${building.UPRN} has no flag`);
+    private isWallKey(value: string): value is keyof typeof WallConstruction {
+        return Object.keys(WallConstruction).includes(value as WallConstruction);
+    }
 
-    /* convert reason string to enum key */
-    const keys = Object.keys(InvalidateFlagReason) as Array<
-      keyof typeof InvalidateFlagReason
-    >;
-    const key = keys.find(k => InvalidateFlagReason[k] === reason);
+    private isWindowKey(value: string): value is keyof typeof WindowGlazing {
+        return Object.keys(WindowGlazing).includes(value as WindowGlazing);
+    }
 
-    return this.http
-      .post<NonNullable<BuildingModel['Flagged']>>(
-        `${this.writeBackEndpoint}/invalidate-flag`,
-        {
-          flagUri: building.Flagged,
-          assessmentTypeOverride: `http://nationaldigitaltwin.gov.uk/ontology#${key}`,
-        },
-        { withCredentials: true }
-      )
-      .pipe(
-        switchMap(() => {
-          const toid = building.TOID ? building.TOID : building.ParentTOID;
-          if (!toid) throw new Error(`Building ${building.UPRN} has no TOID`);
-          /* set flagged property to undefined */
-          building.Flagged = undefined;
-          this.buildingsFlagged.update(b => {
-            /* remove building from flagged buildings */
-            const index = b[toid].findIndex(b => b.UPRN === building.UPRN);
-            b[toid].splice(index, 1);
-            return { ...b };
-          });
+    private isRoofKey(value: string): value is keyof typeof RoofConstruction {
+        return Object.keys(RoofConstruction).includes(value as RoofConstruction);
+    }
 
-          /* if invalidaing flag for selected building, update the flag history */
-          const { UPRN } = building;
-          const selectedBuilding = this.selectedBuilding();
-          if (selectedBuilding?.UPRN === UPRN) {
-            return this.updateFlagHistory(UPRN);
-          }
-          return EMPTY;
-        })
-      );
-  }
+    private isFloorKey(value: string): value is keyof typeof FloorConstruction {
+        return Object.keys(FloorConstruction).includes(value as FloorConstruction);
+    }
 
-  /** get the flag history for selected building and update the signals */
-  public updateFlagHistory(uprn: BuildingModel['UPRN']) {
-    this.flagHistory.set('loading');
-    this.activeFlag.set('loading');
-    return this.getBuildingFlagHistory(uprn).pipe(
-      first(),
-      tap(flagHistory => {
-        const flags = flagHistory.filter(f => f.Flagged && f.AssessmentReason);
-        this.flagHistory.set(flags);
-        const flag = flagHistory.find(f => f.Flagged && !f.AssessmentReason);
-        this.activeFlag.set(flag);
-      })
-    );
-  }
+    /**
+     * Building parts are returned from the IA in the format
+     * PartTypes: "CavityWall; DoubleGlazedBefore2002Window; SolidFloor; FlatRoof",
+     * InsulationTypes: "NoData; NoData; NoData; AssumedLimitedInsulation",
+     * InsulationThickness: "NoData; NoData; NoData; NoData",
+     * InsulationThicknessLowerBound: "NoData; NoData; NoData; NoData"
+     *
+     * This function:
+     * 1. Splits the PartTypes string and for each part identifies if it's a Wall,
+     * Window, Roof or Floor.
+     * 2. Using the index of the part, it then finds the corresponding insulation type
+     * and thicknesses
+     * @param row EPCBuildingResponseModel
+     * @returns object of parts and insulation types and thicknesses
+     */
+    private parseBuildingParts(row: EPCBuildingResponseModel): BuildingParts {
+        const parts: BuildingParts = {
+            FloorConstruction: 'NoData',
+            FloorInsulation: 'NoData',
+            RoofConstruction: 'NoData',
+            RoofInsulationLocation: 'NoData',
+            RoofInsulationThickness: 'NoData',
+            WallConstruction: 'NoData',
+            WallInsulation: 'NoData',
+            WindowGlazing: 'NoData',
+        };
 
-  /**
-   * Takes an array of flags and returns an array
-   * of the most current unique flags
-   * @param flags
-   * @returns current flags
-   */
-  private getCurrentFlags(flags: FlagResponse[]) {
-    const result = Object.values(
-      flags.reduce(
-        (
-          acc: { [key: string]: FlagResponse },
-          { UPRN, FlagDate, Flagged, ParentTOID, TOID }
-        ) => {
-          if (
-            !acc[UPRN] ||
-            Date.parse(acc[UPRN].FlagDate) < Date.parse(FlagDate)
-          )
-            acc[UPRN] = { UPRN, FlagDate, Flagged, ParentTOID, TOID };
-          return acc;
-        },
-        {}
-      )
-    );
-    return result;
-  }
+        const partTypes = row.PartTypes.replaceAll(' ', '').split(';');
+        const insulationTypes = row.InsulationTypes.replaceAll(' ', '').split(';');
+        const insulationThickness = row.InsulationThickness.replaceAll(' ', '').split(';');
+        const insulationThicknessLowerBounds = row.InsulationThicknessLowerBound.replaceAll(' ', '').split(';');
 
-  private mapFlagsToToids(flags: FlagResponse[]): FlagMap {
-    const flagMap: FlagMap = {};
-    flags.forEach(flag => {
-      const toid = flag.TOID ? flag.TOID : flag.ParentTOID;
-      if (!toid) throw new Error(`Flag ${flag.UPRN} has no TOID`);
-      if (flagMap[toid]) {
-        flagMap[toid].push(flag);
-      } else {
-        flagMap[toid] = [flag];
-      }
-    });
-    return flagMap;
-  }
+        partTypes.forEach((part, i) => {
+            if (this.isWallKey(part)) {
+                parts['WallConstruction'] = part;
+                parts['WallInsulation'] = insulationTypes[i];
+            } else if (this.isFloorKey(part)) {
+                parts['FloorConstruction'] = part;
+                parts['FloorInsulation'] = insulationTypes[i];
+            } else if (this.isRoofKey(part)) {
+                parts['RoofConstruction'] = part;
+                parts['RoofInsulationLocation'] = insulationTypes[i];
+                /** check thickness types */
+                let roofInsulationThickness = 'NoData';
+                const thickness = insulationThickness[i];
+                const thicknessLB = insulationThicknessLowerBounds[i];
+                if (thickness !== 'NoData' && thicknessLB === 'NoData') {
+                    roofInsulationThickness = `${thickness.split('.')[0]}mm`;
+                } else if (thickness === 'NoData' && thicknessLB !== 'NoData') {
+                    roofInsulationThickness = `${thicknessLB.split('.')[0]}+mm`;
+                }
+                parts['RoofInsulationThickness'] = roofInsulationThickness;
+            } else if (this.isWindowKey(part)) {
+                parts['WindowGlazing'] = part;
+            }
+        });
+        return parts;
+    }
 
-  private mapSAPPointsToToids(data: SAPPoint[]): SAPPointMap {
-    const map: SAPPointMap = {};
-    data.forEach(d => {
-      const toid = d.TOID ? d.TOID : d.ParentTOID;
-      if (!toid) return;
-      if (map[toid]) {
-        map[toid].push(d);
-      } else {
-        map[toid] = [d];
-      }
-    });
-    return map;
-  }
+    public flagToInvestigate(building: BuildingModel): Observable<FlagHistory[]> {
+        return this.#http
+            .post<NonNullable<BuildingModel['Flagged']>>(
+                `${this.#writeBackEndpoint}/flag-to-investigate`,
+                {
+                    uri: `http://nationaldigitaltwin.gov.uk/data#building_${building.UPRN}`,
+                },
+                { withCredentials: true },
+            )
+            .pipe(
+                switchMap((flagUri) => {
+                    const toid = building.TOID ? building.TOID : building.ParentTOID;
+                    if (!toid) throw new Error(`Building ${building.UPRN} has no TOID`);
+                    building.Flagged = flagUri;
+                    const flag: FlagResponse = {
+                        UPRN: building.UPRN,
+                        TOID: building.TOID,
+                        ParentTOID: building.ParentTOID,
+                        Flagged: flagUri,
+                        FlagDate: new Date().toISOString(),
+                    };
+                    this.buildingsFlagged.update((f) => ({
+                        ...f,
+                        [toid]: f[toid] ? [...f[toid], flag] : [flag],
+                    }));
+
+                    /* if invalidaing flag for selected building, update the flag history */
+                    const { UPRN } = building;
+                    const selectedBuilding = this.selectedBuilding();
+                    if (selectedBuilding?.UPRN === UPRN) {
+                        return this.updateFlagHistory(UPRN);
+                    }
+                    return EMPTY;
+                }),
+            );
+    }
+
+    public invalidateFlag(building: BuildingModel, reason: InvalidateFlagReason): Observable<FlagHistory[]> {
+        /* If building has no flag, throw error */
+        if (building.Flagged === undefined) throw new Error(`Building ${building.UPRN} has no flag`);
+
+        /* convert reason string to enum key */
+        const keys = Object.keys(InvalidateFlagReason) as Array<keyof typeof InvalidateFlagReason>;
+        const key = keys.find((k) => InvalidateFlagReason[k] === reason);
+
+        return this.#http
+            .post<NonNullable<BuildingModel['Flagged']>>(
+                `${this.#writeBackEndpoint}/invalidate-flag`,
+                {
+                    flagUri: building.Flagged,
+                    assessmentTypeOverride: `http://nationaldigitaltwin.gov.uk/ontology#${key}`,
+                },
+                { withCredentials: true },
+            )
+            .pipe(
+                switchMap(() => {
+                    const toid = building.TOID ? building.TOID : building.ParentTOID;
+                    if (!toid) throw new Error(`Building ${building.UPRN} has no TOID`);
+                    /* set flagged property to undefined */
+                    building.Flagged = undefined;
+                    this.buildingsFlagged.update((b) => {
+                        /* remove building from flagged buildings */
+                        const index = b[toid].findIndex((b) => b.UPRN === building.UPRN);
+                        b[toid].splice(index, 1);
+                        return { ...b };
+                    });
+
+                    /* if invalidaing flag for selected building, update the flag history */
+                    const { UPRN } = building;
+                    const selectedBuilding = this.selectedBuilding();
+                    if (selectedBuilding?.UPRN === UPRN) {
+                        return this.updateFlagHistory(UPRN);
+                    }
+                    return EMPTY;
+                }),
+            );
+    }
+
+    /** get the flag history for selected building and update the signals */
+    public updateFlagHistory(uprn: BuildingModel['UPRN']): Observable<FlagHistory[]> {
+        this.flagHistory.set('loading');
+        this.activeFlag.set('loading');
+        return this.getBuildingFlagHistory(uprn).pipe(
+            first(),
+            tap((flagHistory) => {
+                const flags = flagHistory.filter((f) => f.Flagged && f.AssessmentReason);
+                this.flagHistory.set(flags);
+                const flag = flagHistory.find((f) => f.Flagged && !f.AssessmentReason);
+                this.activeFlag.set(flag);
+            }),
+        );
+    }
+
+    /**
+     * Takes an array of flags and returns an array
+     * of the most current unique flags
+     * @param flags
+     * @returns current flags
+     */
+    private getCurrentFlags(flags: FlagResponse[]): FlagResponse[] {
+        const result = Object.values(
+            flags.reduce((acc: { [key: string]: FlagResponse }, { UPRN, FlagDate, Flagged, ParentTOID, TOID }) => {
+                if (!acc[UPRN] || Date.parse(acc[UPRN].FlagDate) < Date.parse(FlagDate)) acc[UPRN] = { UPRN, FlagDate, Flagged, ParentTOID, TOID };
+                return acc;
+            }, {}),
+        );
+        return result;
+    }
+
+    private mapFlagsToToids(flags: FlagResponse[]): FlagMap {
+        const flagMap: FlagMap = {};
+        flags.forEach((flag) => {
+            const toid = flag.TOID ? flag.TOID : flag.ParentTOID;
+            if (!toid) throw new Error(`Flag ${flag.UPRN} has no TOID`);
+            if (flagMap[toid]) {
+                flagMap[toid].push(flag);
+            } else {
+                flagMap[toid] = [flag];
+            }
+        });
+        return flagMap;
+    }
+
+    private mapSAPPointsToToids(data: SAPPoint[]): SAPPointMap {
+        const map: SAPPointMap = {};
+        data.forEach((d) => {
+            const toid = d.TOID ? d.TOID : d.ParentTOID;
+            if (!toid) return;
+            if (map[toid]) {
+                map[toid].push(d);
+            } else {
+                map[toid] = [d];
+            }
+        });
+        return map;
+    }
 }
