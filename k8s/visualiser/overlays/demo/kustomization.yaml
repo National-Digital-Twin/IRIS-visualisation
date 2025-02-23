@@ -7,18 +7,16 @@ configMapGenerator:
   - name: iris-visualiser-configs
     envs:
       - params.env
-secretGenerator:
-  - name: iris-visualiser-secrets
-    envs:
-      - secrets.env
+
 
 patches:
-  - path: patches/gateway.yaml
+  - path: patches/virtualService.yaml
     target:
-      kind: Gateway
-  - path: patches/allow-ingress-to-visualiser.yaml
+      kind: VirtualService
+  - path: patches/service-account.yaml
     target:
-      kind: AuthorizationPolicy
+      kind: ServiceAccount
+
 
 labels:
   - pairs:

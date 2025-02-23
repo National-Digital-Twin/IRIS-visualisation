@@ -1,0 +1,14 @@
+resources:
+  - ../../base
+
+namespace: iris
+
+patches:
+
+  - path: patches/request-authentication.yaml
+    target:
+      kind: RequestAuthentication
+      name: cognito-authentication-request
+  - path: patches/gateway.yaml
+    target:
+      kind: Gateway

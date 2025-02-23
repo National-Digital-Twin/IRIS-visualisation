@@ -1,14 +1,9 @@
 resources:
-  - namespace.yaml
   - service-account.yaml
   - deployment.yaml
   - service.yaml
   - istio/virtualService.yaml
-  - istio/gateway.yaml
-  - istio/preauthentication.yaml
-  - istio/requestAuthentication.yaml
   - istio/authorizationpolicy/allow-ingress-to-iris-visualiser.yaml
-  - istio/authorizationpolicy/deny-by-default.yaml
 
 labels:
   - pairs:

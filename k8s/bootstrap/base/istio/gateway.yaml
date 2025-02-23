@@ -1,7 +1,7 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
-  name: iris-transparent-proxy-ingress-gateway
+  name: iris-ingress-gateway
 spec:
   selector:
     app: istio-ingress
@@ -20,4 +20,3 @@ spec:
         name: https
         number: 443
         protocol: HTTP
-
