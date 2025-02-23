@@ -4,14 +4,11 @@ resources:
 namespace: iris
 
 patches:
-  - path: patches/virtualService.yaml
-    target:
-      kind: VirtualService
-  - path: patches/service-account.yaml
-    target:
-      kind: ServiceAccount
-      name: lisa-sa
-  - path: patches/allow-ingress.yaml
-    target:
-      kind: AuthorizationPolicy
 
+  - path: patches/request-authentication.yaml
+    target:
+      kind: RequestAuthentication
+      name: cognito-authentication-request
+  - path: patches/gateway.yaml
+    target:
+      kind: Gateway
