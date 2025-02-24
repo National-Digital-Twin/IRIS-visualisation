@@ -21,7 +21,7 @@ nvm use
 Create a personal access token on GitHub - https://github.com/settings/tokens - create a classic token with read:packages permission store this safely and make sure to add as an environment variable;
 
 ```
-export GITHUB_PERSONAL_TOKEN=ghp_xxxxxxx
+export GITHUB_ACCESS_TOKEN=ghp_xxxxxxx
 ```
 
 You should now be able to run the usual install
