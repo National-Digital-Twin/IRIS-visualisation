@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
+import { Component, InputSignal, OutputEmitterRef, effect, inject, input, output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -54,23 +54,23 @@ import { Observable, debounceTime, distinctUntilChanged, of, switchMap, tap } fr
     styleUrl: './main-filters.component.scss',
     providers: [{ provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { subscriptSizing: 'dynamic' } }],
 })
-export class MainFiltersComponent implements OnChanges {
+export class MainFiltersComponent {
     readonly #fb: FormBuilder = inject(FormBuilder);
     readonly #addressSearchService = inject(AddressSearchService);
     readonly #mapService = inject(MapService);
     readonly #spatialQueryService = inject(SpatialQueryService);
 
-    @Input() public filterProps?: FilterProps;
+    public filterProps: InputSignal<FilterProps> = input.required();
 
-    @Output() public addressSelected: EventEmitter<string> = new EventEmitter<string>();
-    @Output() public clearAllFilters: EventEmitter<null> = new EventEmitter<null>();
-    @Output() public setAdvancedFilters: EventEmitter<AdvancedFiltersFormModel> = new EventEmitter<AdvancedFiltersFormModel>();
-    @Output() public setRouteParams: EventEmitter<{ [key: string]: string[] }> = new EventEmitter<{ [key: string]: string[] }>();
+    public addressSelected: OutputEmitterRef<string> = output();
+    public clearAllFilters: OutputEmitterRef<void> = output();
+    public setAdvancedFilters: OutputEmitterRef<AdvancedFiltersFormModel> = output();
+    public setRouteParams: OutputEmitterRef<Record<string, string[]>> = output();
 
     public addressForm: FormGroup;
-    public epcRatings: { [key: string]: string } = EPCRating;
+    public epcRatings: Record<string, string> = EPCRating;
     public numberFilters: number = 0;
-    public propertyTypes: { [key: string]: string } = PropertyType;
+    public propertyTypes: Record<string, string> = PropertyType;
     public results$: Observable<AddressSearchData[]>;
 
     private advancedFiltersForm?: FormGroup;
@@ -98,16 +98,19 @@ export class MainFiltersComponent implements OnChanges {
                 }
             }),
         );
-    }
 
-    public ngOnChanges(changes: SimpleChanges): void {
-        if (changes.filterProps) {
-            // generate form to provide count on filters applied button
+        effect(() => {
+            const filterProps = this.filterProps();
+
+            if (!filterProps) {
+                return;
+            }
+
             this.advancedFiltersForm = this.createForm();
-        }
+        });
     }
 
-    public getKeys(options: { [key: string]: string }): string[] {
+    public getKeys(options: Record<string, string>): string[] {
         return Object.keys(options);
     }
 
@@ -164,7 +167,7 @@ export class MainFiltersComponent implements OnChanges {
             width: '90%',
             maxWidth: '60rem',
             data: {
-                filterProps: this.filterProps,
+                filterProps: this.filterProps(),
                 form: this.advancedFiltersForm,
             },
         });
@@ -219,19 +222,21 @@ export class MainFiltersComponent implements OnChanges {
     }
 
     private createForm(): FormGroup {
+        const filterProps = this.filterProps();
+
         this.advancedFiltersForm = this.#fb.group<AdvancedFiltersFormModel>({
-            PostCode: [this.filterProps?.PostCode as unknown as PostCode],
-            BuildForm: [this.filterProps?.BuildForm as unknown as BuildForm],
-            YearOfAssessment: [this.filterProps?.YearOfAssessment as unknown as YearOfAssessment],
-            WindowGlazing: [this.filterProps?.WindowGlazing as unknown as WindowGlazing],
-            WallConstruction: [this.filterProps?.WallConstruction as unknown as WallConstruction],
-            WallInsulation: [this.filterProps?.WallInsulation as unknown as WallInsulation],
-            FloorConstruction: [this.filterProps?.FloorConstruction as unknown as FloorConstruction],
-            FloorInsulation: [this.filterProps?.FloorInsulation as unknown as FloorInsulation],
-            RoofConstruction: [this.filterProps?.RoofConstruction as unknown as RoofConstruction],
-            RoofInsulationLocation: [this.filterProps?.RoofInsulationLocation as unknown as RoofInsulationLocation],
-            RoofInsulationThickness: [this.filterProps?.RoofInsulationThickness as unknown as RoofInsulationThickness],
-            EPCExpiry: [this.filterProps?.EPCExpiry as unknown as EPCExpiry],
+            PostCode: [filterProps.PostCode as unknown as PostCode],
+            BuildForm: [filterProps.BuildForm as unknown as BuildForm],
+            YearOfAssessment: [filterProps.YearOfAssessment as unknown as YearOfAssessment],
+            WindowGlazing: [filterProps.WindowGlazing as unknown as WindowGlazing],
+            WallConstruction: [filterProps.WallConstruction as unknown as WallConstruction],
+            WallInsulation: [filterProps.WallInsulation as unknown as WallInsulation],
+            FloorConstruction: [filterProps.FloorConstruction as unknown as FloorConstruction],
+            FloorInsulation: [filterProps.FloorInsulation as unknown as FloorInsulation],
+            RoofConstruction: [filterProps.RoofConstruction as unknown as RoofConstruction],
+            RoofInsulationLocation: [filterProps.RoofInsulationLocation as unknown as RoofInsulationLocation],
+            RoofInsulationThickness: [filterProps.RoofInsulationThickness as unknown as RoofInsulationThickness],
+            EPCExpiry: [filterProps.EPCExpiry as unknown as EPCExpiry],
         });
         this.numberFilters = this.countFilters(this.advancedFiltersForm.value);
         return this.advancedFiltersForm;
@@ -254,6 +259,7 @@ export class MainFiltersComponent implements OnChanges {
     }
 
     public filtersExist(): boolean {
-        return (this.filterProps && Object.keys(this.filterProps).length > 0) || this.#spatialQueryService.spatialFilterEnabled();
+        const filterProps = this.filterProps();
+        return (filterProps && Object.keys(filterProps).length > 0) || this.#spatialQueryService.spatialFilterEnabled();
     }
 }

@@ -12,19 +12,19 @@ export class FilterService {
      * @param currentFilters existing filters
      * @returns filter string URL param
      */
-    public createFilterString(filter: { [key: string]: string[] }, currentFilters?: FilterProps): string {
+    public createFilterString(filter: Record<string, string[]>, currentFilters?: FilterProps): string {
         // format EPC rating
         if (currentFilters?.['EPC']) {
             currentFilters['EPC'] = currentFilters['EPC'].map((rating) => rating);
         }
         const combinedFilters = [filter];
         if (currentFilters) {
-            combinedFilters.push(currentFilters as { [key: string]: string[] });
+            combinedFilters.push(currentFilters as Record<string, string[]>);
         }
         // combine new filters with existing filters into a single object
         // of unique filters and filter values
         const keys = combinedFilters.map((o: object) => Object.keys(o)).flat();
-        const merged = keys.reduce((result: { [key: string]: string[] }, key) => {
+        const merged = keys.reduce((result: Record<string, string[]>, key) => {
             const values = [...new Set(combinedFilters.map((o) => o[key]).flat())].filter((prop: string) => prop !== undefined);
             if (values.length) {
                 result[key] = values;

@@ -258,7 +258,7 @@ export class UtilService {
     public getMeanEPCValue(epcRatings: string[]): string {
         let meanEPC = '';
         // assign a weighting to the EPC ratings
-        const weightings: { [key: string]: number } = {
+        const weightings: Record<string, number> = {
             A: 1,
             B: 2,
             C: 3,
@@ -495,11 +495,11 @@ export class UtilService {
      * @param buildings buildings to calculate mode for
      * @returns EPC mode
      */
-    private calculateEPCMode(buildings: FeatureCollection<Point | MultiPoint, GeoJsonProperties>): { aggEPC: string[]; epcCounts: { [key: string]: number } } {
+    private calculateEPCMode(buildings: FeatureCollection<Point | MultiPoint, GeoJsonProperties>): { aggEPC: string[]; epcCounts: Record<string, number> } {
         if (!buildings.features.length) {
             return { aggEPC: [], epcCounts: {} };
         }
-        const store: { [key: string]: number } = {};
+        const store: Record<string, number> = {};
         let maxCount = 0;
         buildings.features.map((b) => {
             if (!store[b.properties!.EPC]) {

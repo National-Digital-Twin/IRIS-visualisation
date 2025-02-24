@@ -15,10 +15,12 @@
 
                 <address>{{ building.FullAddress }}</address>
 
-                <c477-label [epcRating]="building.EPC" [sapPoints]="building.SAPPoints" [expired]="epcExpired()" />
-                @if (building.PropertyType) {
-                    <c477-label>{{ building.PropertyType }}</c477-label>
-                }
+                <div class="labels">
+                    <c477-label [epcRating]="building.EPC" [sapPoints]="building.SAPPoints" [expired]="epcExpired()" />
+                    @if (building.PropertyType) {
+                        <c477-label>{{ building.PropertyType }}</c477-label>
+                    }
+                </div>
             </div>
 
             <div class="content">

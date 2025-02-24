@@ -88,7 +88,7 @@ export class ShellComponent implements AfterViewInit {
     readonly #zone = inject(NgZone);
 
     public contextData$: Observable<FeatureCollection<Geometry, GeoJsonProperties>[]>;
-    public filterProps?: FilterProps;
+    public filterProps: FilterProps = {};
     public mapConfig!: URLStateModel;
     public minimapData?: MinimapData;
     public resultsPanelCollapsed: boolean = false;
@@ -344,11 +344,11 @@ export class ShellComponent implements AfterViewInit {
                 delete filter[key as keyof AdvancedFiltersFormModel];
             }
         }
-        const queryParams = this.createQueryParams(filter as unknown as { [key: string]: string[] });
+        const queryParams = this.createQueryParams(filter as unknown as Record<string, string[]>);
         this.navigate(queryParams);
     }
 
-    public setFilterParams(filter: { [key: string]: string[] }): void {
+    public setFilterParams(filter: Record<string, string[]>): void {
         const queryParams = this.createQueryParams(filter);
         this.navigate(queryParams);
     }
@@ -419,7 +419,7 @@ export class ShellComponent implements AfterViewInit {
         );
     }
 
-    private createQueryParams(filter: { [key: string]: string[] }): Record<'filter', string | undefined> {
+    private createQueryParams(filter: Record<string, string[]>): Record<'filter', string | undefined> {
         Object.keys(filter).forEach((key: string) => {
             if (this.filterProps?.[key as FilterKeys]) {
                 delete this.filterProps[key as FilterKeys];

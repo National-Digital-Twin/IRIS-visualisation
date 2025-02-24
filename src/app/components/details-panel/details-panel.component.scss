@@ -29,6 +29,14 @@
         address {
             max-width: 12rem;
         }
+
+        .labels {
+            display: grid;
+            grid-auto-columns: max-content;
+            grid-auto-flow: column;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
     }
 
     .actions {
