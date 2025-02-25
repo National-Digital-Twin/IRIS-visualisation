@@ -3,13 +3,13 @@
         .mat-expansion-indicator {
             position: absolute;
             top: 1rem;
-            right: 1rem;
+            right: 2rem;
         }
         .mat-expansion-panel {
             background-color: var(--mat-sys-surface-container-lowest);
 
             .mat-expansion-panel-header {
-                padding: 0 1rem;
+                padding: 0;
                 background-color: var(--mat-sys-surface-container-lowest);
             }
 

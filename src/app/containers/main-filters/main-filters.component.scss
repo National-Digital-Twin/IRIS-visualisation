@@ -15,9 +15,12 @@
     }
 
     .filter-group {
+        overflow: hidden;
         display: flex;
         gap: 0;
         align-items: center;
+
+        border-radius: var(--border-radius);
 
         background-color: var(--mat-sys-surface-container-lowest);
         box-shadow: var(--mat-sys-level2);

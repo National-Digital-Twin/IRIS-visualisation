@@ -4,7 +4,7 @@
 @use 'sass:map';
 @use '@angular/material' as mat;
 
-// Note: Color palettes are generated from primary: #3670b3, secondary: #002244, neutral: #f0f2f2
+// Note: Color palettes are generated from primary: #3670b3, secondary: #ffcf06, tertiary: #002244, neutral: #f0f2f2
 $_palettes: (
     primary: (
         0: #000000,
@@ -13,7 +13,7 @@ $_palettes: (
         25: #003c70,
         30: #004883,
         35: #0a5495,
-        40: #2160a2,
+        40: #3670b3,
         50: #4079bd,
         60: #5d93d8,
         70: #78aef5,
@@ -25,6 +25,24 @@ $_palettes: (
         100: #ffffff,
     ),
     secondary: (
+        0: #000000,
+        10: #231b00,
+        20: #3c2f00,
+        25: #493a00,
+        30: #574500,
+        35: #655000,
+        40: #735c00,
+        50: #907400,
+        60: #af8d00,
+        70: #cea700,
+        80: #efc200,
+        90: #ffcf06,
+        95: #fff0ca,
+        98: #fff8f0,
+        99: #fffbff,
+        100: #ffffff,
+    ),
+    tertiary: (
         0: #000000,
         10: #001c3a,
         20: #143154,
@@ -42,24 +60,6 @@ $_palettes: (
         99: #fdfcff,
         100: #ffffff,
     ),
-    tertiary: (
-        0: #000000,
-        10: #340042,
-        20: #4e175c,
-        25: #5a2468,
-        30: #673074,
-        35: #743c81,
-        40: #81488e,
-        50: #9c61a8,
-        60: #b87ac4,
-        70: #d594e0,
-        80: #f2affd,
-        90: #fdd6ff,
-        95: #ffebfd,
-        98: #fff7fa,
-        99: #fffbff,
-        100: #ffffff,
-    ),
     neutral: (
         0: #000000,
         10: #191c1d,
@@ -72,8 +72,8 @@ $_palettes: (
         60: #8e9191,
         70: #a9acac,
         80: #c4c7c7,
-        90: #e1e3e3,
-        95: #eff1f1,
+        90: #f0f2f2,
+        95: #f4f7f7,
         98: #f8fafa,
         99: #fbfdfc,
         100: #ffffff,
@@ -93,7 +93,7 @@ $_palettes: (
         10: #171c24,
         20: #2b3139,
         25: #363c45,
-        30: #424750,
+        30: #45464f,
         35: #4d535c,
         40: #595f68,
         50: #727781,

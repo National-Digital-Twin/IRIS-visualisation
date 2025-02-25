@@ -20,22 +20,9 @@
 
     text-align: center;
 
-    .title {
-        display: flex;
-        flex-direction: row;
-        gap: 2rem;
-        align-items: center;
-        justify-content: center;
-
-        h1 {
-            font-size: 4rem;
-            color: var(--mat-sys-primary);
-        }
-
-        img {
-            width: 5rem;
-            height: 5rem;
-        }
+    h1 {
+        font-size: 4rem;
+        color: var(--mat-sys-primary);
     }
 
     .message {

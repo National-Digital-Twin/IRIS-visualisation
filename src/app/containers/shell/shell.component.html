@@ -1,18 +1,16 @@
-<div class="content">
-    <mat-toolbar class="toolbar-container">
-        <div class="toolbar-left-side">
-            <img src="/assets/iris-ndtp-logo.svg" alt="NDTP Logo" />
-        </div>
-        <div class="toolbar-right-side">
-            <button mat-icon-button aria-label="help" (keydown.space)="showInfo()" (click)="showInfo()" tabindex="0">
-                <mat-icon class="material-icons-outlined help-icon" aria-label="help icon">help_outlined</mat-icon>
-            </button>
-            <button mat-icon-button aria-label="accessibility">
-                <mat-icon class="material-icons-outlined accessibility-icon" aria-label="accessibility icon">accessibility</mat-icon>
-            </button>
-        </div>
-    </mat-toolbar>
+<mat-toolbar class="toolbar-container">
+    <img src="/assets/iris-ndtp-logo.svg" alt="NDTP Logo" />
+    <button mat-icon-button aria-label="help" (keydown.space)="showInfo()" (click)="showInfo()" tabindex="0">
+        <mat-icon aria-label="help">help_outlined</mat-icon>
+    </button>
+    <!--
+        <button mat-icon-button aria-label="accessibility">
+            <mat-icon aria-label="accessibility">accessibility</mat-icon>
+        </button>
+    -->
+</mat-toolbar>
 
+<div class="content">
     @if (loading()) {
         <c477-loading-screen />
     } @else {

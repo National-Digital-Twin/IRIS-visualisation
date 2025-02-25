@@ -163,9 +163,9 @@ export class ResultsPanelComponent {
 
         this.dialog
             .open<DownloadWarningComponent, DownloadDataWarningData, DownloadDataWarningResponse>(DownloadWarningComponent, {
-                panelClass: 'data-download',
+                panelClass: 'download-modal',
                 width: '90%',
-                maxWidth: '40rem',
+                maxWidth: '50rem',
                 data: {
                     addresses,
                     addressCount,

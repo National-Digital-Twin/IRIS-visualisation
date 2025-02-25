@@ -33,18 +33,16 @@
                             }
                         ],
                         "styles": [
-                            "mapbox-gl/dist/mapbox-gl.css",
-                            "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css",
-                            "@arc-web/components/themes/index.css",
-                            "src/styles/main.scss"
+                            { "input": "modern-normalize/modern-normalize.css", "bundleName": "normalize" },
+                            { "input": "mapbox-gl/dist/mapbox-gl.css", "bundleName": "mapbox" },
+                            { "input": "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css", "bundleName": "mapbox" },
+                            { "input": "src/styles/main.scss", "bundleName": "styles" }
                         ],
                         "stylePreprocessorOptions": {
                             "sass": {
                                 "silenceDeprecations": ["mixed-decls", "import"]
                             },
-                            "includePaths": [
-                                "./node_modules"
-                            ]
+                            "includePaths": ["./node_modules"]
                         },
                         "allowedCommonJsDependencies": ["mapbox-gl", "papaparse"],
                         "browser": "src/main.ts"

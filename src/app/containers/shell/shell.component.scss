@@ -1,24 +1,33 @@
 @use '@angular/material' as mat;
-@use '@national-digital-twin/ndtp-styling-assets/dist/scss/main.scss' as ndtp;
 
-arc-accessibility {
-    z-index: 1002;
+:host {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-rows: max-content 1fr;
+}
 
-    div.accessibility__options {
-        display: flex;
-        flex-direction: column;
-        gap: var(--arc-spacing-small);
+.toolbar-container {
+    display: grid;
+    grid-auto-columns: max-content;
+    grid-auto-flow: column;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    align-items: center;
 
-        div.accessibility__label {
-            display: flex;
-            gap: var(--arc-spacing-small);
-            align-items: center;
-        }
+    @include mat.icon-button-overrides(
+        (
+            icon-color: var(--mat-sys-surface-container-highest),
+        )
+    );
+
+    img {
+        height: 56px;
+        padding: 1rem 0;
     }
 }
 
 .content {
-    position: relative;
     overflow: hidden;
     width: 100%;
     height: 100%;
@@ -31,58 +40,4 @@ arc-accessibility {
             display: block !important;
         }
     }
-}
-
-.toolbar-container {
-    @include mat.toolbar-overrides(
-        (
-            container-background-color: ndtp.$secondary-color,
-            standard-height: ndtp.$toolbar-height,
-            container-text-color: ndtp.$off-white,
-        )
-    );
-}
-
-.toolbar-left-side {
-    img {
-        width: ndtp.$logo-width;
-        height: ndtp.$logo-height;
-        object-fit: cover;
-    }
-
-    .divider {
-        padding-right: 10px;
-        padding-left: 10px;
-    }
-
-    span {
-        font-size: 1.5em;
-        font-weight: 500;
-    }
-
-    .headline {
-        letter-spacing: 2.5px;
-    }
-}
-
-.toolbar-right-side {
-    display: flex;
-    align-items: center;
-    justify-content: end;
-    width: 50%;
-
-    button {
-        padding-left: 10px;
-    }
-}
-
-.help-icon {
-    font-size: 18px;
-    color: ndtp.$accent-yellow;
-}
-
-.accessibility-icon {
-    border-radius: 20px;
-    font-size: 15px;
-    color: ndtp.$off-white;
 }

@@ -1,9 +1,10 @@
 <h2 mat-dialog-title class="title">
-    <mat-icon>warning</mat-icon>
+    <mat-icon class="icon">warning</mat-icon>
     <span>The downloaded data is static and will not refresh after download. We advise using the tool for accessing the most current data available.</span>
 </h2>
+
 <div mat-dialog-content>
-    <div class="data-download__list">
+    <div class="download-info">
         <p>Downloading data for:</p>
         @if (data.addresses.length !== 0 && data.addresses.length <= 10) {
             <ul>
@@ -16,7 +17,7 @@
         }
         @if (data.addressCount && data.addressCount > 10) {
             <p>
-                <b> &nbsp; {{ data.addressCount }} properties</b>
+                <b>{{ data.addressCount }} properties</b>
             </p>
         }
     </div>
@@ -33,6 +34,7 @@
         >
     </p>
 </div>
+
 <div mat-dialog-actions>
     <button mat-button mat-dialog-close>Cancel</button>
     <button mat-flat-button mat-dialog-close="xlsx">OK, download XLSX</button>

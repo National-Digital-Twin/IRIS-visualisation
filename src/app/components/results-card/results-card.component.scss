@@ -1,6 +1,5 @@
 :host {
     display: block;
-    width: 100%;
     padding: 0.75rem 1rem;
 
     &.selected {
@@ -12,19 +11,19 @@
         background-color: var(--mat-sys-surface-bright);
     }
 
+    .header {
+        display: grid;
+        grid-template-columns: auto max-content;
+        align-items: center;
+    }
+
     &.parent {
         pointer-events: none;
-    }
 
-    &:not(.parent) {
-        margin-left: 1rem;
+        .header {
+            pointer-events: all;
+        }
     }
-}
-
-.header {
-    display: grid;
-    grid-template-columns: auto max-content;
-    align-items: center;
 }
 
 .content {

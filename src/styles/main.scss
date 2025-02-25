@@ -1,7 +1,6 @@
 @use '@angular/material' as mat;
 @use 'light-theme' as light-theme;
 @use 'dark-theme' as dark-theme;
-@use '@national-digital-twin/ndtp-styling-assets/dist/scss/main.scss' as ndtp;
 
 :root {
     // EPC Colors
@@ -31,85 +30,15 @@ html {
                 tertiary: light-theme.$tertiary-palette,
                 theme-type: light,
             ),
-            typography: ndtp.$primary-font,
+            typography: Roboto,
             density: 0,
-        )
-    );
-
-    @include mat.button-overrides(
-        (
-            text-container-shape: var(--border-radius),
-            filled-container-shape: var(--border-radius),
-            outlined-container-shape: var(--border-radius),
-        )
-    );
-
-    @include mat.slide-toggle-overrides(
-        (
-            // General
-            track-height: 1rem,
-            track-outline-width: 0,
-            pressed-handle-size: 2rem,
-            with-icon-handle-size: 2rem,
-            handle-elevation-shadow: var(--mat-sys-level1),
-            // Unselected state
-            unselected-icon-color: var(--mat-sys-on-surface),
-            unselected-handle-color: var(--mat-sys-surface-container),
-            unselected-focus-handle-color: var(--mat-sys-surface-container),
-            unselected-hover-handle-color: var(--mat-sys-surface-container),
-            unselected-pressed-handle-color: var(--mat-sys-surface-container),
-            unselected-pressed-handle-horizontal-margin: 0,
-            unselected-with-icon-handle-horizontal-margin: 0,
-            unselected-track-color: var(--mat-sys-outline),
-            unselected-focus-track-color: var(--mat-sys-outline),
-            unselected-hover-track-color: var(--mat-sys-outline),
-            unselected-pressed-track-color: var(--mat-sys-outline),
-            // Selected state
-            selected-icon-color: var(--mat-sys-on-primary),
-            selected-handle-color: var(--mat-sys-primary),
-            selected-focus-handle-color: var(--mat-sys-primary),
-            selected-hover-handle-color: var(--mat-sys-primary),
-            selected-pressed-handle-color: var(--mat-sys-primary),
-            selected-pressed-handle-horizontal-margin: 0 1.375rem,
-            selected-with-icon-handle-horizontal-margin: 0 1.375rem,
-            selected-track-color: var(--mat-sys-primary-container),
-            selected-focus-track-color: var(--mat-sys-primary-container),
-            selected-hover-track-color: var(--mat-sys-primary-container),
-            selected-pressed-track-color: var(--mat-sys-primary-container)
-        )
-    );
-
-    @include mat.form-field-overrides(
-        (
-            filled-container-color: var(--mat-sys-surface-container-lowest),
-            filled-active-indicator-height: 0,
-            filled-focus-active-indicator-height: 0,
-        )
-    );
-
-    @include mat.expansion-overrides(
-        (
-            container-shape: 0,
-            container-background-color: var(--mat-sys-surface-container-lowest),
-            header-hover-state-layer-color: var(--mat-sys-surface-bright),
-        )
-    );
-
-    @include mat.dialog-overrides(
-        (
-            container-shape: var(--border-radius),
-            container-color: var(--mat-sys-surface-container-lowest),
-            headline-padding: 2rem 2rem 1rem,
-            content-padding: 2rem,
-            actions-padding: 1rem 2rem 2rem,
-            with-actions-content-padding: 2rem,
         )
     );
 }
 
 body {
     line-height: 1.4rem;
-    color: var(--mat-sys-on-surface);
+    // color: var(--mat-sys-on-surface);
 
     @include mat.form-field-overrides(
         (
@@ -150,11 +79,9 @@ h2 {
 
 h3 {
     margin: 0;
-
     font-family: var(--mat-sys-title-medium-font);
     font-size: var(--mat-sys-title-medium-size);
     font-weight: var(--mat-sys-title-medium-weight);
-    color: var(--mat-sys-primary);
 }
 
 h4 {
@@ -163,7 +90,7 @@ h4 {
     font-family: var(--mat-sys-title-small-font);
     font-size: var(--mat-sys-title-small-size);
     font-weight: var(--mat-sys-title-small-weight);
-    color: var(--mat-sys-secondary);
+    color: var(--mat-sys-primary);
     text-transform: uppercase;
 }
 
@@ -172,6 +99,103 @@ p {
     font-family: var(--mat-sys-body-medium-font);
     font-size: var(--mat-sys-body-medium-size);
     font-weight: var(--mat-sys-body-medium-weight);
+}
+
+@include mat.toolbar-overrides(
+    (
+        standard-height: 56px,
+        container-background-color: #002244,
+        container-text-color: var(--mat-sys-on-primary),
+    )
+);
+
+@include mat.button-overrides(
+    (
+        text-container-shape: var(--border-radius),
+        text-label-text-transform: uppercase,
+        filled-container-shape: var(--border-radius),
+        filled-label-text-transform: uppercase,
+        outlined-container-shape: var(--border-radius),
+        outlined-label-text-transform: uppercase,
+    )
+);
+
+@include mat.button-toggle-overrides(
+    (
+        selected-state-text-color: var(--mat-sys-on-surface-variant),
+        selected-state-background-color: var(--mat-sys-primary-container),
+    )
+);
+
+@include mat.slide-toggle-overrides(
+    (
+        // General
+        track-height: 1rem,
+        track-outline-width: 0,
+        pressed-handle-size: 2rem,
+        with-icon-handle-size: 2rem,
+        handle-elevation-shadow: var(--mat-sys-level1),
+        // Unselected state
+        unselected-icon-color: var(--mat-sys-on-surface),
+        unselected-handle-color: var(--mat-sys-surface-container),
+        unselected-focus-handle-color: var(--mat-sys-surface-container),
+        unselected-hover-handle-color: var(--mat-sys-surface-container),
+        unselected-pressed-handle-color: var(--mat-sys-surface-container),
+        unselected-pressed-handle-horizontal-margin: 0,
+        unselected-with-icon-handle-horizontal-margin: 0,
+        unselected-track-color: var(--mat-sys-outline),
+        unselected-focus-track-color: var(--mat-sys-outline),
+        unselected-hover-track-color: var(--mat-sys-outline),
+        unselected-pressed-track-color: var(--mat-sys-outline),
+        // Selected state
+        selected-icon-color: var(--mat-sys-on-primary),
+        selected-handle-color: var(--mat-sys-primary),
+        selected-focus-handle-color: var(--mat-sys-primary),
+        selected-hover-handle-color: var(--mat-sys-primary),
+        selected-pressed-handle-color: var(--mat-sys-primary),
+        selected-pressed-handle-horizontal-margin: 0 1.375rem,
+        selected-with-icon-handle-horizontal-margin: 0 1.375rem,
+        selected-track-color: var(--mat-sys-primary-container),
+        selected-focus-track-color: var(--mat-sys-primary-container),
+        selected-hover-track-color: var(--mat-sys-primary-container),
+        selected-pressed-track-color: var(--mat-sys-primary-container)
+    )
+);
+
+@include mat.form-field-overrides(
+    (
+        filled-container-color: var(--mat-sys-surface-container-lowest),
+        filled-active-indicator-height: 0,
+        filled-focus-active-indicator-height: 0,
+    )
+);
+
+@include mat.expansion-overrides(
+    (
+        container-shape: 0,
+        container-background-color: var(--mat-sys-surface-container-lowest),
+        header-hover-state-layer-color: var(--mat-sys-surface-bright),
+    )
+);
+
+@include mat.dialog-overrides(
+    (
+        container-shape: var(--border-radius),
+        container-color: var(--mat-sys-surface-container-lowest),
+        headline-padding: 2rem 2rem 1rem,
+        actions-padding: 1rem 2rem 2rem,
+        with-actions-content-padding: 1rem 2rem,
+    )
+);
+
+.download-modal {
+    @include mat.dialog-overrides(
+        (
+            headline-padding: 3rem 4rem 1rem,
+            actions-padding: 2rem 4rem 3rem,
+            with-actions-content-padding: 0 4rem,
+        )
+    );
 }
 
 .mdc-button {

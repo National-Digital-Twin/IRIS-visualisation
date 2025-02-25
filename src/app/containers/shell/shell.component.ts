@@ -1,32 +1,13 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { ComponentType } from '@angular/cdk/portal';
 import { AsyncPipe, CommonModule, DOCUMENT } from '@angular/common';
-import {
-    AfterViewInit,
-    CUSTOM_ELEMENTS_SCHEMA,
-    Component,
-    ElementRef,
-    Input,
-    InputSignal,
-    NgZone,
-    ViewChild,
-    computed,
-    effect,
-    inject,
-    input,
-    numberAttribute,
-} from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, Component, Input, InputSignal, NgZone, computed, effect, inject, input, numberAttribute } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Params, Router } from '@angular/router';
-import type { ArcAccessibility, ArcSwitch } from '@arc-web/components';
-import type { UserPreferences } from '@arc-web/components/src/components/accessibility/ArcAccessibility';
-import '@arc-web/components/src/components/container/arc-container';
-import '@arc-web/components/src/components/ph-icon/question/ph-icon-question';
-import '@arc-web/components/src/components/switch/arc-switch';
 import { DetailsPanelComponent } from '@components/details-panel/details-panel.component';
 import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
 import { FlagModalComponent, FlagModalData, FlagModalResult } from '@components/flag-modal/flag.modal.component';
@@ -72,7 +53,7 @@ import { EMPTY, Observable, combineLatest, filter, first, forkJoin, map, switchM
     styleUrl: './shell.component.scss',
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ShellComponent implements AfterViewInit {
+export class ShellComponent {
     readonly #breakpointObserver = inject(BreakpointObserver);
     readonly #dataDownloadService = inject(DataDownloadService);
     readonly #dataService = inject(DataService);
@@ -114,9 +95,6 @@ export class ShellComponent implements AfterViewInit {
         }
     }
 
-    @ViewChild('accessibility') public accessibility?: ElementRef<ArcAccessibility>;
-    @ViewChild('colorBlindSwitch') public colorBlindSwitch?: ElementRef<ArcSwitch>;
-
     public loading = computed(() => this.#dataService.loading());
 
     constructor() {
@@ -157,34 +135,10 @@ export class ShellComponent implements AfterViewInit {
         });
     }
 
-    public ngAfterViewInit(): void {
-        const colorBlindMode = this.#settings.get(SETTINGS.ColorBlindMode);
-        this.setColorBlindMode(colorBlindMode());
-        if (this.colorBlindSwitch) {
-            this.colorBlindSwitch.nativeElement.checked = colorBlindMode();
-        }
-    }
-
-    public handleShowAccessibility(event: Event): void {
-        event.preventDefault();
-        this.accessibility?.nativeElement.show();
-    }
-
     public handleColorBlindSwitchChange(event: Event): void {
         const colorBlindMode = (event.target as HTMLInputElement).checked;
         this.setColorBlindMode(colorBlindMode);
         this.#settings.set(SETTINGS.ColorBlindMode, colorBlindMode);
-    }
-
-    public handleAccessibilityChange(event: Event): void {
-        type IEvent = CustomEvent<{ preferences: UserPreferences }>;
-        let { theme } = (event as IEvent).detail.preferences;
-        if (theme === 'auto') {
-            const { matches } = window.matchMedia('(prefers-color-scheme: dark)');
-            theme = matches ? 'dark' : 'light';
-        }
-        this.#document?.body?.setAttribute('theme', theme);
-        this.#settings.set(SETTINGS.Theme, theme);
     }
 
     private setColorBlindMode(colorBlindMode: boolean): void {
@@ -270,9 +224,9 @@ export class ShellComponent implements AfterViewInit {
 
         this.#dialog
             .open<DownloadWarningComponent, DownloadDataWarningData, DownloadDataWarningResponse>(DownloadWarningComponent, {
-                panelClass: 'data-download',
+                panelClass: 'download-modal',
                 width: '90%',
-                maxWidth: '40rem',
+                maxWidth: '50rem',
                 data: {
                     addresses,
                     addressCount,

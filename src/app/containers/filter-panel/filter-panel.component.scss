@@ -17,7 +17,11 @@
     }
 }
 
-.content {
-    display: grid;
-    gap: 1rem;
+form {
+    padding-top: 1rem;
+
+    .content {
+        display: grid;
+        gap: 1rem;
+    }
 }

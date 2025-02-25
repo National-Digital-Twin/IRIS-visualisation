@@ -7,6 +7,8 @@
     overflow-y: auto;
     display: block;
 
+    border-radius: var(--border-radius);
+
     background-color: var(--mat-sys-surface-container-lowest);
     box-shadow: var(--mat-sys-level2);
 

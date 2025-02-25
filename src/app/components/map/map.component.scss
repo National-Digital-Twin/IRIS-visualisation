@@ -42,12 +42,12 @@
             box-shadow: none;
 
             &.text {
-                font-size: var(--mat-sys-title-medium-size);
+                font-size: var(--mat-sys-title-large-size);
                 color: var(--mat-sys-on-surface);
             }
 
             &:disabled {
-                color: var(--mat-sys-on-surface-variant);
+                color: var(--mat-sys-outline);
                 background-color: var(--mat-sys-surface-container);
             }
 
@@ -64,8 +64,14 @@
             }
 
             &.active {
-                color: var(--mat-sys-on-tertiary);
-                background-color: var(--mat-sys-tertiary);
+                color: var(--mat-sys-on-primary);
+                background-color: var(--mat-sys-primary);
+            }
+
+            .icon {
+                width: var(--mat-sys-headline-large-size);
+                height: var(--mat-sys-headline-large-size);
+                font-size: var(--mat-sys-headline-large-size);
             }
         }
     }
