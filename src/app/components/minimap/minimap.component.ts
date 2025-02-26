@@ -22,8 +22,8 @@ export class MinimapComponent implements OnInit {
 
     public theme$ = toObservable(this.#theme).pipe(takeUntilDestroyed());
 
-    private map: WritableSignal<Map | undefined> = signal(undefined);
     private arrow: string = 'arrow-dark';
+    private readonly map: WritableSignal<Map | undefined> = signal(undefined);
     private readonly data: Feature<Geometry, GeoJsonProperties>;
 
     public minimapData: InputSignal<MinimapData | undefined> = input();

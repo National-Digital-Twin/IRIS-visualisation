@@ -11,7 +11,7 @@ import { PascalCaseSpacePipe } from '@core/pipes/pascal-case-space.pipe';
     styleUrl: './multi-button-filter.component.scss',
 })
 export class MultiButtonFilterComponent implements ControlValueAccessor {
-    #input = inject(FormControlName);
+    readonly #input = inject(FormControlName);
 
     public title: InputSignal<string> = input.required();
     public options: InputSignal<string[]> = input.required();

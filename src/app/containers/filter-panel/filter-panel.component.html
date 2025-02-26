@@ -1,9 +1,3 @@
-<!--
-<h2 mat-dialog-title class="title">
-    <span>Advanced Filters</span>
-</h2>
--->
-
 <mat-dialog-content>
     <form [formGroup]="advancedFiltersForm">
         <mat-accordion displayMode="flat" [multi]="true">
@@ -27,13 +21,6 @@
             }
         </mat-accordion>
     </form>
-
-    <!-- @if (noValidFilterOptions) {
-        <p>
-            <mat-icon fontSet="material-icons-outlined">warning</mat-icon>
-            There are no dwellings that match this filter criteria
-        </p>
-    } -->
 </mat-dialog-content>
 
 <mat-dialog-actions>
