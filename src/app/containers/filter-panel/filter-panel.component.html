@@ -1,37 +1,30 @@
-<section class="advanced-filters-dialog" [formGroup]="advancedFiltersForm">
-    <h1 mat-dialog-title>Advanced Filters</h1>
-    <div mat-dialog-content [formGroup]="advancedFiltersForm">
-        <mat-accordion class="filter-expansion" [displayMode]="'flat'" [multi]="true">
-            @for (panel of otherPanels(); track panel.panelTitle) {
-                <mat-expansion-panel [expanded]="checkFiltersApplied(panel.panelTitle)">
-                    <mat-expansion-panel-header
-                        ><h2>{{ panel.panelTitle }}</h2></mat-expansion-panel-header
-                    >
-                    @for (filter of panel.filters; track filter.title) {
-                        <c477-multi-button-filter
-                            [formControlName]="filter.formControlName"
-                            [title]="filter.title"
-                            [options]="filter.data"
-                            [validOptions]="filter.validOptions"
-                        />
-                    }
+<mat-dialog-content>
+    <form [formGroup]="advancedFiltersForm">
+        <mat-accordion displayMode="flat" [multi]="true">
+            @for (panel of otherPanels(); track $index) {
+                <mat-expansion-panel class="mat-elevation-z" [expanded]="checkFiltersApplied(panel.panelTitle)">
+                    <mat-expansion-panel-header>{{ panel.panelTitle }}</mat-expansion-panel-header>
+                    <div class="content">
+                        @for (filter of panel.filters; track $index) {
+                            @if (filter.data.length) {
+                                <h4>{{ filter.title }}</h4>
+                                <c477-multi-button-filter
+                                    [formControlName]="filter.formControlName"
+                                    [title]="filter.title"
+                                    [options]="filter.data"
+                                    [validOptions]="filter.validOptions ?? []"
+                                />
+                            }
+                        }
+                    </div>
                 </mat-expansion-panel>
             }
         </mat-accordion>
-    </div>
-    <div class="filter-panel-buttons">
-        <div>
-            @if (noValidFilterOptions) {
-                <p class="invalid-filter-warning">
-                    <mat-icon fontSet="material-icons-outlined">warning</mat-icon>
-                    There are no dwellings that match this filter criteria
-                </p>
-            }
-        </div>
-        <div mat-dialog-actions>
-            <button mat-button (click)="clearAll()">Clear all</button>
-            <button mat-stroked-button mat-dialog-close>Cancel</button>
-            <button mat-flat-button [mat-dialog-close]="dialogData.form" [color]="'primary'">Apply filters</button>
-        </div>
-    </div>
-</section>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    <button mat-button (click)="clearAll()">Clear all</button>
+    <button mat-stroked-button mat-dialog-close>Cancel</button>
+    <button mat-flat-button [mat-dialog-close]="advancedFiltersForm" cdkFocusInitial>Apply filters</button>
+</mat-dialog-actions>

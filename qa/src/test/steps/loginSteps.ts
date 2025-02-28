@@ -1,4 +1,4 @@
-import { Given, When, setDefaultTimeout } from '@cucumber/cucumber';
+import { Given, setDefaultTimeout } from '@cucumber/cucumber';
 
 import { basePage } from '../../hooks/basePage';
 import LoginPage from '../../pages/loginPage';

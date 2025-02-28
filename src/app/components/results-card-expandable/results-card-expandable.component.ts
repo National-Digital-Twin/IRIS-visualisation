@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, computed, effect, inject, input, InputSignal, output, OutputEmitterRef, signal, WritableSignal } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { ResultsCardComponent } from '@components/results-card/results-card.component';
 import { EPCRating } from '@core/enums';
@@ -8,24 +8,26 @@ import { DownloadBuilding } from '@core/models/download-data-warning.model';
 import { UtilService } from '@core/services/utils.service';
 
 @Component({
-    selector: 'c477-results-card-expandable[cardIsChecked]',
+    selector: 'c477-results-card-expandable',
     imports: [CommonModule, MatExpansionModule, ResultsCardComponent],
     templateUrl: './results-card-expandable.component.html',
+    styleUrl: './results-card-expandable.component.scss',
 })
-export class ResultsCardExpandableComponent implements OnChanges {
+export class ResultsCardExpandableComponent {
     readonly #utilService = inject(UtilService);
 
-    @Input() public buildingTOID?: string;
-    @Input() public cardIsChecked!: (_: BuildingModel[]) => boolean;
-    @Input() public dwellings!: BuildingModel[];
-    @Input() public select: boolean = false;
+    public buildingTOID: InputSignal<string | undefined> = input<string | undefined>(undefined);
+    public checkedCards = input<BuildingModel[]>([]);
+    public dwellings = input<BuildingModel[]>([]);
+    public select: InputSignal<boolean> = input<boolean>(false);
+    public checked: WritableSignal<boolean> = signal(false);
 
-    @Output() public cardSelected: EventEmitter<BuildingModel> = new EventEmitter<BuildingModel>();
-    @Output() public emitViewDetails: EventEmitter<BuildingModel> = new EventEmitter<BuildingModel>();
-    @Output() public flag = new EventEmitter<BuildingModel[]>();
-    @Output() public removeFlag = new EventEmitter<BuildingModel>();
-    @Output() public toggleChecked = new EventEmitter<BuildingModel>();
-    @Output() public downloadData: EventEmitter<DownloadBuilding> = new EventEmitter<DownloadBuilding>();
+    public cardSelected: OutputEmitterRef<BuildingModel> = output();
+    public emitViewDetails: OutputEmitterRef<BuildingModel> = output();
+    public flag: OutputEmitterRef<BuildingModel[]> = output();
+    public removeFlag: OutputEmitterRef<BuildingModel> = output();
+    public toggleChecked: OutputEmitterRef<BuildingModel> = output();
+    public downloadData: OutputEmitterRef<DownloadBuilding> = output();
 
     public parentDataset: BuildingModel = {
         BuildForm: undefined,
@@ -51,27 +53,41 @@ export class ResultsCardExpandableComponent implements OnChanges {
         longitude: undefined,
     };
 
-    public ngOnChanges(changes: SimpleChanges): void {
-        if (changes.dwellings) {
-            this.parentDataset.FullAddress = this.dwellings[0].FullAddress.split(/,(.*)/s)[1];
-            const EPCs = this.dwellings.map((d) => (d.EPC ? EPCRating[d.EPC] : undefined)).filter((d) => d !== undefined);
-            this.parentDataset.ParentTOID = this.dwellings[0].ParentTOID;
+    public sortedDwellings = computed(() => this.dwellings().sort((a, b) => +a.UPRN - +b.UPRN));
+
+    constructor() {
+        effect(() => {
+            const dwellings = this.dwellings();
+
+            if (dwellings.length <= 0) {
+                return;
+            }
+
+            const dwelling = dwellings[0];
+            this.parentDataset.FullAddress = dwelling.FullAddress.split(/,(.*)/s)[1];
+            this.parentDataset.ParentTOID = dwelling.ParentTOID;
+
+            const EPCs = dwellings.map((d) => (d.EPC ? EPCRating[d.EPC] : undefined)).filter((d) => d !== undefined);
 
             this.parentDataset.EPC = this.#utilService.getMeanEPCValue(EPCs as string[]) as EPCRating;
-        }
+        });
     }
 
     public onToggleCheckedDwellings(checked: boolean): void {
-        this.dwellings.forEach((d) => {
-            const isChecked = this.cardIsChecked([d]);
+        const dwellings = this.dwellings();
+        this.checked.set(false);
+
+        dwellings.forEach((d) => {
+            const isChecked = this.isChecked(d);
             if (checked !== isChecked) {
+                this.checked.set(true);
                 this.toggleChecked.emit(d);
             }
         });
     }
 
-    // sort by UPRN to get flat numbers in correct order
-    public sortedDwellings(): BuildingModel[] {
-        return this.dwellings.sort((a, b) => +a.UPRN - +b.UPRN);
+    public isChecked(dwelling: BuildingModel): boolean {
+        const checkedCards = this.checkedCards();
+        return !!checkedCards.find((cc) => cc.UPRN === dwelling.UPRN);
     }
 }

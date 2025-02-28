@@ -1,0 +1,26 @@
+:host {
+    ::ng-deep {
+        .mat-expansion-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 2rem;
+        }
+        .mat-expansion-panel {
+            background-color: var(--mat-sys-surface-container-lowest);
+
+            .mat-expansion-panel-header {
+                padding: 0;
+                background-color: var(--mat-sys-surface-container-lowest);
+            }
+
+            &:not(.mat-expanded),
+            &.mat-expanded {
+                .mat-expansion-panel-header {
+                    &:not([aria-disabled='true']):hover {
+                        background-color: var(--mat-sys-surface-bright);
+                    }
+                }
+            }
+        }
+    }
+}

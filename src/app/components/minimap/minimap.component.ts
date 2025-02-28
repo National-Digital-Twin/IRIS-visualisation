@@ -1,31 +1,32 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, effect, inject, input, InputSignal, OnInit, signal, WritableSignal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MinimapData } from '@core/models/minimap-data.model';
 import { MapService } from '@core/services/map.service';
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { Feature, GeoJsonProperties, Geometry } from 'geojson';
-import mapboxgl, { GeoJSONSource } from 'mapbox-gl';
+import mapboxgl, { GeoJSONSource, Map } from 'mapbox-gl';
 import { skip } from 'rxjs';
 
 @Component({
     selector: 'c477-minimap',
     imports: [CommonModule],
     templateUrl: './minimap.component.html',
+    styleUrl: './minimap.component.scss',
 })
-export class MinimapComponent implements OnInit, OnChanges {
+export class MinimapComponent implements OnInit {
     readonly #mapService = inject(MapService);
     readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
     readonly #theme = inject(SettingsService).get(SETTINGS.Theme);
 
     public theme$ = toObservable(this.#theme).pipe(takeUntilDestroyed());
 
-    private map?: mapboxgl.Map;
     private arrow: string = 'arrow-dark';
+    private readonly map: WritableSignal<Map | undefined> = signal(undefined);
     private readonly data: Feature<Geometry, GeoJsonProperties>;
 
-    @Input() public minimapData?: MinimapData;
+    public minimapData: InputSignal<MinimapData | undefined> = input();
 
     constructor() {
         this.data = {
@@ -33,23 +34,25 @@ export class MinimapComponent implements OnInit, OnChanges {
             geometry: { type: 'Point', coordinates: this.#runtimeConfig.map.center },
             properties: {},
         };
-    }
 
-    public ngOnChanges(): void {
-        if (this.map && this.minimapData) {
-            this.map.flyTo({
-                center: this.minimapData.position,
-                zoom: this.#runtimeConfig.minimap.zoom,
-            });
-        }
-        this.setArrowPosition();
+        effect(() => {
+            const map = this.map();
+            const minimapData = this.minimapData();
+
+            if (map && minimapData) {
+                map.flyTo({ center: minimapData.position, zoom: this.#runtimeConfig.minimap.zoom });
+            }
+
+            this.setArrowPosition();
+        });
     }
 
     public ngOnInit(): void {
         if (this.#runtimeConfig.map.style && this.#runtimeConfig.map.center && this.#runtimeConfig.minimap.zoom) {
             const theme = this.#theme();
             this.arrow = theme === 'dark' ? 'arrow-light' : 'arrow-dark';
-            this.map = new mapboxgl.Map({
+
+            const map = new mapboxgl.Map({
                 container: 'minimap',
                 accessToken: 'undefined',
                 zoom: this.#runtimeConfig.minimap.zoom,
@@ -73,22 +76,27 @@ export class MinimapComponent implements OnInit, OnChanges {
                 },
             });
 
-            this.map.on('style.load', async () => {
-                this.map?.loadImage('assets/Arrow_dark.png', (error, image) => {
-                    if (image) {
-                        this.map?.addImage('arrow-dark', image);
+            map.on('style.load', async ({ target: map }) => {
+                map.loadImage('assets/images/Arrow_dark.png', (error, image) => {
+                    if (!image) {
+                        return;
                     }
+                    map.addImage('arrow-dark', image);
                 });
-                this.map?.loadImage('assets/Arrow_light.png', (error, image) => {
-                    if (image) {
-                        this.map?.addImage('arrow-light', image);
+
+                map.loadImage('assets/images/Arrow_light.png', (error, image) => {
+                    if (!image) {
+                        return;
                     }
+                    map.addImage('arrow-light', image);
                 });
-                this.map?.addSource('centerpoint', {
+
+                map.addSource('centerpoint', {
                     type: 'geojson',
                     data: this.data,
                 });
-                this.map?.addLayer({
+
+                map.addLayer({
                     id: 'centerpoint',
                     type: 'symbol',
                     source: 'centerpoint',
@@ -97,34 +105,51 @@ export class MinimapComponent implements OnInit, OnChanges {
                         'icon-size': 0.5,
                     },
                 });
-                if (this.map && this.minimapData) {
-                    this.setArrowPosition();
-                }
+
+                this.map.set(map);
             });
+
+            map.on('error', (error) => console.log('[MINIMAP]', 'Map Error', { error }));
+            map.on('styleimagemissing', (error) => console.log('[MINIMAP]', 'Image Missing', { error }));
         }
 
         /* skip first value as we've already set the map style based on theme */
         this.theme$.pipe(skip(1)).subscribe((theme) => {
+            const map = this.map();
+
+            if (!map) {
+                return;
+            }
+
             this.arrow = theme === 'dark' ? 'arrow-light' : 'arrow-dark';
-            this.map?.setStyle(this.#runtimeConfig.map.style[theme]);
+            map.setStyle(this.#runtimeConfig.map.style[theme]);
         });
     }
 
     private setArrowPosition(): void {
-        if (this.map && this.minimapData) {
-            (this.map.getSource('centerpoint') as GeoJSONSource)?.setData({
+        const map = this.map();
+        const minimapData = this.minimapData();
+
+        if (map && minimapData) {
+            const source = map.getSource('centerpoint') as GeoJSONSource;
+
+            if (!source) {
+                return;
+            }
+
+            source.setData({
                 ...this.data,
                 geometry: {
                     ...this.data.geometry,
                     coordinates: [
                         // @ts-expect-error because the type is incorrect for coordinates
-                        this.minimapData.position.lng,
+                        minimapData.position.lng,
                         // @ts-expect-error because the type is incorrect for coordinates
-                        this.minimapData.position.lat,
+                        minimapData.position.lat,
                     ],
                 },
             });
-            this.map.setLayoutProperty('centerpoint', 'icon-rotate', this.minimapData.bearing);
+            map.setLayoutProperty('centerpoint', 'icon-rotate', minimapData.bearing);
         }
     }
 }

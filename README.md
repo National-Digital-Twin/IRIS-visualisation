@@ -9,7 +9,28 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 ## Development server
 
-#### Environments
+#### Install dependencies
+
+It is recommended to use `nvm` to manage versions of node, this project has been setup with an `.nvmrc` file so make sure to install and use this;
+
+```
+nvm install
+nvm use
+```
+
+Create a personal access token on GitHub - https://github.com/settings/tokens - create a classic token with read:packages permission store this safely and make sure to add as an environment variable;
+
+```
+export GITHUB_ACCESS_TOKEN=ghp_xxxxxxx
+```
+
+You should now be able to run the usual install
+
+```
+npm install
+```
+
+#### Configuration
 
 For local development, create a `environment.local.ts` file in `environments` and a `\local\config.json` directory & file in `configurations`. These two files should have the same structure as the existing environment files. These local files are not committed to git, and can have any secret keys added safely.
 

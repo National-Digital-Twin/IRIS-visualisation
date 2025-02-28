@@ -504,7 +504,7 @@ export class DataService {
      */
     private getCurrentFlags(flags: FlagResponse[]): FlagResponse[] {
         const result = Object.values(
-            flags.reduce((acc: { [key: string]: FlagResponse }, { UPRN, FlagDate, Flagged, ParentTOID, TOID }) => {
+            flags.reduce((acc: Record<string, FlagResponse>, { UPRN, FlagDate, Flagged, ParentTOID, TOID }) => {
                 if (!acc[UPRN] || Date.parse(acc[UPRN].FlagDate) < Date.parse(FlagDate)) acc[UPRN] = { UPRN, FlagDate, Flagged, ParentTOID, TOID };
                 return acc;
             }, {}),

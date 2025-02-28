@@ -1,6 +1,6 @@
 import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output, ViewChild, effect, inject, signal } from '@angular/core';
+import { Component, OutputEmitterRef, WritableSignal, effect, inject, output, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -10,6 +10,7 @@ import { DownloadWarningComponent } from '@components/download-warning/download-
 import { ResultsCardComponent } from '@components/results-card/results-card.component';
 import { ResultsCardExpandableComponent } from '@components/results-card-expandable/results-card-expandable.component';
 import { ResultsPanelButtonComponent } from '@components/results-panel-button/results-panel-button.component';
+import { InfoPanelComponent } from '@containers/info-panel';
 import { BuildingModel } from '@core/models/building.model';
 import { DownloadBuilding, DownloadDataWarningData, DownloadDataWarningResponse } from '@core/models/download-data-warning.model';
 import { DataDownloadService } from '@core/services/data-download.service';
@@ -32,8 +33,10 @@ import { filter, map } from 'rxjs';
         ResultsCardComponent,
         ResultsCardExpandableComponent,
         ScrollingModule,
+        InfoPanelComponent,
     ],
     templateUrl: './results-panel.component.html',
+    styleUrl: './results-panel.component.scss',
 })
 export class ResultsPanelComponent {
     readonly #dataService = inject(DataService);
@@ -44,34 +47,40 @@ export class ResultsPanelComponent {
 
     public buildingSelection = this.#dataService.buildingsSelection;
     public checkedCards = signal<BuildingModel[]>([]);
-    public panelOpen: boolean = true;
+    public panelOpen: WritableSignal<boolean> = signal(true);
     public selectMultiple: boolean = false;
     public selectedCardUPRN = this.#utilService.selectedCardUPRN;
     public selectedParentTOID = this.#utilService.multiDwelling;
 
-    @Output() public flag = new EventEmitter<BuildingModel[]>();
-    @Output() public removeFlag = new EventEmitter<BuildingModel>();
-    @Output() public resultsPanelCollapsed = new EventEmitter<boolean>();
+    public flag: OutputEmitterRef<BuildingModel[]> = output();
+    public removeFlag: OutputEmitterRef<BuildingModel> = output();
+    public resultsPanelCollapsed: OutputEmitterRef<boolean> = output();
 
-    @ViewChild(CdkVirtualScrollViewport) public viewPort?: CdkVirtualScrollViewport;
+    public viewPort = viewChild<CdkVirtualScrollViewport>(CdkVirtualScrollViewport);
 
     constructor(public dialog: MatDialog) {
         /** listen for UPRN set from map click */
         effect(() => {
             const selectedUPRN = this.#utilService.selectedUPRN();
             const selectedTOID = this.#utilService.multiDwelling();
+            const viewPort = this.viewPort();
+
+            if (!viewPort) {
+                return;
+            }
+
             if (selectedUPRN) {
                 const idx = this.buildingSelection()?.findIndex((building) => building[0].UPRN === selectedUPRN);
                 if (idx && idx > -1) {
                     /** scroll to index*/
-                    this.viewPort?.scrollToIndex(idx);
+                    viewPort.scrollToIndex(idx);
                 }
             }
             if (selectedTOID) {
                 const idx = this.buildingSelection()?.findIndex((building) => building[0].ParentTOID === selectedTOID);
                 if (idx && idx > -1) {
                     /** scroll to index*/
-                    this.viewPort?.scrollToIndex(idx);
+                    viewPort.scrollToIndex(idx);
                 }
             }
         });
@@ -135,7 +144,7 @@ export class ResultsPanelComponent {
     }
 
     public updatePanelOpen(event: boolean): void {
-        this.panelOpen = event;
+        this.panelOpen.set(event);
         this.resultsPanelCollapsed.emit(!event);
     }
 
@@ -160,7 +169,9 @@ export class ResultsPanelComponent {
 
         this.dialog
             .open<DownloadWarningComponent, DownloadDataWarningData, DownloadDataWarningResponse>(DownloadWarningComponent, {
-                panelClass: 'data-download',
+                panelClass: 'download-modal',
+                width: '90%',
+                maxWidth: '50rem',
                 data: {
                     addresses,
                     addressCount,

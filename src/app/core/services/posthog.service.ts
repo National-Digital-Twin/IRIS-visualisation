@@ -36,7 +36,7 @@ export class PosthogService {
      * @param event Event name
      * @param value property and value to send
      */
-    public capture(event: string, value: { [key: string]: string }): void {
+    public capture(event: string, value: Record<string, string>): void {
         if (environment.production) {
             posthog.capture(event, value);
         }

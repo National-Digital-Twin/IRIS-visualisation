@@ -1,46 +1,42 @@
-<div class="data-download__modal">
-    <h1 mat-dialog-title>
-        <span>
-            <mat-icon fontSet="material-icons-outlined">warning</mat-icon>
-        </span>
-        <span>
-            The downloaded data is static and will not refresh after download. We advise using the tool for accessing the most current data available.
-        </span>
-    </h1>
-    <div mat-dialog-content>
-        <div class="data-download__list">
-            <p>Downloading data for:</p>
-            @if (data.addresses.length !== 0 && data.addresses.length <= 10) {
-                <ul>
-                    @for (address of data.addresses; track address) {
-                        <li>
-                            <b>{{ address }}</b>
-                        </li>
-                    }
-                </ul>
-            }
-            @if (data.addressCount && data.addressCount > 10) {
-                <p>
-                    <b> &nbsp; {{ data.addressCount }} properties</b>
-                </p>
-            }
-        </div>
-        <p>
-            The data you are about to download represents a point-in-time snapshot and will not reflect real-time updates or changes. It is valid and accurate
-            only at the moment of download.
-        </p>
-        <p>Any subsequent updates or modifications made to the original dataset will not be reflected in this downloaded version.</p>
-        <hr />
-        <p>
-            <strong
-                >Please ensure that you verify the currency of the data for your specific needs. We recommend referring back to the online version or consulting
-                the relevant authoritative sources for the most up-to-date information.</strong
-            >
-        </p>
+<h2 mat-dialog-title class="title">
+    <mat-icon class="icon">warning</mat-icon>
+    <span>The downloaded data is static and will not refresh after download. We advise using the tool for accessing the most current data available.</span>
+</h2>
+
+<div mat-dialog-content>
+    <div class="download-info">
+        <p>Downloading data for:</p>
+        @if (data.addresses.length !== 0 && data.addresses.length <= 10) {
+            <ul>
+                @for (address of data.addresses; track address) {
+                    <li>
+                        <b>{{ address }}</b>
+                    </li>
+                }
+            </ul>
+        }
+        @if (data.addressCount && data.addressCount > 10) {
+            <p>
+                <b>{{ data.addressCount }} properties</b>
+            </p>
+        }
     </div>
-    <div mat-dialog-actions>
-        <button mat-flat-button [mat-dialog-close]="'xlsx'" [color]="'primary'">OK, download XLSX</button>
-        <button mat-flat-button [mat-dialog-close]="'csv'" [color]="'primary'">OK, download CSV</button>
-        <button mat-button mat-dialog-close>Cancel</button>
-    </div>
+    <p>
+        The data you are about to download represents a point-in-time snapshot and will not reflect real-time updates or changes. It is valid and accurate only
+        at the moment of download.
+    </p>
+    <p>Any subsequent updates or modifications made to the original dataset will not be reflected in this downloaded version.</p>
+    <hr />
+    <p>
+        <strong
+            >Please ensure that you verify the currency of the data for your specific needs. We recommend referring back to the online version or consulting the
+            relevant authoritative sources for the most up-to-date information.</strong
+        >
+    </p>
+</div>
+
+<div mat-dialog-actions>
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-flat-button mat-dialog-close="xlsx">OK, download XLSX</button>
+    <button mat-flat-button mat-dialog-close="csv" cdkFocusInitial>OK, download CSV</button>
 </div>

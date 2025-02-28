@@ -1,0 +1,206 @@
+@use '@angular/material' as mat;
+@use 'light-theme' as light-theme;
+@use 'dark-theme' as dark-theme;
+
+:root {
+    // EPC Colors
+
+    --color-epc-a: #3d4e3b;
+    --color-epc-b: #4ba046;
+    --color-epc-c: #a3eb9f;
+    --color-epc-d: #ffd10a;
+    --color-epc-e: #ffcc99;
+    --color-epc-f: #e66e23;
+    --color-epc-g: #b60007;
+    --color-epc-none: #bebebe;
+    --color-epc-avg: #000000;
+
+    // Core overrides
+
+    --border-radius: 4px;
+}
+
+html {
+    color-scheme: light;
+
+    @include mat.theme(
+        (
+            color: (
+                primary: light-theme.$primary-palette,
+                tertiary: light-theme.$tertiary-palette,
+                theme-type: light,
+            ),
+            typography: Roboto,
+            density: 0,
+        )
+    );
+}
+
+body {
+    line-height: 1.4rem;
+
+    @include mat.form-field-overrides(
+        (
+            filled-container-color: var(--mat-sys-surface-container-lowest),
+        )
+    );
+
+    &[theme='dark'] {
+        color-scheme: dark;
+
+        @include mat.theme(
+            (
+                color: (
+                    primary: dark-theme.$primary-palette,
+                    tertiary: dark-theme.$tertiary-palette,
+                    theme-type: dark,
+                ),
+                typography: Roboto,
+                density: 0,
+            )
+        );
+    }
+}
+
+h1 {
+    margin: 0;
+    font-family: var(--mat-sys-headline-small-font);
+    font-size: var(--mat-sys-headline-small-size);
+    font-weight: var(--mat-sys-headline-small-weight);
+}
+
+h2 {
+    margin: 0;
+    font-family: var(--mat-sys-title-large-font);
+    font-size: var(--mat-sys-title-large-size);
+    font-weight: var(--mat-sys-title-large-weight);
+}
+
+h3 {
+    margin: 0;
+    font-family: var(--mat-sys-title-medium-font);
+    font-size: var(--mat-sys-title-medium-size);
+    font-weight: var(--mat-sys-title-medium-weight);
+}
+
+h4 {
+    margin: 0;
+
+    font-family: var(--mat-sys-title-small-font);
+    font-size: var(--mat-sys-title-small-size);
+    font-weight: var(--mat-sys-title-small-weight);
+    color: var(--mat-sys-primary);
+    text-transform: uppercase;
+}
+
+div,
+p {
+    font-family: var(--mat-sys-body-medium-font);
+    font-size: var(--mat-sys-body-medium-size);
+    font-weight: var(--mat-sys-body-medium-weight);
+}
+
+@include mat.toolbar-overrides(
+    (
+        standard-height: 56px,
+        container-background-color: #002244,
+        container-text-color: var(--mat-sys-on-primary),
+    )
+);
+
+@include mat.button-overrides(
+    (
+        text-container-shape: var(--border-radius),
+        text-label-text-transform: uppercase,
+        filled-container-shape: var(--border-radius),
+        filled-label-text-transform: uppercase,
+        outlined-container-shape: var(--border-radius),
+        outlined-label-text-transform: uppercase,
+    )
+);
+
+@include mat.button-toggle-overrides(
+    (
+        selected-state-text-color: var(--mat-sys-on-surface-variant),
+        selected-state-background-color: var(--mat-sys-primary-container),
+    )
+);
+
+@include mat.slide-toggle-overrides(
+    (
+        // General
+        track-height: 1rem,
+        track-outline-width: 0,
+        pressed-handle-size: 2rem,
+        with-icon-handle-size: 2rem,
+        handle-elevation-shadow: var(--mat-sys-level1),
+        // Unselected state
+        unselected-icon-color: var(--mat-sys-on-surface),
+        unselected-handle-color: var(--mat-sys-surface-container),
+        unselected-focus-handle-color: var(--mat-sys-surface-container),
+        unselected-hover-handle-color: var(--mat-sys-surface-container),
+        unselected-pressed-handle-color: var(--mat-sys-surface-container),
+        unselected-pressed-handle-horizontal-margin: 0,
+        unselected-with-icon-handle-horizontal-margin: 0,
+        unselected-track-color: var(--mat-sys-outline),
+        unselected-focus-track-color: var(--mat-sys-outline),
+        unselected-hover-track-color: var(--mat-sys-outline),
+        unselected-pressed-track-color: var(--mat-sys-outline),
+        // Selected state
+        selected-icon-color: var(--mat-sys-on-primary),
+        selected-handle-color: var(--mat-sys-primary),
+        selected-focus-handle-color: var(--mat-sys-primary),
+        selected-hover-handle-color: var(--mat-sys-primary),
+        selected-pressed-handle-color: var(--mat-sys-primary),
+        selected-pressed-handle-horizontal-margin: 0 1.375rem,
+        selected-with-icon-handle-horizontal-margin: 0 1.375rem,
+        selected-track-color: var(--mat-sys-primary-container),
+        selected-focus-track-color: var(--mat-sys-primary-container),
+        selected-hover-track-color: var(--mat-sys-primary-container),
+        selected-pressed-track-color: var(--mat-sys-primary-container)
+    )
+);
+
+@include mat.form-field-overrides(
+    (
+        filled-container-color: var(--mat-sys-surface-container-lowest),
+        filled-active-indicator-height: 0,
+        filled-focus-active-indicator-height: 0,
+    )
+);
+
+@include mat.expansion-overrides(
+    (
+        container-shape: 0,
+        container-background-color: var(--mat-sys-surface-container-lowest),
+        header-hover-state-layer-color: var(--mat-sys-surface-bright),
+    )
+);
+
+@include mat.dialog-overrides(
+    (
+        container-shape: var(--border-radius),
+        container-color: var(--mat-sys-surface-container-lowest),
+        headline-padding: 2rem 2rem 1rem,
+        actions-padding: 1rem 2rem 2rem,
+        with-actions-content-padding: 1rem 2rem,
+    )
+);
+
+.download-modal {
+    @include mat.dialog-overrides(
+        (
+            headline-padding: 3rem 4rem 1rem,
+            actions-padding: 2rem 4rem 3rem,
+            with-actions-content-padding: 0 4rem,
+        )
+    );
+}
+
+.mdc-button {
+    &__label {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+}

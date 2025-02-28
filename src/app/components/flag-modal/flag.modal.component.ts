@@ -10,10 +10,10 @@ export type FlagModalResult = true;
 
 @Component({
     selector: 'c477-flag-modal',
+    imports: [CommonModule, MatDialogModule, MatButtonModule],
     templateUrl: './flag.modal.component.html',
     styleUrl: './flag.modal.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [CommonModule, MatDialogModule, MatButtonModule],
 })
 export class FlagModalComponent {
     readonly #data = inject<FlagModalData>(MAT_DIALOG_DATA);

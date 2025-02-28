@@ -41,9 +41,9 @@ export interface RuntimeConfigurationModel {
     /* Mapbox map layers */
     mapLayers: Layer[];
     /** EPC Colours */
-    epcColours: { [key: string]: string };
+    epcColours: Record<string, string>;
     /** EPC Colours - Colour Deficient*/
-    epcColoursCD: { [key: string]: string };
+    epcColoursCD: Record<string, string>;
     /* Company logo */
     companyLogo: Record<Theme, string>;
     /* Map context layers */

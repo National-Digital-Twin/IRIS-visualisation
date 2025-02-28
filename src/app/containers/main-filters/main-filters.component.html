@@ -1,6 +1,8 @@
-<div class="filters">
+@let filters = filterProps();
+
+<div class="filter-group">
     <form [formGroup]="addressForm">
-        <mat-form-field class="search">
+        <mat-form-field class="address-lookup">
             <mat-label>Search by address, postcode</mat-label>
             <input matInput type="text" aria-label="Search by address" formControlName="address" [matAutocomplete]="addressHints" />
             <mat-autocomplete #addressHints="matAutocomplete">
@@ -15,49 +17,56 @@
             </button>
         </mat-form-field>
     </form>
-    <div class="main-filters">
-        <mat-form-field class="epc-filter">
-            <mat-label>EPC Rating</mat-label>
-            <mat-select multiple [value]="filterProps?.EPC" (selectionChange)="ratingChange($event)">
-                @for (rating of getKeys(epcRatings); track rating) {
-                    <mat-option [value]="rating"><c477-label [epcRating]="epcRatings[rating]" /></mat-option>
-                }
-            </mat-select>
-            @if (filterProps?.EPC) {
-                <button class="clear-all-button" matSuffix mat-icon-button aria-label="Clear EPC filter" (click)="clearEPC($event)">
-                    <mat-icon class="material-icons-outlined">cancel</mat-icon>
-                </button>
+</div>
+
+<div class="filter-group">
+    <mat-form-field>
+        <mat-label>EPC Rating</mat-label>
+        <mat-select multiple [value]="filters.EPC" (selectionChange)="ratingChange($event)">
+            @for (rating of getKeys(epcRatings); track rating) {
+                <mat-option [value]="rating">
+                    <c477-label [epcRating]="epcRatings[rating]" />
+                </mat-option>
             }
-        </mat-form-field>
-        <mat-divider vertical></mat-divider>
-        <mat-form-field class="building-type-filter">
-            <mat-label>Building Type</mat-label>
-            <mat-select multiple [value]="filterProps?.PropertyType" (selectionChange)="propertyTypeChange($event)">
-                @for (type of getKeys(propertyTypes); track type) {
-                    <mat-option [value]="type">{{ propertyTypes[type] }}</mat-option>
-                }
-            </mat-select>
-            @if (filterProps?.PropertyType) {
-                <button class="clear-all-button" matSuffix mat-icon-button aria-label="Clear Property type filter" (click)="clearPropertyType($event)">
-                    <mat-icon class="material-icons-outlined">cancel</mat-icon>
-                </button>
-            }
-        </mat-form-field>
-        <mat-divider vertical></mat-divider>
-        <div class="flag-filter">
-            <span>Flagged</span>
-            <mat-slide-toggle [color]="'primary'" [checked]="filterProps?.Flagged" (change)="flaggedFilterChange($event)"></mat-slide-toggle>
-        </div>
-    </div>
-    <div class="filters-button-container">
-        <button class="filters-button" mat-flat-button [matBadge]="numberFilters" [matBadgeHidden]="numberFilters === 0" (click)="openAdvancedFilters()">
-            Advanced Filters <mat-icon iconPositionEnd>add</mat-icon>
-        </button>
-        @if (filtersExist()) {
-            <button class="filters-button clear" mat-flat-button (click)="clearAll()">
-                <mat-icon iconPositionStart class="material-icons-outlined">cancel</mat-icon>
-                Clear All Filters
+        </mat-select>
+
+        @if (filters.EPC) {
+            <button matSuffix mat-icon-button color="warning" aria-label="Clear EPC filter" (click)="clearEPC($event)">
+                <mat-icon class="material-icons-outlined">cancel</mat-icon>
             </button>
         }
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-label>Building Type</mat-label>
+        <mat-select multiple [value]="filters.PropertyType" (selectionChange)="propertyTypeChange($event)">
+            @for (type of getKeys(propertyTypes); track type) {
+                <mat-option [value]="type">{{ propertyTypes[type] }}</mat-option>
+            }
+        </mat-select>
+        @if (filters.PropertyType) {
+            <button matSuffix mat-icon-button color="warning" aria-label="Clear Property type filter" (click)="clearPropertyType($event)">
+                <mat-icon class="material-icons-outlined">cancel</mat-icon>
+            </button>
+        }
+    </mat-form-field>
+
+    <div class="flagged">
+        <mat-slide-toggle color="primary" labelPosition="before" [checked]="filters.Flagged" (change)="flaggedFilterChange($event)"> Flagged </mat-slide-toggle>
     </div>
 </div>
+
+<div class="filter-group">
+    <button mat-flat-button [matBadge]="numberFilters" [matBadgeHidden]="numberFilters === 0" (click)="openAdvancedFilters()">
+        Advanced Filters <mat-icon iconPositionEnd>add</mat-icon>
+    </button>
+</div>
+
+@if (filtersExist()) {
+    <div class="filter-group clear">
+        <button mat-flat-button color="warning" (click)="clearAll()">
+            <mat-icon iconPositionStart class="material-icons-outlined">cancel</mat-icon>
+            Clear All Filters
+        </button>
+    </div>
+}

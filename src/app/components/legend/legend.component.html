@@ -1,10 +1,4 @@
-<div class="legend">
-    <h1>EPC legend</h1>
-    <div class="legend__items">
-        @for (item of epcItems; track item.rating) {
-            <div>
-                <c477-label [epcRating]="item.rating" [sapPoints]="item.sapPoints"></c477-label>
-            </div>
-        }
-    </div>
-</div>
+<h3>EPC legend</h3>
+@for (item of epcItems; track item.rating) {
+    <c477-label [epcRating]="item.rating" [sapPoints]="item.sapPoints" />
+}

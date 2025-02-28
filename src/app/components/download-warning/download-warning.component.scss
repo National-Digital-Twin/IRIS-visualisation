@@ -1,0 +1,30 @@
+.title {
+    position: relative;
+    color: var(--mat-sys-error);
+
+    &::before {
+        height: 0;
+    }
+
+    .icon {
+        position: absolute;
+        top: 3rem;
+        left: 2rem;
+
+        width: var(--mat-sys-headline-medium-size);
+        height: var(--mat-sys-headline-medium-size);
+
+        font-size: var(--mat-sys-headline-medium-size);
+    }
+}
+
+.download-info {
+    display: grid;
+    grid-template-columns: max-content auto;
+    gap: 1rem;
+
+    ul {
+        padding: 0;
+        list-style: none;
+    }
+}

@@ -1,5 +1,3 @@
-# See http://help.github.com/ignore-files/ for more about ignoring files.
-
 # Compiled output
 /dist
 /tmp
@@ -41,6 +39,7 @@ documentation
 # System files
 .DS_Store
 Thumbs.db
+.env
 
 # Enviroments
 /src/configurations/local
@@ -54,7 +53,8 @@ result
 powerstat-*.log
 
 # Data
-/src/assets/data/*.json
+/src/assets/data/*
+!/src/assets/data/wards.geojson
 
 # kubernetees secrets
 **/secrets.env

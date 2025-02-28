@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
+import { Component, input, InputSignal, OnDestroy, output, OutputEmitterRef } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -8,13 +8,14 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     selector: 'c477-results-panel-button',
     imports: [CommonModule, MatButtonModule, MatIconModule, MatTooltipModule],
     templateUrl: './results-panel-button.component.html',
+    styleUrl: './results-panel-button.component.scss',
 })
 export class ResultsPanelButtonComponent implements OnDestroy {
     public panelOpen: boolean = true;
 
-    @Input() public numberResults!: number;
+    public numberResults: InputSignal<number> = input.required();
 
-    @Output() public updatePanelStatus = new EventEmitter<boolean>();
+    public updatePanelStatus: OutputEmitterRef<boolean> = output();
 
     public ngOnDestroy(): void {
         this.panelOpen = true;

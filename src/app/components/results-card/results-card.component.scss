@@ -1,0 +1,61 @@
+:host {
+    display: block;
+    padding: 0.75rem 1rem;
+
+    &.selected {
+        background-color: var(--mat-sys-surface-container-low);
+    }
+
+    &:hover {
+        cursor: pointer;
+        background-color: var(--mat-sys-surface-bright);
+    }
+
+    .header {
+        display: grid;
+        grid-template-columns: auto max-content;
+        align-items: center;
+    }
+
+    &.parent {
+        pointer-events: none;
+
+        .header {
+            pointer-events: all;
+        }
+    }
+}
+
+.content {
+    display: grid;
+    grid-template-columns: auto max-content;
+
+    .details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+
+        address {
+            max-width: 12rem;
+            font-style: normal;
+        }
+    }
+
+    .labels {
+        display: grid;
+        grid-auto-columns: max-content;
+        grid-auto-flow: column;
+        gap: 1rem;
+    }
+
+    .actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        border-left: 1px solid var(--mat-sys-outline-variant);
+    }
+
+    &.showCheckbox {
+        margin-left: 2.75rem;
+    }
+}

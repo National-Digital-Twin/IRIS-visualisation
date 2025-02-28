@@ -1,15 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, computed, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogRef } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MultiButtonFilterComponent } from '@components/multi-button-filter/multi-button-filter.component';
 import { FilterProps, MultiButtonFilterOption } from '@core/models/advanced-filters.model';
 import { UtilService } from '@core/services/utils.service';
-import { Subject, takeUntil } from 'rxjs';
+import { map } from 'rxjs';
 
 type DialogData = {
     filterProps?: FilterProps;
@@ -30,24 +31,24 @@ type PanelData = {
         MatDialogActions,
         MatDialogClose,
         MatDialogContent,
-        MatDialogTitle,
         MatIconModule,
         MatExpansionModule,
         MultiButtonFilterComponent,
         ReactiveFormsModule,
     ],
     templateUrl: './filter-panel.component.html',
+    styleUrl: './filter-panel.component.scss',
 })
-export class FilterPanelComponent implements OnDestroy {
+export class FilterPanelComponent {
     readonly #data: DialogData = inject(MAT_DIALOG_DATA);
     readonly #dialogRef = inject(MatDialogRef<FilterPanelComponent>);
     readonly #utilService = inject(UtilService);
+    readonly #destroyRef = inject(DestroyRef);
 
     public advancedFiltersForm: FormGroup;
     public noValidFilterOptions: boolean = false;
 
     private readonly expiredOptions = ['EPC In Date', 'EPC Expired'];
-    private readonly unsubscribe$ = new Subject<void>();
 
     private readonly generalFilters = signal<MultiButtonFilterOption[]>([
         {
@@ -150,18 +151,38 @@ export class FilterPanelComponent implements OnDestroy {
         this.setOptions();
         this.setValidOptions();
 
-        this.advancedFiltersForm.valueChanges.pipe(takeUntil(this.unsubscribe$)).subscribe(() => {
-            this.setValidOptions();
-        });
+        this.advancedFiltersForm.valueChanges
+            .pipe(
+                map(() => this.setValidOptions()),
+                takeUntilDestroyed(this.#destroyRef),
+            )
+            .subscribe();
     }
 
     get dialogData(): DialogData {
         return this.#data;
     }
 
-    public ngOnDestroy(): void {
-        this.unsubscribe$.next();
-        this.unsubscribe$.complete();
+    public clearAll(): void {
+        this.advancedFiltersForm.reset();
+        this.#dialogRef.close({ clear: true });
+    }
+
+    public checkFiltersApplied(panelTitle: string): boolean {
+        if (panelTitle === 'General' && Object.keys(this.advancedFiltersForm.value).every((key) => this.advancedFiltersForm.value[key] === null)) {
+            // open first panel if form is empty
+            return true;
+        } else {
+            const panel = this.otherPanels().find((panel) => panel.panelTitle === panelTitle);
+
+            if (!panel) {
+                return false;
+            }
+
+            return panel.filters.some((filter) => {
+                return this.advancedFiltersForm.value[filter.formControlName];
+            });
+        }
     }
 
     private setOptions(): void {
@@ -193,27 +214,5 @@ export class FilterPanelComponent implements OnDestroy {
         this.noValidFilterOptions = Object.keys(validOptions).every((key) => {
             return validOptions[key as keyof FilterProps]?.length === 0;
         });
-    }
-
-    public checkFiltersApplied(panelTitle: string): boolean {
-        if (panelTitle === 'General' && Object.keys(this.advancedFiltersForm.value).every((key) => this.advancedFiltersForm.value[key] === null)) {
-            // open first panel if form is empty
-            return true;
-        } else {
-            const panel = this.otherPanels().find((panel) => panel.panelTitle === panelTitle);
-
-            if (!panel) {
-                return false;
-            }
-
-            return panel.filters.some((filter) => {
-                return this.advancedFiltersForm.value[filter.formControlName];
-            });
-        }
-    }
-
-    public clearAll(): void {
-        this.advancedFiltersForm.reset();
-        this.#dialogRef.close({ clear: true });
     }
 }

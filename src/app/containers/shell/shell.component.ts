@@ -1,27 +1,13 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { ComponentType } from '@angular/cdk/portal';
 import { AsyncPipe, CommonModule, DOCUMENT } from '@angular/common';
-import {
-    AfterViewInit,
-    CUSTOM_ELEMENTS_SCHEMA,
-    Component,
-    ElementRef,
-    Input,
-    NgZone,
-    OnChanges,
-    ViewChild,
-    computed,
-    inject,
-    numberAttribute,
-} from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, Component, Input, InputSignal, NgZone, computed, effect, inject, input, numberAttribute } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { Params, Router } from '@angular/router';
-import type { ArcAccessibility, ArcSwitch } from '@arc-web/components';
-import type { UserPreferences } from '@arc-web/components/src/components/accessibility/ArcAccessibility';
-import '@arc-web/components/src/components/container/arc-container';
-import '@arc-web/components/src/components/ph-icon/question/ph-icon-question';
-import '@arc-web/components/src/components/switch/arc-switch';
 import { DetailsPanelComponent } from '@components/details-panel/details-panel.component';
 import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
 import { FlagModalComponent, FlagModalData, FlagModalResult } from '@components/flag-modal/flag.modal.component';
@@ -59,12 +45,15 @@ import { EMPTY, Observable, combineLatest, filter, first, forkJoin, map, switchM
         MinimapComponent,
         ResultsPanelComponent,
         AsyncPipe,
+        MatToolbarModule,
+        MatIconModule,
+        MatButtonModule,
     ],
     templateUrl: './shell.component.html',
     styleUrl: './shell.component.scss',
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ShellComponent implements AfterViewInit, OnChanges {
+export class ShellComponent {
     readonly #breakpointObserver = inject(BreakpointObserver);
     readonly #dataDownloadService = inject(DataDownloadService);
     readonly #dataService = inject(DataService);
@@ -80,8 +69,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     readonly #zone = inject(NgZone);
 
     public contextData$: Observable<FeatureCollection<Geometry, GeoJsonProperties>[]>;
-    public filterProps?: FilterProps;
-    public loading = this.#dataService.loading;
+    public filterProps: FilterProps = {};
     public mapConfig!: URLStateModel;
     public minimapData?: MinimapData;
     public resultsPanelCollapsed: boolean = false;
@@ -90,11 +78,11 @@ export class ShellComponent implements AfterViewInit, OnChanges {
     public title = 'IRIS';
 
     // get map state from route query params
-    @Input({ transform: numberAttribute }) public bearing: number = 0;
-    @Input({ transform: numberAttribute }) public lat: number = 0;
-    @Input({ transform: numberAttribute }) public lng: number = 0;
-    @Input({ transform: numberAttribute }) public pitch: number = 0;
-    @Input({ transform: numberAttribute }) public zoom: number = 0;
+    public bearing: InputSignal<number> = input<number, number>(0, { transform: numberAttribute });
+    public lat: InputSignal<number> = input<number, number>(0, { transform: numberAttribute });
+    public lng: InputSignal<number> = input<number, number>(0, { transform: numberAttribute });
+    public pitch: InputSignal<number> = input<number, number>(0, { transform: numberAttribute });
+    public zoom: InputSignal<number> = input<number, number>(0, { transform: numberAttribute });
 
     // get filters from route query params
     @Input() set filter(filter: string) {
@@ -107,19 +95,7 @@ export class ShellComponent implements AfterViewInit, OnChanges {
         }
     }
 
-    @ViewChild('accessibility') public accessibility?: ElementRef<ArcAccessibility>;
-    @ViewChild('colorBlindSwitch') public colorBlindSwitch?: ElementRef<ArcSwitch>;
-
-    public companyLogoSrc = computed(() => {
-        const theme = this.#settings.get(SETTINGS.Theme);
-
-        if (!theme()) {
-            return '';
-        }
-
-        const imageSrc = this.#runtimeConfig.companyLogo[theme()];
-        return imageSrc || '';
-    });
+    public loading = computed(() => this.#dataService.loading());
 
     constructor() {
         this.contextData$ = combineLatest([this.#dataService.contextData$, toObservable(this.#dataService.buildings)]).pipe(
@@ -135,63 +111,34 @@ export class ShellComponent implements AfterViewInit, OnChanges {
         if (window.innerWidth < 1280) {
             this.showMinimap = false;
         }
-    }
 
-    public ngOnChanges(): void {
-        const mapConfig: URLStateModel = {
-            bearing: this.bearing,
-            pitch: this.pitch,
-            zoom: this.zoom,
-            center: [this.lat, this.lng],
-        };
-        this.mapConfig = mapConfig;
+        effect(() => {
+            const bearing = this.bearing();
+            const pitch = this.pitch();
+            const zoom = this.zoom();
+            const lat = this.lat();
+            const lng = this.lng();
+            this.mapConfig = { bearing, pitch, zoom, center: [lat, lng] };
 
-        /**
-         * Trigger a update of building color
-         * whenever an input changes.
-         * This should be done on any map
-         * or filter related change.
-         * However if @Input()'s are added
-         * which are unrelated to the map
-         * or filters, a condition statement
-         * will need to be added
-         */
-        this.#mapService.mapLoaded$
-            .pipe(
-                take(1),
-                map(() => this.updateBuildingLayerColour()),
-            )
-            .subscribe();
-    }
+            const loading = this.loading();
 
-    public ngAfterViewInit(): void {
-        const colorBlindMode = this.#settings.get(SETTINGS.ColorBlindMode);
-        this.setColorBlindMode(colorBlindMode());
-        if (this.colorBlindSwitch) {
-            this.colorBlindSwitch.nativeElement.checked = colorBlindMode();
-        }
-    }
+            if (loading) {
+                return;
+            }
 
-    public handleShowAccessibility(event: Event): void {
-        event.preventDefault();
-        this.accessibility?.nativeElement.show();
+            this.#mapService.mapLoaded$
+                .pipe(
+                    take(1),
+                    map(() => this.updateBuildingLayerColour()),
+                )
+                .subscribe();
+        });
     }
 
     public handleColorBlindSwitchChange(event: Event): void {
         const colorBlindMode = (event.target as HTMLInputElement).checked;
         this.setColorBlindMode(colorBlindMode);
         this.#settings.set(SETTINGS.ColorBlindMode, colorBlindMode);
-    }
-
-    public handleAccessibilityChange(event: Event): void {
-        type IEvent = CustomEvent<{ preferences: UserPreferences }>;
-        let { theme } = (event as IEvent).detail.preferences;
-        if (theme === 'auto') {
-            const { matches } = window.matchMedia('(prefers-color-scheme: dark)');
-            theme = matches ? 'dark' : 'light';
-        }
-        this.#document?.body?.setAttribute('theme', theme);
-        this.#settings.set(SETTINGS.Theme, theme);
     }
 
     private setColorBlindMode(colorBlindMode: boolean): void {
@@ -277,7 +224,9 @@ export class ShellComponent implements AfterViewInit, OnChanges {
 
         this.#dialog
             .open<DownloadWarningComponent, DownloadDataWarningData, DownloadDataWarningResponse>(DownloadWarningComponent, {
-                panelClass: 'data-download',
+                panelClass: 'download-modal',
+                width: '90%',
+                maxWidth: '50rem',
                 data: {
                     addresses,
                     addressCount,
@@ -349,11 +298,11 @@ export class ShellComponent implements AfterViewInit, OnChanges {
                 delete filter[key as keyof AdvancedFiltersFormModel];
             }
         }
-        const queryParams = this.createQueryParams(filter as unknown as { [key: string]: string[] });
+        const queryParams = this.createQueryParams(filter as unknown as Record<string, string[]>);
         this.navigate(queryParams);
     }
 
-    public setFilterParams(filter: { [key: string]: string[] }): void {
+    public setFilterParams(filter: Record<string, string[]>): void {
         const queryParams = this.createQueryParams(filter);
         this.navigate(queryParams);
     }
@@ -416,16 +365,15 @@ export class ShellComponent implements AfterViewInit, OnChanges {
                               maxHeight: '100vh',
                           }
                         : {
-                              width: 'auto',
-                              height: 'auto',
-                              minWidth: '400px',
+                              width: '90%',
+                              maxWidth: '34rem',
                           }),
                 }),
             ),
         );
     }
 
-    private createQueryParams(filter: { [key: string]: string[] }): Record<'filter', string | undefined> {
+    private createQueryParams(filter: Record<string, string[]>): Record<'filter', string | undefined> {
         Object.keys(filter).forEach((key: string) => {
             if (this.filterProps?.[key as FilterKeys]) {
                 delete this.filterProps[key as FilterKeys];

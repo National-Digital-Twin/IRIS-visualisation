@@ -1,0 +1,32 @@
+:host {
+    position: absolute;
+    z-index: 1000;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: var(--mat-sys-surface-container-low);
+}
+
+.loading {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+
+    width: 90%;
+    max-width: 820px;
+
+    text-align: center;
+
+    h1 {
+        font-size: 4rem;
+        color: var(--mat-sys-primary);
+    }
+
+    .message {
+        font-size: 2rem;
+        color: var(--mat-sys-primary);
+    }
+}

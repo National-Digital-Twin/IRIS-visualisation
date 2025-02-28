@@ -3,7 +3,7 @@ import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, inpu
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipModule } from '@angular/material/tooltip';
 import { LegendComponent } from '@components/legend/legend.component';
 import { MapLayerConfig } from '@core/models/map-layer-config.model';
 import { MinimapData } from '@core/models/minimap-data.model';
@@ -23,6 +23,7 @@ import { map, skip, take } from 'rxjs';
     templateUrl: './map.component.html',
     styleUrl: './map.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
+    providers: [{ provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: { position: 'before' } }],
 })
 export class MapComponent implements AfterViewInit, OnDestroy {
     readonly #settings = inject(SettingsService);
@@ -114,8 +115,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
      * Map event listeners
      */
     private initMapEvents(): void {
-        this.#mapService.mapInstance.on('error', (error) => console.log('[ MAP ERROR ]', { error }));
-        this.#mapService.mapInstance.on('styleimagemissing', (error) => console.log('[ Image Missing ]', { error }));
+        this.#mapService.mapInstance.on('error', (error) => console.log('[MAP]', 'Map Error', { error }));
+        this.#mapService.mapInstance.on('styleimagemissing', (error) => console.log('[MAP]', 'Image Missing', { error }));
 
         /* If the map style changes, re-add layers */
         this.#mapService.mapInstance.on('style.load', () => this.#mapService.addLayers().pipe(take(1)).subscribe());
