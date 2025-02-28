@@ -3,7 +3,7 @@
 @let indent = buildingSelection() ? 2 : 1;
 
 @if (building) {
-    <c477-info-panel [expanded]="expanded" [indent]="indent">
+    <c477-info-panel [expanded]="indent === 1 || expanded" [indent]="indent">
         <div class="details-panel">
             <div class="header">
                 <div class="panel-button">

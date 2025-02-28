@@ -1,10 +1,14 @@
 <mat-expansion-panel class="mat-elevation-z" [hideToggle]="false" (expandedChange)="cardSelected.emit(parentDataset)">
-    <mat-expansion-panel-header collapsedHeight="auto" expandedHeight="auto" [ngClass]="{ 'results-card--select': parentDataset.ParentTOID === buildingTOID }">
+    <mat-expansion-panel-header
+        collapsedHeight="auto"
+        expandedHeight="auto"
+        [ngClass]="{ 'results-card--select': parentDataset.ParentTOID === buildingTOID() }"
+    >
         <c477-results-card
             [card]="parentDataset"
-            [select]="select"
+            [select]="select()"
             [parent]="true"
-            [checked]="cardIsChecked(dwellings)"
+            [checked]="checked()"
             (toggleChecked)="onToggleCheckedDwellings($event)"
             (cardSelected)="cardSelected.emit($event)"
         />
@@ -14,8 +18,8 @@
         @for (dwelling of sortedDwellings(); track dwelling.UPRN) {
             <c477-results-card
                 [card]="dwelling"
-                [select]="select"
-                [checked]="cardIsChecked([dwelling])"
+                [select]="select()"
+                [checked]="isChecked(dwelling)"
                 (emitViewDetails)="emitViewDetails.emit($event)"
                 (toggleChecked)="toggleChecked.emit(dwelling)"
                 (flag)="flag.emit([dwelling])"

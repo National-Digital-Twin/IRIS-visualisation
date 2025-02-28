@@ -1,6 +1,6 @@
 import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output, ViewChild, WritableSignal, effect, inject, signal } from '@angular/core';
+import { Component, OutputEmitterRef, WritableSignal, effect, inject, output, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -52,29 +52,35 @@ export class ResultsPanelComponent {
     public selectedCardUPRN = this.#utilService.selectedCardUPRN;
     public selectedParentTOID = this.#utilService.multiDwelling;
 
-    @Output() public flag = new EventEmitter<BuildingModel[]>();
-    @Output() public removeFlag = new EventEmitter<BuildingModel>();
-    @Output() public resultsPanelCollapsed = new EventEmitter<boolean>();
+    public flag: OutputEmitterRef<BuildingModel[]> = output();
+    public removeFlag: OutputEmitterRef<BuildingModel> = output();
+    public resultsPanelCollapsed: OutputEmitterRef<boolean> = output();
 
-    @ViewChild(CdkVirtualScrollViewport) public viewPort?: CdkVirtualScrollViewport;
+    public viewPort = viewChild<CdkVirtualScrollViewport>(CdkVirtualScrollViewport);
 
     constructor(public dialog: MatDialog) {
         /** listen for UPRN set from map click */
         effect(() => {
             const selectedUPRN = this.#utilService.selectedUPRN();
             const selectedTOID = this.#utilService.multiDwelling();
+            const viewPort = this.viewPort();
+
+            if (!viewPort) {
+                return;
+            }
+
             if (selectedUPRN) {
                 const idx = this.buildingSelection()?.findIndex((building) => building[0].UPRN === selectedUPRN);
                 if (idx && idx > -1) {
                     /** scroll to index*/
-                    this.viewPort?.scrollToIndex(idx);
+                    viewPort.scrollToIndex(idx);
                 }
             }
             if (selectedTOID) {
                 const idx = this.buildingSelection()?.findIndex((building) => building[0].ParentTOID === selectedTOID);
                 if (idx && idx > -1) {
                     /** scroll to index*/
-                    this.viewPort?.scrollToIndex(idx);
+                    viewPort.scrollToIndex(idx);
                 }
             }
         });
