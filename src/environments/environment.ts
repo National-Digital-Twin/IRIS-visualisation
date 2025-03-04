@@ -1,5 +1,8 @@
 export const environment = {
     production: true,
+    sparql: {
+        path: '/api/sparql/knowledge/query',
+    },
     mapbox: {
         apiKeyapiKey: 'none',
     },
