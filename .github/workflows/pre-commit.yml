@@ -24,6 +24,6 @@ jobs:
           pip install pre-commit
       - uses: pre-commit/action@v3.0.1
         with:
-          config: .pre-commit-config.yaml
+          extra_args: --hook-stage=manual --all-files
       - name: Run linter
         run: npm run lint
