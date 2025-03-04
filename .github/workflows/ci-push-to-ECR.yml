@@ -1,0 +1,123 @@
+name: Backend CD push to ECR
+
+on:
+  workflow_call:
+    inputs:
+      aws_account_number:
+        type: string
+        required: true
+        description: "AWS Account Number for ECR"
+      repo_name:
+        type: string
+        required: true
+        description: "Name of the repository in ECR"
+      version:
+        type: string
+        required: false
+        description: "Optional version number to skip version generation steps"
+  workflow_dispatch:
+    inputs:
+      aws_account_number:
+        type: string
+        required: true
+        description: "AWS Account Number for ECR"
+      repo_name:
+        type: string
+        required: true
+        description: "Name of the repository in ECR"
+      version:
+        type: string
+        required: false
+        description: "Optional version number to skip version generation steps"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  versioning:
+    name: Semantic Versioning
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.set-version.outputs.version }}
+    steps:
+      - name: Generate Patch Version (Timestamp)
+        id: generate-patch
+        if: ${{ !inputs.version }} # Skip this step if version is provided
+        run: |
+          PATCH=$(date -u +"%Y%m%d%H%M%S")
+          echo "patch_version=${PATCH}" >> $GITHUB_ENV
+
+      - name: Generate Full Semantic Version
+        id: generate-version
+        if: ${{ !inputs.version }} # Skip this step if version is provided
+        run: |
+          MAJOR="${{ github.event.inputs.major || '1' }}"
+          MINOR="${{ github.event.inputs.minor || '0' }}"
+          PATCH="${{ env.patch_version }}"
+          VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Set Version from Input or Generated Version
+        id: set-version
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            echo "Using provided version: ${{ inputs.version }}"
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "Using generated version: ${{ env.VERSION }}"
+            echo "version=${{ env.VERSION }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Print Version
+        run: |
+          echo "Version: ${{ steps.set-version.outputs.version }}"
+
+  docker-build-push:
+    name: Docker Build & Push
+    needs: [versioning]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set VERSION from versioning job
+        run: |
+          echo "VERSION=${{ needs.versioning.outputs.version }}" >> $GITHUB_ENV
+
+      - name: Debug Version Output
+        run: |
+          echo "Version used for tagging: $VERSION"
+
+      - name: Build Docker Image
+        run: |
+          docker build --load \
+                        -t ${{ inputs.aws_account_number }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.repo_name }}:${{ github.sha }} \
+                        -t ${{ inputs.aws_account_number }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.repo_name }}:${{ env.VERSION }} \
+                        -t ${{ inputs.aws_account_number }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.repo_name }}:latest \
+                        -f backend/Dockerfile ./backend
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ inputs.aws_account_number }}:role/ecs-access-for-github
+          aws-region: eu-west-2
+          role-session-name: githubsession
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Push Docker Image to ECR
+        run: |
+          docker image push --all-tags ${{ inputs.aws_account_number }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.repo_name }}
+
+      - name: Verify Docker Image
+        run: |
+          docker images
+          aws ecr describe-images --repository-name ${{ inputs.repo_name }} --query 'sort_by(imageDetails, &imagePushedAt)[-1]' --output table  >> $GITHUB_STEP_SUMMARY

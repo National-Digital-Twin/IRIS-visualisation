@@ -1,0 +1,132 @@
+name: IRIS CI
+
+on:
+  workflow_call:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  dependencies:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+      - name: Configure the registry
+        run: |
+          npm config set "@coefficientsystems:registry" "https://npm.pkg.github.com/"
+          npm config set "//npm.pkg.github.com/:_authToken" $GITHUB_TOKEN
+          npm whoami --registry=https://npm.pkg.github.com
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build
+        run: npm run build
+
+      - name: Zip the built application
+        if: success()
+        run: zip -r dist.zip dist
+
+      - name: Upload built application
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: iris-visualisation.zip
+          path: dist
+          retention-days: 28
+  linting:
+    name: Code Linting
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: dependencies
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+      - name: Check linting
+        run: npm run lint
+  testing:
+    name: Unit Testing
+    runs-on: ubuntu-latest
+    needs: linting
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+      - name: Run Unit test
+        run: npm test
+
+  security-scanning:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: testing
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Trivy
+        run: |
+          wget -q https://github.com/aquasecurity/trivy/releases/download/v0.18.3/trivy_0.18.3_Linux-64bit.deb # Update Trivy Version if needed
+          sudo dpkg -i trivy_0.18.3_Linux-64bit.deb
+
+      - name: Run Trivy Scan
+        run: |
+          trivy fs --severity HIGH,CRITICAL backend  >> $GITHUB_STEP_SUMMARY
+
+  docker-build-test-scan:
+    name: Docker Build, Test & Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: security-scanning
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          file: "backend/Dockerfile"
+          context: "./docker"
+          load: true
+          tags: "national-digital-twin/iris-visualisation:latest"
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: "national-digital-twin/iris-visualisation:latest"
+          format: "table"
+          exit-code: "1"
+          ignore-unfixed: true
+          vuln-type: "os,library"
+          severity: "CRITICAL,HIGH"
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker stop backend

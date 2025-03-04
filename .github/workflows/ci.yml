@@ -1,111 +1,111 @@
-name: Continuous Integration & Deployment
+# name: Continuous Integration & Deployment
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-  release:
-    types:
-      - published
-  workflow_dispatch:
+# on:
+#   push:
+#     branches: [main]
+#   pull_request:
+#     branches: [main]
+#   release:
+#     types:
+#       - published
+#   workflow_dispatch:
 
-jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup NodeJS
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
-      - name: Install dependencies
-        run: npm ci
-      - name: Run linter
-        run: npm run lint
-  deploy-dev:
-    if: github.ref === 'refs/heads/main' && (github.event_name === 'push' || github.event_name === 'workflow_dispatch')
-    needs: [lint]
-    environment: dev
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-      packages: read
-    steps:
-      - uses: actions/checkout@v3
+# jobs:
+#   lint:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v3
+#       - name: Setup NodeJS
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: '18'
+#           cache: 'npm'
+#       - name: Install dependencies
+#         run: npm ci
+#       - name: Run linter
+#         run: npm run lint
+#   deploy-dev:
+#     if: github.ref === 'refs/heads/main' && (github.event_name === 'push' || github.event_name === 'workflow_dispatch')
+#     needs: [lint]
+#     environment: dev
+#     runs-on: ubuntu-latest
+#     permissions:
+#       id-token: write
+#       contents: read
+#       packages: read
+#     steps:
+#       - uses: actions/checkout@v3
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@master
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          aws-region: ${{ secrets.AWS_REGION }}
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@master
+#         with:
+#           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+#           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Setup NodeJS
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
+#       - name: Setup NodeJS
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: '18'
+#           cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
-        env:
-          ENV: 'dev'
-          MAPBOX_API_KEY: ${{ secrets.MAPBOX_API_KEY }}
-          OS_API_KEY: ${{ secrets.OS_API_KEY }}
-          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
-      - name: Create environment file
-        run: npm run config
-        env:
-          ENV: 'dev'
-          MAPBOX_API_KEY: ${{ secrets.MAPBOX_API_KEY }}
-          OS_API_KEY: ${{ secrets.OS_API_KEY }}
-          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
-      - name: Build
-        run: npm run build:dev
-      - name: Deploy to development
-        run: |
-          aws s3 sync ./dist/c477-vis s3://${{ secrets.S3_BUCKET }}/c477-vis
-  deploy-prod:
-    needs: [deploy-dev]
-    environment: prod
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-      packages: read
-    steps:
-      - uses: actions/checkout@v3
+#       - name: Install dependencies
+#         run: npm ci
+#         env:
+#           ENV: 'dev'
+#           MAPBOX_API_KEY: ${{ secrets.MAPBOX_API_KEY }}
+#           OS_API_KEY: ${{ secrets.OS_API_KEY }}
+#           POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
+#       - name: Create environment file
+#         run: npm run config
+#         env:
+#           ENV: 'dev'
+#           MAPBOX_API_KEY: ${{ secrets.MAPBOX_API_KEY }}
+#           OS_API_KEY: ${{ secrets.OS_API_KEY }}
+#           POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
+#       - name: Build
+#         run: npm run build:dev
+#       - name: Deploy to development
+#         run: |
+#           aws s3 sync ./dist/c477-vis s3://${{ secrets.S3_BUCKET }}/c477-vis
+#   deploy-prod:
+#     needs: [deploy-dev]
+#     environment: prod
+#     runs-on: ubuntu-latest
+#     permissions:
+#       id-token: write
+#       contents: read
+#       packages: read
+#     steps:
+#       - uses: actions/checkout@v3
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@master
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          aws-region: ${{ secrets.AWS_REGION }}
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@master
+#         with:
+#           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+#           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Setup NodeJS
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
+#       - name: Setup NodeJS
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: '18'
+#           cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
-        env:
-          ENV: 'prod'
-          MAPBOX_API_KEY: ${{ secrets.MAPBOX_API_KEY }}
-          OS_API_KEY: ${{ secrets.OS_API_KEY }}
-          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
-      - name: Create environment file
-        run: npm run config
-        env:
-          ENV: 'prod'
-          MAPBOX_API_KEY: ${{ secrets.MAPBOX_API_KEY }}
-          OS_API_KEY: ${{ secrets.OS_API_KEY }}
-          POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
-      - name: Build
-        run: npm run build
-      - name: Deploy to production
-        run: |
-          aws s3 sync ./dist/iris s3://${{ secrets.S3_BUCKET }}/iris
+#       - name: Install dependencies
+#         run: npm ci
+#         env:
+#           ENV: 'prod'
+#           MAPBOX_API_KEY: ${{ secrets.MAPBOX_API_KEY }}
+#           OS_API_KEY: ${{ secrets.OS_API_KEY }}
+#           POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
+#       - name: Create environment file
+#         run: npm run config
+#         env:
+#           ENV: 'prod'
+#           MAPBOX_API_KEY: ${{ secrets.MAPBOX_API_KEY }}
+#           OS_API_KEY: ${{ secrets.OS_API_KEY }}
+#           POSTHOG_KEY: ${{ secrets.POSTHOG_KEY }}
+#       - name: Build
+#         run: npm run build
+#       - name: Deploy to production
+#         run: |
+#           aws s3 sync ./dist/iris s3://${{ secrets.S3_BUCKET }}/iris

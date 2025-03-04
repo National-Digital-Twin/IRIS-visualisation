@@ -1,0 +1,5 @@
+- repo: https://github.com/pre-commit/mirrors-eslint
+  rev: v9.21.0
+  hooks:
+  - id: eslint
+    files: \.(js|jsx|ts|tsx)

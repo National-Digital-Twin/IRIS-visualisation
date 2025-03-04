@@ -1,19 +1,19 @@
-on:
-  push:
-    branches:
-      - main
+# on:
+#   push:
+#     branches:
+#       - main
 
-permissions:
-  contents: write
-  pull-requests: write
+# permissions:
+#   contents: write
+#   pull-requests: write
 
-name: release-please
+# name: release-please
 
-jobs:
-  release-please:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: google-github-actions/release-please-action@v3
-        with:
-          release-type: node
-          package-name: c477-vis-app
+# jobs:
+#   release-please:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: google-github-actions/release-please-action@v3
+#         with:
+#           release-type: node
+#           package-name: c477-vis-app

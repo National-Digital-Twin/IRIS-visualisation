@@ -1,0 +1,85 @@
+name: Release on New Release Branch
+
+on:
+  push:
+    branches:
+      - main
+      - "release/*"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  versioning:
+    name: Extract Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.extract_version.outputs.VERSION }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Ensure full history for tagging
+
+      - name: Extract version from branch name
+        id: extract_version
+        run: |
+          VERSION=$(echo "${GITHUB_REF#refs/heads/release/}")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Validate Version Format (Semantic Versioning)
+        run: |
+          if [[ ! "${{ env.VERSION }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid version format! Expected x.y.z (e.g., 1.2.3)"
+            exit 1
+          fi
+
+  tagging:
+    name: Create Git Tag
+    needs: versioning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Ensure full history for tagging
+
+      - name: Create Git Tag
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: "v${{ needs.versioning.outputs.version }}"
+          message: "Release v${{ needs.versioning.outputs.version }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+  backend-ci:
+    needs: [versioning]
+    uses: ./.github/workflows/node-ci.yml
+
+  backend-push-to-ECR:
+    needs: [versioning, tagging, backend-ci]
+    uses: ./.github/workflows/ci-push-to-ECR.yml
+    with:
+      aws_account_number: "503561419905" # Demo
+      repo_name: "national-digital-twin/iris-visualisation"
+      version: "${{ needs.versioning.outputs.version }}"
+
+  release:
+    name: Create GitHub Release
+    needs: [tagging, backend-push-to-ECR]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "v${{ needs.versioning.outputs.version }}"
+          name: "Release v${{ needs.versioning.outputs.version }}"
+          body: "Automated release for version ${{ needs.versioning.outputs.version }}"
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
