@@ -198,6 +198,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                 });
             }
         });
+
         this.wardPopup.on('close', () => {
             this.#mapService.filterMapLayer({
                 layerId: 'wards-selected',

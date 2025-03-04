@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, InputSignal, OutputEmitterRef, effect, inject, input, output } from '@angular/core';
+import { Component, DestroyRef, InputSignal, OutputEmitterRef, WritableSignal, effect, inject, input, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -33,7 +34,7 @@ import { AddressSearchService } from '@core/services/address-search.service';
 import { MapService } from '@core/services/map.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { LngLat } from 'mapbox-gl';
-import { Observable, debounceTime, distinctUntilChanged, of, switchMap, tap } from 'rxjs';
+import { debounceTime, filter, map, switchMap } from 'rxjs';
 
 @Component({
     selector: 'c477-main-filters',
@@ -56,9 +57,19 @@ import { Observable, debounceTime, distinctUntilChanged, of, switchMap, tap } fr
 })
 export class MainFiltersComponent {
     readonly #fb: FormBuilder = inject(FormBuilder);
+    readonly #dialog = inject(MatDialog);
     readonly #addressSearchService = inject(AddressSearchService);
     readonly #mapService = inject(MapService);
     readonly #spatialQueryService = inject(SpatialQueryService);
+    readonly #destroyRef = inject(DestroyRef);
+
+    public addressForm: FormGroup;
+    public epcRatings: Record<string, string> = EPCRating;
+    public numberFilters: number = 0;
+    public propertyTypes: Record<string, string> = PropertyType;
+    public addressOptions: WritableSignal<AddressSearchData[]> = signal([]);
+
+    private advancedFiltersForm?: FormGroup;
 
     public filterProps: InputSignal<FilterProps> = input.required();
 
@@ -67,37 +78,26 @@ export class MainFiltersComponent {
     public setAdvancedFilters: OutputEmitterRef<AdvancedFiltersFormModel> = output();
     public setRouteParams: OutputEmitterRef<Record<string, string[]>> = output();
 
-    public addressForm: FormGroup;
-    public epcRatings: Record<string, string> = EPCRating;
-    public numberFilters: number = 0;
-    public propertyTypes: Record<string, string> = PropertyType;
-    public results$: Observable<AddressSearchData[]>;
-
-    private advancedFiltersForm?: FormGroup;
-    private firstAddress?: AddressSearchData;
-
-    constructor(public dialog: MatDialog) {
+    constructor() {
         const addressSearch = new FormControl('');
-        this.addressForm = new FormGroup({ address: addressSearch });
+        this.addressForm = new FormGroup({ addressSearch });
 
-        this.results$ = addressSearch.valueChanges.pipe(
-            debounceTime(200),
-            distinctUntilChanged(),
-            switchMap((value): Observable<AddressSearchData[]> => {
-                if (value) {
-                    return this.#addressSearchService.getAddresses(value);
-                } else {
-                    return of<AddressSearchData[]>([]);
-                }
-            }),
-            tap((results) => {
-                if (results.length > 0) {
-                    this.firstAddress = results[0];
-                } else {
-                    this.firstAddress = undefined;
-                }
-            }),
-        );
+        this.addressForm.valueChanges
+            .pipe(
+                map((result) => this.selectAddress(result.addressSearch)),
+                takeUntilDestroyed(this.#destroyRef),
+            )
+            .subscribe();
+
+        addressSearch.valueChanges
+            .pipe(
+                debounceTime(500),
+                filter((value) => typeof value === 'string'),
+                switchMap((value) => this.#addressSearchService.getAddresses(value as string)),
+                map((result) => this.addressOptions.set(result)),
+                takeUntilDestroyed(this.#destroyRef),
+            )
+            .subscribe();
 
         effect(() => {
             const filterProps = this.filterProps();
@@ -136,33 +136,23 @@ export class MainFiltersComponent {
     }
 
     /**
-     * if the address has been selected in the autocomplete
-     * zoom to that, otherwise zoom to first matching address
+     * if the address has been selected in the autocomplete zoom to that
      * @param result AddressSearchData (optional)
      * @returns substring without last item
      */
-    public selectAddress(result?: AddressSearchData): void {
-        let coords: LngLat;
-
-        /** if address string is empty the it's a postcode result from the names API */
-        if (result && result.ADDRESS !== '') {
-            coords = new LngLat(result.LNG, result.LAT);
-            this.addressSelected.emit(result.TOPOGRAPHY_LAYER_TOID);
-            this.#mapService.zoomToCoords(coords);
-        } else if (this.firstAddress && this.firstAddress.ADDRESS !== '') {
-            coords = new LngLat(this.firstAddress.LNG, this.firstAddress.LAT);
-            this.addressSelected.emit(this.firstAddress.TOPOGRAPHY_LAYER_TOID);
-            this.#mapService.zoomToCoords(coords);
+    public selectAddress(result: AddressSearchData): void {
+        if (!result.ADDRESS) {
+            return;
         }
 
-        /** zoom to postcode */
-        if (result && result.ADDRESS === '') {
-            this.#mapService.zoomToCoords([result.LNG, result.LAT], 16);
-        }
+        const coords: LngLat = new LngLat(result.LNG, result.LAT);
+        const map = this.#mapService.zoomToCoords(coords);
+        map.once('movestart', () => this.addressSelected.emit(''));
+        map.once('moveend', () => this.addressSelected.emit(result.TOPOGRAPHY_LAYER_TOID));
     }
 
     public openAdvancedFilters(): void {
-        const dialogRef = this.dialog.open(FilterPanelComponent, {
+        const dialogRef = this.#dialog.open(FilterPanelComponent, {
             panelClass: 'filter-panel',
             width: '90%',
             maxWidth: '60rem',

@@ -4,15 +4,13 @@
     <form [formGroup]="addressForm">
         <mat-form-field class="address-lookup">
             <mat-label>Search by address, postcode</mat-label>
-            <input matInput type="text" aria-label="Search by address" formControlName="address" [matAutocomplete]="addressHints" />
-            <mat-autocomplete #addressHints="matAutocomplete">
-                @for (result of results$ | async; track result.UPRN) {
-                    <mat-option [value]="getOptionValue(result)" (onSelectionChange)="selectAddress(result)"
-                        >{{ removePostCode(result.ADDRESS) | titlecase }} {{ result.POSTCODE }}</mat-option
-                    >
+            <input matInput type="text" aria-label="Search by address" formControlName="addressSearch" [matAutocomplete]="addressHints" />
+            <mat-autocomplete #addressHints="matAutocomplete" [displayWith]="getOptionValue">
+                @for (result of addressOptions(); track result.UPRN) {
+                    <mat-option [value]="result">{{ removePostCode(result.ADDRESS) | titlecase }} {{ result.POSTCODE }}</mat-option>
                 }
             </mat-autocomplete>
-            <button matSuffix mat-icon-button aria-label="Search" (click)="selectAddress()">
+            <button matSuffix mat-icon-button aria-label="Search">
                 <mat-icon>search</mat-icon>
             </button>
         </mat-form-field>
