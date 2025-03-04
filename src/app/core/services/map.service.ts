@@ -175,9 +175,9 @@ export class MapService {
         return of(this.#runtimeConfig.mapLayers.map((layer: AnyLayer) => this.addMapLayer(layer)));
     }
 
-    public zoomToCoords(center: LngLatLike, zoom: number = 18): void {
-        this.#zone.runOutsideAngular(() => {
-            this.mapInstance.flyTo({
+    public zoomToCoords(center: LngLatLike, zoom: number = 18): mapboxgl.Map {
+        return this.#zone.runOutsideAngular(() => {
+            return this.mapInstance.flyTo({
                 center,
                 zoom,
             });
