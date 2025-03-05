@@ -132,7 +132,7 @@ jobs:
           vuln-type: "os,library"
           severity: "CRITICAL,HIGH"
 
-      - name: Cleanup
-        if: always()
-        run: |
-          docker stop backend
+      # - name: Cleanup
+      #   if: always()
+      #   run: |
+      #     docker stop backend
