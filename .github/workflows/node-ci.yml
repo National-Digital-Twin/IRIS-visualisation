@@ -117,7 +117,7 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@v6
         with:
-          file: "backend/Dockerfile"
+          file: "docker/Dockerfile"
           context: "./docker"
           load: true
           tags: "national-digital-twin/iris-visualisation:latest"
