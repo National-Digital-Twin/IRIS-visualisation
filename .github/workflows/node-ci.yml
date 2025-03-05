@@ -65,6 +65,7 @@ jobs:
               npm run prepare 
               npm run lint:app
               npm run lint:styles
+              npm install
   testing:
     name: Unit Testing
     runs-on: ubuntu-latest
