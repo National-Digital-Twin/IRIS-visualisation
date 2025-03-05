@@ -63,8 +63,8 @@ jobs:
         run: | 
               npm ci 
               npm run prepare 
-              npm lint:app
-              npm lint:styles
+              npm run lint:app
+              npm run lint:styles
   testing:
     name: Unit Testing
     runs-on: ubuntu-latest
