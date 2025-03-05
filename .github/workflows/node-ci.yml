@@ -93,10 +93,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Trivy
-        run: |
-          wget -q https://github.com/aquasecurity/trivy/releases/download/v0.18.3/trivy_0.18.3_Linux-64bit.deb # Update Trivy Version if needed
-          sudo dpkg -i trivy_0.18.3_Linux-64bit.deb
+      # - name: Install Trivy
+      #   run: |
+      #     wget -q https://github.com/aquasecurity/trivy/releases/download/v0.18.3/trivy_0.18.3_Linux-64bit.deb # Update Trivy Version if needed
+      #     sudo dpkg -i trivy_0.18.3_Linux-64bit.deb
 
       - name: Run Trivy Scan
         run: |
