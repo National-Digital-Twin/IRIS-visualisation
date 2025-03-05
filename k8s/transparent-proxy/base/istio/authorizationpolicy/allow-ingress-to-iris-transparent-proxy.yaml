@@ -2,7 +2,7 @@
 apiVersion: security.istio.io/v1
 kind: AuthorizationPolicy
 metadata:
-  name: allow-ingress-to-visualiser
+  name: allow-ingress-to-transparent-proxy
 spec:
   selector:
     matchLabels:
