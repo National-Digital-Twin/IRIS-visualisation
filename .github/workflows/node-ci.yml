@@ -63,7 +63,7 @@ jobs:
         run: | 
               pwd
               ls -ltr
-              npm prepare 
+              npm run prepare 
               npm lint:app
               npm lint:styles
   testing:
