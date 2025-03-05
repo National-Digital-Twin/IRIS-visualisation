@@ -99,10 +99,8 @@ jobs:
           sudo dpkg -i trivy_0.18.3_Linux-64bit.deb
 
       - name: Run Trivy Scan
-        uses: aquasecurity/trivy:latest
-    
-        # run: |
-        #   trivy fs --severity HIGH,CRITICAL backend  >> $GITHUB_STEP_SUMMARY
+        run: |
+          trivy fs ./src --severity HIGH,CRITICAL backend  >> $GITHUB_STEP_SUMMARY
 
   docker-build-test-scan:
     name: Docker Build, Test & Scan
