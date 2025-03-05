@@ -100,7 +100,7 @@ jobs:
 
       - name: Run Trivy Scan
         run: |
-          trivy fs ./src --severity HIGH,CRITICAL backend  >> $GITHUB_STEP_SUMMARY
+          trivy fs --severity HIGH .
 
   docker-build-test-scan:
     name: Docker Build, Test & Scan
