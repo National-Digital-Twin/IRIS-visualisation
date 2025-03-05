@@ -20,11 +20,11 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
           cache-dependency-path: package-lock.json
-      - name: Configure the registry
-        run: |
-          npm config set "@coefficientsystems:registry" "https://npm.pkg.github.com/"
-          npm config set "//npm.pkg.github.com/:_authToken" $GITHUB_TOKEN
-          npm whoami --registry=https://npm.pkg.github.com
+      # - name: Configure the registry
+      #   run: |
+      #     npm config set "@coefficientsystems:registry" "https://npm.pkg.github.com/"
+      #     npm config set "//npm.pkg.github.com/:_authToken" $GITHUB_TOKEN
+      #     npm whoami --registry=https://npm.pkg.github.com
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
