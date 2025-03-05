@@ -118,7 +118,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           file: "docker/Dockerfile"
-          context: "./"
+          context: "./frontend"
           load: true
           tags: "national-digital-twin/iris-visualisation:latest"
 
