@@ -60,7 +60,10 @@ jobs:
           cache: 'npm'
           cache-dependency-path: package-lock.json
       - name: Check linting
-        run: npm run lint
+        run: |
+              npm prepare 
+              npm lint:app
+              npm lint:styles
   testing:
     name: Unit Testing
     runs-on: ubuntu-latest
