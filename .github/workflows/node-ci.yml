@@ -60,7 +60,9 @@ jobs:
           cache: 'npm'
           cache-dependency-path: package-lock.json
       - name: Check linting
-        run: |
+        run: | 
+              pwd
+              ls -ltr
               npm prepare 
               npm lint:app
               npm lint:styles
