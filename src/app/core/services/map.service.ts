@@ -5,9 +5,9 @@ import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token'
 import { environment } from '@environment';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import mapboxgl, {
-    AnyLayer,
-    Expression,
+    ExpressionSpecification,
     Layer,
+    LayerSpecification,
     LngLatBounds,
     LngLatLike,
     PaintSpecification,
@@ -46,21 +46,21 @@ export class MapService {
         });
     }
 
-    public addMapSource(name: string, source: SourceSpecification): void {
-        this.#zone.runOutsideAngular(() => {
+    public addMapSource(name: string, source: SourceSpecification): mapboxgl.Map {
+        return this.#zone.runOutsideAngular(() => {
             const createdSource = this.mapInstance.addSource(name, source);
 
             if (source.type === 'raster-dem') {
                 // add the DEM source as a terrain layer
                 createdSource.setTerrain({ source: name });
             }
+
+            return createdSource;
         });
     }
 
-    public addMapLayer(layerConfig: AnyLayer): void {
-        this.#zone.runOutsideAngular(() => {
-            this.mapInstance.addLayer(layerConfig);
-        });
+    public addMapLayer(layerConfig: LayerSpecification): mapboxgl.Map {
+        return this.#zone.runOutsideAngular(() => this.mapInstance.addLayer(layerConfig));
     }
 
     /**
@@ -69,16 +69,12 @@ export class MapService {
      * Adds an image to the map instance. Runs outside of the ZoneJS.
      */
     private addMapImage(imageId: string, image: HTMLImageElement | ImageBitmap): void {
-        this.#zone.runOutsideAngular(() => {
-            this.mapInstance.addImage(imageId, image);
-        });
+        return this.#zone.runOutsideAngular(() => this.mapInstance.addImage(imageId, image));
     }
 
-    public filterMapLayer(filter: MapLayerFilter): void {
+    public filterMapLayer(filter: MapLayerFilter): mapboxgl.Map {
         const { layerId, expression } = filter;
-        this.#zone.runOutsideAngular(() => {
-            this.mapInstance.setFilter(layerId, expression);
-        });
+        return this.#zone.runOutsideAngular(() => this.mapInstance.setFilter(layerId, expression));
     }
 
     /**
@@ -87,26 +83,20 @@ export class MapService {
      * @param paintProperty paint property to apply expression
      * @param value paint colour expression
      */
-    public setMapLayerPaint(layerId: string, paintProperty: keyof PaintSpecification, value: Expression): void {
-        if (value.length <= 3) return;
-        this.#zone.runOutsideAngular(() => {
-            this.mapInstance.setPaintProperty(layerId, paintProperty, value);
-        });
+    public setMapLayerPaint(layerId: string, paintProperty: keyof PaintSpecification, value: ExpressionSpecification): mapboxgl.Map | void {
+        if (value.length <= 3) {
+            return;
+        }
+        return this.#zone.runOutsideAngular(() => this.mapInstance.setPaintProperty(layerId, paintProperty, value));
     }
 
     /** Query map features within current map bounds */
     public queryFeatures(): GeoJSON.Feature[] {
-        return this.#zone.runOutsideAngular(() => {
-            return this.mapInstance.queryRenderedFeatures({
-                layers: ['OS/TopographicArea_2/Building/1_2D'],
-            });
-        });
+        return this.#zone.runOutsideAngular(() => this.mapInstance.queryRenderedFeatures({ layers: ['OS/TopographicArea_2/Building/1_2D'] }));
     }
 
-    public setStyle(style: string): void {
-        this.#zone.runOutsideAngular(() => {
-            this.mapInstance.setStyle(style);
-        });
+    public setStyle(style: string): mapboxgl.Map {
+        return this.#zone.runOutsideAngular(() => this.mapInstance.setStyle(style));
     }
 
     public transformUrlForProxy(url: string, domain: string, proxy_path: string, strip_auth: string): string {
@@ -155,7 +145,7 @@ export class MapService {
         });
     }
 
-    private addTerrainLayer(): Observable<void> {
+    private addTerrainLayer(): Observable<mapboxgl.Map> {
         const config: RasterDEMSourceSpecification = {
             type: 'raster-dem',
             url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
@@ -171,17 +161,12 @@ export class MapService {
      *  - 3d buildings layer for extruding
      *  - 3d buildings layer for highlighting
      */
-    public addLayers(): Observable<void[]> {
-        return of(this.#runtimeConfig.mapLayers.map((layer: AnyLayer) => this.addMapLayer(layer)));
+    public addLayers(): Observable<mapboxgl.Map[]> {
+        return of(this.#runtimeConfig.mapLayers.map((layer: LayerSpecification) => this.addMapLayer(layer)));
     }
 
     public zoomToCoords(center: LngLatLike, zoom: number = 18): mapboxgl.Map {
-        return this.#zone.runOutsideAngular(() => {
-            return this.mapInstance.flyTo({
-                center,
-                zoom,
-            });
-        });
+        return this.#zone.runOutsideAngular(() => this.mapInstance.flyTo({ center, zoom }));
     }
 
     public destroyMap(): void {
