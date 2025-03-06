@@ -107,13 +107,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: security-scanning
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
-      - name: Build
-        run: |
-              npm run build
+    permissions:
+      contents: read
+      packages: write
+    env:
+      GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+            node-version-file: '.nvmrc'
+            cache: 'npm'
+            cache-dependency-path: package-lock.json
+      - run: npm ci
+      - run: npm run build
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
