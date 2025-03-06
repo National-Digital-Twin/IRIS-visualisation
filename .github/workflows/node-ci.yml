@@ -115,7 +115,9 @@ jobs:
       #   run: npm install -g @angular/cli
 
       - name: Build
-        run: npm run build
+        run: |
+              npm install -g @angular/cli
+              npm run build
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
