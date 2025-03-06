@@ -111,8 +111,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: npm install
-        run: npm install -g @angular/cli
+      # - name: npm install
+      #   run: npm install -g @angular/cli
 
       - name: Build
         run: npm run build
