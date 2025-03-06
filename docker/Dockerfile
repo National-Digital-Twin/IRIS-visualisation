@@ -15,5 +15,5 @@
 FROM nginx:1.27.4
 
 # Copy the built files from the builder stage to the runner stage
-COPY  dist/c477-vis/ /usr/share/nginx/html
+COPY  dist/iris/ /usr/share/nginx/html
 
