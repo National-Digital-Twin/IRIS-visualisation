@@ -13,7 +13,6 @@ spec:
     - match:
         - uri:
             prefix: /
-
       rewrite:
         uriRegexRewrite:
           match: ^/(/|$)(.*)
@@ -23,3 +22,7 @@ spec:
             host: iris-visualiser
             port:
               number: 80
+          headers:
+            response:
+              add:
+                Access-Control-Allow-Origin: "*"
