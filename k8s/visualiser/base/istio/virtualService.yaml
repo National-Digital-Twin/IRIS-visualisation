@@ -22,7 +22,3 @@ spec:
             host: iris-visualiser
             port:
               number: 80
-          headers:
-            response:
-              set:
-                Access-Control-Allow-Origin: "*"
