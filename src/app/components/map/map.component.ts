@@ -14,7 +14,7 @@ import { UtilService } from '@core/services/utils.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { FeatureCollection, GeoJsonProperties, Geometry, Polygon } from 'geojson';
-import { AnyLayer, FillLayerSpecification, MapboxGeoJSONFeature, MapLayerMouseEvent, Popup, SourceSpecification } from 'mapbox-gl';
+import { AnyLayer, FillLayerSpecification, GeoJSONFeature, MapMouseEvent, Popup, SourceSpecification } from 'mapbox-gl';
 import { map, skip, take } from 'rxjs';
 
 @Component({
@@ -126,30 +126,29 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.#mapService.mapInstance.on('draw.update', this.onDrawUpdate.bind(this));
 
         /** Select building event */
-        this.#mapService.mapInstance.on('click', 'OS/TopographicArea_2/Building/1_3D-Single-Dwelling', this.setSelectedTOID.bind(this));
-        this.#mapService.mapInstance.on('click', 'OS/TopographicArea_2/Building/1_3D-Multi-Dwelling', this.setSelectedTOID.bind(this));
+        this.#mapService.mapInstance.on(
+            'click',
+            ['OS/TopographicArea_2/Building/1_3D-Single-Dwelling', 'OS/TopographicArea_2/Building/1_3D-Multi-Dwelling'],
+            (e: MapMouseEvent) => this.setSelectedTOID(e),
+        );
 
         /** Change mouse cursor on building hover */
-        this.#mapService.mapInstance.on('mouseenter', 'OS/TopographicArea_2/Building/1_3D-Single-Dwelling', () => {
-            if (this.drawControl?.getMode() !== 'draw_polygon') {
-                this.#mapService.mapInstance.getCanvas().style.cursor = 'pointer';
-            }
-        });
-
-        this.#mapService.mapInstance.on('mouseenter', 'OS/TopographicArea_2/Building/1_3D-Multi-Dwelling', () => {
-            if (this.drawControl?.getMode() !== 'draw_polygon') {
-                this.#mapService.mapInstance.getCanvas().style.cursor = 'pointer';
-            }
-        });
+        this.#mapService.mapInstance.on(
+            'mouseenter',
+            ['OS/TopographicArea_2/Building/1_3D-Single-Dwelling', 'OS/TopographicArea_2/Building/1_3D-Multi-Dwelling'],
+            () => {
+                if (this.drawControl?.getMode() !== 'draw_polygon') {
+                    this.#mapService.mapInstance.getCanvas().style.cursor = 'pointer';
+                }
+            },
+        );
 
         /** Remove mouse cursor when hovering off a building */
-        this.#mapService.mapInstance.on('mouseleave', 'OS/TopographicArea_2/Building/1_3D-Single-Dwelling', () => {
-            this.#mapService.mapInstance.getCanvas().style.cursor = '';
-        });
-
-        this.#mapService.mapInstance.on('mouseleave', 'OS/TopographicArea_2/Building/1_3D-Multi-Dwelling', () => {
-            this.#mapService.mapInstance.getCanvas().style.cursor = '';
-        });
+        this.#mapService.mapInstance.on(
+            'mouseleave',
+            ['OS/TopographicArea_2/Building/1_3D-Single-Dwelling', 'OS/TopographicArea_2/Building/1_3D-Multi-Dwelling'],
+            () => (this.#mapService.mapInstance.getCanvas().style.cursor = ''),
+        );
 
         /** Get map state whenever the map is moved */
         this.#mapService.mapInstance.on('moveend', () => {
@@ -157,11 +156,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         });
 
         /** wards layer click */
-        this.#mapService.mapInstance.on('click', 'wards', (e: MapLayerMouseEvent) => {
+        this.#mapService.mapInstance.on('click', 'wards', (e: MapMouseEvent) => {
             /** check if the active draw layer is being clicked */
-            const features: MapboxGeoJSONFeature[] = this.#mapService.mapInstance
+            const features: GeoJSONFeature[] = this.#mapService.mapInstance
                 .queryRenderedFeatures(e.point)
-                .filter((feature: MapboxGeoJSONFeature) => feature.source === 'mapbox-gl-draw-hot');
+                .filter((feature: GeoJSONFeature) => feature.source === 'mapbox-gl-draw-hot');
             /** display popup if active draw layer is not being clicked */
             if (features.length === 0) {
                 if (this.drawControl?.getMode() !== 'draw_polygon') {
@@ -277,7 +276,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         });
     }
 
-    private setSelectedTOID(e: MapLayerMouseEvent): void {
+    private setSelectedTOID(e: MapMouseEvent): void {
         if (e.features && this.drawControl?.getMode() !== 'draw_polygon') {
             this.setSelectedBuildingTOID.emit(e.features![0].properties!.TOID);
         }
@@ -297,7 +296,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.setRouteParams.emit(mapConfig);
     }
 
-    private wardsLayerClick(e: MapLayerMouseEvent): void {
+    private wardsLayerClick(e: MapMouseEvent): void {
         if (e.features?.length) {
             /** highlight selected ward */
             this.#mapService.filterMapLayer({
