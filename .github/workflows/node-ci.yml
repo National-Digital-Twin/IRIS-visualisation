@@ -66,11 +66,6 @@ jobs:
               npm run lint:app
               npm run lint:styles
 
-      - name: Run ESLint CI
-        working-directory: node
-        run: npm install -g eslint
-        continue-on-error: true
-
   testing:
     name: Unit Testing
     runs-on: ubuntu-latest
