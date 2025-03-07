@@ -145,10 +145,10 @@ jobs:
       - name: Run Docker Image
         run: |
             docker images
-            docker run --rm -d -p 80:80 --name  iris iris-visualisation/iris:latest
+            docker run --rm -d -p 80:80 --name node-ci IRIS-visualisation/node-ci:latest
             sleep 10
-            docker logs iris
-            docker exec iris ls -l /usr/share/nginx/html
+            docker logs node-ci
+            docker exec node-ci ls -l /usr/share/nginx/html
 
       - name: Ping App
         run: |
