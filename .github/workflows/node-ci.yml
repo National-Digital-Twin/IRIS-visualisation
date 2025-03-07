@@ -142,6 +142,14 @@ jobs:
           load: true
           tags: "national-digital-twin/iris-visualisation:latest"
 
+      - name: Run Docker Image
+        run: |
+            docker images
+            docker run --rm -d -p 80:80 --name  iris national-digital-twin/iris-visualisation:latest
+            sleep 10
+            docker logs iris
+            docker exec iris ls -l /usr/share/nginx/html
+
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.28.0
         with:
