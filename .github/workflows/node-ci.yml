@@ -33,13 +33,6 @@ jobs:
       # - name: Check for outdated dependencies with npm-check-updates
       #   run: npx npm-check-updates --upgrade
 
-      # - name: Upload built application
-      #   if: success()
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: iris-visualisation.zip
-      #     path: dist
-      #     retention-days: 28
   linting:
     name: Code Linting
     runs-on: ubuntu-latest
