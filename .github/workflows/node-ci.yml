@@ -25,13 +25,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
         
-      # - name: Run npm outdated (Dependency Update Check)
-      #   run: npm outdated
+      # # - name: Run npm outdated (Dependency Update Check)
+      # #   run: npm outdated
 
-      - name: Check for outdated dependencies with npm-check-updates
-        run: npx npm-check-updates --upgrade
+      # - name: Check for outdated dependencies with npm-check-updates
+      #   run: npx npm-check-updates --upgrade
 
       # - name: Upload built application
       #   if: success()
