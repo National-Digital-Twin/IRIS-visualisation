@@ -34,17 +34,17 @@ jobs:
       # - name: Build
       #   run: npm run build
 
-      - name: Zip the built application
-        if: success()
-        run: zip -r dist.zip dist
+      # - name: Zip the built application
+      #   if: success()
+      #   run: zip -r dist.zip dist
 
-      - name: Upload built application
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: iris-visualisation.zip
-          path: dist
-          retention-days: 28
+      # - name: Upload built application
+      #   if: success()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: iris-visualisation.zip
+      #     path: dist
+      #     retention-days: 28
   linting:
     name: Code Linting
     runs-on: ubuntu-latest
@@ -123,6 +123,18 @@ jobs:
             cache-dependency-path: package-lock.json
       - run: npm ci
       - run: npm run build
+
+      - name: Zip the built application
+        if: success()
+        run: zip -r dist.zip dist
+
+      - name: Upload built application
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: iris-visualisation.zip
+          path: dist
+          retention-days: 28
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
