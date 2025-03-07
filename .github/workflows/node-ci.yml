@@ -31,9 +31,6 @@ jobs:
         run: npm outdated
         continue-on-error: true
 
-      - name: Check npm integrity (integrity to verify the integrity od dependencies)
-        run: npm check --integrity
-
   linting:
     name: Code Linting
     runs-on: ubuntu-latest
