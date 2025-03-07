@@ -145,10 +145,10 @@ jobs:
       - name: Run Docker Image
         run: |
             docker images
-            docker run --rm -d -p 80:80 --name node-ci IRIS-visualisation/node-ci:latest
+            docker run --rm -d -p 80:80 --name iris national-digital-twin/iris-visualisation:latest
             sleep 10
-            docker logs node-ci
-            docker exec node-ci ls -l /usr/share/nginx/html
+            docker logs iris
+            docker exec iris ls -l /usr/share/nginx/html
 
       - name: Ping App
         run: |
@@ -170,7 +170,7 @@ jobs:
           vuln-type: "os,library"
           severity: "CRITICAL,HIGH"
 
-      # - name: Cleanup
-      #   if: always()
-      #   run: |
-      #     docker stop backend
+      - name: Cleanup
+        if: always()
+        run: |
+          docker stop backend
