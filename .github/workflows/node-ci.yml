@@ -20,23 +20,18 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
           cache-dependency-path: package-lock.json
-      # - name: Configure the registry
-      #   run: |
-      #     npm config set "@coefficientsystems:registry" "https://npm.pkg.github.com/"
-      #     npm config set "//npm.pkg.github.com/:_authToken" $GITHUB_TOKEN
-      #     npm whoami --registry=https://npm.pkg.github.com
+
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install dependencies
         run: npm ci
         
-      # - name: Build
-      #   run: npm run build
+      - name: Run npm outdated (Dependency Update Check)
+        run: npm outdated
 
-      # - name: Zip the built application
-      #   if: success()
-      #   run: zip -r dist.zip dist
+      - name: Check for outdated dependencies with npm-check-updates
+        run: npx npm-check-updates --upgrade
 
       # - name: Upload built application
       #   if: success()
