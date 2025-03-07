@@ -27,8 +27,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
-      - name: Run npm outdated (Dependency Update Check)
-        run: npm outdated
+      # - name: Run npm outdated (Dependency Update Check)
+      #   run: npm outdated
 
       # - name: Check for outdated dependencies with npm-check-updates
       #   run: npx npm-check-updates --upgrade
@@ -145,10 +145,20 @@ jobs:
       - name: Run Docker Image
         run: |
             docker images
-            docker run --rm -d -p 80:80 --name  node-ci iris-visualisation/node-ci:latest
+            docker run --rm -d -p 80:80 --name  iris iris-visualisation/iris:latest
             sleep 10
-            docker logs node-ci
-            docker exec node-ci ls -l /usr/share/nginx/html
+            docker logs iris
+            docker exec iris ls -l /usr/share/nginx/html
+
+      - name: Ping App
+        run: |
+          status_code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:80/)
+          if [[ "$status_code" == "200" ]]; then
+            echo "Ping successful (200 OK)"  >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Ping failed with status code: $status_code"  >> $GITHUB_STEP_SUMMARY
+            exit 1  # Indicate an error
+          fi
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.28.0
