@@ -32,7 +32,7 @@ jobs:
         continue-on-error: true
 
       - name: Check npm integrity (integrity to verify the integrity od dependencies)
-        run: npm ci --pefer-offline --no-audit && npm check --integrity
+        run: npm check --integrity
 
   linting:
     name: Code Linting
