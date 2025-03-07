@@ -31,8 +31,8 @@ jobs:
         run: npm outdated
         continue-on-error: true
 
-      # - name: Check for outdated dependencies with npm-check-updates
-      #   run: npx npm-check-updates --upgrade
+      - name: Check npm integrity (integrity to verify the integrity od dependencies)
+        run: npm ci --pefer-offline --no-audit && npm check --integrity
 
   linting:
     name: Code Linting
