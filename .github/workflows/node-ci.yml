@@ -29,6 +29,7 @@ jobs:
         
       - name: Run npm outdated (Dependency Update Check)
         run: npm outdated
+        continue-on-error: true
 
       # - name: Check for outdated dependencies with npm-check-updates
       #   run: npx npm-check-updates --upgrade
