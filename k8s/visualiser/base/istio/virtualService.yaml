@@ -32,12 +32,12 @@ spec:
         uriRegexRewrite:
           match: ^/(/|$)(.*)
           rewrite: /\2
+      headers:
+        response:
+          set:
+            Access-Control-Allow-Origin: "*"
       route:
         - destination:
             host: iris-visualiser
             port:
               number: 80
-        headers:
-          response:
-            set:
-              Access-Control-Allow-Origin: "*"
