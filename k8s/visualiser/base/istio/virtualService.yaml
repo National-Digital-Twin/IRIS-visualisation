@@ -1,4 +1,3 @@
-
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 
@@ -10,6 +9,21 @@ spec:
   gateways:
     - placeholder
   http:
+    # Rule for root ("/") to prevent caching
+    - match:
+        - uri:
+            exact: /
+      headers:
+        response:
+          add:
+            Cache-Control: "no-cache, no-store, must-revalidate"
+            Pragma: "no-cache"
+            Expires: "0"
+      route:
+        - destination:
+            host: iris-visualiser
+            port:
+              number: 80
     - match:
         - uri:
             prefix: /
