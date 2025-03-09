@@ -19,6 +19,7 @@ spec:
             Cache-Control: "no-cache, no-store, must-revalidate"
             Pragma: "no-cache"
             Expires: "0"
+            Access-Control-Allow-Origin: *
       route:
         - destination:
             host: iris-visualiser
@@ -36,3 +37,7 @@ spec:
             host: iris-visualiser
             port:
               number: 80
+        headers:
+          response:
+            set:
+              Access-Control-Allow-Origin: *
