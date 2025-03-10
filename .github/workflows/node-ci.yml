@@ -54,7 +54,7 @@ jobs:
               npm run lint:styles
       
       - name: TypeScript Check
-        run: npx tsc --noEmit
+        run: npx tsc 
         continue-on-error: true
 
       - name: Run Prettier
