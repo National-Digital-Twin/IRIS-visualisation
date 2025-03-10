@@ -15,3 +15,7 @@ spec:
       to:
         - operation:
             methods: ["GET","POST"]
+      when:
+       - key: request.auth.claims[groups]
+         values:
+             - iris_access
