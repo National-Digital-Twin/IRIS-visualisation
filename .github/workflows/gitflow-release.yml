@@ -61,12 +61,13 @@ jobs:
     uses: ./.github/workflows/node-ci.yml
 
   backend-push-to-ECR:
-    needs: [versioning, tagging, backend-ci]
+    # needs: [versioning, tagging, backend-ci]
     uses: ./.github/workflows/ci-push-to-ECR.yml
     with:
       aws_account_number: "503561419905" # Demo
       repo_name: "national-digital-twin/iris-visualisation"
-      version: "${{ needs.versioning.outputs.version }}"
+      version: "1.0.0"
+      # version: "${{ needs.versioning.outputs.version }}"
 
   release:
     name: Create GitHub Release
