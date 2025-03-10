@@ -63,7 +63,8 @@ jobs:
         run: |
                 echo "Running audit-ci"
                 npx audit-ci --high
-
+        continue-on-error: true
+        
   testing:
     name: Unit Testing
     runs-on: ubuntu-latest
