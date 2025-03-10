@@ -54,12 +54,10 @@ jobs:
               npm run lint:styles
       
       - name: TypeScript Check
-        working-directory: frontend
         run: npm tsc --noEmit
         continue-on-error: true
 
       - name: Run Prettier
-        working-directory: frontend
         run: npm prettier --check "src/**/*.{js,ts,tsx}"
         continue-on-error: true
 
