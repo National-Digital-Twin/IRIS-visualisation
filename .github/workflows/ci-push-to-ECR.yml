@@ -100,7 +100,7 @@ jobs:
                         -t ${{ inputs.aws_account_number }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.repo_name }}:${{ github.sha }} \
                         -t ${{ inputs.aws_account_number }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.repo_name }}:${{ env.VERSION }} \
                         -t ${{ inputs.aws_account_number }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.repo_name }}:latest \
-                        -f backend/Dockerfile ./backend
+                        -f ./docker/CI-Dockerfile ./
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
