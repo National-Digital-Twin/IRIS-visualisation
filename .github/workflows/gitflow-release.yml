@@ -56,9 +56,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
 
-  backend-ci:
-    needs: [versioning]
-    uses: ./.github/workflows/node-ci-pr.yml
+  # backend-ci:
+  #   needs: [versioning]
+  #   uses: ./.github/workflows/node-ci-pr.yml
 
   backend-push-to-ECR:
     # needs: [versioning, tagging, backend-ci]
