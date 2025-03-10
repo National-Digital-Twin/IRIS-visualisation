@@ -54,17 +54,15 @@ jobs:
               npm run lint:styles
 
       - name: Run Sort-Package-Json (Import Sorting)
-        working-directory: frontend
         run: |
                 echo "Running sort-package-json"
                 npx sort-package-json --check
         continue-on-error: true
    
-      # - name: Run Audit-CI (Security Check)
-      #   working-directory: frontend
-      #   run: |
-      #           echo "Running audit-ci"
-      #           npx audit-ci --high
+      - name: Run Audit-CI (Security Check)
+        run: |
+                echo "Running audit-ci"
+                npx audit-ci --high
 
   testing:
     name: Unit Testing
