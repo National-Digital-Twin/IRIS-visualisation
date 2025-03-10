@@ -31,6 +31,7 @@ jobs:
         run: npm outdated
         continue-on-error: true
 
+
   linting:
     name: Code Linting
     runs-on: ubuntu-latest
@@ -51,6 +52,19 @@ jobs:
               npm run prepare 
               npm run lint:app
               npm run lint:styles
+
+      - name: Run Sort-Package-Json (Import Sorting)
+        working-directory: frontend
+        run: |
+                echo "Running sort-package-json"
+                npx sort-package-json --check
+        continue-on-error: true
+   
+      - name: Run Audit-CI (Security Check)
+        working-directory: frontend
+        run: |
+                echo "Running audit-ci"
+                npx audit-ci --high
 
   testing:
     name: Unit Testing
