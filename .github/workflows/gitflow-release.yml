@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - "release/*"
+      - "feature/node-pipelines"
 
 permissions:
   id-token: write
