@@ -54,11 +54,11 @@ jobs:
               npm run lint:styles
       
       - name: TypeScript Check
-        run: npm tsc --noEmit
+        run: npx tsc --noEmit
         continue-on-error: true
 
       - name: Run Prettier
-        run: npm prettier --check "src/**/*.{js,ts,tsx}"
+        run: npx prettier --check "src/**/*.{js,ts,tsx}"
         continue-on-error: true
 
       - name: Run Sort-Package-Json (Import Sorting)
@@ -149,7 +149,7 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@v6
         with:
-          file: "docker/Dockerfile"
+          file: "docker/CI-Dockerfile"
           context: "./"
           load: true
           tags: "national-digital-twin/iris-visualisation:latest"
