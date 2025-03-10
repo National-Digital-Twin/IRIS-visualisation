@@ -122,7 +122,6 @@ export class MapService {
 
         this.mapInstance = new mapboxgl.Map({
             container: 'map',
-            accessToken: 'undefined',
             pitch,
             zoom,
             center,
@@ -138,9 +137,7 @@ export class MapService {
                 } else if (url.indexOf('events.mapbox.com') > -1) {
                     url = this.transformUrlForProxy(url, 'events.mapbox.com', 'mapbox-events', 'access_token');
                 }
-                return {
-                    url: url,
-                };
+                return { url: url };
             },
         });
     }
