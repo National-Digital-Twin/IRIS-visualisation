@@ -35,48 +35,48 @@ permissions:
   contents: read
 
 jobs:
-  versioning:
-    name: Semantic Versioning
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.set-version.outputs.version }}
-    steps:
-      - name: Generate Patch Version (Timestamp)
-        id: generate-patch
-        if: ${{ !inputs.version }} # Skip this step if version is provided
-        run: |
-          PATCH=$(date -u +"%Y%m%d%H%M%S")
-          echo "patch_version=${PATCH}" >> $GITHUB_ENV
+  # versioning:
+  #   name: Semantic Versioning
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     version: ${{ steps.set-version.outputs.version }}
+  #   steps:
+  #     - name: Generate Patch Version (Timestamp)
+  #       id: generate-patch
+  #       if: ${{ !inputs.version }} # Skip this step if version is provided
+  #       run: |
+  #         PATCH=$(date -u +"%Y%m%d%H%M%S")
+  #         echo "patch_version=${PATCH}" >> $GITHUB_ENV
 
-      - name: Generate Full Semantic Version
-        id: generate-version
-        if: ${{ !inputs.version }} # Skip this step if version is provided
-        run: |
-          MAJOR="${{ github.event.inputs.major || '1' }}"
-          MINOR="${{ github.event.inputs.minor || '0' }}"
-          PATCH="${{ env.patch_version }}"
-          VERSION="${MAJOR}.${MINOR}.${PATCH}"
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+  #     - name: Generate Full Semantic Version
+  #       id: generate-version
+  #       if: ${{ !inputs.version }} # Skip this step if version is provided
+  #       run: |
+  #         MAJOR="${{ github.event.inputs.major || '1' }}"
+  #         MINOR="${{ github.event.inputs.minor || '0' }}"
+  #         PATCH="${{ env.patch_version }}"
+  #         VERSION="${MAJOR}.${MINOR}.${PATCH}"
+  #         echo "VERSION=${VERSION}" >> $GITHUB_ENV
+  #         echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
-      - name: Set Version from Input or Generated Version
-        id: set-version
-        run: |
-          if [ -n "${{ inputs.version }}" ]; then
-            echo "Using provided version: ${{ inputs.version }}"
-            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
-          else
-            echo "Using generated version: ${{ env.VERSION }}"
-            echo "version=${{ env.VERSION }}" >> $GITHUB_OUTPUT
-          fi
+  #     - name: Set Version from Input or Generated Version
+  #       id: set-version
+  #       run: |
+  #         if [ -n "${{ inputs.version }}" ]; then
+  #           echo "Using provided version: ${{ inputs.version }}"
+  #           echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+  #         else
+  #           echo "Using generated version: ${{ env.VERSION }}"
+  #           echo "version=${{ env.VERSION }}" >> $GITHUB_OUTPUT
+  #         fi
 
-      - name: Print Version
-        run: |
-          echo "Version: ${{ steps.set-version.outputs.version }}"
+  #     - name: Print Version
+  #       run: |
+  #         echo "Version: ${{ steps.set-version.outputs.version }}"
 
   docker-build-push:
     name: Docker Build & Push
-    needs: [versioning]
+    # needs: [versioning]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -88,7 +88,7 @@ jobs:
 
       - name: Set VERSION from versioning job
         run: |
-          echo "VERSION=${{ needs.versioning.outputs.version }}" >> $GITHUB_ENV
+          echo "VERSION=${{ inputs.version }}" >> $GITHUB_ENV
 
       - name: Debug Version Output
         run: |
