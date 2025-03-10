@@ -13,6 +13,6 @@ export const environment = {
         apiKey: 'phc_XXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
     },
     transparent_proxy: {
-        url: 'https://iris.demo.ndtp.co.uk/transparent-proxy',
+        url: '/transparent-proxy',
     },
 };

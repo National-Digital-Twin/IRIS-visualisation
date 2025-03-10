@@ -70,9 +70,7 @@ export class MinimapComponent implements OnInit {
                     } else if (url.indexOf('events.mapbox.com') > -1) {
                         url = this.#mapService.transformUrlForProxy(url, 'events.mapbox.com', 'mapbox-events', 'access_token');
                     }
-                    return {
-                        url: url,
-                    };
+                    return { url: url };
                 },
             });
 
