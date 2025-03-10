@@ -35,53 +35,22 @@ permissions:
   contents: read
 
 jobs:
-  # versioning:
-  #   name: Semantic Versioning
-  #   runs-on: ubuntu-latest
-  #   outputs:
-  #     version: ${{ steps.set-version.outputs.version }}
-  #   steps:
-  #     - name: Generate Patch Version (Timestamp)
-  #       id: generate-patch
-  #       if: ${{ !inputs.version }} # Skip this step if version is provided
-  #       run: |
-  #         PATCH=$(date -u +"%Y%m%d%H%M%S")
-  #         echo "patch_version=${PATCH}" >> $GITHUB_ENV
-
-  #     - name: Generate Full Semantic Version
-  #       id: generate-version
-  #       if: ${{ !inputs.version }} # Skip this step if version is provided
-  #       run: |
-  #         MAJOR="${{ github.event.inputs.major || '1' }}"
-  #         MINOR="${{ github.event.inputs.minor || '0' }}"
-  #         PATCH="${{ env.patch_version }}"
-  #         VERSION="${MAJOR}.${MINOR}.${PATCH}"
-  #         echo "VERSION=${VERSION}" >> $GITHUB_ENV
-  #         echo "version=${VERSION}" >> $GITHUB_OUTPUT
-
-  #     - name: Set Version from Input or Generated Version
-  #       id: set-version
-  #       run: |
-  #         if [ -n "${{ inputs.version }}" ]; then
-  #           echo "Using provided version: ${{ inputs.version }}"
-  #           echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
-  #         else
-  #           echo "Using generated version: ${{ env.VERSION }}"
-  #           echo "version=${{ env.VERSION }}" >> $GITHUB_OUTPUT
-  #         fi
-
-  #     - name: Print Version
-  #       run: |
-  #         echo "Version: ${{ steps.set-version.outputs.version }}"
-
   docker-build-push:
     name: Docker Build & Push
-    # needs: [versioning]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+            node-version-file: '.nvmrc'
+            cache: 'npm'
+            cache-dependency-path: package-lock.json
+      - run: npm ci
+      - run: npm run build
+  
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
