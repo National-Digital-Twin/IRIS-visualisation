@@ -52,6 +52,16 @@ jobs:
               npm run prepare 
               npm run lint:app
               npm run lint:styles
+      
+      - name: TypeScript Check
+        working-directory: frontend
+        run: npm tsc --noEmit
+        continue-on-error: true
+
+      - name: Run Prettier
+        working-directory: frontend
+        run: npm prettier --check "src/**/*.{js,ts,tsx}"
+        continue-on-error: true
 
       - name: Run Sort-Package-Json (Import Sorting)
         run: |
@@ -64,7 +74,7 @@ jobs:
                 echo "Running audit-ci"
                 npx audit-ci --high
         continue-on-error: true
-        
+
   testing:
     name: Unit Testing
     runs-on: ubuntu-latest
