@@ -102,12 +102,10 @@ jobs:
         run: npm ci
 
       - name: Build Frontend
-        working-directory: frontend
         run: |
           npm run build
 
       - name: List files in dist dir
-        working-directory: frontend
         if: success()
         run: |
           ls -l dist/
