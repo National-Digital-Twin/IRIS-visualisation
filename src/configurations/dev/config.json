@@ -135,7 +135,7 @@
             "maxzoom": 15,
             "type": "fill",
             "layout": { "visibility": "visible" },
-            "paint": { "fill-opacity": 0.8, "fill-outline-color": "#51406C" }
+            "paint": { "fill-opacity": 0.8, "fill-outline-color": "#3670b3" }
         },
         {
             "displayName": "Selected Ward",
@@ -147,7 +147,7 @@
             "type": "line",
             "filter": ["==", "WD23NM", ""],
             "layout": { "visibility": "visible" },
-            "paint": { "line-color": "#51406C", "line-width": 2 }
+            "paint": { "line-color": "#3670b3", "line-width": 2 }
         }
     ]
 }
