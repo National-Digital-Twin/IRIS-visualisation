@@ -147,7 +147,8 @@
                             "buildTarget": "c477-vis:build:dev"
                         },
                         "local": {
-                            "buildTarget": "c477-vis:build:local"
+                            "buildTarget": "c477-vis:build:local",
+                            "proxyConfig": "proxy.conf.json"
                         }
                     },
                     "defaultConfiguration": "development"

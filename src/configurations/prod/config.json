@@ -1,7 +1,6 @@
 {
     "production": true,
     "env": "prod",
-    "apiURL": "https://ia.demo.ndtp.co.uk",
     "addressSearch": {
         "maxResults": 100,
         "localCustodianCode": 2114

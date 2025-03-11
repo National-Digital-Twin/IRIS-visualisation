@@ -16,7 +16,6 @@ import { FlagMap, FlagResponse } from '@core/types/flag-response';
 import { SAPPoint, SAPPointMap } from '@core/types/sap-point';
 import { FeatureCollection } from 'geojson';
 import { EMPTY, Observable, Subscriber, combineLatest, first, forkJoin, map, switchMap, tap } from 'rxjs';
-import { Queries } from './Queries';
 
 type Loading<T> = T | 'loading';
 
@@ -39,28 +38,24 @@ export class DataService {
 
     private readonly buildingsFlagged = signal<FlagMap>({});
     private readonly buildingsFlagged$ = toObservable(this.buildingsFlagged);
-    private readonly queries = new Queries();
 
-    private readonly flags$ = this.selectTable(this.queries.getAllFlaggedBuildings()).pipe(
-        map((res) => {
-            const currentFlags = this.getCurrentFlags(res as unknown as FlagResponse[]);
-            const flagMap = this.mapFlagsToToids(currentFlags);
-            return flagMap;
-        }),
+    private readonly flags$ = this.#http.get<FlagResponse[]>('/api/flagged-buildings', { withCredentials: true }).pipe(
+        map((flags: FlagResponse[]) => this.getCurrentFlags(flags)),
+        map((currentFlags) => this.mapFlagsToToids(currentFlags)),
     );
 
-    private readonly sapPoints$ = this.selectTable(this.queries.getSAPPoints(), inject(SAP_DATA_FILE_NAME)).pipe(
+    private readonly sapPoints$ = this.selectTable('queries.getSAPPoints()', inject(SAP_DATA_FILE_NAME)).pipe(
         map((points) => this.mapSAPPointsToToids(points as unknown as SAPPoint[])),
     );
 
-    private readonly buildingsEPC$ = forkJoin([this.flags$, this.sapPoints$, this.selectTable(this.queries.getEPCData(), inject(EPC_DATA_FILE_NAME))]).pipe(
+    private readonly buildingsEPC$ = forkJoin([this.flags$, this.sapPoints$, this.selectTable('queries.getEPCData()', inject(EPC_DATA_FILE_NAME))]).pipe(
         map(([flagMap, points, epc]) => {
             this.buildingsFlagged.set(flagMap);
             return this.mapEPCBuildings(epc as unknown as EPCBuildingResponseModel[], points);
         }),
     );
 
-    private readonly buildingsNoEPC$ = this.selectTable(this.queries.getNoEPCData(), inject(NON_EPC_DATA_FILE_NAME)).pipe(
+    private readonly buildingsNoEPC$ = this.selectTable('queries.getNoEPCData()', inject(NON_EPC_DATA_FILE_NAME)).pipe(
         map((noEPC) => this.mapNonEPCBuildings(noEPC as unknown as NoEPCBuildingResponseModel[])),
     );
 
@@ -76,6 +71,30 @@ export class DataService {
 
     public setSelectedUPRN(uprn?: string): void {
         this.selectedUPRN.set(uprn);
+    }
+
+    /**
+     * Return flag history for an individual building
+     * @param query Query string to request data from IA
+     * @returns
+     */
+    private getBuildingFlagHistory(uprn: string): Observable<FlagHistory[]> {
+        return this.#http.get<FlagHistory[]>(`/api/buildings/${uprn}/flag-history`, { withCredentials: true });
+    }
+
+    /** get the flag history for selected building and update the signals */
+    public updateFlagHistory(uprn: BuildingModel['UPRN']): Observable<FlagHistory[]> {
+        this.flagHistory.set('loading');
+        this.activeFlag.set('loading');
+        return this.getBuildingFlagHistory(uprn).pipe(
+            first(),
+            tap((flagHistory) => {
+                const flags = flagHistory.filter((f) => f.Flagged && f.AssessmentReason);
+                this.flagHistory.set(flags);
+                const flag = flagHistory.find((f) => f.Flagged && !f.AssessmentReason);
+                this.activeFlag.set(flag);
+            }),
+        );
     }
 
     /**
@@ -306,15 +325,6 @@ export class DataService {
         return allBuildings;
     }
 
-    /**
-     * Return flag history for an individual building
-     * @param query Query string to request data from IA
-     * @returns
-     */
-    private getBuildingFlagHistory(uprn: string): Observable<FlagHistory[]> {
-        return this.selectTable(this.queries.getFlagHistory(uprn)) as Observable<FlagHistory[]>;
-    }
-
     public getBuildingByUPRN(uprn: string): BuildingModel {
         const buildings = this.buildings();
 
@@ -479,21 +489,6 @@ export class DataService {
                     return EMPTY;
                 }),
             );
-    }
-
-    /** get the flag history for selected building and update the signals */
-    public updateFlagHistory(uprn: BuildingModel['UPRN']): Observable<FlagHistory[]> {
-        this.flagHistory.set('loading');
-        this.activeFlag.set('loading');
-        return this.getBuildingFlagHistory(uprn).pipe(
-            first(),
-            tap((flagHistory) => {
-                const flags = flagHistory.filter((f) => f.Flagged && f.AssessmentReason);
-                this.flagHistory.set(flags);
-                const flag = flagHistory.find((f) => f.Flagged && !f.AssessmentReason);
-                this.activeFlag.set(flag);
-            }),
-        );
     }
 
     /**
