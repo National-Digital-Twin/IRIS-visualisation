@@ -79,7 +79,7 @@ jobs:
           exit-code: "1"
           ignore-unfixed: true
           severity: "CRITICAL,HIGH"
-          continue-on-error: true
+        continue-on-error: true
 
   docker-build-test-scan:
     name: Build, Docker Build, Test & Scan
@@ -123,4 +123,4 @@ jobs:
           ignore-unfixed: true
           vuln-type: "os,library"
           severity: "CRITICAL,HIGH"
-          continue-on-error: true
+        continue-on-error: true
