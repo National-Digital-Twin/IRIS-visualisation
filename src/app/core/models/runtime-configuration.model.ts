@@ -12,8 +12,6 @@ export interface RuntimeConfigurationModel {
     production: boolean;
     /* Appliation environment */
     env: 'local' | 'dev' | 'prod';
-    /* IA API URL */
-    apiURL: string;
     /** Address search configuration */
     addressSearch: {
         localCustodianCode: number;
