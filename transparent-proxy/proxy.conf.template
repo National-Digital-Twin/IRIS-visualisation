@@ -4,7 +4,7 @@ server {
     listen 80 default_server;
     listen [::]:80 default_server;
 
-    resolver 8.8.8.8 valid=30s;
+    resolver kube-dns.kube-system.svc.cluster.local valid=30s;
 
     # Proxy config
     proxy_cache_valid any 1d;
