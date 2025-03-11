@@ -1,0 +1,86 @@
+name: Transparent Proxy CD on PR merge
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+    inputs:
+      major:
+        description: "Major version (default: 1)"
+        required: false
+        default: "1"
+        type: string
+      minor:
+        description: "Minor version (default: 0)"
+        required: false
+        default: "0"
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+  packages: read
+  statuses: write
+
+jobs:
+  versioning:
+    name: Semantic Versioning
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.generate-version.outputs.version }}
+    steps:
+      - name: Generate Patch Version (Timestamp)
+        id: generate-patch
+        run: |
+          PATCH=$(date -u +"%Y%m%d%H%M%S")
+          echo "patch_version=${PATCH}" >> $GITHUB_ENV
+
+      - name: Generate Full Semantic Version
+        id: generate-version
+        run: |
+          MAJOR="${{ github.event.inputs.major }}" && MAJOR=${MAJOR:-1}
+          MINOR="${{ github.event.inputs.minor }}" && MINOR=${MINOR:-0}
+          PATCH="${{ env.patch_version }}"
+          VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Print Generated Version
+        run: |
+          echo "Generated Version: ${{ steps.generate-version.outputs.version }}"
+
+  transparent-proxy-ci:
+    needs: [versioning]
+    uses: ./.github/workflows/transparent-proxy-ci-pr.yml
+
+  push-to-ECR:
+    needs: [transparent-proxy-ci, versioning]
+    uses: ./.github/workflows/transparent-proxy-cd-push-to-ECR.yml
+    with:
+      aws_account_number: "537124944113"
+      repo_name: "iris/transparent-proxy"
+      app_name: "transparent-proxy"
+      version: ${{ needs.versioning.outputs.version }}
+
+  tag-repository:
+    name: Tag Repository
+    runs-on: ubuntu-latest
+    needs: [versioning, transparent-proxy-ci, push-to-ECR]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set VERSION from versioning job
+        run: |
+          VERSION="${{ needs.versioning.outputs.version }}"
+          if [[ -z "$VERSION" ]]; then
+            echo "❌ ERROR: VERSION is empty! Exiting..."
+            exit 1
+          fi
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "✅ Using VERSION: $VERSION"
+
+      - name: Debug Version Output
+        run: |
+          echo "Final Version: $VERSION"
