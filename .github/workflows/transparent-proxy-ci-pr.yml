@@ -1,0 +1,75 @@
+name: Transparent Proxy CI on PR
+
+on:
+  workflow_call:
+  pull_request:
+    paths:
+      - "transparent-proxy/**"
+      - ".github/workflows/transparent-proxy-ci-pr.yml"
+      - ".github/workflows/transparent-proxy-ci-pr-merge.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: read
+  statuses: write # To report GitHub Actions status checks
+
+jobs:
+  linting:
+    name: Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run Hadolint (Dockerfile Linter)
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: transparent-proxy/Dockerfile
+          verbose: true
+          failure-threshold: warning
+          ignore: DL3006
+
+  security-scanning:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    needs: linting
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: "fs"
+          scan-ref: transparent-proxy
+          format: "table"
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: "CRITICAL,HIGH"
+
+  docker-build-test-scan:
+    name: Docker Build, Test & Scan
+    runs-on: ubuntu-latest
+    needs: security-scanning
+    timeout-minutes: 20
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        working-directory: transparent-proxy
+        run: |
+          docker build -t iris/transparent-proxy:latest .
+
+      - name: Run Trivy Scan on Docker Image
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: "iris/transparent-proxy:latest"
+          format: "table"
+          exit-code: "1"
+          ignore-unfixed: true
+          vuln-type: "os,library"
+          severity: "CRITICAL,HIGH"
