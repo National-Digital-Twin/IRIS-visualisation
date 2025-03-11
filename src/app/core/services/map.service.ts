@@ -1,8 +1,9 @@
+import { DOCUMENT } from '@angular/common';
 import { Injectable, NgZone, inject, signal } from '@angular/core';
+import { transformUrlForProxy } from '@core/helpers';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
 import { URLStateModel } from '@core/models/url-state.model';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
-import { environment } from '@environment';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import mapboxgl, {
     ExpressionSpecification,
@@ -23,6 +24,7 @@ import { AsyncSubject, EMPTY, Observable, catchError, finalize, first, forkJoin,
     providedIn: 'root',
 })
 export class MapService {
+    readonly #document = inject(DOCUMENT);
     readonly #zone = inject(NgZone);
     readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
 
@@ -99,29 +101,13 @@ export class MapService {
         return this.#zone.runOutsideAngular(() => this.mapInstance.setStyle(style));
     }
 
-    public transformUrlForProxy(url: string, domain: string, proxy_path: string, strip_auth: string): string {
-        const proxyUrl = environment.transparent_proxy.url;
-        const urlParts = url.split(domain);
-        let routeParams = urlParts[urlParts.length - 1];
-        const routeParamsNoToken = routeParams.split(strip_auth);
-        routeParams = routeParamsNoToken[0];
-        let transformedUrl = '';
-
-        if (routeParams.startsWith('/')) {
-            transformedUrl = `${proxyUrl}/${proxy_path}/${routeParams.substring(1)}`;
-        } else {
-            transformedUrl = `${proxyUrl}/${proxy_path}/${routeParams}`;
-        }
-
-        return decodeURI(transformedUrl);
-    }
-
     private createMap(config: URLStateModel): void {
         NgZone.assertNotInAngularZone();
         const { bearing, center, pitch, zoom, style } = config;
 
         this.mapInstance = new mapboxgl.Map({
             container: 'map',
+            accessToken: 'undefined',
             pitch,
             zoom,
             center,
@@ -129,13 +115,14 @@ export class MapService {
             style,
             // transform requests to use proxy
             transformRequest: (url: string): Record<'url', string> => {
+                const host = `${this.#document.location.protocol}//${this.#document.location.host}`;
                 if (url.indexOf('api.os.uk') > -1) {
-                    url = this.transformUrlForProxy(url, 'api.os.uk', 'os', 'key');
-                    url = url.endsWith('?') ? url + 'srs=3857' : url + '?srs=3857';
+                    url = url.includes('?') ? url : `${url}?srs=3857`;
+                    url = transformUrlForProxy(host, url, 'api.os.uk', 'os', 'key');
                 } else if (url.indexOf('api.mapbox.com') > -1) {
-                    url = this.transformUrlForProxy(url, 'api.mapbox.com', 'mapbox-api', 'access_token');
+                    url = transformUrlForProxy(host, url, 'api.mapbox.com', 'mapbox-api', 'access_token');
                 } else if (url.indexOf('events.mapbox.com') > -1) {
-                    url = this.transformUrlForProxy(url, 'events.mapbox.com', 'mapbox-events', 'access_token');
+                    url = transformUrlForProxy(host, url, 'events.mapbox.com', 'mapbox-events', 'access_token');
                 }
                 return { url: url };
             },

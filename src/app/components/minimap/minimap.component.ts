@@ -1,8 +1,8 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { Component, effect, inject, input, InputSignal, OnInit, signal, WritableSignal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { transformUrlForProxy } from '@core/helpers';
 import { MinimapData } from '@core/models/minimap-data.model';
-import { MapService } from '@core/services/map.service';
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { Feature, GeoJsonProperties, Geometry } from 'geojson';
@@ -16,7 +16,7 @@ import { skip } from 'rxjs';
     styleUrl: './minimap.component.scss',
 })
 export class MinimapComponent implements OnInit {
-    readonly #mapService = inject(MapService);
+    readonly #document = inject(DOCUMENT);
     readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
     readonly #theme = inject(SettingsService).get(SETTINGS.Theme);
 
@@ -62,13 +62,14 @@ export class MinimapComponent implements OnInit {
                 style: this.#runtimeConfig.map.style[theme],
                 // append OS api key and srs details to OS VTS requests
                 transformRequest: (url: string): Record<'url', string> => {
+                    const host = `${this.#document.location.protocol}//${this.#document.location.host}`;
                     if (url.indexOf('api.os.uk') > -1) {
-                        url = this.#mapService.transformUrlForProxy(url, 'api.os.uk', 'os', 'key');
-                        url = url.endsWith('?') ? url + 'srs=3857' : url + '?srs=3857';
+                        url = url.includes('?') ? url : `${url}?srs=3857`;
+                        url = transformUrlForProxy(host, url, 'api.os.uk', 'os', 'key');
                     } else if (url.indexOf('api.mapbox.com') > -1) {
-                        url = this.#mapService.transformUrlForProxy(url, 'api.mapbox.com', 'mapbox-api', 'access_token');
+                        url = transformUrlForProxy(host, url, 'api.mapbox.com', 'mapbox-api', 'access_token');
                     } else if (url.indexOf('events.mapbox.com') > -1) {
-                        url = this.#mapService.transformUrlForProxy(url, 'events.mapbox.com', 'mapbox-events', 'access_token');
+                        url = transformUrlForProxy(host, url, 'events.mapbox.com', 'mapbox-events', 'access_token');
                     }
                     return { url: url };
                 },
