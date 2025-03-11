@@ -38,12 +38,13 @@
             height: 3rem;
             border-radius: var(--border-radius);
 
+            color: var(--mat-sys-on-surface);
+
             background-color: var(--mat-sys-surface-container-lowest);
             box-shadow: none;
 
             &.text {
                 font-size: var(--mat-sys-title-large-size);
-                color: var(--mat-sys-on-surface);
             }
 
             &:disabled {

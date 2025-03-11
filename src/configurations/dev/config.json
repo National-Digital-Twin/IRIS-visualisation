@@ -56,9 +56,7 @@
             "source": "esri",
             "source-layer": "TopographicArea_2",
             "filter": ["==", "_symbol", 4],
-            "paint": {
-                "fill-opacity": 0
-            }
+            "paint": { "fill-opacity": 0 }
         },
         {
             "id": "OS/TopographicArea_2/Building/1_3D",
@@ -68,10 +66,7 @@
             "filter": ["==", "_symbol", 4],
             "minzoom": 15,
             "layout": {},
-            "paint": {
-                "fill-extrusion-color": "#F2ECDF",
-                "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "RelHMax"]]
-            }
+            "paint": { "fill-extrusion-color": "#F2ECDF", "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "RelHMax"]] }
         },
         {
             "id": "OS/TopographicArea_2/Building/1_3D-Single-Dwelling",
@@ -81,10 +76,7 @@
             "filter": ["==", "_symbol", 4],
             "minzoom": 15,
             "layout": {},
-            "paint": {
-                "fill-extrusion-color": "#F2ECDF",
-                "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "RelHMax"]]
-            }
+            "paint": { "fill-extrusion-color": "#F2ECDF", "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "RelHMax"]] }
         },
         {
             "id": "OS/TopographicArea_2/Building/1_3D-Multi-Dwelling",
@@ -93,10 +85,7 @@
             "source-layer": "TopographicArea_2",
             "minzoom": 15,
             "layout": {},
-            "paint": {
-                "fill-extrusion-color": "#F2ECDF",
-                "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "RelHMax"]]
-            }
+            "paint": { "fill-extrusion-color": "#F2ECDF", "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "RelHMax"]] }
         },
         {
             "id": "OS/TopographicArea_2/Building/1_3D-Dwelling-Flagged",
@@ -120,10 +109,7 @@
             "filter": ["all", ["==", "_symbol", 4], ["in", "TOID", ""]],
             "minzoom": 15,
             "layout": {},
-            "paint": {
-                "fill-extrusion-color": "#51406C",
-                "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "RelHMax"]]
-            }
+            "paint": { "fill-extrusion-color": "#2160a2", "fill-extrusion-height": ["interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "RelHMax"]] }
         },
         {
             "id": "OS/TopographicArea_2/Building/1_3D-Multi-Dwelling-Selected",
@@ -148,13 +134,8 @@
             "labelProperty": "WD23NM",
             "maxzoom": 15,
             "type": "fill",
-            "layout": {
-                "visibility": "visible"
-            },
-            "paint": {
-                "fill-opacity": 0.8,
-                "fill-outline-color": "#51406C"
-            }
+            "layout": { "visibility": "visible" },
+            "paint": { "fill-opacity": 0.8, "fill-outline-color": "#51406C" }
         },
         {
             "displayName": "Selected Ward",
@@ -165,13 +146,8 @@
             "maxzoom": 15,
             "type": "line",
             "filter": ["==", "WD23NM", ""],
-            "layout": {
-                "visibility": "visible"
-            },
-            "paint": {
-                "line-color": "#51406C",
-                "line-width": 2
-            }
+            "layout": { "visibility": "visible" },
+            "paint": { "line-color": "#51406C", "line-width": 2 }
         }
     ]
 }
