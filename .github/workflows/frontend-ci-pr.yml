@@ -4,7 +4,7 @@ on:
   workflow_call:
   pull_request:
     paths:
-      - "frontend/**"
+      - "src/**"
       - ".github/workflows/frontend-ci-pr.yml"
       - ".github/workflows/frontend-ci-pr-merge.yml"
   workflow_dispatch:
@@ -58,7 +58,6 @@ jobs:
         run: npm ci
 
       - name: Run Linting
-        working-directory: frontend
         run: npm run lint:app
         continue-on-error: true
 
@@ -75,7 +74,7 @@ jobs:
         uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: "fs"
-          scan-ref: frontend
+          scan-ref: .
           format: "table"
           exit-code: "1"
           ignore-unfixed: true
