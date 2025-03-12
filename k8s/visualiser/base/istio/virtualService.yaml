@@ -1,6 +1,5 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
-
 metadata:
   name: iris-visualiser
 spec:
@@ -25,6 +24,24 @@ spec:
             host: iris-visualiser
             port:
               number: 80
+
+    # Rule for /configuration paths
+    - match:
+        - uri:
+            prefix: /configuration
+      headers:
+        response:
+          add:
+            Cache-Control: "no-cache, no-store, must-revalidate"
+            Pragma: "no-cache"
+            Expires: "0"
+      route:
+        - destination:
+            host: iris-visualiser
+            port:
+              number: 80
+
+    # Rule for all other requests
     - match:
         - uri:
             prefix: /
