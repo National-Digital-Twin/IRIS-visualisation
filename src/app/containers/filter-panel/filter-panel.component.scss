@@ -25,3 +25,14 @@ form {
         gap: 1rem;
     }
 }
+
+.invalid-filter {
+    position: absolute;
+    left: 3rem;
+
+    display: flex;
+    align-items: center;
+    justify-self: start;
+
+    color: var(--mat-sys-error);
+}
