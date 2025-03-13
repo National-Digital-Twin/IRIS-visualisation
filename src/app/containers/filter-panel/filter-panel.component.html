@@ -24,6 +24,13 @@
 </mat-dialog-content>
 
 <mat-dialog-actions>
+    @if (noValidFilterOptions) {
+        <div class="invalid-filter">
+            <mat-icon>warning</mat-icon>
+            There are no dwellings that match this filter criteria
+        </div>
+    }
+
     <button mat-button (click)="clearAll()">Clear all</button>
     <button mat-stroked-button mat-dialog-close>Cancel</button>
     <button mat-flat-button [mat-dialog-close]="advancedFiltersForm" cdkFocusInitial>Apply filters</button>
