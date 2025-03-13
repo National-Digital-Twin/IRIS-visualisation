@@ -34,7 +34,7 @@ import { AddressSearchService } from '@core/services/address-search.service';
 import { MapService } from '@core/services/map.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { LngLat } from 'mapbox-gl';
-import { debounceTime, filter, map, switchMap } from 'rxjs';
+import { catchError, debounceTime, filter, map, of, switchMap } from 'rxjs';
 
 @Component({
     selector: 'c477-main-filters',
@@ -93,7 +93,7 @@ export class MainFiltersComponent {
             .pipe(
                 debounceTime(500),
                 filter((value) => typeof value === 'string'),
-                switchMap((value) => this.#addressSearchService.getAddresses(value as string)),
+                switchMap((value) => this.#addressSearchService.getAddresses(value as string).pipe(catchError(() => of([])))),
                 map((result) => this.addressOptions.set(result)),
                 takeUntilDestroyed(this.#destroyRef),
             )
