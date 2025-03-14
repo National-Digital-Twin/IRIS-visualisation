@@ -1,14 +1,37 @@
+
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
+
 metadata:
-  name: iris-visualiser
+  name: iris-virtual-service
 spec:
   hosts:
     - placeholder
   gateways:
     - placeholder
   http:
-    # Rule for root ("/") to prevent caching
+    - match:
+        - uri:
+            prefix: /api
+
+      rewrite:
+        uriRegexRewrite:
+          match: ^/api/?(.*)$
+          rewrite: /\1
+      route:
+        - destination:
+            host: iris-write-api
+            port:
+              number: 3010
+    - match:
+        - uri:
+            prefix: /transparent-proxy
+
+      route:
+        - destination:
+            host: iris-transparent-proxy
+            port:
+              number: 80
     - match:
         - uri:
             exact: /

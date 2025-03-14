@@ -18,12 +18,12 @@ patches:
 
 labels:
   - pairs:
-      env: demo
+      env: prod
 
 
 images:
   - name: iris-transparent-proxy-image
-    newName: 503561419905.dkr.ecr.eu-west-2.amazonaws.com/iris/transparent-proxy
+    newName: xxxxxxxx.dkr.ecr.eu-west-2.amazonaws.com/iris/transparent-proxy
     newTag: "1736292556"
 
 

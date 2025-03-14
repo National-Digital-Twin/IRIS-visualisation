@@ -10,9 +10,6 @@ configMapGenerator:
 
 
 patches:
-  - path: patches/virtualService.yaml
-    target:
-      kind: VirtualService
   - path: patches/service-account.yaml
     target:
       kind: ServiceAccount

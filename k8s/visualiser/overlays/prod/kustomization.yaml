@@ -4,13 +4,12 @@ resources:
 namespace: iris
 
 configMapGenerator:
-  - name: iris-transparent-proxy-configs
+  - name: iris-visualiser-configs
     envs:
       - params.env
 
 
 patches:
-
   - path: patches/service-account.yaml
     target:
       kind: ServiceAccount
@@ -18,12 +17,10 @@ patches:
 
 labels:
   - pairs:
-      env: demo
+      env: prod
 
 
 images:
-  - name: iris-transparent-proxy-image
-    newName: 503561419905.dkr.ecr.eu-west-2.amazonaws.com/iris/transparent-proxy
-    newTag: "1736292556"
-
-
+  - name: iris-visualiser-image
+    newName: xxxxxx.dkr.ecr.eu-west-2.amazonaws.com/iris/visualiser
+    newTag: '1737626576'

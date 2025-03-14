@@ -1,6 +1,6 @@
 - op: replace
   path: /spec/hosts/0
-  value: iris.dev.ndtp.co.uk
+  value: iris.app.ndtp.co.uk
 
 
 - op: replace

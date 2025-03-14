@@ -12,3 +12,6 @@ patches:
   - path: patches/gateway.yaml
     target:
       kind: Gateway
+  - path: patches/virtualService.yaml
+    target:
+      kind: VirtualService
