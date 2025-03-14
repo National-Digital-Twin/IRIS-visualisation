@@ -315,10 +315,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             const histogram = this.#utilsService.createHistogram(epcRatings);
 
             const popupContent = `
-                <div class="popupContent">
-                    <h1>${e.features[0].properties!.WD23NM}</h1>
+                <div class="popup">
+                    <h3>${e.features[0].properties!.WD23NM}</h3>
                     ${histogram}
-                    <p class="disclaimer">*Mix of domestic and commercial buildings. Excluded from ward visualisation.</p>
+                    <p class="footnote">* Mix of domestic and commercial buildings. Excluded from ward visualisation.</p>
                 </div>
             `;
 
