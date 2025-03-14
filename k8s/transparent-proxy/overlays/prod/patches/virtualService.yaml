@@ -1,0 +1,8 @@
+- op: replace
+  path: /spec/hosts/0
+  value: iris.prod.ndtp.co.uk
+
+
+- op: replace
+  path: /spec/gateways/0
+  value: iris/iris-ingress-gateway
