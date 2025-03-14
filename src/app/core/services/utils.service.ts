@@ -470,12 +470,14 @@ export class UtilService {
                 const featuresInPolygon = pointsWithinPolygon(addressPointsFC, f);
                 /** find the mode EPC for the addresses within the polygon */
                 const { aggEPC, epcCounts } = this.calculateEPCMode(featuresInPolygon);
+                aggEPC.sort((a, b) => b.localeCompare(a, undefined, { sensitivity: 'base' }));
+
                 newFeature = {
                     ...feature,
                     properties: {
                         ...feature.properties!,
                         /** assign the lowest EPC value to the ward */
-                        aggEPC: aggEPC.sort((a, b) => b.localeCompare(a, undefined, { sensitivity: 'base' }))[0],
+                        aggEPC: aggEPC[0],
                         ...epcCounts,
                     },
                 };
@@ -533,17 +535,17 @@ export class UtilService {
             const label = `<span>${r.rating === 'none' ? 'No EPC*' : r.rating}</span>`;
             labels.push(label);
             return `
-                <div class="histogramItem" style="height: calc(${height}% + 5px)">
-                    <span class="epcRating">${r.count}</span>
-                    <div class="histogramBar" style="background: ${this.getEPCColour(r.rating)}"></div>
+                <div class="bar" style="height: calc(${height}% + 5px)">
+                    <span class="rating">${r.count}</span>
+                    <div class="line" style="background: ${this.getEPCColour(r.rating)}"></div>
                 </div>
             `;
         });
 
         return `
-            <div>
-                <div class="histogramWrapper">${histogram.join('')}</div>
-                <div class="labelRow">${labels.join('')}</div>
+            <div class="histogram">
+                <div class="chart">${histogram.join('')}</div>
+                <div class="labels">${labels.join('')}</div>
             </div>
         `;
     }

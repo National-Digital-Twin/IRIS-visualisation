@@ -1,6 +1,7 @@
 @use '@angular/material' as mat;
 @use 'light-theme' as light-theme;
 @use 'dark-theme' as dark-theme;
+@use 'mapbox' as mapbox;
 
 :root {
     // EPC Colors
@@ -59,6 +60,10 @@ body {
                 density: 0,
             )
         );
+    }
+
+    .mapboxgl-popup-content {
+        @include mapbox.popup;
     }
 }
 
