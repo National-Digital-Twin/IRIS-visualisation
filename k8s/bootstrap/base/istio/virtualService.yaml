@@ -3,7 +3,7 @@ apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 
 metadata:
-  name: iris-transparent-proxy
+  name: iris-virtual-service
 spec:
   hosts:
     - placeholder
