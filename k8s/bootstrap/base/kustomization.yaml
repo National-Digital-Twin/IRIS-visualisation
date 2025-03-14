@@ -2,6 +2,7 @@ resources:
   - istio/deny-by-default.yaml
   - istio/peer-authentication.yaml
   - istio/request-authentication.yaml
+  - istio/virtualService.yaml
   - istio/gateway.yaml
   - namespace.yaml
 

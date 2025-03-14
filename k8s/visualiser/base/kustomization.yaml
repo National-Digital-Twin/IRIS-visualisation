@@ -2,7 +2,6 @@ resources:
   - service-account.yaml
   - deployment.yaml
   - service.yaml
-  - istio/virtualService.yaml
   - istio/authorizationpolicy/allow-ingress-to-iris-visualiser.yaml
 
 labels:
