@@ -5,12 +5,12 @@
     <div class="map-controls top">
         <div class="control-group">
             <button mat-mini-fab class="control" (click)="resetMapView.emit(null)" matTooltip="Reset view">
-                <mat-icon class="icon">home</mat-icon>
+                <img class="icon" src="assets/icons/home.svg" alt="Reset view" />
             </button>
         </div>
         <div class="control-group">
             <button mat-mini-fab class="control" (click)="resetNorth.emit(null)" matTooltip="Reset to north">
-                <mat-icon class="icon" [style]="'transform: rotate(' + bearing + 'deg)'">explore</mat-icon>
+                <img class="icon" src="assets/icons/explore.svg" [style]="'transform: rotate(' + bearing + 'deg)'" alt="Reset to north" />
             </button>
             <button mat-mini-fab class="control text" (click)="changeDimensions()" [matTooltip]="twoDimensions ? 'Tilt the view to 3D' : 'Tilt the view to 2D'">
                 @if (!twoDimensions) {
@@ -22,28 +22,28 @@
         </div>
         <div class="control-group">
             <button class="control" mat-mini-fab (click)="zoomIn.emit(null)" matTooltip="Zoom in">
-                <mat-icon class="icon">add</mat-icon>
+                <img class="icon" src="assets/icons/add.svg" alt="Zoom in" />
             </button>
             <button class="control" mat-mini-fab (click)="zoomOut.emit(null)" matTooltip="Zoom out">
-                <mat-icon class="icon">remove</mat-icon>
+                <img class="icon" src="assets/icons/remove.svg" alt="Zoom out" />
             </button>
         </div>
         <div class="control-group">
             <button class="control" mat-mini-fab matTooltip="Draw filter area" [ngClass]="{ active: this.drawActive }" (click)="setDrawMode('polygon')">
-                <mat-icon class="icon">polyline</mat-icon>
+                <img class="icon" [src]="this.drawActive ? 'assets/icons/polyline-white.svg' : 'assets/icons/polyline.svg'" alt="Draw filter area" />
             </button>
             @if (hasSpatialFilter && mapInstance.getZoom() < 15) {
                 <button class="control" mat-mini-fab matTooltip="Download addresses" (click)="downloadAddresses.emit(null)">
-                    <mat-icon class="icon">download</mat-icon>
+                    <img class="icon" src="assets/icons/download.svg" alt="Download addresses" />
                 </button>
             }
             <button class="control" mat-mini-fab matTooltip="Delete filter area" (click)="setDrawMode('delete')" [disabled]="!hasSpatialFilter">
-                <mat-icon class="icon">delete</mat-icon>
+                <img class="icon" src="assets/icons/delete.svg" alt="Delete filter area" />
             </button>
         </div>
         <div class="control-group">
             <button mat-mini-fab class="control" (click)="showLegend = !showLegend" matTooltip="Legend">
-                <mat-icon class="icon">legend_toggle</mat-icon>
+                <img class="icon" src="assets/icons/legend-toggle.svg" alt="Legend" />
             </button>
             @if (showLegend) {
                 <c477-legend />
@@ -53,7 +53,7 @@
     <div class="map-controls bottom">
         <div class="control-group">
             <button mat-mini-fab class="control" (click)="toggleMinimap.emit(null)" matTooltip="Minimap">
-                <mat-icon class="icon">map</mat-icon>
+                <img class="icon" src="assets/icons/map.svg" alt="Minimap" />
             </button>
         </div>
     </div>

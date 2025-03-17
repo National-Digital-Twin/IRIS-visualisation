@@ -21,9 +21,28 @@
         )
     );
 
-    img {
-        height: 56px;
-        padding: 1rem 0;
+    .logo {
+        display: flex;
+        flex-direction: row;
+        gap: 0.75rem;
+        align-items: center;
+
+        font-size: var(--mat-sys-headline-medium-size);
+        font-weight: var(--mat-sys-title-medium-weight);
+        color: var(--mat-sys-surface-container-highest);
+        letter-spacing: 0.2rem;
+
+        .seperator {
+            display: block;
+            padding: 1rem 0;
+            border-left: 3px solid var(--mat-sys-surface-container-highest);
+        }
+
+        img {
+            width: 2rem;
+            height: 2rem;
+            margin: 0.25rem;
+        }
     }
 
     .control {

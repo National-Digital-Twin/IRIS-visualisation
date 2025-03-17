@@ -24,14 +24,7 @@
                         "polyfills": ["zone.js"],
                         "tsConfig": "tsconfig.app.json",
                         "inlineStyleLanguage": "scss",
-                        "assets": [
-                            "src/assets",
-                            {
-                                "glob": "**/*",
-                                "input": "./node_modules/@national-digital-twin/ndtp-styling-assets/dist/assets",
-                                "output": "/assets/"
-                            }
-                        ],
+                        "assets": ["src/assets"],
                         "styles": [
                             { "input": "modern-normalize/modern-normalize.css", "bundleName": "normalize" },
                             { "input": "mapbox-gl/dist/mapbox-gl.css", "bundleName": "mapbox" },
@@ -52,11 +45,6 @@
                             "baseHref": "/",
                             "assets": [
                                 "src/assets",
-                                {
-                                    "glob": "**/*",
-                                    "input": "./node_modules/@national-digital-twin/ndtp-styling-assets/dist/assets",
-                                    "output": "/assets/"
-                                },
                                 {
                                     "input": "src/configurations/prod",
                                     "output": "configuration/",
@@ -93,11 +81,6 @@
                             "assets": [
                                 "src/assets",
                                 {
-                                    "glob": "**/*",
-                                    "input": "./node_modules/@national-digital-twin/ndtp-styling-assets/dist/assets",
-                                    "output": "/assets/"
-                                },
-                                {
                                     "input": "src/configurations/dev",
                                     "output": "configuration/",
                                     "glob": "*.json"
@@ -113,11 +96,6 @@
                             "assets": [
                                 "src/favicon.ico",
                                 "src/assets",
-                                {
-                                    "glob": "**/*",
-                                    "input": "./node_modules/@national-digital-twin/ndtp-styling-assets/dist/assets",
-                                    "output": "/assets/"
-                                },
                                 {
                                     "input": "src/configurations/local",
                                     "output": "configuration/",
