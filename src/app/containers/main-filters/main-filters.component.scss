@@ -28,6 +28,7 @@
         @include mat.button-overrides(
             (
                 filled-label-text-color: var(--mat-sys-on-surface),
+                filled-label-text-transform: none,
                 filled-container-color: var(--mat-sys-surface-container-lowest),
                 filled-container-height: 56px,
             )
