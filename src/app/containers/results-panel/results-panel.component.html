@@ -4,15 +4,17 @@
     <c477-info-panel [expanded]="expanded" [indent]="1">
         <div class="results-panel">
             <div class="header">
-                <c477-results-panel-button [numberResults]="buildingSelection()?.flat()?.length ?? 0" (updatePanelStatus)="updatePanelOpen($event)" />
+                @let checkedResults = checkedCards().length;
+                @let totalResults = buildingSelection()?.flat()?.length ?? 0;
+                <c477-results-panel-button [numberResults]="totalResults" (updatePanelStatus)="updatePanelOpen($event)" />
                 @if (expanded) {
                     <mat-slide-toggle [color]="'primary'" [(ngModel)]="selectMultiple">Select multiple</mat-slide-toggle>
                     @if (selectMultiple) {
-                        <button mat-flat-button [color]="'primary'" class="download" (click)="downloadAll()">
+                        <button mat-flat-button [color]="'primary'" class="download" (click)="downloadAll()" [disabled]="!checkedResults">
                             <mat-icon>download</mat-icon> Download selected results
                         </button>
                     } @else {
-                        <button mat-flat-button [color]="'primary'" class="download" (click)="downloadAll()">
+                        <button mat-flat-button [color]="'primary'" class="download" (click)="downloadAll()" [disabled]="!totalResults">
                             <mat-icon>download</mat-icon> Download all results
                         </button>
                     }
