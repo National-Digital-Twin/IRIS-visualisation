@@ -13,14 +13,10 @@ patches:
   - path: patches/service-account.yaml
     target:
       kind: ServiceAccount
-
-
 labels:
   - pairs:
       env: dev
-
-
 images:
-  - name: iris-visualiser-image
+  - name: iris-visualiser-image:template
     newName: xxxxxx.dkr.ecr.eu-west-2.amazonaws.com/iris/visualiser
     newTag: '1737626576'
