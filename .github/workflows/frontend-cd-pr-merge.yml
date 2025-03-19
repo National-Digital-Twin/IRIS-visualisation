@@ -58,29 +58,7 @@ jobs:
     needs: [frontend-ci, versioning]
     uses: ./.github/workflows/frontend-cd-push-to-ECR.yml
     with:
-      aws_account_number: "537124944113"
+      aws_account_number: "${{ vars.DEV_AWS_ACCOUNT_ID }}"
       repo_name: "iris/visualiser"
       app_name: "iris/visualiser"
       version: ${{ needs.versioning.outputs.version }}
-
-  tag-repository:
-    name: Tag Repository
-    runs-on: ubuntu-latest
-    needs: [versioning, frontend-ci, push-to-ECR]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set VERSION from versioning job
-        run: |
-          VERSION="${{ needs.versioning.outputs.version }}"
-          if [[ -z "$VERSION" ]]; then
-            echo "❌ ERROR: VERSION is empty! Exiting..."
-            exit 1
-          fi
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV
-          echo "✅ Using VERSION: $VERSION"
-
-      - name: Debug Version Output
-        run: |
-          echo "Final Version: $VERSION"
