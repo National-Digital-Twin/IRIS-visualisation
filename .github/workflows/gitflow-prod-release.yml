@@ -1,0 +1,139 @@
+name: Prod Release on Merge to Main
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  SOURCE_AWS_ACCOUNT_ID: "${{ vars.DEMO_AWS_ACCOUNT_ID }}"
+  DESTINATION_AWS_ACCOUNT_ID: "${{ vars.PROD_AWS_ACCOUNT_ID }}"
+
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: read
+
+jobs:
+  determine-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.extract-tag.outputs.tag }} # Define the output for the job
+    steps:
+      # Install GitHub CLI
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gh
+
+      # Authenticate GitHub CLI using GITHUB_TOKEN
+      - name: Authenticate GitHub CLI
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
+      # Extract the tag from the commit message or source branch name
+      - name: Extract Tag from Merge Commit or Source Branch
+        id: extract-tag # Add an ID to this step
+        run: |
+          # Try to extract the tag from the commit message
+          TAG=$(echo "${{ github.event.head_commit.message }}" | grep -o 'release/[0-9]\+\.[0-9]\+\.[0-9]\+' | cut -d'/' -f2)
+
+          # If the tag is not found in the commit message, extract it from the source branch name
+          if [ -z "$TAG" ]; then
+            echo "Tag not found in commit message. Extracting from the source branch name..."
+            PR_JSON=$(gh pr list --base main --state merged --limit 1 --json headRefName)
+            TAG=$(echo "$PR_JSON" | jq -r '.[] | .headRefName' | grep -o 'release/[0-9]\+\.[0-9]\+\.[0-9]\+' | cut -d'/' -f2)
+          fi
+
+          # If no valid tag is found, exit with an error
+          if [ -z "$TAG" ]; then
+            echo "No valid tag found. Exiting."
+            exit 1
+          fi
+
+          # Output the tag using environment files
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Debug - Print Determined Tag
+        run: |
+          echo "The determined tag is: ${{ steps.extract-tag.outputs.tag }}"
+
+  copy-docker-image:
+    needs: determine-tag
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        repo_name:
+          ["iris/visualiser", iris/transparent-proxy"]
+    steps:
+      # Set up AWS credentials for the source account
+      - name: Set up AWS Credentials for Source Account
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.SOURCE_AWS_ACCOUNT_ID }}:role/ecr-access-for-github
+          aws-region: eu-west-2
+          role-session-name: githubsession-source
+
+      # Log in to Amazon ECR (source account)
+      - name: Login to Amazon ECR - Source Account
+        id: login-ecr-source
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Pull all tags for the image from the source ECR
+      - name: Pull All Tags for the Image
+        run: |
+          # Pull the image with the determined tag
+          docker pull ${{ env.SOURCE_AWS_ACCOUNT_ID }}.dkr.ecr.eu-west-2.amazonaws.com/${{ matrix.repo_name }}:${{ needs.determine-tag.outputs.tag }} || exit 1
+
+          # Get the image ID of the pulled image
+          IMAGE_ID=$(docker images --format "{{.ID}}" ${{ env.SOURCE_AWS_ACCOUNT_ID }}.dkr.ecr.eu-west-2.amazonaws.com/${{ matrix.repo_name }}:${{ needs.determine-tag.outputs.tag }})
+
+          # Pull all tags for the image
+          ALL_TAGS=$(aws ecr describe-images --repository-name ${{ matrix.repo_name }} --image-ids imageTag=${{ needs.determine-tag.outputs.tag }} --query 'imageDetails[].imageTags[]' --output text)
+          for TAG in $ALL_TAGS; do
+            docker pull ${{ env.SOURCE_AWS_ACCOUNT_ID }}.dkr.ecr.eu-west-2.amazonaws.com/${{ matrix.repo_name }}:$TAG || exit 1
+          done
+
+      # Debug step to print all locally available tags
+      - name: Debug - Print All Locally Available Tags
+        run: |
+          ALL_TAGS=$(docker images --format "{{.Repository}}:{{.Tag}}" --filter "dangling=false" --filter "reference=${{ env.SOURCE_AWS_ACCOUNT_ID }}.dkr.ecr.eu-west-2.amazonaws.com/${{ matrix.repo_name }}")
+          echo "All locally available tags: $ALL_TAGS"
+
+      # Set up AWS credentials for the destination account
+      - name: Set up AWS Credentials for Destination Account
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.DESTINATION_AWS_ACCOUNT_ID }}:role/ecr-access-for-github
+          aws-region: eu-west-2
+          role-session-name: githubsession-destination
+
+      # Log in to Amazon ECR (destination account)
+      - name: Login to Amazon ECR - Destination Account
+        id: login-ecr-destination
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Tag and push all locally available tags to the destination ECR
+      - name: Tag and Push All Tags to Destination ECR
+        run: |
+          # Get all locally available tags for the image
+          IMAGE_ID=$(docker images --format "{{.ID}}" ${{ env.SOURCE_AWS_ACCOUNT_ID }}.dkr.ecr.eu-west-2.amazonaws.com/${{ matrix.repo_name }}:${{ needs.determine-tag.outputs.tag }})
+          ALL_TAGS=$(docker images --format "{{.Repository}}:{{.Tag}}" --filter "dangling=false" --filter "reference=${{ env.SOURCE_AWS_ACCOUNT_ID }}.dkr.ecr.eu-west-2.amazonaws.com/${{ matrix.repo_name }}")
+
+          # Tag and push each tag to the destination ECR
+          for TAG in $ALL_TAGS; do
+            TAG_NAME=${TAG#*:}  # Extract the tag name (e.g., "1.2.3" from "repo:1.2.3")
+            docker tag $IMAGE_ID ${{ env.DESTINATION_AWS_ACCOUNT_ID }}.dkr.ecr.eu-west-2.amazonaws.com/${{ matrix.repo_name }}:$TAG_NAME
+            docker push ${{ env.DESTINATION_AWS_ACCOUNT_ID }}.dkr.ecr.eu-west-2.amazonaws.com/${{ matrix.repo_name }}:$TAG_NAME
+          done
+
+      # Verify the Docker image in the destination ECR
+      - name: Verify Docker Image in Destination ECR
+        run: |
+          docker images
+
+      - name: Verify Docker Image in Destination ECR
+        run: |
+          aws ecr describe-images --repository-name ${{ matrix.repo_name }} --query 'sort_by(imageDetails, &imagePushedAt)[-1]' --output table

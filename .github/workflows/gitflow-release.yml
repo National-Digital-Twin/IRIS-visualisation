@@ -1,0 +1,121 @@
+name: Release on New Release Branch
+
+on:
+  push:
+    branches:
+      - "release/*"
+
+permissions:
+  id-token: write
+  contents: write
+  packages: read
+  statuses: write
+
+jobs:
+  versioning:
+    name: Extract Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.extract_version.outputs.VERSION }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Ensure full history for tagging
+
+      - name: Extract version from branch name
+        id: extract_version
+        run: |
+          VERSION=$(echo "${GITHUB_REF#refs/heads/release/}")
+          # Replace hyphens with dots if needed
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            VERSION=$(echo "$VERSION" | tr '-' '.')
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Validate Version Format (Semantic Versioning)
+        run: |
+          if [[ ! "${{ env.VERSION }}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid version format! Expected x.y.z (e.g., 1.2.3)"
+            exit 1
+          fi
+
+      - name: Print Extracted Version
+        run: |
+          echo "Tag Version: ${{ env.VERSION }}"
+          echo "Branch Name: $GITHUB_REF"
+
+      - name: Print docker image tag Version
+        run: |
+          echo "Generated Version: ${{ steps.extract_version.outputs.version }}"
+
+  frontend-ci:
+    needs: [versioning]
+    uses: ./.github/workflows/frontend-ci-pr.yml
+
+  proxy-ci:
+    needs: [versioning]
+    uses: ./.github/workflows/transparent-proxy-ci-pr.yml
+
+  frontend-push-to-ECR:
+    needs: [frontend-ci, versioning]
+    uses: ./.github/workflows/frontend-cd-push-to-ECR.yml
+    with:
+      aws_account_number: "${{ vars.DEMO_AWS_ACCOUNT_ID }}"
+      repo_name: "iris/visualiser"
+      app_name: "iris/visualiser"
+      version: ${{ needs.versioning.outputs.version }}
+
+  proxy-push-to-ECR:
+    needs: [proxy-ci, versioning]
+    uses: ./.github/workflows/transparent-proxy-cd-push-to-ECR.yml
+    with:
+      aws_account_number: "${{ vars.DEV_AWS_ACCOUNT_ID }}"
+      repo_name: "iris/transparent-proxy"
+      app_name: "transparent-proxy"
+      version: ${{ needs.versioning.outputs.version }}
+
+  tagging:
+    name: Create Git Tag
+    needs: [versioning, frontend-push-to-ECR, proxy-push-to-ECR]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Ensure full history for tagging
+
+      - name: Print Version Before Tagging
+        run: |
+          echo "Tagging Version: v${{ needs.versioning.outputs.version }}"
+
+      - name: Create Git Tag
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: "v${{ needs.versioning.outputs.version }}"
+          message: "Release v${{ needs.versioning.outputs.version }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+  release:
+    name: Create GitHub Release
+    needs: [versioning, tagging]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Version Before Release
+        run: |
+          echo "Creating Release for Version: v${{ needs.versioning.outputs.version }}"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "v${{ needs.versioning.outputs.version }}"
+          name: "Release v${{ needs.versioning.outputs.version }}"
+          body: "Automated release for version ${{ needs.versioning.outputs.version }}"
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
