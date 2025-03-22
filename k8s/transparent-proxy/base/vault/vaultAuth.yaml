@@ -4,7 +4,7 @@ metadata:
   name: iris-transparent-proxy-vault-auth
 spec:
   method: kubernetes
-  mount: kubernetesXX
+  mount: kubernetes
   kubernetes:
     role: iris-transparent-proxy-role
     serviceAccount: iris-transparent-proxy-sa
