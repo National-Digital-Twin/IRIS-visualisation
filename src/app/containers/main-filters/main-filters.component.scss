@@ -12,6 +12,12 @@
 
     .address-lookup {
         min-width: 26rem;
+
+        @include mat.icon-overrides(
+            (
+                color: var(--mat-sys-primary),
+            )
+        );
     }
 
     .filter-group {
@@ -43,7 +49,7 @@
         }
 
         &.clear {
-            border: 1px solid var(--mat-sys-error);
+            box-shadow: 0 0 0 1px var(--mat-sys-error), var(--mat-sys-level2);
 
             @include mat.button-overrides(
                 (

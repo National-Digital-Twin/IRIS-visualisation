@@ -17,12 +17,7 @@ import mapboxgl, {
 } from 'mapbox-gl';
 import { AsyncSubject, EMPTY, Observable, catchError, finalize, first, forkJoin, from, map, of, switchMap } from 'rxjs';
 
-/**
- * Service for the MapboxGLJS map
- */
-@Injectable({
-    providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class MapService {
     readonly #document = inject(DOCUMENT);
     readonly #zone = inject(NgZone);

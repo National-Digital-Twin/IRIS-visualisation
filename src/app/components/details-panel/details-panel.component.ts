@@ -3,6 +3,7 @@ import { CUSTOM_ELEMENTS_SCHEMA, Component, InputSignal, OnInit, OutputEmitterRe
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
@@ -30,15 +31,16 @@ import { EMPTY, switchMap } from 'rxjs';
 @Component({
     selector: 'c477-details-panel',
     imports: [
-        NgTemplateOutlet,
-        NgClass,
         AsyncPipe,
         DatePipe,
-        LabelComponent,
+        NgClass,
+        NgTemplateOutlet,
         MatButtonModule,
+        MatDividerModule,
         MatIconModule,
-        MatTabsModule,
         MatProgressBarModule,
+        MatTabsModule,
+        LabelComponent,
         InfoPanelComponent,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],

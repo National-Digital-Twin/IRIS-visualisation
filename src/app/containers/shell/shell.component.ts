@@ -1,10 +1,8 @@
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { ComponentType } from '@angular/cdk/portal';
 import { AsyncPipe, CommonModule, DOCUMENT } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, Component, Input, InputSignal, NgZone, computed, effect, inject, input, numberAttribute } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Params, Router } from '@angular/router';
@@ -32,7 +30,7 @@ import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { UtilService } from '@core/services/utils.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { FeatureCollection, GeoJsonProperties, Geometry, Polygon } from 'geojson';
-import { EMPTY, Observable, combineLatest, filter, first, forkJoin, map, switchMap, take } from 'rxjs';
+import { EMPTY, Observable, combineLatest, filter, forkJoin, map, switchMap, take } from 'rxjs';
 
 @Component({
     selector: 'c477-shell',
@@ -54,7 +52,6 @@ import { EMPTY, Observable, combineLatest, filter, first, forkJoin, map, switchM
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ShellComponent {
-    readonly #breakpointObserver = inject(BreakpointObserver);
     readonly #dataDownloadService = inject(DataDownloadService);
     readonly #dataService = inject(DataService);
     readonly #dialog = inject(MatDialog);
@@ -324,53 +321,30 @@ export class ShellComponent {
     }
 
     public onFlag(buildings: BuildingModel[]): void {
-        /* filter out buildings that are already flagged */
         const toFlag = buildings.filter((b) => typeof b.Flagged === 'undefined');
-        this.openFlagModal<FlagModalComponent, FlagModalData, FlagModalResult>(FlagModalComponent, toFlag)
-            .pipe(
-                switchMap((modal) => modal.afterClosed()),
-                switchMap((flag) => (flag !== undefined && flag === true ? forkJoin(...toFlag.map((b) => this.#dataService.flagToInvestigate(b))) : EMPTY)),
-            )
+
+        this.#dialog
+            .open<FlagModalComponent, FlagModalData, FlagModalResult>(FlagModalComponent, {
+                width: '90%',
+                maxWidth: '40rem',
+                data: toFlag,
+            })
+            .afterClosed()
+            .pipe(switchMap((flag) => (flag !== undefined && flag === true ? forkJoin(...toFlag.map((b) => this.#dataService.flagToInvestigate(b))) : EMPTY)))
             .subscribe();
     }
 
     public onRemoveFlag(building: BuildingModel): void {
-        this.openFlagModal<RemoveFlagModalComponent, RemoveFlagModalData, RemoveFlagModalResult>(RemoveFlagModalComponent, building)
-            .pipe(
-                switchMap((modal) => modal.afterClosed()),
-                switchMap((reason) => (reason !== undefined ? this.#dataService.invalidateFlag(building, reason) : EMPTY)),
-            )
+        this.#dialog
+            .open<RemoveFlagModalComponent, RemoveFlagModalData, RemoveFlagModalResult>(RemoveFlagModalComponent, {
+                panelClass: 'download-modal',
+                width: '90%',
+                maxWidth: '50rem',
+                data: building,
+            })
+            .afterClosed()
+            .pipe(switchMap((reason) => (reason !== undefined ? this.#dataService.invalidateFlag(building, reason) : EMPTY)))
             .subscribe();
-    }
-
-    /**
-     * Open Flag Modal.
-     *
-     * Opens a material dialog with a given component flag modal component
-     * and data. The modal is opened in fullscreen on mobile devices and
-     * cannot be closed by clicking outside of the modal.
-     */
-    private openFlagModal<C, D, R>(template: ComponentType<C>, data: D): Observable<MatDialogRef<C, R>> {
-        return this.#breakpointObserver.observe(Breakpoints.Handset).pipe(
-            first(),
-            map(({ matches }) =>
-                this.#dialog.open<C, D, R>(template, {
-                    data: data,
-                    disableClose: true,
-                    ...(matches
-                        ? {
-                              width: '100%',
-                              height: '100%',
-                              maxWidth: '100vw',
-                              maxHeight: '100vh',
-                          }
-                        : {
-                              width: '90%',
-                              maxWidth: '34rem',
-                          }),
-                }),
-            ),
-        );
     }
 
     private createQueryParams(filter: Record<string, string[]>): Record<'filter', string | undefined> {

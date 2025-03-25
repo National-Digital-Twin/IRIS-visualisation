@@ -1,7 +1,32 @@
+@use '@angular/material' as mat;
+
 .title {
     position: relative;
+    color: var(--mat-sys-error);
 
     &::before {
         height: 0;
     }
+
+    .icon {
+        position: absolute;
+        top: 3rem;
+        left: 2rem;
+
+        width: var(--mat-sys-headline-medium-size);
+        height: var(--mat-sys-headline-medium-size);
+
+        font-size: var(--mat-sys-headline-medium-size);
+    }
+}
+
+.remove-reason {
+    display: grid;
+    gap: 1rem;
+
+    @include mat.form-field-overrides(
+        (
+            filled-container-color: var(--mat-sys-surface-container-low),
+        )
+    );
 }

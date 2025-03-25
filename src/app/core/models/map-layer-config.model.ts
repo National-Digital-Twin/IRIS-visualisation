@@ -1,11 +1,11 @@
-import { AnyLayer, AnyLayout, AnyPaint } from 'mapbox-gl';
+import { LayerSpecification, LayoutSpecification, PaintSpecification } from 'mapbox-gl';
 export interface MapLayerConfig {
     displayName: string;
-    filename: string; // name of geojson file
+    filename: string;
     id: string;
-    labelProperty: string; // feature label property
-    type: AnyLayer['type']; // mapbox gl layer type
-    layout: AnyLayout;
-    paint?: AnyPaint;
-    paintExpression?: AnyPaint;
+    labelProperty: string;
+    type: LayerSpecification['type'];
+    layout: LayoutSpecification;
+    paint?: PaintSpecification;
+    paintExpression?: PaintSpecification;
 }

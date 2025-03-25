@@ -38,7 +38,11 @@
                 </button>
             }
             <button class="control" mat-mini-fab matTooltip="Delete filter area" (click)="setDrawMode('delete')" [disabled]="!hasSpatialFilter">
-                <img class="icon" src="assets/icons/delete.svg" alt="Delete filter area" />
+                @if (hasSpatialFilter) {
+                    <img class="icon" src="assets/icons/delete.svg" alt="Delete filter area" />
+                } @else {
+                    <img class="icon" src="assets/icons/delete-disabled.svg" alt="Delete filter area" />
+                }
             </button>
         </div>
         <div class="control-group">

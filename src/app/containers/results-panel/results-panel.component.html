@@ -40,7 +40,7 @@
                         } @else {
                             <c477-results-card-expandable
                                 [ngClass]="{ 'result-card': !isLast }"
-                                [buildingTOID]="selectedParentTOID()"
+                                [buildingUPRN]="selectedCardUPRN()"
                                 [dwellings]="dwellingSet"
                                 [select]="selectMultiple"
                                 [checkedCards]="checkedCards()"

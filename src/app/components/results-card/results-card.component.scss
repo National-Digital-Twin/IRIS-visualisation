@@ -1,20 +1,28 @@
+@use '@angular/material' as mat;
+
 :host {
     display: block;
     padding: 0.75rem 1rem;
-
-    &.selected {
-        background-color: var(--mat-sys-surface-container-low);
-    }
 
     &:hover {
         cursor: pointer;
         background-color: var(--mat-sys-surface-bright);
     }
 
+    &.selected {
+        background-color: var(--mat-sys-surface-container-low);
+    }
+
     .header {
         display: grid;
         grid-template-columns: auto max-content;
         align-items: center;
+
+        @include mat.button-overrides(
+            (
+                text-label-text-transform: none,
+            )
+        );
     }
 
     &.parent {
@@ -53,6 +61,14 @@
         flex-direction: column;
         gap: 0;
         border-left: 1px solid var(--mat-sys-outline-variant);
+
+        .remove {
+            @include mat.icon-button-overrides(
+                (
+                    icon-color: var(--mat-sys-error),
+                )
+            );
+        }
     }
 
     &.showCheckbox {

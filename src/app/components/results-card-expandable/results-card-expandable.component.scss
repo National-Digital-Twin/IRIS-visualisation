@@ -11,6 +11,10 @@
             .mat-expansion-panel-header {
                 padding: 0;
                 background-color: var(--mat-sys-surface-container-lowest);
+
+                &.selected {
+                    background-color: var(--mat-sys-surface-container-low);
+                }
             }
 
             &:not(.mat-expanded),

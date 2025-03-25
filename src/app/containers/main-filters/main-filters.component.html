@@ -10,9 +10,7 @@
                     <mat-option [value]="result">{{ removePostCode(result.ADDRESS) | titlecase }} {{ result.POSTCODE }}</mat-option>
                 }
             </mat-autocomplete>
-            <button matSuffix mat-icon-button aria-label="Search">
-                <mat-icon>search</mat-icon>
-            </button>
+            <mat-icon matPrefix>search</mat-icon>
         </mat-form-field>
     </form>
 </div>

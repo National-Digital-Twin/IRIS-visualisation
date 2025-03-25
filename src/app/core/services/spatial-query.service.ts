@@ -8,13 +8,7 @@ import { BBox, Polygon } from 'geojson';
 import { LngLat, LngLatBounds, Point } from 'mapbox-gl';
 import { MapService } from './map.service';
 
-/**
- * Service for selecting and filtering buildings
- * on the map
- */
-@Injectable({
-    providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class SpatialQueryService {
     readonly #mapService = inject(MapService);
 
