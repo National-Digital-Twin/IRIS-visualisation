@@ -1,7 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations: {}
+  annotations:
+    reloader.stakater.com/auto: "true"
   name: transparent-proxy
 spec:
   replicas: 1
@@ -10,7 +11,8 @@ spec:
       io.kompose.service: iris-transparent-proxy
   template:
     metadata:
-      annotations: {}
+      annotations:
+        reloader.stakater.com/auto: "true"
       labels:
         io.kompose.service: iris-transparent-proxy
     spec:

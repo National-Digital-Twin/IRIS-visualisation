@@ -5,7 +5,8 @@ resources:
   - deployment.yaml
   - service.yaml
   - istio/authorizationpolicy/allow-ingress-to-iris-transparent-proxy.yaml
-
+  - vault/vaultAuth.yaml
+  - vault/vaultStaticSecret.yaml
 labels:
   - pairs:
       app: iris-transparent-proxy

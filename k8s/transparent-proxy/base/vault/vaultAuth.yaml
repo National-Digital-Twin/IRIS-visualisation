@@ -1,0 +1,12 @@
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultAuth
+metadata:
+  name: iris-transparent-proxy-vault-auth
+spec:
+  method: kubernetes
+  mount: kubernetes
+  kubernetes:
+    role: iris-transparent-proxy-role
+    serviceAccount: iris-transparent-proxy-sa
+    audiences:
+      - vault
