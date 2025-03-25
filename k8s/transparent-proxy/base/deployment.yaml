@@ -10,7 +10,8 @@ spec:
       io.kompose.service: iris-transparent-proxy
   template:
     metadata:
-      annotations: {}
+      annotations:
+        reloader.stakater.com/auto: "true"
       labels:
         io.kompose.service: iris-transparent-proxy
     spec:
