@@ -14,7 +14,7 @@ Department for Business and Trade (UK) as the governing entity.
 This repository contains **both source code and documentation**, each covered by different licenses:  
 - **Code**: Licensed under the **[Apache License 2.0](LICENSE.md)**.  
 - **Documentation**: Licensed under the **[Open Government Licence v3.0 (OGL-UK-3.0)](OGL_LICENSE.md)**.  
-See `LICENSE.md` and `OGL_LICENCE.md`for details.
+See `LICENSE.md` and `OGL_LICENSE.md`for details.
 
 This project has been developed to support NDTP’s mission of enabling  
 secure, scalable, and interoperable data-sharing across organisations.  
