@@ -1,3 +1,11 @@
+# Project Overview
+
+IRIS is a digital tool designed to support data-driven decision-making for retrofitting domestic properties by identifying homes that could benefit from energy efficiency improvements. It enables stakeholders to assess housing stock based on energy performance data to help target funding schemes and policy interventions more effectively
+
+# Repository Description
+
+This repository functions as the client side of IRIS and contains frontend views and logic.
+
 # C477 DBT Visualisation
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.0.0.

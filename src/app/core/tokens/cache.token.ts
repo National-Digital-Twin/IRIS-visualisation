@@ -46,3 +46,7 @@ export const SAP_DATA_FILE_NAME = new InjectionToken<string>('SAP_DATA_FILE_NAME
  * The file name string.
  */
 export const NON_EPC_DATA_FILE_NAME = new InjectionToken<string>('NON_EPC_DATA_FILE_NAME', { factory: nonEpcDataFileNameFactory });
+
+// SPDX-License-Identifier: Apache-2.0
+// © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+// and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
