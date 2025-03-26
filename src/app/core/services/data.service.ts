@@ -19,9 +19,7 @@ import { EMPTY, Observable, Subscriber, combineLatest, first, forkJoin, map, swi
 
 type Loading<T> = T | 'loading';
 
-@Injectable({
-    providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class DataService {
     readonly #http: HttpClient = inject(HttpClient);
     readonly #searchEndpoint: string = inject(SEARCH_ENDPOINT);

@@ -3,9 +3,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { environment } from '@environment';
 import { posthog } from 'posthog-js';
 
-@Injectable({
-    providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class PosthogService {
     constructor(private readonly router: Router) {
         /** capture route changes and send to posthog */

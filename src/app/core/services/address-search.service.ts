@@ -11,9 +11,7 @@ import { Observable, map } from 'rxjs';
  * For further info on how to configure the search query and options
  * see https://osdatahub.os.uk/docs/places/technicalSpecification
  */
-@Injectable({
-    providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class AddressSearchService {
     readonly #http: HttpClient = inject(HttpClient);
     readonly #runtimeConfiguration = inject(RUNTIME_CONFIGURATION);

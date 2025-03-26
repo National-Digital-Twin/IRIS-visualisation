@@ -70,6 +70,7 @@
             }
 
             .icon {
+                display: flex;
                 width: var(--mat-sys-headline-large-size);
                 height: var(--mat-sys-headline-large-size);
                 font-size: var(--mat-sys-headline-large-size);

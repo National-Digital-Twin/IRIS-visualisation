@@ -2,10 +2,10 @@ import { MapLayerFilter } from '@core/models/layer-filter.model';
 import { URLStateModel } from '@core/models/url-state.model';
 import { MapLayerId } from '@core/types/map-layer-id';
 import { Theme } from '@core/types/theme';
-import { AnyLayer } from 'mapbox-gl';
+import { LayerSpecification } from 'mapbox-gl';
 import { MapLayerConfig } from './map-layer-config.model';
 
-type Layer = AnyLayer & { filter: MapLayerFilter & { layerId: MapLayerId } };
+type Layer = LayerSpecification & { filter: MapLayerFilter & { layerId: MapLayerId } };
 
 export interface RuntimeConfigurationModel {
     /* Application is in production */

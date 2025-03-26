@@ -4,9 +4,7 @@ import { saveAs } from 'file-saver';
 import JSZip from 'jszip';
 import { utils, writeFileXLSX } from 'xlsx';
 
-@Injectable({
-    providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class DataDownloadService {
     private readonly warning = `
       Warning: The downloaded data is static and will not refresh after download. We advise using the tool for accessing the most current data available.

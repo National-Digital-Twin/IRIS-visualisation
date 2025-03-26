@@ -1,9 +1,6 @@
+@let selected = containsBuilding();
 <mat-expansion-panel class="mat-elevation-z" [hideToggle]="false" (expandedChange)="cardSelected.emit(parentDataset)">
-    <mat-expansion-panel-header
-        collapsedHeight="auto"
-        expandedHeight="auto"
-        [ngClass]="{ 'results-card--select': parentDataset.ParentTOID === buildingTOID() }"
-    >
+    <mat-expansion-panel-header collapsedHeight="auto" expandedHeight="auto" [ngClass]="{ selected: selected }">
         <c477-results-card
             [card]="parentDataset"
             [select]="select()"
@@ -20,6 +17,7 @@
                 [card]="dwelling"
                 [select]="select()"
                 [checked]="isChecked(dwelling)"
+                [buildingUPRN]="buildingUPRN()"
                 (emitViewDetails)="emitViewDetails.emit($event)"
                 (toggleChecked)="toggleChecked.emit(dwelling)"
                 (flag)="flag.emit([dwelling])"

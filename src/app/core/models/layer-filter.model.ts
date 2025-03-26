@@ -1,8 +1,8 @@
-import { Expression } from 'mapbox-gl';
+import { ExpressionSpecification } from 'mapbox-gl';
 
 export interface MapLayerFilter {
     layerId: string;
-    expression: Expression;
+    expression: ExpressionSpecification;
 }
 
 // SPDX-License-Identifier: Apache-2.0

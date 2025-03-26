@@ -19,6 +19,15 @@
     // Core overrides
 
     --border-radius: 4px;
+
+    // Material
+
+    --mat-option-selected-state-label-text-color: var(--mat-sys-on-surface-variant);
+    --mat-option-selected-state-layer-color: var(--mat-sys-primary-container);
+    --mat-option-focus-state-label-text-color: var(--mat-sys-on-surface-variant);
+    --mat-option-focus-state-layer-color: var(--mat-sys-primary-container);
+    --mat-option-hover-state-label-text-color: var(--mat-sys-on-surface-variant);
+    --mat-option-hover-state-layer-color: var(--mat-sys-surface-container-low);
 }
 
 html {
@@ -174,6 +183,31 @@ p {
     )
 );
 
+@include mat.divider-overrides(
+    (
+        color: var(--mat-sys-outline-variant),
+    )
+);
+
+@include mat.autocomplete-overrides(
+    (
+        background-color: var(--mat-sys-surface-container-lowest),
+    )
+);
+
+@include mat.tabs-overrides(
+    (
+        divider-color: var(--mat-sys-outline-variant),
+        active-label-text-color: var(--mat-sys-primary),
+    )
+);
+
+@include mat.select-overrides(
+    (
+        panel-background-color: var(--mat-sys-surface-container-lowest),
+    )
+);
+
 @include mat.expansion-overrides(
     (
         container-shape: 0,
@@ -212,4 +246,8 @@ button {
             font-size: 1.5rem;
         }
     }
+}
+
+.mat-mdc-form-field {
+    width: 100%;
 }

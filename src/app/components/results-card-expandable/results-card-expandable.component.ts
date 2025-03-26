@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { Component, computed, effect, inject, input, InputSignal, output, OutputEmitterRef, signal, WritableSignal } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { ResultsCardComponent } from '@components/results-card/results-card.component';
@@ -9,14 +9,14 @@ import { UtilService } from '@core/services/utils.service';
 
 @Component({
     selector: 'c477-results-card-expandable',
-    imports: [CommonModule, MatExpansionModule, ResultsCardComponent],
+    imports: [NgClass, MatExpansionModule, ResultsCardComponent],
     templateUrl: './results-card-expandable.component.html',
     styleUrl: './results-card-expandable.component.scss',
 })
 export class ResultsCardExpandableComponent {
     readonly #utilService = inject(UtilService);
 
-    public buildingTOID: InputSignal<string | undefined> = input<string | undefined>(undefined);
+    public buildingUPRN: InputSignal<string | undefined> = input();
     public checkedCards = input<BuildingModel[]>([]);
     public dwellings = input<BuildingModel[]>([]);
     public select: InputSignal<boolean> = input<boolean>(false);
@@ -71,6 +71,17 @@ export class ResultsCardExpandableComponent {
 
             this.parentDataset.EPC = this.#utilService.getMeanEPCValue(EPCs as string[]) as EPCRating;
         });
+    }
+
+    public containsBuilding(): boolean {
+        const dwellings = this.dwellings();
+        const targetUPRN = this.buildingUPRN();
+
+        if (!targetUPRN) {
+            return false;
+        }
+
+        return dwellings.map(({ UPRN }) => UPRN).includes(targetUPRN);
     }
 
     public onToggleCheckedDwellings(checked: boolean): void {

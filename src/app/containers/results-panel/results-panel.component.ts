@@ -50,7 +50,6 @@ export class ResultsPanelComponent {
     public panelOpen: WritableSignal<boolean> = signal(true);
     public selectMultiple: boolean = false;
     public selectedCardUPRN = this.#utilService.selectedCardUPRN;
-    public selectedParentTOID = this.#utilService.multiDwelling;
 
     public flag: OutputEmitterRef<BuildingModel[]> = output();
     public removeFlag: OutputEmitterRef<BuildingModel> = output();

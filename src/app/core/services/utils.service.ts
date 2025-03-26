@@ -9,7 +9,7 @@ import { booleanWithin } from '@turf/boolean-within';
 import { featureCollection, point } from '@turf/helpers';
 import { pointsWithinPolygon } from '@turf/points-within-polygon';
 import { Feature, FeatureCollection, GeoJsonProperties, Geometry, MultiPoint, Point, Polygon } from 'geojson';
-import { Expression, LngLat, PaintSpecification } from 'mapbox-gl';
+import { ExpressionSpecification, LngLat, PaintSpecification } from 'mapbox-gl';
 import { DataService } from './data.service';
 import { MapService } from './map.service';
 import { SpatialQueryService } from './spatial-query.service';
@@ -17,15 +17,13 @@ import { SpatialQueryService } from './spatial-query.service';
 type MapLayerPaintKeys = keyof PaintSpecification;
 
 interface ExpressionAndMapLayerFilter {
-    expression: Expression;
+    expression: ExpressionSpecification;
     mapLayerFilter: MapLayerFilter & { layerId: MapLayerId };
 }
 
 type CurrentExpressions = Record<MapLayerPaintKeys, ExpressionAndMapLayerFilter>;
 
-@Injectable({
-    providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class UtilService {
     readonly #dataService = inject(DataService);
     readonly #mapService = inject(MapService);

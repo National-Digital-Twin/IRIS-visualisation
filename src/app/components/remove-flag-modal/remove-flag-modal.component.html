@@ -1,25 +1,25 @@
 <h2 mat-dialog-title class="title">
-    <ph-icon-warning /> You are removing a flag for:
-    {{ data.FullAddress }}
+    <mat-icon class="icon">warning</mat-icon>
+    <span>You are removing a flag for: {{ data.FullAddress }}</span>
 </h2>
 
 <div mat-dialog-content>
-    <span>Provide a reason for removing of this flag</span>
+    <div class="remove-reason">
+        <div>Provide a reason for removing of this flag</div>
 
-    <mat-form-field>
-        <mat-label>Select Reason</mat-label>
-        <mat-select [formControl]="reason">
-            @for (reason of reasons | keyvalue; track $index) {
-                <mat-option [value]="reason.value">
-                    {{ reason.value }}
-                </mat-option>
-            }
-        </mat-select>
-    </mat-form-field>
+        <mat-form-field>
+            <mat-label>Select Reason</mat-label>
+            <mat-select [formControl]="reason">
+                @for (reason of reasons | keyvalue; track $index) {
+                    <mat-option [value]="reason.value">{{ reason.value }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
+    </div>
 </div>
 
 <div mat-dialog-actions>
-    <button mat-flat-button mat-dialog-close>Cancel</button>
+    <button mat-button mat-dialog-close>Cancel</button>
     <button mat-flat-button [mat-dialog-close]="reason.value" [disabled]="reason.invalid" cdkFocusInitial>Remove flag</button>
 </div>
 

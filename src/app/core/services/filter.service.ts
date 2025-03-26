@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FilterKeys, FilterProps } from '@core/models/advanced-filters.model';
 
-@Injectable({
-    providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class FilterService {
     /**
      * Create a filter string from new and existing
