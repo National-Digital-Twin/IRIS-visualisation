@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipModule } from '@angular/material/tooltip';
 import { LegendComponent } from '@components/legend/legend.component';
+import { DataService } from '@core/services/data.service';
 import { MapLayerConfig } from '@core/models/map-layer-config.model';
 import { MinimapData } from '@core/models/minimap-data.model';
 import { URLStateModel } from '@core/models/url-state.model';
@@ -30,6 +31,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     readonly #mapService = inject(MapService);
     readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
     readonly #utilsService = inject(UtilService);
+    readonly #dataService = inject(DataService);
 
     public bearing: number = 0;
     public drawActive: boolean = false;
@@ -153,6 +155,32 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         /** Get map state whenever the map is moved */
         this.#mapService.mapInstance.on('moveend', () => {
             this.setRouterParams();
+
+            // Get current viewport bounds
+            const bounds = this.#mapService.mapInstance.getBounds();
+            if (bounds) {
+                const viewport = {
+                    minLat: bounds.getSouth(),
+                    maxLat: bounds.getNorth(),
+                    minLng: bounds.getWest(),
+                    maxLng: bounds.getEast()
+                };
+
+                // Only load data when buildings become 3D models
+                const zoom = this.#mapService.mapInstance.getZoom();
+                if (zoom >= 16) {
+                    this.#dataService.loadBuildingsForViewport(viewport).subscribe({
+                        next: () => {
+                            // After loading, make sure the util service refreshes the colors
+                            this.#utilsService.createBuildingColourFilter();
+                        },
+                        error: (err) => {
+                            console.error('Error loading buildings for viewport:', err);
+                            this.#dataService.viewportBuildingsLoading.set(false);
+                        }
+                    });
+                }
+            }
         });
 
         /** wards layer click */
@@ -289,7 +317,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         const { lng, lat } = this.#mapService.mapInstance.getCenter();
         const mapConfig: URLStateModel = {
             bearing,
-            center: [lat, lng],
+            center: [lng, lat],
             pitch,
             zoom,
         };

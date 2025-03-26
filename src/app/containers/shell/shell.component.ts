@@ -10,7 +10,6 @@ import { DetailsPanelComponent } from '@components/details-panel/details-panel.c
 import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
 import { FlagModalComponent, FlagModalData, FlagModalResult } from '@components/flag-modal/flag.modal.component';
 import { InformationComponent } from '@components/information/information.component';
-import { LoadingScreenComponent } from '@components/loading-screen/loading-screen.component';
 import { MapComponent } from '@components/map/map.component';
 import { MinimapComponent } from '@components/minimap/minimap.component';
 import { RemoveFlagModalComponent, RemoveFlagModalData, RemoveFlagModalResult } from '@components/remove-flag-modal/remove-flag-modal.component';
@@ -37,7 +36,6 @@ import { EMPTY, Observable, combineLatest, filter, forkJoin, map, switchMap, tak
     imports: [
         CommonModule,
         DetailsPanelComponent,
-        LoadingScreenComponent,
         MainFiltersComponent,
         MapComponent,
         MinimapComponent,

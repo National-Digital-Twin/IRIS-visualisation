@@ -41,6 +41,15 @@ export class MapService {
             this.createMap(config);
             this.hookEvents();
         });
+
+        this.mapInstance.once('idle', () => {
+            const initialBounds = this.mapInstance.getBounds();
+            if (initialBounds) {
+                this.#zone.run(() => {
+                    this.currentMapBounds.set(initialBounds);
+                });
+            }
+        });
     }
 
     public addMapSource(name: string, source: SourceSpecification): mapboxgl.Map {
@@ -167,6 +176,28 @@ export class MapService {
                 )
                 .subscribe();
         });
+
+        this.mapInstance.on('moveend', () => {
+            // Update the current bounds when a map movement ends
+            const bounds = this.mapInstance.getBounds();
+            if (bounds) {
+                this.#zone.run(() => {
+                    this.currentMapBounds.set(bounds);
+                });
+            }
+        });
+    }
+
+    public getViewportBoundingBox(): { minLat: number, maxLat: number, minLng: number, maxLng: number } | null {
+        const bounds = this.currentMapBounds();
+        if (!bounds) return null;
+
+        return {
+            minLat: bounds.getSouth(),
+            maxLat: bounds.getNorth(),
+            minLng: bounds.getWest(),
+            maxLng: bounds.getEast()
+        };
     }
 
     public addDrawControl(): MapboxDraw {
