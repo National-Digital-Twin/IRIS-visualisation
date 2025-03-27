@@ -2,7 +2,7 @@
 
 **Repository:** `IRIS-visualisation`  
 **Description:** `This repository functions as the client side of IRIS and contains frontend views and logic.`  
-**SPDX-License-Identifier:** `Apache-2.0 AND OGL-UK-3.0 `  
+**SPDX-License-Identifier:** `Apache-2.0 AND OGL-UK-3.0`  
 
 ## Overview  
 This repository contributes to the development of **secure, scalable, and interoperable data-sharing infrastructure**. It supports NDTP’s mission to enable **trusted, federated, and decentralised** data-sharing across organisations.  
@@ -94,7 +94,7 @@ This repository has been developed with public funding as part of the National D
 
 ## License  
 This repository contains both source code and documentation, which are covered by different licenses:  
-- **Code:** Originally developed by Ovi Arup & Partners and Informed Solutions, now maintained by National Digital Twin Programme. Licensed under the Apache License 2.0.  
+- **Code:** Originally developed by Ovi Arup & Partners, and Informed Solutions, now maintained by National Digital Twin Programme. Licensed under the Apache License 2.0.  
 - **Documentation:** Licensed under the Open Government Licence v3.0.  
 
 See `LICENSE.md`, `OGL_LICENCE.md`, and `NOTICE.md` for details.  
