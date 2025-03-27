@@ -1,5 +1,5 @@
-**Repository:** `IRIS-data-pipeline`  
-**Description:** `Details steps and information required to request new features within the software`
+**Repository:** `IRIS-visualisation`  
+**Description:** `Details steps and information required to request new features within the software`  
 **SPDX-License-Identifier:** OGL-UK-3.0
 
 ---
