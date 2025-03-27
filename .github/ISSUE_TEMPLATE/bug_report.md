@@ -1,3 +1,7 @@
+**Repository:** `IRIS-data-pipeline`  
+**Description:** `Details steps and information required to report issues with the software`
+**SPDX-License-Identifier:** OGL-UK-3.0
+
 ---
 name: Bug report
 about: Create a report to help us improve
