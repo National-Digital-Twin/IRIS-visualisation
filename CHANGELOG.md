@@ -34,170 +34,168 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
 ### Features
 
-* :iphone: update responsiveness ([5bf6f2f](https://github.com/arup-group/C477-DBT-Vis/commit/5bf6f2f7e3164ee301b02294f350a600e3c93e6e))
-* :lipstick: first pass at responsive UI ([fbca4e8](https://github.com/arup-group/C477-DBT-Vis/commit/fbca4e88045d328822a2f3d26c7048a81037f200))
-* **data download:** add data download button and handlers ([fc7d3a8](https://github.com/arup-group/C477-DBT-Vis/commit/fc7d3a80a02c24af60977b5892dee1d2606d74de))
-* **data download:** display warning for large area download ([a445292](https://github.com/arup-group/C477-DBT-Vis/commit/a445292cc7709b4644f55fedf07e300ce67dd14e))
-* **data download:** find addresses in polygon ([a295b3b](https://github.com/arup-group/C477-DBT-Vis/commit/a295b3baf2ddab10cb854875f9607fa8e5c64628))
-* **data download:** hide results and details ([64a1077](https://github.com/arup-group/C477-DBT-Vis/commit/64a107722aa4b89967a98fdb215ce4aaaa2d768c))
-* **Details Panel:** :sparkles: add expired EPC styling to UI ([05940a7](https://github.com/arup-group/C477-DBT-Vis/commit/05940a79230b400c3fe2eeac30b7e914dbee04da))
-* **Filters:** :sparkles: add expired EPC filter ([9ded0ec](https://github.com/arup-group/C477-DBT-Vis/commit/9ded0ecaf800769d0d4aee13440995e0690f55e3))
-* **Filters:** :sparkles: hide clear all filters button when no filters are applied ([d1c7af7](https://github.com/arup-group/C477-DBT-Vis/commit/d1c7af7acf38930158954efe8e06d57e105d5598))
-* **filters:** add clear all filters button ([e138a58](https://github.com/arup-group/C477-DBT-Vis/commit/e138a5805425f9494fc23a48abe9fa360f81eb28))
-* **filters:** clear flagged filter ([6f23dad](https://github.com/arup-group/C477-DBT-Vis/commit/6f23dada8b74c40f32baff9edcbaeedd01472fa8))
-* **filters:** reset form when all filters cleared ([2dee419](https://github.com/arup-group/C477-DBT-Vis/commit/2dee41908e658705571fff8c1a9650e518fbf6f2))
-* **Map:** :sparkles: rotate north arrow with bearing ([8de88a7](https://github.com/arup-group/C477-DBT-Vis/commit/8de88a7a104606cf5ef76fcba436aa0845fc7683))
-* **spatial filter:** override draw tool styling ([08b50ec](https://github.com/arup-group/C477-DBT-Vis/commit/08b50ec090f5414888de3a64aba77e9d4d16d620))
-* **spatial filter:** set button styles for button state ([ef6771f](https://github.com/arup-group/C477-DBT-Vis/commit/ef6771fa14a885ec07a2a5606f500d24ddb24a98))
-* **Filters:** :lipstick: style and add no dwellings warning ([58a250b](https://github.com/arup-group/C477-DBT-Vis/commit/58a250b77c8b350d98179df24c79364744c443f7))
-* **Filters:** :sparkles: indicate which advanced filters are valid ([bd826ce](https://github.com/arup-group/C477-DBT-Vis/commit/bd826ce92603d847f661a926a1afb8c70d62e6e3))
-* **map:** mapbox logo ([316d166](https://github.com/arup-group/C477-DBT-Vis/commit/316d166e5155e57ffbd88ee2ed6176545a35b4d4))
-* **Minimap:** :sparkles: add minimap to bottom right corner ([78c525a](https://github.com/arup-group/C477-DBT-Vis/commit/78c525aa3b961c38274ea93632b7037aa14e853c))
-* **Minimap:** :sparkles: hide/show minimap ([c14ad1e](https://github.com/arup-group/C477-DBT-Vis/commit/c14ad1ed6e9f37d54c2c5ddad7ea0fc990a36a8a))
-* **Map:** :sparkles: add 2D mode ([088f216](https://github.com/arup-group/C477-DBT-Vis/commit/088f216f195c2a5dcdb7a768159ca6062e34125a))
-* **Map:** :sparkles: add north orientation arrow ([3af2ed7](https://github.com/arup-group/C477-DBT-Vis/commit/3af2ed71b65e0b24e3a1fbf9bf2972baf465119e))
-* **Data Download:** :sparkles: download in excel format ([fd52e83](https://github.com/arup-group/C477-DBT-Vis/commit/fd52e83b43f10da8b9b4f34fdf56da495ddfcd7e))
-* **address search:** refine search results ([31eb28a](https://github.com/arup-group/C477-DBT-Vis/commit/31eb28a8a8d8d6fc9f3009e75b2f7f85dbed93b4))
-* **postcode search:** add method to search for postcodes ([9642f7d](https://github.com/arup-group/C477-DBT-Vis/commit/9642f7d8d47578bfc6192f6cd2807f12526acbf3))
-* **details-panel:** flag history updates ([#111](https://github.com/arup-group/C477-DBT-Vis/issues/111)) ([d503e89](https://github.com/arup-group/C477-DBT-Vis/commit/d503e899ceb8429072b0aa2822642c95a3ee37ec))
-* **map:** remove buildings with data from default ([5d7a350](https://github.com/arup-group/C477-DBT-Vis/commit/5d7a350581ca65b5ca1372e30bea997a585715ac))
-- **Details Panel:** :sparkles: add wall insulation to details panel ([0276f68](https://github.com/arup-group/C477-DBT-Vis/commit/0276f68da46473165f8b1d9c935e8dd950d0738e))
-- **app:** add flagged toid colour to map ([#86](https://github.com/arup-group/C477-DBT-Vis/issues/86)) ([53320c3](https://github.com/arup-group/C477-DBT-Vis/commit/53320c3684797a8f068db2cb7a19b267fb6f3b6c))
-- :lipstick: add favicon ([93a48bb](https://github.com/arup-group/C477-DBT-Vis/commit/93a48bb6eb7dc59f6e9cc521a5fc50edc744ed4d))
-- :sparkles: add app logo ([85eaab5](https://github.com/arup-group/C477-DBT-Vis/commit/85eaab580359db55fdb19a4940bc9d108c2e15a4))
-- **AddressSearch:** :sparkles: on selection of address from autocomplete, zoom to the address ([65eb25a](https://github.com/arup-group/C477-DBT-Vis/commit/65eb25ad2ce8c61807cd7ed857c5e370be6a5b11))
-- **AddressSearch:** :sparkles: select the building when you search for and zoom to an address ([261cd9d](https://github.com/arup-group/C477-DBT-Vis/commit/261cd9df2f4c61f27a81fb3bf47a3fb19c0ee468))
-- **AddressSearch:** :sparkles: set up call to the os places api ([7595582](https://github.com/arup-group/C477-DBT-Vis/commit/7595582c9a008056ffd048e1eb80fb52271f6a0e))
-- **angular material:** add angular material ([33f63d1](https://github.com/arup-group/C477-DBT-Vis/commit/33f63d1a9a948c2f4ae12a199d07209c46e04e63))
-- **app layout:** create shell component ([50a83b8](https://github.com/arup-group/C477-DBT-Vis/commit/50a83b89bb9933a7604a368b17e2e09245abc0eb))
-- **app:** add color blind mode ([234d18c](https://github.com/arup-group/C477-DBT-Vis/commit/234d18c18f991165ed99c9a8a46c99b9879c5b10))
-- **app:** add dark mode ([#60](https://github.com/arup-group/C477-DBT-Vis/issues/60)) ([c3532fe](https://github.com/arup-group/C477-DBT-Vis/commit/c3532fe4740fb41e80d9555de0abca9df583401a))
-- **app:** add flagging ([#77](https://github.com/arup-group/C477-DBT-Vis/issues/77)) ([fca5653](https://github.com/arup-group/C477-DBT-Vis/commit/fca5653e8bd7ee01d7b28772d34cee8b40fc2be7))
-- **app:** add multi dwelling pattern support ([#47](https://github.com/arup-group/C477-DBT-Vis/issues/47)) ([3d5c642](https://github.com/arup-group/C477-DBT-Vis/commit/3d5c6427d94a15cd295004b56dea455f4c9a0711))
-- **app:** apply color blind color too all application elements in color blind mode ([#42](https://github.com/arup-group/C477-DBT-Vis/issues/42)) ([32baea4](https://github.com/arup-group/C477-DBT-Vis/commit/32baea472b0ed5235a6d5a08ddbe0e301df5747d))
-- **app:** apply color blind epc palette to all elements ([79e046d](https://github.com/arup-group/C477-DBT-Vis/commit/79e046d20c0be226236fbdc8ff833b273927724f))
-- **app:** dark mode background and controls ([#70](https://github.com/arup-group/C477-DBT-Vis/issues/70)) ([0b49c2c](https://github.com/arup-group/C477-DBT-Vis/commit/0b49c2cd4138787471e4de19eb84ad7ecadfda0b))
-- **app:** handle http errors ([#54](https://github.com/arup-group/C477-DBT-Vis/issues/54)) ([e6ad486](https://github.com/arup-group/C477-DBT-Vis/commit/e6ad4866aa04d6cd64a85ee84476f773a62c72b8))
-- **app:** opens snackbar to inform user and waits for dissmissal before redirecting to login ([#65](https://github.com/arup-group/C477-DBT-Vis/issues/65)) ([18c1260](https://github.com/arup-group/C477-DBT-Vis/commit/18c12600c507593503bc0e67eae80ec3cbb2787d))
-- **bookmarks:** add route guard to check route params ([4268bb5](https://github.com/arup-group/C477-DBT-Vis/commit/4268bb51d689ba785045e8856e7c8ef73f794765))
-- **bookmarks:** get map state from route ([8f5c834](https://github.com/arup-group/C477-DBT-Vis/commit/8f5c8347d2581bbb61d13ea5e80cf578a13c8f32))
-- **bookmarks:** set map using inputs from route params ([66ee2e8](https://github.com/arup-group/C477-DBT-Vis/commit/66ee2e83cf2c133991d0387bcdadaa9c4fd705a3))
-- **building details:** display part information ([caf389e](https://github.com/arup-group/C477-DBT-Vis/commit/caf389ec90b618910c1b32b805dbc07648273d83))
-- **building parts:** add method to load building parts ([17dc2af](https://github.com/arup-group/C477-DBT-Vis/commit/17dc2af0bf79624fae955f2d3baadfe5274aa98e))
-- **core:** handle 401 from telicent api ([#64](https://github.com/arup-group/C477-DBT-Vis/issues/64)) ([d09ab07](https://github.com/arup-group/C477-DBT-Vis/commit/d09ab07d3a196bc36089fdaa2722fa0b05544c3a))
-- **Data Download:** :sparkles: add single address to data download panel ([2af8868](https://github.com/arup-group/C477-DBT-Vis/commit/2af8868dcb777c79c1149ccbd48e5ddd777650a5))
-- **Data Download:** :sparkles: create UI for data download warning ([30d5f98](https://github.com/arup-group/C477-DBT-Vis/commit/30d5f9893747aa7b2ca1b458a52e3c98f6bca319))
-- **Data Download:** :sparkles: implement zipfile download for singular dwelling download ([356d311](https://github.com/arup-group/C477-DBT-Vis/commit/356d3111b6f36975a755d1c33f0bce6b86e85d7d))
-- **data download:** download selected ([73799e4](https://github.com/arup-group/C477-DBT-Vis/commit/73799e4b412d789df1d5deb651a87c794b1fbff4))
-- **data loading:** filter address data and join with buildings ([da1beec](https://github.com/arup-group/C477-DBT-Vis/commit/da1beec97972310e350a8d1a90b3a82016d442f4))
-- **data service:** add data service to query telicent IA ([4f29224](https://github.com/arup-group/C477-DBT-Vis/commit/4f2922412cadff75cfa1edffe89735a9fcf17c07))
-- **data service:** call data service to get uprns ([fa758a7](https://github.com/arup-group/C477-DBT-Vis/commit/fa758a7fae3a7d5265ebf38db58f334bcbb81663))
-- **data:** add address data csv file ([2212fed](https://github.com/arup-group/C477-DBT-Vis/commit/2212fed90155bddfc544d64d58a039d730698db6))
-- **data:** add call to no epc data query ([d8b25c9](https://github.com/arup-group/C477-DBT-Vis/commit/d8b25c9832e40782feac30b1dd5a5cff17b34429))
-- **data:** add csv of toids with uprns ([8d79dae](https://github.com/arup-group/C477-DBT-Vis/commit/8d79daecee7654ebaec79da488214d7270b18b97))
-- **data:** add methods to extract building parts ([c8b1fba](https://github.com/arup-group/C477-DBT-Vis/commit/c8b1fba351950b9b2652f5cf4db99ec6894e5d80))
-- **data:** add query for no epc buildings ([680eb9a](https://github.com/arup-group/C477-DBT-Vis/commit/680eb9a93c37f70840d4bc5fffd7e0265f0d225f))
-- **data:** add query to load buildings data from IA ([c7e95d7](https://github.com/arup-group/C477-DBT-Vis/commit/c7e95d7d7b64d7b8a6d10e9aa6ffe6c288190b28))
-- **data:** add year of assessment ([409f718](https://github.com/arup-group/C477-DBT-Vis/commit/409f718867edf7950cc4afbb7adec6a367496b82))
-- **data:** load no epc data ([c490318](https://github.com/arup-group/C477-DBT-Vis/commit/c490318e425ff3f5372891af541eb733bf2f1161))
-- **data:** load sap ratings ([a519e93](https://github.com/arup-group/C477-DBT-Vis/commit/a519e93d954e1e4fa5b3941fbc97cd925ec8a5cb))
-- **data:** load toids and building data ([22a441a](https://github.com/arup-group/C477-DBT-Vis/commit/22a441ae1be722a3f3041e7751a8399c8926773d))
-- **data:** query ia and load data ([57a6016](https://github.com/arup-group/C477-DBT-Vis/commit/57a601601abd8f2eaa58f7694b47cdd2d24187f4))
-- **data:** set selected uprns and query data ([5944e6d](https://github.com/arup-group/C477-DBT-Vis/commit/5944e6d0f676ca17b7cd28bbe20e0932b8f09fce))
-- **data:** update query to get all data for the app ([ea0c9bc](https://github.com/arup-group/C477-DBT-Vis/commit/ea0c9bc2a64f55b426266eb91ed0b377340911c1))
-- **data:** watch for data load ([1f3a6e6](https://github.com/arup-group/C477-DBT-Vis/commit/1f3a6e60cf40525d04912873398edf240de58184))
-- **Details Panel:** :sparkles: add sap points to details panel EPC label ([a7228c4](https://github.com/arup-group/C477-DBT-Vis/commit/a7228c4e9d0891a46844fe96ed7eb574ba3ed6d9))
-- **Details Panel:** :sparkles: add signal to open and close the details panel ([01a0ba3](https://github.com/arup-group/C477-DBT-Vis/commit/01a0ba3c4299c01fc8acf8be831978191ab3f0cd))
-- **Details Panel:** :sparkles: add uprn to the building details panel ([233e7cc](https://github.com/arup-group/C477-DBT-Vis/commit/233e7cc1d6208119b97242791977c580121ba050))
-- **Details Panel:** :sparkles: scaffold the ui for the details panel ([01124b9](https://github.com/arup-group/C477-DBT-Vis/commit/01124b96f383f3f07012c2e3db22dde3cedcdabd))
-- **details panel:** toggle panel visibility ([109b8ce](https://github.com/arup-group/C477-DBT-Vis/commit/109b8ced96942b603bfb95c6052b0f15afd6a287))
-- **details:** add glazing to details panel ([86cdb7a](https://github.com/arup-group/C477-DBT-Vis/commit/86cdb7a635650809e9dd2325a91ab5cda5ffa7a2))
-- **download building:** download building from card ([c676464](https://github.com/arup-group/C477-DBT-Vis/commit/c676464f496c564d7e287a3c2bc9881889be78b5))
-- **download:** download all buildings in results ([a98a5ce](https://github.com/arup-group/C477-DBT-Vis/commit/a98a5ce6e3d1b5285646be374c1579c2ae86a0aa))
-- **draw:** add mapbox draw extension ([1e3c639](https://github.com/arup-group/C477-DBT-Vis/commit/1e3c639390e27acca5f030d2812f9ecda0c15c59))
-- **draw:** setup draw methods ([ef526d3](https://github.com/arup-group/C477-DBT-Vis/commit/ef526d39742ed72099401534160b700bf6bcd018))
-- **epc:** add method to get epc values for each building ([6009dc4](https://github.com/arup-group/C477-DBT-Vis/commit/6009dc400a2eaa28d7bca48f06194141da638888))
-- **filter button:** set default values ([945fce9](https://github.com/arup-group/C477-DBT-Vis/commit/945fce9b96def5de2de58bde1ff1b6d4b6255fe7))
-- **filter panel:** get selected filters ([531291e](https://github.com/arup-group/C477-DBT-Vis/commit/531291e68c9c15ca9b087ade94a06da91d7ce6ec))
-- **filter results:** handle panel open and close state ([85a9f79](https://github.com/arup-group/C477-DBT-Vis/commit/85a9f799d2661fe1f9d68e470e11bc3fb6106abd))
-- **Filters:** :label: add in filter enums to generate filter options from ([2f384fd](https://github.com/arup-group/C477-DBT-Vis/commit/2f384fdaf164d91bf8171b1d03bf5c51e82d7f00))
-- **Filters:** :sparkles: add date & date range picker ([649a8fb](https://github.com/arup-group/C477-DBT-Vis/commit/649a8fbe71bae5abd61069545aca78e6788804c4))
-- **Filters:** :sparkles: add date filter and refactor multi button filter to use correct types ([5490a8e](https://github.com/arup-group/C477-DBT-Vis/commit/5490a8e0541dd738fb42699b1b05fe9d0e6f5fda))
-- **Filters:** :sparkles: add dwelling size filter ([8eb6484](https://github.com/arup-group/C477-DBT-Vis/commit/8eb64840a1994ede0458748dca712345bdba4678))
-- **Filters:** :sparkles: hook multi-button filter up to parent form ([412fb49](https://github.com/arup-group/C477-DBT-Vis/commit/412fb495fdcf742de96ac0687ac5b8037f60ac02))
-- **Filters:** :sparkles: hook up the two main filters to construct a query and get data ([1ab293e](https://github.com/arup-group/C477-DBT-Vis/commit/1ab293e195577c7da71078218a5604a5a8691e51))
-- **Filters:** :sparkles: implement year of assessment filtering ([adedeb5](https://github.com/arup-group/C477-DBT-Vis/commit/adedeb54ecda64836bd2974358b14244cce106de))
-- **Filters:** :sparkles: scaffold search bar, select filters and filter button ([71242f1](https://github.com/arup-group/C477-DBT-Vis/commit/71242f13816183fcc81b64a52438cf5fa00cc730))
-- **filters:** add clear all to main filters ([b8f7ddd](https://github.com/arup-group/C477-DBT-Vis/commit/b8f7ddda602d474130dd487415b6373a39c7e5fe))
-- **filters:** add filter method ([6eb4e0d](https://github.com/arup-group/C477-DBT-Vis/commit/6eb4e0dc0ba236d0ae8d88ec7c34d0eda7779a91))
-- **filters:** add filter url props ([d94b035](https://github.com/arup-group/C477-DBT-Vis/commit/d94b035cbf8130d024361677e3588207d9d03d78))
-- **filters:** add flag toggle ([2948f46](https://github.com/arup-group/C477-DBT-Vis/commit/2948f46fd24fabdf3cfe138793b9a75c4e4488d9))
-- **filters:** add service for applying filters ([a0c5704](https://github.com/arup-group/C477-DBT-Vis/commit/a0c570437ec56f3ef0a05b20dba6e516a8d89775))
-- **filters:** clear all advanced filters ([9a955a2](https://github.com/arup-group/C477-DBT-Vis/commit/9a955a23198659b77809cc5faf4afc608e9bb86b))
-- **filters:** create filter string ([2fabd07](https://github.com/arup-group/C477-DBT-Vis/commit/2fabd071eed1485079f6c69c4b01978c65e83b8e))
-- **filters:** implement flagged buildings filter ([fbaa832](https://github.com/arup-group/C477-DBT-Vis/commit/fbaa832954f8d0162b11b8fdba035da1109da297))
-- **filters:** implement flagged filter ([7ca6260](https://github.com/arup-group/C477-DBT-Vis/commit/7ca6260d0c920167cfa1ed140fdc2e67db2a50f3))
-- **filters:** merge filter params in url ([7eec4a2](https://github.com/arup-group/C477-DBT-Vis/commit/7eec4a2c4d163eb84484b1a7d6659f97cd85ce92))
-- **filters:** set advanced filters in url ([93cb272](https://github.com/arup-group/C477-DBT-Vis/commit/93cb2729bbd2880b4594237454edfb5bb1410e5a))
-- **filters:** set buildings to display results ([1760e81](https://github.com/arup-group/C477-DBT-Vis/commit/1760e814755c924cd46bf971ca7dc0edf839f11a))
-- **filters:** set filter url param ([a4c5db7](https://github.com/arup-group/C477-DBT-Vis/commit/a4c5db7128eb0a767196328e0b9f447605bf9fe1))
-- **filters:** set filters signal in utils service ([c86828f](https://github.com/arup-group/C477-DBT-Vis/commit/c86828ffe8ff38bd295352e5ebb7af2f5c329522))
-- **flag history:** query IA to get flag history ([457d430](https://github.com/arup-group/C477-DBT-Vis/commit/457d430b510f5766c006682b203963c06c0bc745))
-- **Flag:** :sparkles: add flag info in the ui ([b05abb9](https://github.com/arup-group/C477-DBT-Vis/commit/b05abb988d05001bc44882fe90888956a370b4dc))
-- **flagging:** add get history query ([fca3c95](https://github.com/arup-group/C477-DBT-Vis/commit/fca3c95a6443a26ef59b819f2f74b37c5e7e61c1))
-- **load buildings:** load building data from csv file ([355f5ee](https://github.com/arup-group/C477-DBT-Vis/commit/355f5ee0f7025c4e63b5ef2bc09d8af092a9a146))
-- **load flags:** load all flags from IA ([a022918](https://github.com/arup-group/C477-DBT-Vis/commit/a02291828e9d8cff20db8fc78b0cfaf500c27afe))
-- **main filters:** set selected values if any exist ([4a18a58](https://github.com/arup-group/C477-DBT-Vis/commit/4a18a58f14fb14d140cd99f6943897a462ea967b))
-- **map controls:** add map control buttons ([67b3205](https://github.com/arup-group/C477-DBT-Vis/commit/67b3205d074a089b88864ab94fe7ecedbc315467))
-- **map controls:** add styling for map controls ([38b4237](https://github.com/arup-group/C477-DBT-Vis/commit/38b4237c1637c32ffb151b3b86241b2cb01da735))
-- **map draw:** allow only one polygon to be drawn ([019c90a](https://github.com/arup-group/C477-DBT-Vis/commit/019c90a39f4da50d818db5e5acbc543287577ed7))
-- **map draw:** fix button hover style ([26894c3](https://github.com/arup-group/C477-DBT-Vis/commit/26894c3757be18d0c0b73c5297cc083ba4d5e196))
-- **map service:** add layer adding and filtering methods ([e18dc8d](https://github.com/arup-group/C477-DBT-Vis/commit/e18dc8dc8afc24c0d63e8e2fba4be5dffd476eba))
-- **Map:** :sparkles: add legend into map controls ([462c2ff](https://github.com/arup-group/C477-DBT-Vis/commit/462c2ffb778c7121b177b393ab7fc0f79dd86229))
-- **map:** add map bearing to config ([a79ed82](https://github.com/arup-group/C477-DBT-Vis/commit/a79ed82b123b506a98846c7ba8f9046bd187ca38))
-- **map:** add map component to app ([9b0ce66](https://github.com/arup-group/C477-DBT-Vis/commit/9b0ce6614f198cb5680527fdccb87cfe1ac3d405))
-- **map:** add tooltips to map controls ([fc07de9](https://github.com/arup-group/C477-DBT-Vis/commit/fc07de9019ff56ed14b0dc1ab6d1b4f9b7826ccc))
-- **mapbox draw:** add mapbox draw ([f784d1c](https://github.com/arup-group/C477-DBT-Vis/commit/f784d1c8517bd19b91d853fef0f3706f75732b46))
-- **mapbox draw:** implement polygon drawing functionality ([42e3da6](https://github.com/arup-group/C477-DBT-Vis/commit/42e3da62a86762999ff624ef1afc167b6cb435d3))
-- **map:** create map component ([0b5927b](https://github.com/arup-group/C477-DBT-Vis/commit/0b5927b437f9d92935b73e4d129b871e6b7f8794))
-- **map:** drawing and filtering map layers ([46a971f](https://github.com/arup-group/C477-DBT-Vis/commit/46a971f4725be388701bcafb72b37ed27e80f363))
-- **map:** get map state ([7fbb39e](https://github.com/arup-group/C477-DBT-Vis/commit/7fbb39ef0804c1b13614534ec372f0c82ce3e9d7))
-- **map:** load epc point layer ([a66f92e](https://github.com/arup-group/C477-DBT-Vis/commit/a66f92e34a072c36d7b09ab0c8230309d49516a2))
-- **map:** set map state in route ([3ad2d52](https://github.com/arup-group/C477-DBT-Vis/commit/3ad2d5256487070ac2eee34ae6625b845e91aff3))
-- **map:** setup map layout ([249c28a](https://github.com/arup-group/C477-DBT-Vis/commit/249c28ac7663ab5709d1f25783493131bed419d9))
-- **no epc filter:** implement filtering for no epc buildings ([ef0527f](https://github.com/arup-group/C477-DBT-Vis/commit/ef0527f7f2913072ba6a8609dc1a5b664dc1fa26))
-- **os vector tiles:** load os vector tiles and extrude buildings ([61f15df](https://github.com/arup-group/C477-DBT-Vis/commit/61f15df6e14056391fa671c0cc2acbc18e8f09a4))
-- **os vts:** add os api key property to environment ([34dfaed](https://github.com/arup-group/C477-DBT-Vis/commit/34dfaedaac32f11df609fe8b46485dab61a7bf2b))
-- **queries:** add query to get details for no epc building ([168eab8](https://github.com/arup-group/C477-DBT-Vis/commit/168eab874f225094fd59859aba10219c4d809fad))
-- **queries:** details query for non-epc data ([c565108](https://github.com/arup-group/C477-DBT-Vis/commit/c56510845bd6e9e764c5eada8202d51c22f67548))
-- **queries:** query to load all data ([71b605b](https://github.com/arup-group/C477-DBT-Vis/commit/71b605bb79ad5c226b2ac9abad47fd655f21c530))
-- **queries:** update building parts query ([5a033de](https://github.com/arup-group/C477-DBT-Vis/commit/5a033de0fd3c80610f000009fb227d9e802168db))
-- **results card:** conditional property type for non-epc data ([a563db4](https://github.com/arup-group/C477-DBT-Vis/commit/a563db49017db79dc6aeeb6c5473b9c31d4ceddb))
-- **results card:** handle card selection and map zoom ([e24726c](https://github.com/arup-group/C477-DBT-Vis/commit/e24726c25f748c4c19d809c26340bf314e78bc2f))
-- **results cards:** add hover and selected style ([db1355e](https://github.com/arup-group/C477-DBT-Vis/commit/db1355e3ad7aab5cde8d41b323e6a9267cdee0a5))
-- **results cards:** scroll to selected parent building ([ca9df92](https://github.com/arup-group/C477-DBT-Vis/commit/ca9df9275924f90d9c904147b7d6cf9a709c6e96))
-- **results list:** scroll to selected results card ([5a3a6d4](https://github.com/arup-group/C477-DBT-Vis/commit/5a3a6d45ff0f6b5a7e87f89e5412cd199d97003f))
-- **Results:** :recycle: refactor to display flats inside a parent expansion panel card ([18685fb](https://github.com/arup-group/C477-DBT-Vis/commit/18685fb172d58e6814d0932e5006cecb1890035b))
-- **Results:** :sparkles: add expansion panel functionality ([4c9b086](https://github.com/arup-group/C477-DBT-Vis/commit/4c9b0862e970cd7a34243a40e6f526f7fda88465))
-- **Results:** :sparkles: add icon buttons and labels to overview card ([7e20f44](https://github.com/arup-group/C477-DBT-Vis/commit/7e20f4468400430c6eb6d11fde5d254052465230))
-- **Results:** :sparkles: add results panel ([32acad3](https://github.com/arup-group/C477-DBT-Vis/commit/32acad30c043ff3c65eea69bdbddea60fa11c0e4))
-- **Results:** :sparkles: scaffold header for results container ([883b1e0](https://github.com/arup-group/C477-DBT-Vis/commit/883b1e0ec793ef3aa29a52c85e1c0e47e660f57e))
-- **Results:** :sparkles: scaffold the results card ([0c526f5](https://github.com/arup-group/C477-DBT-Vis/commit/0c526f527b05ef602d4ac670b2b30b74564f5912))
-- **results:** add virtual scroll to results list ([efbe2e3](https://github.com/arup-group/C477-DBT-Vis/commit/efbe2e3ac7e53e34981eb0ec0b12b00ab9df694c))
-- **routing:** set up app routing ([5094b1f](https://github.com/arup-group/C477-DBT-Vis/commit/5094b1f6c2ab6901c3636005118eef3a2835ca9e))
-- **select building:** add method to select a building ([1c96ded](https://github.com/arup-group/C477-DBT-Vis/commit/1c96ded29c6220607e43b37f333facd034466625))
-- **select building:** add methods to select a building ([e868a6c](https://github.com/arup-group/C477-DBT-Vis/commit/e868a6cce385483076464e5e9b50b6f77dc44fa8))
-- **select building:** add selected building layer ([b7bd196](https://github.com/arup-group/C477-DBT-Vis/commit/b7bd19666b044f22c256a019095a822036605457))
-- **selected building:** deselect building if already selected ([a69130a](https://github.com/arup-group/C477-DBT-Vis/commit/a69130a67d5e2a29502b07fe292ee252afc43785))
-- **selected building:** store TOID of selected building ([5e3c3d8](https://github.com/arup-group/C477-DBT-Vis/commit/5e3c3d8eb032d2a46a184b3ec5b07149c180f404))
-- **settings:** catch errors thrown by parsing json ([b036f95](https://github.com/arup-group/C477-DBT-Vis/commit/b036f95fac43601b114776c7102fbebf9193cbe7))
-- **shell component:** add shell container ([0ae8421](https://github.com/arup-group/C477-DBT-Vis/commit/0ae8421aafb2c7bafe9400b7c5092ebf9a0614a9))
-- **shell:** add company logo ([#55](https://github.com/arup-group/C477-DBT-Vis/issues/55)) ([20b968c](https://github.com/arup-group/C477-DBT-Vis/commit/20b968c1efa2a2806d1128bc224c2198ad90eb7e))
-- **shell:** create shell component ([d9c95e6](https://github.com/arup-group/C477-DBT-Vis/commit/d9c95e695fd9135ff978dbdb9ee6f839519fcd30))
-- **spatial query service:** add service to perform spatial queries ([3776d9d](https://github.com/arup-group/C477-DBT-Vis/commit/3776d9df2a06e09a7fdc452a71889ffc97dcd0d3))
-- **spatial query:** add turf within library ([ba6902c](https://github.com/arup-group/C477-DBT-Vis/commit/ba6902cbc5dab885e1be36cfce72eb83f4612d7e))
-- **spatial query:** get geometry for a building ([8b627d4](https://github.com/arup-group/C477-DBT-Vis/commit/8b627d412638304e9ce4c0396db4b89823eaae02))
-- **spatial search:** emit spatial search area ([2bd13c3](https://github.com/arup-group/C477-DBT-Vis/commit/2bd13c331212409e6d4ae00285b8839ef6c1e812))
-- **turf:** install turf intersect ([79b5151](https://github.com/arup-group/C477-DBT-Vis/commit/79b5151cd77d9f1a0f3e4e588fce03918d5d5c81))
-- **utils:** add method to parse epc ratings ([ecedd66](https://github.com/arup-group/C477-DBT-Vis/commit/ecedd66f24c1361d8f9fed4f94c49be953ed32f2))
-- **utils:** add methods for data interaction ([13fc78a](https://github.com/arup-group/C477-DBT-Vis/commit/13fc78ab69ddd59c7c819f231c61654d0c676f18))
+* :iphone: update responsiveness
+* :lipstick: first pass at responsive UI
+* **data download:** add data download button and handlers
+* **data download:** display warning for large area download
+* **data download:** find addresses in polygon
+* **data download:** hide results and details
+* **Details Panel:** :sparkles: add expired EPC styling to UI
+* **Filters:** :sparkles: add expired EPC filter
+* **Filters:** :sparkles: hide clear all filters button when no filters are applied
+* **filters:** add clear all filters button
+* **filters:** clear flagged filter
+* **filters:** reset form when all filters cleared
+* **Map:** :sparkles: rotate north arrow with bearing
+* **spatial filter:** override draw tool styling
+* **spatial filter:** set button styles for button state
+* **Filters:** :lipstick: style and add no dwellings warning
+* **Filters:** :sparkles: indicate which advanced filters are valid
+* **map:** mapbox logo
+* **Minimap:** :sparkles: add minimap to bottom right corner
+* **Minimap:** :sparkles: hide/show minimap
+* **Map:** :sparkles: add 2D mode
+* **Map:** :sparkles: add north orientation arrow
+* **Data Download:** :sparkles: download in excel format
+* **address search:** refine search results
+* **postcode search:** add method to search for postcodes
+* **details-panel:** flag history updates
+* **map:** remove buildings with data from default
+- **Details Panel:** :sparkles: add wall insulation to details panel
+- **app:** add flagged toid colour to map
+- **AddressSearch:** :sparkles: on selection of address from autocomplete, zoom to the address
+- **AddressSearch:** :sparkles: select the building when you search for and zoom to an address
+- **AddressSearch:** :sparkles: set up call to the os places api
+- **angular material:** add angular material
+- **app layout:** create shell component
+- **app:** add color blind mode
+- **app:** add dark mode
+- **app:** add flagging
+- **app:** add multi dwelling pattern support
+- **app:** apply color blind color too all application elements in color blind mode
+- **app:** apply color blind epc palette to all elements
+- **app:** dark mode background and controls
+- **app:** handle http errors
+- **app:** opens snackbar to inform user and waits for dissmissal before redirecting to login
+- **bookmarks:** add route guard to check route params
+- **bookmarks:** get map state from route
+- **bookmarks:** set map using inputs from route params
+- **building details:** display part information
+- **building parts:** add method to load building parts
+- **core:** handle 401 from telicent api
+- **Data Download:** :sparkles: add single address to data download panel
+- **Data Download:** :sparkles: create UI for data download warning
+- **Data Download:** :sparkles: implement zipfile download for singular dwelling download
+- **data download:** download selected
+- **data loading:** filter address data and join with buildings
+- **data service:** add data service to query telicent IA
+- **data service:** call data service to get uprns
+- **data:** add address data csv file
+- **data:** add call to no epc data query
+- **data:** add csv of toids with uprns
+- **data:** add methods to extract building parts
+- **data:** add query for no epc buildings
+- **data:** add query to load buildings data from IA
+- **data:** add year of assessment
+- **data:** load no epc data
+- **data:** load sap ratings
+- **data:** load toids and building data
+- **data:** query ia and load data
+- **data:** set selected uprns and query data
+- **data:** update query to get all data for the app
+- **data:** watch for data load
+- **Details Panel:** :sparkles: add sap points to details panel EPC label
+- **Details Panel:** :sparkles: add signal to open and close the details panel
+- **Details Panel:** :sparkles: add uprn to the building details panel
+- **Details Panel:** :sparkles: scaffold the ui for the details panel
+- **details panel:** toggle panel visibility
+- **details:** add glazing to details panel
+- **download building:** download building from card
+- **download:** download all buildings in results
+- **draw:** add mapbox draw extension
+- **draw:** setup draw methods
+- **epc:** add method to get epc values for each building
+- **filter button:** set default values
+- **filter panel:** get selected filters
+- **filter results:** handle panel open and close state
+- **Filters:** :label: add in filter enums to generate filter options 
+- **Filters:** :sparkles: add date & date range picker
+- **Filters:** :sparkles: add date filter and refactor multi button filter to use correct types
+- **Filters:** :sparkles: add dwelling size filter 
+- **Filters:** :sparkles: hook multi-button filter up to parent form
+- **Filters:** :sparkles: hook up the two main filters to construct a query and get data
+- **Filters:** :sparkles: implement year of assessment filtering
+- **Filters:** :sparkles: scaffold search bar, select filters and filter button
+- **filters:** add clear all to main filters
+- **filters:** add filter method
+- **filters:** add filter url props
+- **filters:** add flag toggle
+- **filters:** add service for applying filters
+- **filters:** clear all advanced filters
+- **filters:** create filter string
+- **filters:** implement flagged buildings filter
+- **filters:** implement flagged filter
+- **filters:** merge filter params in url
+- **filters:** set advanced filters in url
+- **filters:** set buildings to display results
+- **filters:** set filter url param
+- **filters:** set filters signal in utils service
+- **flag history:** query IA to get flag history
+- **Flag:** :sparkles: add flag info in the ui
+- **flagging:** add get history query
+- **load buildings:** load building data from csv file
+- **load flags:** load all flags from IA
+- **main filters:** set selected values if any exist
+- **map controls:** add map control buttons
+- **map controls:** add styling for map controls
+- **map draw:** allow only one polygon to be drawn
+- **map draw:** fix button hover style
+- **map service:** add layer adding and filtering methods 
+- **Map:** :sparkles: add legend into map controls
+- **map:** add map bearing to config
+- **map:** add map component to app
+- **map:** add tooltips to map controls
+- **mapbox draw:** add mapbox draw
+- **mapbox draw:** implement polygon drawing functionality
+- **map:** create map component
+- **map:** drawing and filtering map layers
+- **map:** get map state
+- **map:** load epc point layer
+- **map:** set map state in route
+- **map:** setup map layout
+- **no epc filter:** implement filtering for no epc buildings
+- **os vector tiles:** load os vector tiles and extrude buildings
+- **os vts:** add os api key property to environment
+- **queries:** add query to get details for no epc building
+- **queries:** details query for non-epc data
+- **queries:** query to load all data
+- **queries:** update building parts query
+- **results card:** conditional property type for non-epc data
+- **results card:** handle card selection and map zoom
+- **results cards:** add hover and selected style
+- **results cards:** scroll to selected parent building
+- **results list:** scroll to selected results card
+- **Results:** :recycle: refactor to display flats inside a parent expansion panel card
+- **Results:** :sparkles: add expansion panel functionality
+- **Results:** :sparkles: add icon buttons and labels to overview card
+- **Results:** :sparkles: add results panel
+- **Results:** :sparkles: scaffold header for results container
+- **Results:** :sparkles: scaffold the results card
+- **results:** add virtual scroll to results list
+- **routing:** set up app routing
+- **select building:** add method to select a building
+- **select building:** add methods to select a building
+- **select building:** add selected building layer
+- **selected building:** deselect building if already selected
+- **selected building:** store TOID of selected building
+- **settings:** catch errors thrown by parsing json
+- **shell component:** add shell container
+- **shell:** add company logo
+- **shell:** create shell component
+- **spatial query service:** add service to perform spatial queries
+- **spatial query:** add turf within library
+- **spatial query:** get geometry for a building
+- **spatial search:** emit spatial search area
+- **turf:** install turf intersect
+- **utils:** add method to parse epc ratings
+- **utils:** add methods for data interaction
