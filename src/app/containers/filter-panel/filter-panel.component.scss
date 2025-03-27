@@ -1,0 +1,38 @@
+:host {
+    ::ng-deep {
+        .mat-expansion-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+        }
+        .mat-expansion-panel-header {
+            padding: 0 1rem;
+
+            &.mat-expanded {
+                &:hover {
+                    background-color: var(--mat-sys-surface-bright);
+                }
+            }
+        }
+    }
+}
+
+form {
+    padding-top: 1rem;
+
+    .content {
+        display: grid;
+        gap: 1rem;
+    }
+}
+
+.invalid-filter {
+    position: absolute;
+    left: 3rem;
+
+    display: flex;
+    align-items: center;
+    justify-self: start;
+
+    color: var(--mat-sys-error);
+}

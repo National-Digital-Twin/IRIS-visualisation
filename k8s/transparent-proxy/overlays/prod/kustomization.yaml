@@ -1,0 +1,22 @@
+resources:
+  - ../../base
+
+namespace: iris
+
+configMapGenerator:
+  - name: iris-transparent-proxy-configs
+    envs:
+      - params.env
+patches:
+  - path: patches/service-account.yaml
+    target:
+      kind: ServiceAccount
+labels:
+  - pairs:
+      env: prod
+images:
+  - name: iris-transparent-proxy-image:template
+    newName: xxxxxxxx.dkr.ecr.eu-west-2.amazonaws.com/iris/transparent-proxy
+    newTag: "1736292556"
+
+

@@ -1,0 +1,59 @@
+import { NgClass } from '@angular/common';
+import { Component, InputSignal, WritableSignal, inject, input, signal } from '@angular/core';
+import { ControlValueAccessor, FormControlName } from '@angular/forms';
+import { MatButtonToggleChange, MatButtonToggleModule } from '@angular/material/button-toggle';
+import { CamelCaseSpacePipe } from '@core/pipes/camel-case-space.pipe';
+
+@Component({
+    selector: 'c477-multi-button-filter[title][options]',
+    imports: [NgClass, MatButtonToggleModule, CamelCaseSpacePipe],
+    templateUrl: './multi-button-filter.component.html',
+    styleUrl: './multi-button-filter.component.scss',
+})
+export class MultiButtonFilterComponent implements ControlValueAccessor {
+    readonly #input = inject(FormControlName);
+
+    public title: InputSignal<string> = input.required();
+    public options: InputSignal<string[]> = input.required();
+    public validOptions: InputSignal<string[]> = input<string[]>([]);
+
+    public disabled: WritableSignal<boolean> = signal(false);
+    public selectedValues: WritableSignal<string[]> = signal([]);
+
+    public hasChange: (value: string[]) => void = (): void => {};
+    public isTouched: () => void = (): void => {};
+
+    constructor() {
+        this.#input.valueAccessor = this;
+    }
+
+    public registerOnChange(fn: () => void): void {
+        this.hasChange = fn;
+    }
+
+    public registerOnTouched(fn: () => void): void {
+        this.isTouched = fn;
+    }
+
+    public setDisabledState(disabled: boolean): void {
+        this.disabled.set(disabled);
+    }
+
+    public filterChange(event: MatButtonToggleChange): void {
+        this.isTouched();
+        this.selectedValues.set(event.value);
+        this.hasChange(this.selectedValues());
+    }
+
+    public writeValue(value: string[]): void {
+        if (value) {
+            this.selectedValues.set(value);
+        } else {
+            this.selectedValues.set([]);
+        }
+    }
+}
+
+// SPDX-License-Identifier: Apache-2.0
+// © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+// and is legally attributed to the Department for Business and Trade (UK) as the governing entity.

@@ -1,0 +1,72 @@
+@let filters = filterProps();
+
+<div class="filter-group">
+    <form [formGroup]="addressForm">
+        <mat-form-field class="address-lookup">
+            <mat-label>Search by address, postcode</mat-label>
+            <input matInput type="text" aria-label="Search by address" formControlName="addressSearch" [matAutocomplete]="addressHints" />
+            <mat-autocomplete #addressHints="matAutocomplete" [displayWith]="getOptionValue">
+                @for (result of addressOptions(); track result.UPRN) {
+                    <mat-option [value]="result">{{ removePostCode(result.ADDRESS) | titlecase }} {{ result.POSTCODE }}</mat-option>
+                }
+            </mat-autocomplete>
+            <mat-icon matPrefix>search</mat-icon>
+        </mat-form-field>
+    </form>
+</div>
+
+<div class="filter-group">
+    <mat-form-field>
+        <mat-label>EPC Rating</mat-label>
+        <mat-select multiple [value]="filters.EPC" (selectionChange)="ratingChange($event)">
+            @for (rating of getKeys(epcRatings); track rating) {
+                <mat-option [value]="rating">
+                    <c477-label [epcRating]="epcRatings[rating]" />
+                </mat-option>
+            }
+        </mat-select>
+
+        @if (filters.EPC) {
+            <button matSuffix mat-icon-button color="warning" aria-label="Clear EPC filter" (click)="clearEPC($event)">
+                <mat-icon class="material-icons-outlined">cancel</mat-icon>
+            </button>
+        }
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-label>Building Type</mat-label>
+        <mat-select multiple [value]="filters.PropertyType" (selectionChange)="propertyTypeChange($event)">
+            @for (type of getKeys(propertyTypes); track type) {
+                <mat-option [value]="type">{{ propertyTypes[type] }}</mat-option>
+            }
+        </mat-select>
+        @if (filters.PropertyType) {
+            <button matSuffix mat-icon-button color="warning" aria-label="Clear Property type filter" (click)="clearPropertyType($event)">
+                <mat-icon class="material-icons-outlined">cancel</mat-icon>
+            </button>
+        }
+    </mat-form-field>
+
+    <div class="flagged">
+        <mat-slide-toggle color="primary" labelPosition="before" [checked]="filters.Flagged" (change)="flaggedFilterChange($event)"> Flagged </mat-slide-toggle>
+    </div>
+</div>
+
+<div class="filter-group overflow">
+    <button mat-flat-button [matBadge]="numberFilters" [matBadgeHidden]="numberFilters === 0" (click)="openAdvancedFilters()">
+        Advanced Filters <mat-icon iconPositionEnd>add</mat-icon>
+    </button>
+</div>
+
+@if (filtersExist()) {
+    <div class="filter-group clear">
+        <button mat-flat-button color="warning" (click)="clearAll()">
+            <mat-icon iconPositionStart class="material-icons-outlined">cancel</mat-icon>
+            Clear All Filters
+        </button>
+    </div>
+}
+
+<!-- SPDX-License-Identifier: Apache-2.0
+© Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+and is legally attributed to the Department for Business and Trade (UK) as the governing entity. -->

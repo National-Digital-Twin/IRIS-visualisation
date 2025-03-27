@@ -1,0 +1,59 @@
+<mat-toolbar class="toolbar-container">
+    <h1 class="logo">
+        <img src="/assets/iris-logo.svg" alt="NDTP Logo" />
+        <span>IRIS</span>
+    </h1>
+    <button mat-icon-button class="control" aria-label="help" (keydown.space)="showInfo()" (click)="showInfo()" tabindex="0">
+        <mat-icon aria-label="help">help_outlined</mat-icon>
+    </button>
+</mat-toolbar>
+
+<div class="content">
+    @if (loading()) {
+        <c477-loading-screen />
+    } @else {
+        <c477-main-filters
+            [filterProps]="filterProps"
+            (clearAllFilters)="clearAllFilters()"
+            (setRouteParams)="setFilterParams($event)"
+            (setAdvancedFilters)="setAdvancedFilters($event)"
+            (addressSelected)="setSelectedBuildingTOID($event)"
+        />
+
+        <c477-results-panel (flag)="onFlag($event)" (removeFlag)="onRemoveFlag($event)" (resultsPanelCollapsed)="resultsPanelCollapsed = $event" />
+
+        <c477-details-panel
+            (closePanel)="closeDetails()"
+            (downloadData)="downloadData($event)"
+            (flag)="onFlag($event)"
+            (removeFlag)="onRemoveFlag($event)"
+            [resultsPanelCollapsed]="resultsPanelCollapsed"
+        />
+    }
+    <div class="map-container">
+        <c477-map
+            [contextData]="(contextData$ | async) || []"
+            [spatialFilterEnabled]="spatialFilterEnabled()"
+            [mapConfig]="mapConfig"
+            (setRouteParams)="setRouteMapParams($event)"
+            (deleteSpatialFilter)="deleteSpatialFilter()"
+            (downloadAddresses)="downloadAddresses()"
+            (resetMapView)="resetMapView()"
+            (resetNorth)="resetNorth()"
+            (tilt2D)="tilt2D($event)"
+            (zoomIn)="zoomIn()"
+            (zoomOut)="zoomOut()"
+            (setSearchArea)="setSearchArea($event)"
+            (setSelectedBuildingTOID)="setSelectedBuildingTOID($event)"
+            (setMinimapData)="minimapData = $event"
+            (toggleMinimap)="showMinimap = !showMinimap"
+        />
+    </div>
+    @if (showMinimap) {
+        <c477-minimap [minimapData]="minimapData" />
+    }
+</div>
+
+<!-- SPDX-License-Identifier: Apache-2.0
+© Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+and is legally attributed to the Department for Business and Trade (UK) as the governing entity. -->

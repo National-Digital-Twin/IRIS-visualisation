@@ -1,0 +1,17 @@
+
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-ingress-to-transparent-proxy
+spec:
+  selector:
+    matchLabels:
+      io.kompose.service: iris-transparent-proxy
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals: ["cluster.local/ns/istio-ingress/sa/istio-ingress"]
+      to:
+        - operation:
+            methods: ["GET","POST"]

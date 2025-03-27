@@ -1,0 +1,41 @@
+<mat-dialog-content>
+    <form [formGroup]="advancedFiltersForm">
+        <mat-accordion displayMode="flat" [multi]="true">
+            @for (panel of otherPanels(); track $index) {
+                <mat-expansion-panel class="mat-elevation-z" [expanded]="checkFiltersApplied(panel.panelTitle)">
+                    <mat-expansion-panel-header>{{ panel.panelTitle }}</mat-expansion-panel-header>
+                    <div class="content">
+                        @for (filter of panel.filters; track $index) {
+                            @if (filter.data.length) {
+                                <h4>{{ filter.title }}</h4>
+                                <c477-multi-button-filter
+                                    [formControlName]="filter.formControlName"
+                                    [title]="filter.title"
+                                    [options]="filter.data"
+                                    [validOptions]="filter.validOptions ?? []"
+                                />
+                            }
+                        }
+                    </div>
+                </mat-expansion-panel>
+            }
+        </mat-accordion>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    @if (noValidFilterOptions) {
+        <div class="invalid-filter">
+            <mat-icon>warning</mat-icon>
+            There are no dwellings that match this filter criteria
+        </div>
+    }
+
+    <button mat-button (click)="clearAll()">Clear all</button>
+    <button mat-stroked-button mat-dialog-close>Cancel</button>
+    <button mat-flat-button [mat-dialog-close]="advancedFiltersForm" cdkFocusInitial>Apply filters</button>
+</mat-dialog-actions>
+
+<!-- SPDX-License-Identifier: Apache-2.0
+© Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+and is legally attributed to the Department for Business and Trade (UK) as the governing entity. -->

@@ -1,0 +1,65 @@
+@use '@angular/material' as mat;
+
+:host {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-rows: max-content 1fr;
+}
+
+.toolbar-container {
+    display: grid;
+    grid-auto-columns: max-content;
+    grid-auto-flow: column;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    align-items: center;
+
+    @include mat.icon-button-overrides(
+        (
+            icon-color: var(--mat-sys-surface-container-highest),
+        )
+    );
+
+    .logo {
+        display: flex;
+        flex-direction: row;
+        gap: 0.5rem;
+        align-items: center;
+
+        font-size: var(--mat-sys-headline-small-size);
+        font-weight: var(--mat-sys-title-medium-weight);
+        color: var(--mat-sys-surface-container-highest);
+        letter-spacing: 0.2rem;
+
+        img {
+            width: 1.5rem;
+            height: 1.5rem;
+            margin: 0.25rem;
+        }
+    }
+
+    .control {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 3rem;
+        height: 3rem;
+    }
+}
+
+.content {
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+
+    .map-container {
+        width: 100%;
+        height: 100%;
+        /** force mapbox logo to display */
+        .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {
+            display: block !important;
+        }
+    }
+}

@@ -1,0 +1,64 @@
+@mixin popup {
+    padding: 1rem 1rem 0;
+    box-shadow: var(--mat-sys-level2);
+
+    .mapboxgl-popup-close-button {
+        width: 1.25rem;
+        margin: 0.75rem 1rem;
+        padding: 0;
+        font-size: var(--mat-sys-headline-small-size);
+    }
+
+    .popup {
+        width: 25rem;
+
+        .histogram {
+            padding: 1.25rem 0 0;
+        }
+
+        .chart {
+            display: flex;
+            align-items: flex-end;
+            height: 12rem;
+            border-bottom: 1px solid var(--mat-sys-outline);
+
+            .bar {
+                display: flex;
+                flex: 1;
+                flex-direction: column;
+                justify-content: flex-end;
+
+                margin: 0 4px;
+
+                .rating {
+                    align-self: center;
+                    font-size: var(--mat-sys-label-large-size);
+                    font-weight: var(--mat-sys-label-large-weight);
+                }
+                .line {
+                    flex: 1;
+                    margin-right: 1px;
+                    border-radius: var(--border-radius) var(--border-radius) 0 0;
+                }
+            }
+        }
+
+        .labels {
+            display: flex;
+            width: 25rem;
+
+            span {
+                flex: 1;
+                font-size: var(--mat-sys-label-small-size);
+                font-weight: var(--mat-sys-body-small-weight);
+                text-align: center;
+            }
+        }
+
+        .footnote {
+            justify-self: center;
+            font-size: var(--mat-sys-label-small-size);
+            font-weight: var(--mat-sys-body-small-weight);
+        }
+    }
+}

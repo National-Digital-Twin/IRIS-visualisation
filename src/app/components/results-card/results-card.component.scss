@@ -1,0 +1,77 @@
+@use '@angular/material' as mat;
+
+:host {
+    display: block;
+    padding: 0.75rem 1rem;
+
+    &:hover {
+        cursor: pointer;
+        background-color: var(--mat-sys-surface-bright);
+    }
+
+    &.selected {
+        background-color: var(--mat-sys-surface-container-low);
+    }
+
+    .header {
+        display: grid;
+        grid-template-columns: auto max-content;
+        align-items: center;
+
+        @include mat.button-overrides(
+            (
+                text-label-text-transform: none,
+            )
+        );
+    }
+
+    &.parent {
+        pointer-events: none;
+
+        .header {
+            pointer-events: all;
+        }
+    }
+}
+
+.content {
+    display: grid;
+    grid-template-columns: auto max-content;
+
+    .details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+
+        address {
+            max-width: 12rem;
+            font-style: normal;
+        }
+    }
+
+    .labels {
+        display: grid;
+        grid-auto-columns: max-content;
+        grid-auto-flow: column;
+        gap: 1rem;
+    }
+
+    .actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        border-left: 1px solid var(--mat-sys-outline-variant);
+
+        .remove {
+            @include mat.icon-button-overrides(
+                (
+                    icon-color: var(--mat-sys-error),
+                )
+            );
+        }
+    }
+
+    &.showCheckbox {
+        margin-left: 2.75rem;
+    }
+}

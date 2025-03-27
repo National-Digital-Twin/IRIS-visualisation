@@ -1,0 +1,64 @@
+name: Frontend CD on PR merge
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+    inputs:
+      major:
+        description: "Major version (default: 1)"
+        required: false
+        default: "1"
+        type: string
+      minor:
+        description: "Minor version (default: 0)"
+        required: false
+        default: "0"
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+  packages: read
+  statuses: write
+
+jobs:
+  versioning:
+    name: Semantic Versioning
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.generate-version.outputs.version }}
+    steps:
+      - name: Generate Patch Version (Timestamp)
+        id: generate-patch
+        run: |
+          PATCH=$(date -u +"%Y%m%d%H%M%S")
+          echo "patch_version=${PATCH}" >> $GITHUB_ENV
+
+      - name: Generate Full Semantic Version
+        id: generate-version
+        run: |
+          MAJOR="${{ github.event.inputs.major }}" && MAJOR=${MAJOR:-1}
+          MINOR="${{ github.event.inputs.minor }}" && MINOR=${MINOR:-0}
+          PATCH="${{ env.patch_version }}"
+          VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Print Generated Version
+        run: |
+          echo "Generated Version: ${{ steps.generate-version.outputs.version }}"
+
+  frontend-ci:
+    needs: [versioning]
+    uses: ./.github/workflows/frontend-ci-pr.yml
+
+  push-to-ECR:
+    needs: [frontend-ci, versioning]
+    uses: ./.github/workflows/frontend-cd-push-to-ECR.yml
+    with:
+      aws_account_number: "${{ vars.DEV_AWS_ACCOUNT_ID }}"
+      repo_name: "iris/visualiser"
+      app_name: "iris/visualiser"
+      version: ${{ needs.versioning.outputs.version }}

@@ -1,0 +1,27 @@
+@use '@angular/material' as mat;
+
+.mat-button-toggle-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    border: none;
+    border-radius: 0;
+
+    .mat-button-toggle {
+        position: relative;
+        border: 1px solid var(--mat-sys-outline-variant);
+        border-radius: var(--border-radius);
+
+        &.invalid {
+            @include mat.button-toggle-overrides(
+                (
+                    text-color: var(--mat-sys-outline),
+                    background-color: var(--mat-sys-surface-container),
+                    selected-state-text-color: var(--mat-sys-outline),
+                    selected-state-background-color: color-mix(in srgb, var(--mat-sys-primary-container) 70%, #fff),
+                )
+            );
+        }
+    }
+}

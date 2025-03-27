@@ -1,0 +1,33 @@
+@let selected = containsBuilding();
+<mat-expansion-panel class="mat-elevation-z" [hideToggle]="false" (expandedChange)="cardSelected.emit(parentDataset)">
+    <mat-expansion-panel-header collapsedHeight="auto" expandedHeight="auto" [ngClass]="{ selected: selected }">
+        <c477-results-card
+            [card]="parentDataset"
+            [select]="select()"
+            [parent]="true"
+            [checked]="checked()"
+            (toggleChecked)="onToggleCheckedDwellings($event)"
+            (cardSelected)="cardSelected.emit($event)"
+        />
+    </mat-expansion-panel-header>
+
+    <ng-template matExpansionPanelContent>
+        @for (dwelling of sortedDwellings(); track dwelling.UPRN) {
+            <c477-results-card
+                [card]="dwelling"
+                [select]="select()"
+                [checked]="isChecked(dwelling)"
+                [buildingUPRN]="buildingUPRN()"
+                (emitViewDetails)="emitViewDetails.emit($event)"
+                (toggleChecked)="toggleChecked.emit(dwelling)"
+                (flag)="flag.emit([dwelling])"
+                (removeFlag)="removeFlag.emit(dwelling)"
+                (downloadData)="downloadData.emit($event)"
+            />
+        }
+    </ng-template>
+</mat-expansion-panel>
+
+<!-- SPDX-License-Identifier: Apache-2.0
+© Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+and is legally attributed to the Department for Business and Trade (UK) as the governing entity. -->

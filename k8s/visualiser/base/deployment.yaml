@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations: {}
+  name: iris-visualiser
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: iris-visualiser
+  template:
+    metadata:
+      annotations: {}
+      labels:
+        io.kompose.service: iris-visualiser
+    spec:
+      serviceAccountName: iris-visualiser-sa
+      containers:
+        - envFrom:
+               - configMapRef:
+                   name: iris-visualiser-configs
+          livenessProbe:
+            exec:
+              command:
+                - curl -X GET "http://localhost:80/" || exit 1
+            failureThreshold: 5
+            periodSeconds: 30
+            timeoutSeconds: 10
+          name: iris-visualiser
+          image: iris-visualiser-image:template
+          resources:
+            limits:
+              memory: "2Gi"
+            requests:
+              cpu: "0.25"
+              memory: "256Mi"
+              ephemeral-storage: "2Gi"
+          ports:
+            - containerPort: 80
+              protocol: TCP
+      restartPolicy: Always

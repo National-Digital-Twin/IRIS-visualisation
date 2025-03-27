@@ -1,0 +1,7 @@
+.title {
+    position: relative;
+
+    &::before {
+        height: 0;
+    }
+}

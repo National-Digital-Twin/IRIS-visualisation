@@ -1,0 +1,4 @@
+npm outdated
+npm run lint:app
+npm run lint:styles
+git update-index --refresh

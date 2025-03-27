@@ -1,0 +1,21 @@
+namespace: iris
+
+resources:
+  - service-account.yaml
+  - deployment.yaml
+  - service.yaml
+  - istio/authorizationpolicy/allow-ingress-to-iris-transparent-proxy.yaml
+  - vault/vaultAuth.yaml
+  - vault/vaultStaticSecret.yaml
+labels:
+  - pairs:
+      app: iris-transparent-proxy
+      env: ENV_PLACEHOLDER
+      app.kubernetes.io/name: iris-transparent-proxy
+
+
+
+
+
+
+

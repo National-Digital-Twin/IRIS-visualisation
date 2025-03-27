@@ -1,0 +1,63 @@
+@let expanded = panelOpen();
+
+@if (buildingSelection() && mapInstance && mapInstance.getZoom() > 15) {
+    <c477-info-panel [expanded]="expanded" [indent]="1">
+        <div class="results-panel">
+            <div class="header">
+                @let checkedResults = checkedCards().length;
+                @let totalResults = buildingSelection()?.flat()?.length ?? 0;
+                <c477-results-panel-button [numberResults]="totalResults" (updatePanelStatus)="updatePanelOpen($event)" />
+                @if (expanded) {
+                    <mat-slide-toggle [color]="'primary'" [(ngModel)]="selectMultiple">Select multiple</mat-slide-toggle>
+                    @if (selectMultiple) {
+                        <button mat-flat-button [color]="'primary'" class="download" (click)="downloadAll()" [disabled]="!checkedResults">
+                            <mat-icon>download</mat-icon> Download selected results
+                        </button>
+                    } @else {
+                        <button mat-flat-button [color]="'primary'" class="download" (click)="downloadAll()" [disabled]="!totalResults">
+                            <mat-icon>download</mat-icon> Download all results
+                        </button>
+                    }
+                }
+            </div>
+            @if (expanded) {
+                <cdk-virtual-scroll-viewport minBufferPx="500" maxBufferPx="1000" itemSize="143">
+                    <div *cdkVirtualFor="let dwellingSet of buildingSelection(); templateCacheSize: 0; trackBy: trackByUPRN; let isLast = last">
+                        @if (dwellingSet.length === 1) {
+                            <c477-results-card
+                                [ngClass]="{ 'result-card': !isLast }"
+                                (downloadData)="downloadBuilding($event)"
+                                [buildingUPRN]="selectedCardUPRN()"
+                                (cardSelected)="cardSelected($event)"
+                                (emitViewDetails)="viewDetails($event)"
+                                [checked]="cardIsChecked([dwellingSet[0]])"
+                                (toggleChecked)="onToggleChecked(dwellingSet[0])"
+                                (flag)="flag.emit([dwellingSet[0]])"
+                                (removeFlag)="removeFlag.emit(dwellingSet[0])"
+                                [card]="dwellingSet[0]"
+                                [select]="selectMultiple"
+                            />
+                        } @else {
+                            <c477-results-card-expandable
+                                [ngClass]="{ 'result-card': !isLast }"
+                                [buildingUPRN]="selectedCardUPRN()"
+                                [dwellings]="dwellingSet"
+                                [select]="selectMultiple"
+                                [checkedCards]="checkedCards()"
+                                (emitViewDetails)="viewDetails($event)"
+                                (toggleChecked)="onToggleChecked($event)"
+                                (flag)="flag.emit($event)"
+                                (removeFlag)="removeFlag.emit($event)"
+                                (downloadData)="downloadBuilding($event)"
+                            />
+                        }
+                    </div>
+                </cdk-virtual-scroll-viewport>
+            }
+        </div>
+    </c477-info-panel>
+}
+
+<!-- SPDX-License-Identifier: Apache-2.0
+© Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+and is legally attributed to the Department for Business and Trade (UK) as the governing entity. -->

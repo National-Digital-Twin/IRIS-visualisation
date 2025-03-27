@@ -1,0 +1,28 @@
+{
+    "name": "iris-qa",
+    "version": "1.0.0",
+    "scripts": {
+        "debug": "cross-env ENV=demo PWDEBUG=1 DEBUG=pw:api cucumber-js --config=config/cucumber.js",
+        "pretest": "npx ts-node src/helper/report/init.ts",
+        "test": "cross-env ENV=demo FORCE_COLOR=0 cucumber-js --config=config/cucumber.js || true",
+        "posttest": "npx ts-node src/helper/report/report.ts",
+        "test:failed": "cucumber-js -p rerun @rerun.txt"
+    },
+    "private": true,
+    "dependencies": {
+        "chrome-launcher": "1.1.2"
+    },
+    "devDependencies": {
+        "@cucumber/cucumber": "11.2.0",
+        "@types/node": "22.13.5",
+        "@playwright/test": "1.50.1",
+        "cross-env": "7.0.3",
+        "dotenv": "16.4.7",
+        "fs-extra": "11.3.0",
+        "lighthouse": "12.3.0",
+        "multiple-cucumber-html-reporter": "3.9.2",
+        "playwright-lighthouse": "4.0.0",
+        "ts-node": "10.9.2",
+        "winston": "3.17.0"
+    }
+}

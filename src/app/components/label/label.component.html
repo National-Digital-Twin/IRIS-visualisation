@@ -1,0 +1,37 @@
+@let rating = epcRating();
+@let hasExpired = expired();
+@let points = sapPoints();
+
+@if (rating) {
+    <div class="label">
+        @switch (rating) {
+            @case ('none') {
+                <div>No EPC</div>
+            }
+            @case ('avg') {
+                <div>Averaged EPC</div>
+            }
+            @default {
+                @if (hasExpired) {
+                    <div class="expired">
+                        <mat-icon>warning</mat-icon>
+                        <span>Expired EPC: {{ rating }}</span>
+                    </div>
+                } @else {
+                    <span>EPC: {{ rating }}</span>
+                }
+                @if (points) {
+                    <span>{{ points }}</span>
+                }
+            }
+        }
+    </div>
+} @else {
+    <div class="label building">
+        <ng-content />
+    </div>
+}
+
+<!-- SPDX-License-Identifier: Apache-2.0
+© Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+and is legally attributed to the Department for Business and Trade (UK) as the governing entity. -->

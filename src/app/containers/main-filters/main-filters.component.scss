@@ -1,0 +1,66 @@
+@use '@angular/material' as mat;
+
+:host {
+    position: absolute;
+    z-index: 100;
+
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+
+    padding: 1rem;
+
+    .address-lookup {
+        min-width: 26rem;
+
+        @include mat.icon-overrides(
+            (
+                color: var(--mat-sys-primary),
+            )
+        );
+    }
+
+    .filter-group {
+        overflow: hidden;
+        display: flex;
+        gap: 0;
+        align-items: center;
+
+        border-radius: var(--border-radius);
+
+        background-color: var(--mat-sys-surface-container-lowest);
+        box-shadow: var(--mat-sys-level2);
+
+        @include mat.button-overrides(
+            (
+                filled-label-text-color: var(--mat-sys-on-surface),
+                filled-label-text-transform: none,
+                filled-container-color: var(--mat-sys-surface-container-lowest),
+                filled-container-height: 56px,
+            )
+        );
+
+        .flagged {
+            padding: 0 1rem;
+        }
+
+        &.overflow {
+            overflow: initial;
+        }
+
+        &.clear {
+            box-shadow: 0 0 0 1px var(--mat-sys-error), var(--mat-sys-level2);
+
+            @include mat.button-overrides(
+                (
+                    filled-label-text-color: var(--mat-sys-error),
+                    filled-container-color: var(--mat-sys-surface-container-lowest),
+                )
+            );
+        }
+
+        > *:not(:last-child) {
+            border-right: 1px solid var(--mat-sys-outline-variant);
+        }
+    }
+}

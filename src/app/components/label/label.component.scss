@@ -1,0 +1,52 @@
+$rates: ('a', 'b', 'c', 'd', 'e', 'f', 'g', 'none', 'avg');
+
+:host {
+    display: grid;
+    grid-auto-columns: minmax(max-content, auto);
+    grid-auto-flow: column;
+    grid-template-columns: max-content auto;
+
+    border-radius: var(--border-radius);
+
+    @each $rate in $rates {
+        &.epc-rating-#{$rate} {
+            border: 1px solid var(--color-epc-#{$rate});
+            &::before {
+                content: ' ';
+                display: inline-block;
+                width: 2rem;
+                background-color: var(--color-epc-#{$rate});
+
+                @if ($rate == 'avg') {
+                    background-image: url('/assets/images/Spots.svg');
+                }
+            }
+        }
+    }
+
+    &.expired {
+        color: var(--mat-sys-error);
+    }
+
+    .label {
+        overflow: hidden;
+        display: flex;
+        gap: 0.5rem;
+        justify-content: space-between;
+
+        padding: 0 0.75rem;
+    }
+
+    .expired {
+        display: flex;
+        gap: 0.25rem;
+        align-content: center;
+    }
+
+    .building {
+        padding: 0 1rem;
+        border-radius: var(--border-radius);
+        color: var(--mat-sys-on-primary-container);
+        background-color: var(--mat-sys-primary-container);
+    }
+}

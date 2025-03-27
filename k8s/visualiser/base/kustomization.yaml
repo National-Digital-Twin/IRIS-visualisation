@@ -1,0 +1,15 @@
+resources:
+  - service-account.yaml
+  - deployment.yaml
+  - service.yaml
+  - istio/authorizationpolicy/allow-ingress-to-iris-visualiser.yaml
+
+labels:
+  - pairs:
+      app: iris-visualiser
+      env: ENV_PLACEHOLDER
+      app.kubernetes.io/name: iris-visualiser
+
+
+
+

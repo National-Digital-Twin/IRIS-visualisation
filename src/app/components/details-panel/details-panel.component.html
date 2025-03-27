@@ -1,0 +1,217 @@
+@let building = buildingDetails();
+@let expanded = resultsPanelCollapsed();
+@let indent = buildingSelection() ? 2 : 1;
+
+@if (building) {
+    <c477-info-panel [expanded]="indent === 1 || expanded" [indent]="indent">
+        <div class="details-panel">
+            <div class="header">
+                <div class="panel-button">
+                    <h2>{{ getAddressSegment(0) }} {{ getAddressSegment(1) }}</h2>
+                    <button mat-icon-button (click)="closePanel.emit()">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </div>
+
+                <address>{{ building.FullAddress }}</address>
+
+                <div class="labels">
+                    <c477-label [epcRating]="building.EPC" [sapPoints]="building.SAPPoints" [expired]="epcExpired()" />
+                    @if (building.PropertyType) {
+                        <c477-label>{{ building.PropertyType }}</c477-label>
+                    }
+                </div>
+            </div>
+
+            <div class="content">
+                <mat-tab-group [mat-stretch-tabs]="false" (selectedTabChange)="tabChanged($event)">
+                    <mat-tab label="Overview">
+                        @let expired = epcExpired();
+                        <ng-container [ngTemplateOutlet]="property" [ngTemplateOutletContext]="{ building: building, expired: expired }" />
+                    </mat-tab>
+                    <mat-tab label="Flag">
+                        @let activeFlag = activeFlag$ | async;
+                        @let flagHistory = flagHistory$ | async;
+                        <ng-container [ngTemplateOutlet]="flagging" [ngTemplateOutletContext]="{ activeFlag: activeFlag, flagHistory: flagHistory }" />
+                    </mat-tab>
+                </mat-tab-group>
+            </div>
+
+            <div class="actions">
+                @if (building.Flagged === undefined) {
+                    <button mat-flat-button aria-label="Flag property" (click)="flag.emit([building!])"><mat-icon>flag</mat-icon> Add a flag</button>
+                } @else {
+                    <button mat-flat-button class="remove" aria-label="Remove property flag" (click)="removeFlag.emit(building!)">
+                        <mat-icon>flag</mat-icon> Remove a flag
+                    </button>
+                }
+                <button mat-flat-button (click)="openDownloadWarning()"><mat-icon>download</mat-icon> Download</button>
+            </div>
+        </div>
+    </c477-info-panel>
+}
+
+<ng-template let-building="building" let-expired="expired" #property>
+    <div class="property">
+        <h3>About</h3>
+        <dl class="horizontal">
+            <dt>Built form:</dt>
+            <dd>
+                @if (building.BuildForm) {
+                    {{ buildForm[building!.BuildForm!] }}
+                } @else {
+                    No data
+                }
+            </dd>
+
+            <dt>Inspection date:</dt>
+            <dd [ngClass]="{ warn: expired }">
+                @if (building.InspectionDate) {
+                    @if (expired) {
+                        <mat-icon>warning</mat-icon>
+                    }
+                    {{ building.InspectionDate | date }}
+                } @else {
+                    No data
+                }
+            </dd>
+
+            <dt>UPRN:</dt>
+            <dd>{{ building.UPRN }}</dd>
+        </dl>
+
+        <mat-divider />
+
+        <h3>Specification</h3>
+        <dl class="vertical">
+            <dt>Floor construction:</dt>
+            <dd>
+                @if (building.FloorConstruction && floor[building!.FloorConstruction!]) {
+                    {{ floor[building!.FloorConstruction!] }}
+                } @else {
+                    No data
+                }
+            </dd>
+
+            <dt>Floor insulation:</dt>
+            <dd>
+                @if (building.FloorInsulation && floorInsulation[building!.FloorInsulation!]) {
+                    {{ floorInsulation[building!.FloorInsulation!] }}
+                } @else {
+                    No data
+                }
+            </dd>
+
+            <dt>Roof construction:</dt>
+            <dd>
+                @if (building.RoofConstruction && roof[building!.RoofConstruction!]) {
+                    {{ roof[building!.RoofConstruction!] }}
+                } @else {
+                    No data
+                }
+            </dd>
+
+            <dt>Roof insulation location:</dt>
+            <dd>
+                @if (building.RoofInsulationLocation && roofInsulation[building!.RoofInsulationLocation!]) {
+                    {{ roofInsulation[building!.RoofInsulationLocation!] }}
+                } @else {
+                    No data
+                }
+            </dd>
+
+            <dt>Roof insulation thickness:</dt>
+            <dd>
+                @if (building.RoofInsulationThickness && building!.RoofInsulationThickness!) {
+                    {{ roofInsulationThickness[building!.RoofInsulationThickness!] }}
+                } @else {
+                    No data
+                }
+            </dd>
+
+            <dt>Wall construction:</dt>
+            <dd>
+                @if (building.WallConstruction && wall[building!.WallConstruction!]) {
+                    {{ wall[building!.WallConstruction!] }}
+                } @else {
+                    No data
+                }
+            </dd>
+
+            <dt>Wall insulation:</dt>
+            <dd>
+                @if (building.WallInsulation && wallInsulation[building!.WallInsulation!]) {
+                    {{ wallInsulation[building!.WallInsulation!] }}
+                } @else {
+                    No data
+                }
+            </dd>
+
+            <dt>Window glazing:</dt>
+            <dd>
+                @if (building.WindowGlazing && windowGlazing[building!.WindowGlazing!]) {
+                    {{ windowGlazing[building!.WindowGlazing!] }}
+                } @else {
+                    No data
+                }
+            </dd>
+        </dl>
+    </div>
+</ng-template>
+
+<ng-template let-activeFlag="activeFlag" let-flagHistory="flagHistory" #flagging>
+    <div class="flagging">
+        @if (activeFlag || (flagHistory && flagHistory.length > 0)) {
+            <h3>Active Flag</h3>
+            @if (activeFlag && activeFlag !== 'loading') {
+                <dl class="horizontal">
+                    <dt>Flagged by:</dt>
+                    <dd>{{ activeFlag.FlaggedByGivenName }} {{ activeFlag.FlaggedBySurname }}</dd>
+
+                    <dt>Flag date:</dt>
+                    <dd>{{ activeFlag.FlagDate | date: 'dd-MMM-YYYY' }}</dd>
+                </dl>
+            } @else {
+                <mat-progress-bar mode="indeterminate" />
+            }
+
+            <h3>Previous Flags</h3>
+            @if (flagHistory && flagHistory !== 'loading') {
+                @if (flagHistory.length > 0) {
+                    @for (flag of flagHistory; track flag.Flagged) {
+                        <div class="history">
+                            <mat-icon>flag</mat-icon>
+                            <div>
+                                <strong>Flagged on {{ flag.FlagDate | date: 'dd-MMM-YYYY' }}</strong>
+
+                                <dl class="horizontal">
+                                    <dt>Flagged by:</dt>
+                                    <dd>{{ flag.FlaggedByGivenName }} {{ flag.FlaggedBySurname }}</dd>
+
+                                    <dt>Remove date:</dt>
+                                    <dd>{{ flag.AssessmentDate | date: 'dd-MMM-YYYY' }}</dd>
+
+                                    <dt>Removed by:</dt>
+                                    <dd>{{ flag.AssessorGivenName }} {{ flag.AssessorSurname }}</dd>
+
+                                    <dt>Reason:</dt>
+                                    <dd>{{ invalidateReason[flag.AssessmentReason] }}</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    }
+                } @else {
+                    <p>There are no previous flags for this dwelling</p>
+                }
+            } @else {
+                <mat-progress-bar mode="indeterminate" />
+            }
+        } @else {
+            <p class="no-flag">There are no flags for this dwelling</p>
+        }
+    </div>
+</ng-template>
+
+<!-- SPDX-License-Identifier: Apache-2.0
+© Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+and is legally attributed to the Department for Business and Trade (UK) as the governing entity. -->

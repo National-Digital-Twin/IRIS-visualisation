@@ -1,0 +1,28 @@
+<h2 mat-dialog-title class="title">You are flagging to investigate:</h2>
+
+<div mat-dialog-content>
+    @if (data.length === 1) {
+        {{ data[0].FullAddress }}
+    } @else {
+        <ul>
+            @for (building of data; track $index) {
+                <li>{{ building.FullAddress }}</li>
+            }
+        </ul>
+    }
+</div>
+
+<div mat-dialog-actions>
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-flat-button [mat-dialog-close]="true" cdkFocusInitial>
+        @if (data.length === 1) {
+            Create flag
+        } @else {
+            Create flags
+        }
+    </button>
+</div>
+
+<!-- SPDX-License-Identifier: Apache-2.0
+© Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+and is legally attributed to the Department for Business and Trade (UK) as the governing entity. -->

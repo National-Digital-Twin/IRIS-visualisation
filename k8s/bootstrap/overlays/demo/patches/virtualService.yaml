@@ -1,0 +1,17 @@
+- op: replace
+  path: /spec/hosts/0
+  value: iris.demo.ndtp.co.uk
+
+
+- op: replace
+  path: /spec/gateways/0
+  value: iris/iris-ingress-gateway
+
+
+- op: replace
+  path: /spec/http/0/match/0/uri/prefix
+  value: /write-api
+
+- op: replace
+  path: /spec/http/0/rewrite/uriRegexRewrite/match
+  value: ^/write-api/?(.*)$
