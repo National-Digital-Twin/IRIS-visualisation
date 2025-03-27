@@ -3,8 +3,8 @@ name: Frontend CI on PR
 on:
   workflow_call:
   pull_request:
-    branches-ignore:
-      - 'main'
+    branches:
+      - 'develop'
     paths:
       - "src/**"
       - ".github/workflows/frontend-ci-pr.yml"
@@ -17,7 +17,6 @@ permissions:
   statuses: write # To report GitHub Actions status checks
 
 jobs:
-  if: github.event.pull_request.base.ref != 'main'
   dependencies:
     name: Dependency Checks
     runs-on: ubuntu-latest
