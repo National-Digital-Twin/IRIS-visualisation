@@ -113,11 +113,11 @@ export class MapService {
                 const host = `${this.#document.location.protocol}//${this.#document.location.host}`;
                 if (url.indexOf('api.os.uk') > -1) {
                     url = url.includes('?') ? url : `${url}?srs=3857`;
-                    url = transformUrlForProxy(host, url, 'api.os.uk', 'os', 'key');
+                    url = transformUrlForProxy(host, url, 'os', 'key');
                 } else if (url.indexOf('api.mapbox.com') > -1) {
-                    url = transformUrlForProxy(host, url, 'api.mapbox.com', 'mapbox-api', 'access_token');
+                    url = transformUrlForProxy(host, url, 'mapbox-api', 'access_token');
                 } else if (url.indexOf('events.mapbox.com') > -1) {
-                    url = transformUrlForProxy(host, url, 'events.mapbox.com', 'mapbox-events', 'access_token');
+                    url = transformUrlForProxy(host, url, 'mapbox-events', 'access_token');
                 }
                 return { url: url };
             },

@@ -1,6 +1,6 @@
 import { environment } from '@environment';
 
-export const transformUrlForProxy = (host: string, url: string, domain: string, proxyPath: string, stripParam: string): string => {
+export const transformUrlForProxy = (host: string, url: string, proxyPath: string, stripParam: string): string => {
     const proxyUrl = environment.transparent_proxy.url;
     const qualifiedUrl = proxyUrl.startsWith('http') ? proxyUrl : `${host}${proxyUrl}`;
 
