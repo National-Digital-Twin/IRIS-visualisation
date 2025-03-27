@@ -32,9 +32,9 @@ NDTP does not accept public code contributions, but we welcome **bug reports and
  
 | Name | Organisation | Role | Contact |
 |------|-------------|------|---------|
-| Alice King | Informed Solutions | Lead Maintainer | [alice.king@informed.com] |
-| Alice King | Informed Solutions | Security Contact | [alice.king@informed.com] |
-| Alice King | Informed Solutions | Documentation Lead | [alice.king@informed.com] |
+| Alice King | Informed Solutions | Lead Maintainer | [NDTP-OSS@informed.com] |
+| Alice King | Informed Solutions | Security Contact | [NDTP-OSS@informed.com] |
+| Alice King | Informed Solutions | Documentation Lead | [NDTP-OSS@informed.com] |
  
 For general issues, please **open a GitHub issue** rather than contacting maintainers directly.  
  

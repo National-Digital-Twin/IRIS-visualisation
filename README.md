@@ -12,6 +12,7 @@ This repository is one of several open-source components that underpin NDTP’s 
 ## Prerequisites  
 Before using this repository, ensure you have the following dependencies installed:  
 - **Required Tooling:** NVM, Angular CLI
+- **System Requirements:** Dual-Core CPU (Intel i5 or AMD Ryzen 3 equivalent), 8GB RAM, SSD/HDD with 10GB free space
 
 ## Quick Start  
 Follow these steps to get started quickly with this repository. For detailed installation, configuration, and deployment, refer to the relevant MD files.  
@@ -42,43 +43,14 @@ You should now be able to run the usual install
 npm install
 ```
 
-### 3. Configuration  
-
-For local development, create a `environment.local.ts` file in `environments` and a `\local\config.json` directory & file in `configurations`. These two files should have the same structure as the existing environment files. These local files are not committed to git, and can have any secret keys added safely.
-
-Create a file called `environments\keys.environment.ts` and add your Mapbox API key and OS Data Hub API key. This file will not be committed to the code repository.
-
-```
-export const apiKeys = {
-  mapbox: {
-    apiKey:
-      'your mapbox api key',
-  },
-  os: {
-    apiKey: 'your os data hub api key',
-  },
-};
-```
-
-Run `npm start` for a dev server using the `local` app configuration. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
-
-The application also provides npm scripts for running a development server that will load the corresponding environment configuration.
-
-```npm
-npm run start
-npm run start:dev
-npm run start:qa
-npm run start:prod
-```
-
-## 4. Build
+### 3. Build
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
 
-### 3. Full Installation  
+### 4. Full Installation  
 Refer to [INSTALLATION.md](INSTALLATION.md) for detailed installation steps, including required dependencies and setup configurations.
 
-### 4. Uninstallation  
+### 5. Uninstallation  
 For steps to remove this repository and its dependencies, see [UNINSTALL.md](UNINSTALL.md). 
 
 ## Features  
