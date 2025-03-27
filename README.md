@@ -1,13 +1,13 @@
 # README  
 
 **Repository:** `IRIS-visualisation`  
-**Description:** `This repository functions as the client side of IRIS and contains frontend views and logic.`  
+**Description:** `This repository functions as the client side of IRIS and contains front-end views and logic.`  
 **SPDX-License-Identifier:** `Apache-2.0 AND OGL-UK-3.0`  
 
 ## Overview  
-This repository contributes to the development of **secure, scalable, and interoperable data-sharing infrastructure**. It supports NDTP’s mission to enable **trusted, federated, and decentralised** data-sharing across organisations.  
+IRIS is a digital tool designed to support data-driven decision-making for retrofitting domestic properties by identifying homes that could benefit from energy efficiency improvements. It enables stakeholders to assess housing stock based on energy performance data to help target funding schemes and policy interventions more effectively. IRIS is part of the NDTP Demonstrator Programme.
 
-This repository is one of several open-source components that underpin NDTP’s **Integration Architecture (IA)**—a framework designed to allow organisations to manage and exchange data securely while maintaining control over their own information. The IA is actively deployed and tested across multiple sectors, ensuring its adaptability and alignment with real-world needs.  
+This repository contains the front-end logic for IRIS, allowing the user to visualise property and EPC data.
 
 ## Prerequisites  
 Before using this repository, ensure you have the following dependencies installed:  
@@ -34,7 +34,7 @@ nvm use
 Create a personal access token on GitHub - https://github.com/settings/tokens - create a classic token with read:packages permission store this safely and make sure to add as an environment variable;
 
 ```
-export GITHUB_ACCESS_TOKEN=ghp_xxxxxxxx
+export GITHUB_ACCESS_TOKEN=ghp_xxxxxxx
 ```
 
 You should now be able to run the usual install
@@ -63,7 +63,7 @@ This repository has been developed with public funding as part of the National D
 
 ## License  
 This repository contains both source code and documentation, which are covered by different licenses:  
-- **Code:** Originally developed by Ovi Arup & Partners, and Informed Solutions, now maintained by National Digital Twin Programme. Licensed under the Apache License 2.0.  
+- **Code:** Originally developed by Ove Arup & Partners, and Informed Solutions, now maintained by National Digital Twin Programme. Licensed under the Apache License 2.0.  
 - **Documentation:** Licensed under the Open Government Licence v3.0.  
 
 See `LICENSE.md`, `OGL_LICENCE.md`, and `NOTICE.md` for details.  
