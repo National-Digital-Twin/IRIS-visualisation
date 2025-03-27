@@ -71,7 +71,7 @@ jobs:
     needs: [proxy-ci, versioning]
     uses: ./.github/workflows/transparent-proxy-cd-push-to-ECR.yml
     with:
-      aws_account_number: "${{ vars.DEV_AWS_ACCOUNT_ID }}"
+      aws_account_number: "${{ vars.DEMO_AWS_ACCOUNT_ID }}"
       repo_name: "iris/transparent-proxy"
       app_name: "transparent-proxy"
       version: ${{ needs.versioning.outputs.version }}
