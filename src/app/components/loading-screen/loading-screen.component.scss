@@ -1,3 +1,5 @@
+@use '@angular/material' as mat;
+
 :host {
     position: absolute;
     z-index: 1000;
@@ -13,7 +15,7 @@
 .loading {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 3rem;
 
     width: 90%;
     max-width: 820px;
@@ -21,12 +23,23 @@
     text-align: center;
 
     h1 {
-        font-size: 4rem;
-        color: var(--mat-sys-primary);
+        font-size: 6rem;
+        font-weight: 800;
+        line-height: 1;
+        color: #002244;
+        letter-spacing: 1rem;
+    }
+
+    &__bar {
+        @include mat.progress-bar-overrides(
+            (
+                active-indicator-color: #002244,
+            )
+        );
     }
 
     .message {
-        font-size: 2rem;
-        color: var(--mat-sys-primary);
+        font-size: 1rem;
+        color: #002244;
     }
 }
