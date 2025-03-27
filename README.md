@@ -71,18 +71,15 @@ npm run start:qa
 npm run start:prod
 ```
 
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
+## 4. Build
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
 
-## Linting & code style
+### 3. Full Installation  
+Refer to [INSTALLATION.md](INSTALLATION.md) for detailed installation steps, including required dependencies and setup configurations.
 
-The project uses a combination of [ES Lint](https://eslint.org) & [Prettier](https://prettier.io) to execute code
-linting and style checking. Check code linting and style using `npm run lint`
+### 4. Uninstallation  
+For steps to remove this repository and its dependencies, see [UNINSTALL.md](UNINSTALL.md). 
 
 ## Features  
 Include a brief list of key features provided by this repository. These should highlight what makes the project valuable to users and contributors. Examples of features might include:  
