@@ -2,7 +2,11 @@ name: Frontend CI on PR
 
 on:
   workflow_call:
+    branches-ignore:
+      - 'main'
   pull_request:
+    branches-ignore:
+      - 'main'
     paths:
       - "src/**"
       - ".github/workflows/frontend-ci-pr.yml"
