@@ -1,14 +1,16 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { environment } from '@environment';
 import { posthog } from 'posthog-js';
 
 @Injectable({ providedIn: 'root' })
 export class PosthogService {
-    constructor(private readonly router: Router) {
+    readonly #router = inject(Router);
+
+    constructor() {
         /** capture route changes and send to posthog */
         if (environment.production) {
-            this.router.events.subscribe((event) => {
+            this.#router.events.subscribe((event) => {
                 if (event instanceof NavigationEnd) {
                     posthog.capture('$pageview');
                 }

@@ -6,7 +6,7 @@
         @let invalid = enabledOptions && !enabledOptions.includes(option);
 
         <mat-button-toggle [ngClass]="{ invalid: invalid }" [value]="option" [checked]="selected.includes(option)">
-            {{ option | pascalCaseSpace }}
+            {{ option | camelCaseSpace }}
         </mat-button-toggle>
     }
 </mat-button-toggle-group>
