@@ -30,7 +30,7 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
 
 ## [0.80.0] -2024-03-28
-Contributions for the below IRIS visualisation features are with thanks to [Charlotteg](https://github.com/Charlotteg) and [CSturzaker](craig.sturzaker@arup.com).
+Contributions for the below IRIS visualisation features are with thanks to [Charlotteg](https://github.com/Charlotteg) and [CSturzaker](mailto:craig.sturzaker@arup.com).
 
 ### Features
 
