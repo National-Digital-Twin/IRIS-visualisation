@@ -71,7 +71,7 @@ jobs:
     strategy:
       matrix:
         repo_name:
-          ["iris/visualiser", iris/transparent-proxy"]
+          ["iris/visualiser", "iris/transparent-proxy"]
     steps:
       # Set up AWS credentials for the source account
       - name: Set up AWS Credentials for Source Account
