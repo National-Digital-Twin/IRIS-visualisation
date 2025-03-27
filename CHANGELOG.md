@@ -14,7 +14,22 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
  ---
 
-## [1.7.0](https://github.com/arup-group/C477-DBT-Vis/compare/v1.6.0...v1.7.0) (2024-03-28)
+## [0.90.0] - 2025.03.28
+
+### Features
+
+ - View a choropleth map, summarising average EPC ratings per ward
+ - Search for a property via address
+ - Filter properties based on EPC rating, building type, postcode, drawn area and flagged status
+ - Filter properties based on further attributes (roof type, insulation type etc)
+ - View details (roof type, EPC rating, insulation type etc) of properties
+ - Download details of properties
+ - Flag a property to signal it's under investigation
+ - Unflagging a property with a rationale
+ - Viewing the reason why a property was unflagged
+
+
+## [0.80.0] -2024-03-28
 
 
 ### Features
@@ -34,175 +49,20 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 * **Map:** :sparkles: rotate north arrow with bearing ([8de88a7](https://github.com/arup-group/C477-DBT-Vis/commit/8de88a7a104606cf5ef76fcba436aa0845fc7683))
 * **spatial filter:** override draw tool styling ([08b50ec](https://github.com/arup-group/C477-DBT-Vis/commit/08b50ec090f5414888de3a64aba77e9d4d16d620))
 * **spatial filter:** set button styles for button state ([ef6771f](https://github.com/arup-group/C477-DBT-Vis/commit/ef6771fa14a885ec07a2a5606f500d24ddb24a98))
-
-
-### Bug Fixes
-
-* **buildings:** deselect building if not in filter ([bac9bf8](https://github.com/arup-group/C477-DBT-Vis/commit/bac9bf80d9e5eeff5000b6faaea0a1481f10f3ab))
-* **Details Panel:** :bug: fix gap between results and details panel for smaller screens ([889f8d4](https://github.com/arup-group/C477-DBT-Vis/commit/889f8d411f49567e536c9533bb08c736ed70d9a1))
-* **Details Panel:** :bug: move details panel to the left when results panel is collapsed ([3b8629d](https://github.com/arup-group/C477-DBT-Vis/commit/3b8629d5f5ad645b05bdc90ba335657278530c90))
-* **Filters:** :bug: add spatial filter to conditional clear all button ([5abaa8f](https://github.com/arup-group/C477-DBT-Vis/commit/5abaa8f6ffca33d6f12854b9b513bcb752f97b58))
-* **Filters:** :bug: add to clear all, remove console log ([905c950](https://github.com/arup-group/C477-DBT-Vis/commit/905c950a465c303c7c87627fa67450599a14c485))
-* **Filters:** :bug: fix advanced filters warning ([f7e5eac](https://github.com/arup-group/C477-DBT-Vis/commit/f7e5eac94f5f38e111dca5a432ed80619eee4bfb))
-* **filters:** delete polygon from draw tool on clear all ([6b8430e](https://github.com/arup-group/C477-DBT-Vis/commit/6b8430e41df86195e39c6fa50136ea5dda7b8c37))
-* **Results:** :bug: fixes viewport sizing cutting off results cards ([ea2fe74](https://github.com/arup-group/C477-DBT-Vis/commit/ea2fe74dc0df2ee3ec02a87c48599f72d1e5986b))
-* **spatial filter:** ensure all related state is cleared on deletion ([d83af25](https://github.com/arup-group/C477-DBT-Vis/commit/d83af255c68bff0f0df084f931f6b4c1851ed317))
-* **spatial filter:** remove spatial filter on draw create ([2ec5d66](https://github.com/arup-group/C477-DBT-Vis/commit/2ec5d665e734313d78cd3956f9326856d167e9a0))
-
-## [1.6.0](https://github.com/arup-group/C477-DBT-Vis/compare/v1.5.0...v1.6.0) (2024-03-18)
-
-
-### Features
-
 * **Filters:** :lipstick: style and add no dwellings warning ([58a250b](https://github.com/arup-group/C477-DBT-Vis/commit/58a250b77c8b350d98179df24c79364744c443f7))
 * **Filters:** :sparkles: indicate which advanced filters are valid ([bd826ce](https://github.com/arup-group/C477-DBT-Vis/commit/bd826ce92603d847f661a926a1afb8c70d62e6e3))
 * **map:** mapbox logo ([316d166](https://github.com/arup-group/C477-DBT-Vis/commit/316d166e5155e57ffbd88ee2ed6176545a35b4d4))
 * **Minimap:** :sparkles: add minimap to bottom right corner ([78c525a](https://github.com/arup-group/C477-DBT-Vis/commit/78c525aa3b961c38274ea93632b7037aa14e853c))
 * **Minimap:** :sparkles: hide/show minimap ([c14ad1e](https://github.com/arup-group/C477-DBT-Vis/commit/c14ad1ed6e9f37d54c2c5ddad7ea0fc990a36a8a))
-
-
-### Bug Fixes
-
-* **Minimap:** :bug: update tooltip and initial coords ([3334841](https://github.com/arup-group/C477-DBT-Vis/commit/3334841a2a7078d09cac2ce33cef95b1f24af6a1))
-
-## [1.5.0](https://github.com/arup-group/C477-DBT-Vis/compare/v1.4.0...v1.5.0) (2024-03-01)
-
-
-### Features
-
-* **Results:** :sparkles: add collapsing functionality to results panel ([23bb64b](https://github.com/arup-group/C477-DBT-Vis/commit/23bb64bec73669d2d556f289f8a9b348a6768b6a))
-
-
-### Bug Fixes
-
-* **Details Panel:** :bug: return results panel to open when a new filter is applied ([cee3353](https://github.com/arup-group/C477-DBT-Vis/commit/cee3353374364743fb9128eed147b225574f38be))
-
-## [1.4.0](https://github.com/arup-group/C477-DBT-Vis/compare/v1.3.0...v1.4.0) (2024-02-27)
-
-
-### Features
-
 * **Map:** :sparkles: add 2D mode ([088f216](https://github.com/arup-group/C477-DBT-Vis/commit/088f216f195c2a5dcdb7a768159ca6062e34125a))
-
-## [1.3.0](https://github.com/arup-group/C477-DBT-Vis/compare/v1.2.0...v1.3.0) (2024-02-27)
-
-
-### Features
-
 * **Map:** :sparkles: add north orientation arrow ([3af2ed7](https://github.com/arup-group/C477-DBT-Vis/commit/3af2ed71b65e0b24e3a1fbf9bf2972baf465119e))
-
-## [1.2.0](https://github.com/arup-group/C477-DBT-Vis/compare/v1.1.1...v1.2.0) (2024-02-26)
-
-
-### Features
-
 * **Data Download:** :sparkles: download in excel format ([fd52e83](https://github.com/arup-group/C477-DBT-Vis/commit/fd52e83b43f10da8b9b4f34fdf56da495ddfcd7e))
-
-
-### Bug Fixes
-
-* **Data Download:** :lipstick: change download button text ([698c736](https://github.com/arup-group/C477-DBT-Vis/commit/698c73671884188910106585cc945c7ad0be563f))
-
-## [1.1.1](https://github.com/arup-group/C477-DBT-Vis/compare/v1.1.0...v1.1.1) (2024-02-21)
-
-
-### Bug Fixes
-
-* **AddressSearch:** :bug: clear the autocomplete results when the search box is cleared ([74a89ec](https://github.com/arup-group/C477-DBT-Vis/commit/74a89ece69a38d3244be6ebd78f03ec909dbc39a))
-* **AddressSearch:** :bug: handle when there are no results returned ([3bbe19b](https://github.com/arup-group/C477-DBT-Vis/commit/3bbe19b1732e5db4173c77223fbc46d75cbcf88b))
-
-## [1.1.0](https://github.com/arup-group/C477-DBT-Vis/compare/v1.0.0...v1.1.0) (2024-02-09)
-
-
-### Features
-
 * **address search:** refine search results ([31eb28a](https://github.com/arup-group/C477-DBT-Vis/commit/31eb28a8a8d8d6fc9f3009e75b2f7f85dbed93b4))
 * **postcode search:** add method to search for postcodes ([9642f7d](https://github.com/arup-group/C477-DBT-Vis/commit/9642f7d8d47578bfc6192f6cd2807f12526acbf3))
-
-
-### Bug Fixes
-
-* **address search:** remove commented code ([84c2a11](https://github.com/arup-group/C477-DBT-Vis/commit/84c2a112a3f96aa3e8ab4a85befb674a6afe2398))
-
-## [1.0.0](https://github.com/arup-group/C477-DBT-Vis/compare/v0.3.1...v1.0.0) (2024-01-19)
-
-
-### Features
-
 * **details-panel:** flag history updates ([#111](https://github.com/arup-group/C477-DBT-Vis/issues/111)) ([d503e89](https://github.com/arup-group/C477-DBT-Vis/commit/d503e899ceb8429072b0aa2822642c95a3ee37ec))
-
-
-### Miscellaneous Chores
-
-* release 1.0.0 ([c45b7f7](https://github.com/arup-group/C477-DBT-Vis/commit/c45b7f7b7accc5e6b9caaf16e606c17ed4e18aec))
-
-## [0.3.1](https://github.com/arup-group/C477-DBT-Vis/compare/v0.3.0...v0.3.1) (2024-01-19)
-
-
-### Bug Fixes
-
-* **Details Panel:** :bug: fix details panel to have internal scroll ([b3de23f](https://github.com/arup-group/C477-DBT-Vis/commit/b3de23f662c2f99a68a28e5c56ab1b2d3940e088))
-
-## [0.3.0](https://github.com/arup-group/C477-DBT-Vis/compare/v0.2.0...v0.3.0) (2024-01-19)
-
-
-### Features
-
 * **map:** remove buildings with data from default ([5d7a350](https://github.com/arup-group/C477-DBT-Vis/commit/5d7a350581ca65b5ca1372e30bea997a585715ac))
-
-
-### Bug Fixes
-
-* **Filters:** :bug: fix positioning and cancel error ([39d46d0](https://github.com/arup-group/C477-DBT-Vis/commit/39d46d03db47ecc43ff12b8fbc63759a12829d98))
-* **Map:** :bug: update default zoom to ensure data is rendered ([59b5187](https://github.com/arup-group/C477-DBT-Vis/commit/59b5187c8208fce524879fe15f06b29b5e752a6c))
-* **Results:** :bug: fixes issue where cards beneath expansion look like child ([19409cb](https://github.com/arup-group/C477-DBT-Vis/commit/19409cb2891db456e95a6b95b67422366527e7d1))
-
-## [0.2.0](https://github.com/arup-group/C477-DBT-Vis/compare/v0.1.2...v0.2.0) (2024-01-18)
-
-### Features
-
 - **Details Panel:** :sparkles: add wall insulation to details panel ([0276f68](https://github.com/arup-group/C477-DBT-Vis/commit/0276f68da46473165f8b1d9c935e8dd950d0738e))
-
-### Bug Fixes
-
-- **Details Panel:** :bug: hide property type label when there is no data ([2a94bee](https://github.com/arup-group/C477-DBT-Vis/commit/2a94beea488bfdc1782e8d262a0c6d90364339d3))
-- **Results:** :fire: remove selected flag button ([5880815](https://github.com/arup-group/C477-DBT-Vis/commit/5880815fa66d6c9aac51e63e487180c490b07ae9))
-- **Results:** :lipstick: fix letter spacing ([94f9926](https://github.com/arup-group/C477-DBT-Vis/commit/94f9926e74010a274ff732960afce0d0cdb856c0))
-
-## [0.1.2](https://github.com/arup-group/C477-DBT-Vis/compare/v0.1.1...v0.1.2) (2024-01-18)
-
-### Bug Fixes
-
-- **Details Panel:** :bug: fix statement for displaying no flags ([3838bfd](https://github.com/arup-group/C477-DBT-Vis/commit/3838bfdafe7a0eb7807f07066a6ce73b066bb154))
-
-## [0.1.1](https://github.com/arup-group/C477-DBT-Vis/compare/v0.1.0...v0.1.1) (2024-01-18)
-
-### Miscellaneous Chores
-
-- release 0.1.1 ([fbc8a91](https://github.com/arup-group/C477-DBT-Vis/commit/fbc8a9163f3e350b28bebdf6c608fcf9cdf7636c))
-
-## [0.1.0](https://github.com/arup-group/C477-DBT-Vis/compare/v0.0.4...v0.1.0) (2024-01-18)
-
-### Features
-
 - **app:** add flagged toid colour to map ([#86](https://github.com/arup-group/C477-DBT-Vis/issues/86)) ([53320c3](https://github.com/arup-group/C477-DBT-Vis/commit/53320c3684797a8f068db2cb7a19b267fb6f3b6c))
-
-## [0.0.4](https://github.com/arup-group/C477-DBT-Vis/compare/v0.0.3...v0.0.4) (2024-01-18)
-
-### Miscellaneous Chores
-
-- release 0.0.4 ([f1591d5](https://github.com/arup-group/C477-DBT-Vis/commit/f1591d50d92d0c4a3a18f12e4010bce87fd49d77))
-
-## [0.0.3](https://github.com/arup-group/C477-DBT-Vis/compare/v0.0.2...v0.0.3) (2024-01-18)
-
-### Miscellaneous Chores
-
-- release 0.0.3 ([7b5ed0e](https://github.com/arup-group/C477-DBT-Vis/commit/7b5ed0e18f06bc0a740fbff6079265633fe8b4c6))
-
-## 0.0.2 (2024-01-18)
-
-### Features
-
 - :lipstick: add favicon ([93a48bb](https://github.com/arup-group/C477-DBT-Vis/commit/93a48bb6eb7dc59f6e9cc521a5fc50edc744ed4d))
 - :sparkles: add app logo ([85eaab5](https://github.com/arup-group/C477-DBT-Vis/commit/85eaab580359db55fdb19a4940bc9d108c2e15a4))
 - **AddressSearch:** :sparkles: on selection of address from autocomplete, zoom to the address ([65eb25a](https://github.com/arup-group/C477-DBT-Vis/commit/65eb25ad2ce8c61807cd7ed857c5e370be6a5b11))
@@ -341,47 +201,3 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 - **turf:** install turf intersect ([79b5151](https://github.com/arup-group/C477-DBT-Vis/commit/79b5151cd77d9f1a0f3e4e588fce03918d5d5c81))
 - **utils:** add method to parse epc ratings ([ecedd66](https://github.com/arup-group/C477-DBT-Vis/commit/ecedd66f24c1361d8f9fed4f94c49be953ed32f2))
 - **utils:** add methods for data interaction ([13fc78a](https://github.com/arup-group/C477-DBT-Vis/commit/13fc78ab69ddd59c7c819f231c61654d0c676f18))
-
-### Bug Fixes
-
-- :fire: remove arc themes from angular.json ([9a5143d](https://github.com/arup-group/C477-DBT-Vis/commit/9a5143d086e5d784338f99b1b405dbe7a9d98014))
-- **AddressSearch:** :bug: run zoom to outside of angular ([92167d3](https://github.com/arup-group/C477-DBT-Vis/commit/92167d398821a56d43f5a63c7823a4b855338401))
-- **app:** fix checked state of multi dwelling cards in results panel ([#85](https://github.com/arup-group/C477-DBT-Vis/issues/85)) ([861de84](https://github.com/arup-group/C477-DBT-Vis/commit/861de84fb55aa6698ff5fb7f992fe7dd3393a22e))
-- **app:** fix flagging ([#84](https://github.com/arup-group/C477-DBT-Vis/issues/84)) ([a30115f](https://github.com/arup-group/C477-DBT-Vis/commit/a30115f9b5bd7f3565c9fc53ffbb079a89da52ab))
-- **app:** fix theming ([7c54c6b](https://github.com/arup-group/C477-DBT-Vis/commit/7c54c6b4dba5cf02073de2ee20f29e441caf4fc6))
-- **base href:** change base href to relative path ([f833d58](https://github.com/arup-group/C477-DBT-Vis/commit/f833d58ccb82df9f72cad1951349f8509094edae))
-- **building details:** building parts for no epc buildings ([df2014c](https://github.com/arup-group/C477-DBT-Vis/commit/df2014c36ab16f2c0219a0f97e2582e331f2c3a1))
-- **building selection:** clear toids and uprns ([a1f762e](https://github.com/arup-group/C477-DBT-Vis/commit/a1f762ee064859317bfa53381382ed9a4087529b))
-- **clear filters:** use correct glazing property ([32f55ab](https://github.com/arup-group/C477-DBT-Vis/commit/32f55abe13d7b7a9995297161504e21aacbfc377))
-- **data download:** change file path ([50a5e5e](https://github.com/arup-group/C477-DBT-Vis/commit/50a5e5e7e7578878a74809e65249a16467afb777))
-- **data download:** fix warning logic ([7cb8876](https://github.com/arup-group/C477-DBT-Vis/commit/7cb887607766c4d28180777e71523face69ecd9e))
-- **data:** remove logs and unused query statement ([40458e3](https://github.com/arup-group/C477-DBT-Vis/commit/40458e3f83a41725bdfdf5c92bfba784498be0fe))
-- **Details Panel:** :lipstick: refactor the details panel css so it opens on the side ([d729108](https://github.com/arup-group/C477-DBT-Vis/commit/d72910842aa9abe85036d454d39035b936feb0c2))
-- **details panel:** add missing p element around date ([4ca8b3f](https://github.com/arup-group/C477-DBT-Vis/commit/4ca8b3f27f8c93f16100558f2644e7f27cc16390))
-- **details panel:** correct build form ([d839e85](https://github.com/arup-group/C477-DBT-Vis/commit/d839e857aabd1a32da42c5c6cf2828257a97f186))
-- **details:** display inspection date label ([410955d](https://github.com/arup-group/C477-DBT-Vis/commit/410955d13119004f551e5e8d2f1d75ab89385759))
-- **epc rating:** revert epc rating enum ([2dbaccd](https://github.com/arup-group/C477-DBT-Vis/commit/2dbaccdd3e4c24ab5684bcad047f0fa7fde2a7e0))
-- **Filters:** :fire: remove dwelling size as a filter option ([539ad51](https://github.com/arup-group/C477-DBT-Vis/commit/539ad516c97471d7479b1d0247edbf104f860879))
-- **filters:** correctly format epc ([8f3d0f5](https://github.com/arup-group/C477-DBT-Vis/commit/8f3d0f514c27b8aaf499517f12bd8b3b72344057))
-- **flagging:** return complete flag URI in query ([2ad6be7](https://github.com/arup-group/C477-DBT-Vis/commit/2ad6be751b6083b57b00de6ebc77cff83df5b53f))
-- **map:** apply bearing to map ([a63a7ca](https://github.com/arup-group/C477-DBT-Vis/commit/a63a7caf3a929451927c46c85d1abfdda9c32d37))
-- **no data:** handle no data ([4d99f0d](https://github.com/arup-group/C477-DBT-Vis/commit/4d99f0dd18e6ee6a415cfd2f27be5bb532fc6263))
-- **queries:** fix all data and details queries ([018e271](https://github.com/arup-group/C477-DBT-Vis/commit/018e2711f12adefe2074e9cb5bd652bc2ed3c0f9))
-- **reset signal:** reset multidwelling signal with undefined ([d8bda4c](https://github.com/arup-group/C477-DBT-Vis/commit/d8bda4c1b7c2db0874ea7abcf362c045d162632b))
-- **results card:** remove duplicate address segment ([2cdfb14](https://github.com/arup-group/C477-DBT-Vis/commit/2cdfb148919c79bef14d7fdeb38ef1684b2c8586))
-- **results card:** scroll correctly to parent building ([3b5a0eb](https://github.com/arup-group/C477-DBT-Vis/commit/3b5a0eb63875721f3e880d1826650edec05b0c28))
-- **results card:** update parent model ([b25cb7c](https://github.com/arup-group/C477-DBT-Vis/commit/b25cb7c8db3d8e0dca408e921df2f3f052be8a84))
-- **Results:** :bug: open view details from inside expansion ([2a9c240](https://github.com/arup-group/C477-DBT-Vis/commit/2a9c2406f08b70cc30448aa4d637faf422703b87))
-- **Results:** :bug: update tracking to parentToid to keep expansion state ([9afac23](https://github.com/arup-group/C477-DBT-Vis/commit/9afac238e93247cf1658d735e78e1186f79a4c95))
-- **single dwelling:** fix deselecting single dwelling from map ([7d47e2d](https://github.com/arup-group/C477-DBT-Vis/commit/7d47e2d6517355c40f2ce05d65161ff1c8a3c5bf))
-- **spatial query:** fix to only include buildings within area ([e6899d5](https://github.com/arup-group/C477-DBT-Vis/commit/e6899d52084efe79871fe4e2ab5f7ca49e6a180e))
-- **view details:** fix view details bug ([0524511](https://github.com/arup-group/C477-DBT-Vis/commit/0524511f7fbed809e10af00571950d31a18cac66))
-
-### Reverts
-
-- **app:** revert last two commits ([eedf68c](https://github.com/arup-group/C477-DBT-Vis/commit/eedf68c5e112636f1875dfc6b6b396a7c02ff986))
-
-### Miscellaneous Chores
-
-- release 0.0.1 ([835ed23](https://github.com/arup-group/C477-DBT-Vis/commit/835ed2349b184e0980b2bc3df4101581ac26a1f5))
-- release 0.0.2 ([7e55ad1](https://github.com/arup-group/C477-DBT-Vis/commit/7e55ad1960feb757b7c2d9179ba1a6768f52edb0))
