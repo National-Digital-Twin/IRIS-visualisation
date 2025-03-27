@@ -2,11 +2,11 @@ import { NgClass } from '@angular/common';
 import { Component, InputSignal, WritableSignal, inject, input, signal } from '@angular/core';
 import { ControlValueAccessor, FormControlName } from '@angular/forms';
 import { MatButtonToggleChange, MatButtonToggleModule } from '@angular/material/button-toggle';
-import { PascalCaseSpacePipe } from '@core/pipes/pascal-case-space.pipe';
+import { CamelCaseSpacePipe } from '@core/pipes/camel-case-space.pipe';
 
 @Component({
     selector: 'c477-multi-button-filter[title][options]',
-    imports: [NgClass, MatButtonToggleModule, PascalCaseSpacePipe],
+    imports: [NgClass, MatButtonToggleModule, CamelCaseSpacePipe],
     templateUrl: './multi-button-filter.component.html',
     styleUrl: './multi-button-filter.component.scss',
 })

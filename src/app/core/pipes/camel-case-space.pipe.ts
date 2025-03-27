@@ -7,9 +7,9 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
     standalone: true,
-    name: 'pascalCaseSpace',
+    name: 'camelCaseSpace',
 })
-export class PascalCaseSpacePipe implements PipeTransform {
+export class CamelCaseSpacePipe implements PipeTransform {
     public transform(value: string): string {
         return value
             .replace(/([a-z])([A-Z])/g, '$1 $2')

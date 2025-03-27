@@ -1,4 +1,19 @@
-export interface AddressSearchData {
+export type AddressResponseHeader = {
+    uri: string;
+    query: string;
+    offset: number;
+    totalresults: number;
+    format: string;
+    dataset: string;
+    lr: string;
+    maxresults: number;
+    matchprecision: number;
+    epoch: string;
+    lastupdate: string;
+    output_srs: string;
+};
+
+export type AddressSearchData = {
     UPRN: string;
     UDPRN: string;
     ADDRESS: string;
@@ -31,29 +46,16 @@ export interface AddressSearchData {
     MATCH: number;
     MATCH_DESCRIPTION: string;
     DELIVERY_POINT_SUFFIX: string;
-}
+};
 
-export interface AddressSearchResults {
+export type AddressSearchResults = {
     DPA: AddressSearchData;
-}
+};
 
-export interface AddressSearchResponse {
-    header: {
-        uri: string;
-        query: string;
-        offset: number;
-        totalresults: number;
-        format: string;
-        dataset: string;
-        lr: string;
-        maxresults: number;
-        matchprecision: number;
-        epoch: string;
-        lastupdate: string;
-        output_srs: string;
-    };
+export type AddressSearchResponse = {
+    header: AddressResponseHeader;
     results: AddressSearchResults[];
-}
+};
 
 // SPDX-License-Identifier: Apache-2.0
 // © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme

@@ -19,17 +19,12 @@ export class SettingsService {
     public settings: WritableSignal<SettingsModel>;
 
     constructor() {
-        /* create an empty object but type it as a SettingsModel */
         const settings = {} as SettingsModel;
 
         for (const key in SETTINGS) {
             const setting = SETTINGS[key as keyof typeof SETTINGS];
             let value = setting.defaultValue;
 
-            /**
-      /* if the setting can be stored in local storag and
-       * it exsits, set it can the value for the setting
-       */
             if (setting.store) {
                 const storageKey = `${this.#storageKey}-${setting.key}`;
                 const storageString = this.#storage.getItem(storageKey);
