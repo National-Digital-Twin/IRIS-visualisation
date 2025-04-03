@@ -2,11 +2,9 @@
   path: /spec/hosts/0
   value: iris.staging.ndtp.co.uk
 
-
 - op: replace
   path: /spec/gateways/0
   value: iris/iris-ingress-gateway
-
 
 - op: replace
   path: /spec/http/0/match/0/uri/prefix
