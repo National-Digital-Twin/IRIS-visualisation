@@ -15,7 +15,7 @@ patches:
       kind: ServiceAccount
 labels:
   - pairs:
-      env: demo
+      env: staging
 images:
   - name: iris-visualiser-image:template
     newName: 503561419905.dkr.ecr.eu-west-2.amazonaws.com/iris/visualiser
