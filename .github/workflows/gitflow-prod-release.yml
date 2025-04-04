@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  SOURCE_AWS_ACCOUNT_ID: "${{ vars.DEMO_AWS_ACCOUNT_ID }}"
+  SOURCE_AWS_ACCOUNT_ID: "${{ vars.STAGING_AWS_ACCOUNT_ID }}"
   DESTINATION_AWS_ACCOUNT_ID: "${{ vars.PROD_AWS_ACCOUNT_ID }}"
 
 permissions:
