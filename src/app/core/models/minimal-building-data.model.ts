@@ -8,6 +8,7 @@ export interface MinimalBuildingData {
   addressText?: string;
   TOID?: string;
   ParentTOID?: string;
+  StructureUnitType?: string;
 }
 
 export interface MinimalBuildingMap {

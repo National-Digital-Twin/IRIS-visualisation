@@ -1,6 +1,7 @@
 export enum FloorInsulation {
     InsulatedFloor = 'Insulated Floor',
-    LimitedFloorInsulation = 'Limited Floor Insulation',
+    LimitedInsulation = 'Limited Floor Insulation',
+    NoInsulationInFloor = 'No Insulation',
     NoData = 'No Data',
 }
 

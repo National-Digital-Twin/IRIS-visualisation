@@ -362,9 +362,9 @@ export class ShellComponent {
         if (this.filterProps && Object.keys(this.filterProps).length > 0) {
             const params = this.createQueryParams({
                 EPC: [],
-                PropertyType: [],
+                StructureUnitType: [],
                 PostCode: [],
-                BuildForm: [],
+                BuiltForm: [],
                 WindowGlazing: [],
                 WallConstruction: [],
                 WallInsulation: [],

@@ -351,9 +351,9 @@ export class UtilService {
                     const tenYearsAgo = new Date();
                     tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
                     if (
-                        building.InspectionDate &&
-                        ((filterProps[key as keyof FilterProps]?.includes('EPC Expired') && new Date(building.InspectionDate) < tenYearsAgo) ||
-                            (filterProps[key as keyof FilterProps]?.includes('EPC In Date') && new Date(building.InspectionDate) >= tenYearsAgo))
+                        building.LodgementDate &&
+                        ((filterProps[key as keyof FilterProps]?.includes('EPC Expired') && new Date(building.LodgementDate) < tenYearsAgo) ||
+                            (filterProps[key as keyof FilterProps]?.includes('EPC In Date') && new Date(building.LodgementDate) >= tenYearsAgo))
                     ) {
                         return true;
                     } else {
@@ -372,22 +372,22 @@ export class UtilService {
         return filteredBuildings;
     }
 
-    public epcExpired(inspectionDate?: string): boolean {
-        if (!inspectionDate) {
+    public epcExpired(lodgementDate?: string): boolean {
+        if (!lodgementDate) {
             return false;
         }
         const tenYearsAgo = new Date();
         tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
-        return new Date(inspectionDate) < tenYearsAgo;
+        return new Date(lodgementDate) < tenYearsAgo;
     }
 
-    public epcInDate(inspectionDate?: string): boolean {
-        if (!inspectionDate) {
+    public epcInDate(lodgementDate?: string): boolean {
+        if (!lodgementDate) {
             return false;
         }
         const tenYearsAgo = new Date();
         tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
-        return new Date(inspectionDate) >= tenYearsAgo;
+        return new Date(lodgementDate) >= tenYearsAgo;
     }
 
     /**
@@ -805,8 +805,8 @@ export class UtilService {
 
         // determine which epc expiry options are valid
         const validExpiry: string[] = [];
-        const expiredEPCValid = flattenedBuildings.find((b) => this.epcExpired(b.InspectionDate));
-        const inDateEPCValid = flattenedBuildings.find((b) => this.epcInDate(b.InspectionDate));
+        const expiredEPCValid = flattenedBuildings.find((b) => this.epcExpired(b.LodgementDate));
+        const inDateEPCValid = flattenedBuildings.find((b) => this.epcInDate(b.LodgementDate));
         if (expiredEPCValid) {
             validExpiry.push('EPC Expired');
         }

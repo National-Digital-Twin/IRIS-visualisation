@@ -52,7 +52,7 @@ export class ResultsCardComponent {
 
     public epcExpired(): boolean {
         const card = this.card();
-        return this.#utilService.epcExpired(card.InspectionDate);
+        return this.#utilService.epcExpired(card.LodgementDate);
     }
 
     public openDownloadWarning(): void {

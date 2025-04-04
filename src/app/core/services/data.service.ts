@@ -46,6 +46,8 @@ export class DataService {
     private readonly buildingsFlagged = signal<FlagMap>({});
     private readonly buildingsFlagged$ = toObservable(this.buildingsFlagged);
 
+    private _detailedBuildingsCache = new Map<string, BuildingModel>();
+
     private readonly flags$ = this.#http.get<FlagResponse[]>('/api/flagged-buildings', { withCredentials: true }).pipe(
         map((flags: FlagResponse[]) => this.getCurrentFlags(flags)),
         map((currentFlags) => this.mapFlagsToToids(currentFlags)),
@@ -72,11 +74,11 @@ export class DataService {
                 EPC: minimalBuilding.EPC, 
                 latitude: minimalBuilding.latitude,
                 longitude: minimalBuilding.longitude,
+                StructureUnitType: minimalBuilding.StructureUnitType,
                 // Set other fields to undefined until detailed data is loaded
                 PostCode: undefined,
-                PropertyType: undefined,
-                BuildForm: undefined,
-                InspectionDate: undefined,
+                BuiltForm: undefined,
+                LodgementDate: undefined,
                 YearOfAssessment: undefined,
                 SAPPoints: undefined,
                 FloorConstruction: undefined,
@@ -91,10 +93,10 @@ export class DataService {
                 } as BuildingModel;
             });
         });
-        
+
         // Apply flags if available
         this.applyFlagsToBuildings(buildingMap);
-        
+
         return buildingMap;
     });
 
@@ -170,11 +172,34 @@ export class DataService {
     }
 
     /**
-     * Set individual building
+     * Set individual building and load detailed data if not already available
      * @param building individual building
      */
     public setSelectedBuilding(building?: BuildingModel): void {
+        if (!building) {
+            this.selectedBuilding.set(undefined);
+            return;
+        }
+
         this.selectedBuilding.set(building);
+
+        const hasDetailedData = building.StructureUnitType !== undefined && 
+                                building.BuiltForm !== undefined;
+
+        if (!hasDetailedData && building.UPRN) {
+            console.log(`Loading missing details for building ${building.UPRN}`);
+            this.loadBuildingDetails(building.UPRN).pipe(
+            first()
+            ).subscribe({
+            next: (detailedBuilding) => {
+                // Update the selected building with detailed data
+                this.selectedBuilding.set(detailedBuilding);
+            },
+            error: (error) => {
+                console.error(`Failed to load details for building ${building.UPRN}:`, error);
+            }
+            });
+        }
     }
 
     /**
@@ -280,12 +305,11 @@ export class DataService {
         console.log('Querying viewport:', viewport); // Debug logging
 
         const params = new HttpParams()
-            .set('min_lat', viewport.minLat)
-            .set('max_lat', viewport.maxLat)
-            .set('min_lng', viewport.minLng)
-            .set('max_lng', viewport.maxLng);
+            .set('min_lat', viewport.minLat.toString())
+            .set('max_lat', viewport.maxLat.toString())
+            .set('min_lng', viewport.minLng.toString())
+            .set('max_lng', viewport.maxLng.toString());
 
-        // Call the new API endpoint
         return this.#http.get<any[]>('/api/buildings/viewport', { 
             params, 
             withCredentials: true 
@@ -308,10 +332,10 @@ export class DataService {
     private mapViewportAPIResponse(results: any[]): MinimalBuildingData[] {
         // Use a Map to deduplicate by UPRN
         const buildingsMap = new Map<string, MinimalBuildingData>();
-        
+
         results.forEach(row => {
-            if (!row.UPRN) return; // Skip rows without UPRN
-            
+            if (!row.UPRN) return;
+
             // If we already have this UPRN, merge new data with existing
             if (buildingsMap.has(row.UPRN)) {
                 const existing = buildingsMap.get(row.UPRN)!;
@@ -320,9 +344,10 @@ export class DataService {
                     ...existing,
                     TOID: existing.TOID || row.TOID,
                     ParentTOID: existing.ParentTOID || row.ParentTOID,
-                    addressText: existing.addressText || row.addressText
+                    addressText: existing.addressText || row.addressText,
+                    StructureUnitType: existing.StructureUnitType || row.StructureUnitType
                 };
-                
+
                 buildingsMap.set(row.UPRN, merged);
             } else {
                 const building: MinimalBuildingData = {
@@ -332,9 +357,10 @@ export class DataService {
                     longitude: row.longitude ? parseFloat(row.longitude) : undefined,
                     addressText: row.addressText || undefined,
                     TOID: row.TOID || undefined,
-                    ParentTOID: row.ParentTOID || undefined
+                    ParentTOID: row.ParentTOID || undefined,
+                    StructureUnitType: row.StructureUnitType || undefined
                 };
-                
+
                 buildingsMap.set(row.UPRN, building);
             }
         });
@@ -349,7 +375,6 @@ export class DataService {
     private parseEPCRating(epcValue: string): EPCRating {
         if (!epcValue) return EPCRating.none;
 
-        // Format 1: Simple letter (A-G)
         if (/^[A-G]$/i.test(epcValue)) {
             const rating = epcValue.toUpperCase() as keyof typeof EPCRating;
             return EPCRating[rating] || EPCRating.none;
@@ -367,7 +392,7 @@ export class DataService {
         viewport: { minLat: number, maxLat: number, minLng: number, maxLng: number }
     ): Observable<MinimalBuildingMap> {
         this.viewportBuildingsLoading.set(true);
-        
+    
         return this.queryBuildingsInViewport(viewport).pipe(
             tap(buildings => {
                 // Update minimal buildings data with new viewport data
@@ -421,102 +446,83 @@ export class DataService {
     }
 
     /**
-     * Create an object where TOIDS are keys, and values are the building(s)
-     * data, and joins SAP Ratings with each building
-     * @param buildings array of buildings with EPC data
-     * @param sapPoints array of UPRNs and SAP Points
-     * @returns an object with TOID as key, and an array of building
-     * objects with epc and sap points
+     * Load detailed data for a building by UPRN
+     * @param uprn Building UPRN
+     * @returns Observable of detailed BuildingModel
      */
-    private mapEPCBuildings(buildings: EPCBuildingResponseModel[], sapPoints: SAPPointMap): BuildingMap {
-        const buildingMap: BuildingMap = {};
+    public loadBuildingDetails(uprn: string): Observable<BuildingModel> {
+        if (!uprn) {
+            return of({} as BuildingModel);
+        }
 
-        buildings.forEach((row: EPCBuildingResponseModel) => {
-            const toid = row.TOID ? row.TOID : row.ParentTOID;
+        console.log(`Loading detailed data for building ${uprn}`);
 
-            /** if there is no TOID the building cannot be visualised */
-            if (!toid) {
-                return;
-            }
-
-            const sapPoint = sapPoints[toid]?.find((p) => p.UPRN === row.UPRN) || { SAPPoint: undefined, latitude: undefined, longitude: undefined };
-
-            /** add 'none' for buildings with no EPC rating */
-            const epc = row.EPC ? row.EPC : EPCRating.none;
-            const yearOfAssessment = row.InspectionDate ? new Date(row.InspectionDate).getFullYear().toString() : '';
-            /** get building parts */
-            const parts = this.parseBuildingParts(row);
-
-            const building: BuildingModel = {
-                UPRN: row.UPRN,
-                TOID: toid,
-                ParentTOID: row.ParentTOID,
-                FullAddress: row.FullAddress,
-                PostCode: row.PostCode,
-                PropertyType: row.PropertyType,
-                BuildForm: row.BuildForm,
-                InspectionDate: row.InspectionDate,
-                YearOfAssessment: yearOfAssessment,
-                EPC: epc,
-                SAPPoints: sapPoint.SAPPoint,
-                FloorConstruction: parts.FloorConstruction,
-                FloorInsulation: parts.FloorInsulation,
-                RoofConstruction: parts.RoofConstruction,
-                RoofInsulationLocation: parts.RoofInsulationLocation,
-                RoofInsulationThickness: parts.RoofInsulationThickness,
-                WallConstruction: parts.WallConstruction,
-                WallInsulation: parts.WallInsulation,
-                WindowGlazing: parts.WindowGlazing,
-                Flagged: undefined,
-                latitude: sapPoint.latitude,
-                longitude: sapPoint.longitude,
-            };
-            if (buildingMap[toid]) {
-                buildingMap[toid].push(building);
-            } else {
-                buildingMap[toid] = [building];
-            }
-        });
-
-        return buildingMap;
+        return this.#http.get<any>(`/api/buildings/${uprn}`, { 
+            withCredentials: true 
+        }).pipe(
+            tap(response => console.log('Building detail response:', response)),
+            map(response => this.mapBuildingDetailResponse(response, uprn)),
+            catchError(error => {
+                console.error(`Error loading details for building ${uprn}:`, error);
+                return of(this.getBuildingByUPRN(uprn));
+            })
+        );
     }
 
     /**
-     * An object where TOIDS are keys, and are is the building details
-     * @param buildings array of building data with no EPC ratings
-     * @returns an object with TOID as key, and object with an
-     * array of building data
+     * Map building detail API response to BuildingModel
      */
-    private mapNonEPCBuildings(buildings: NoEPCBuildingResponseModel[]): BuildingMap {
-        const buildingMap: BuildingMap = {};
-        buildings.forEach((responseRow: NoEPCBuildingResponseModel) => {
-            const building: BuildingModel = {
-                ...responseRow,
-                BuildForm: undefined,
-                EPC: EPCRating.none,
-                FloorConstruction: undefined,
-                FloorInsulation: undefined,
-                InspectionDate: undefined,
-                PropertyType: undefined,
-                RoofConstruction: undefined,
-                RoofInsulationLocation: undefined,
-                RoofInsulationThickness: undefined,
-                SAPPoints: undefined,
-                WallConstruction: undefined,
-                WallInsulation: undefined,
-                WindowGlazing: undefined,
-                YearOfAssessment: undefined,
-            };
-            /** if there is no TOID the building cannot be visualised */
-            const toid = building.TOID ? building.TOID : building.ParentTOID;
-            if (!toid) return;
-            if (buildingMap[toid]) {
-                buildingMap[toid].push(building);
-            } else {
-                buildingMap[toid] = [building];
-            }
-        });
-        return buildingMap;
+    private mapBuildingDetailResponse(response: any, uprn: string): BuildingModel {
+        const existingData = this.getBuildingByUPRN(uprn);
+
+        const detailedBuilding: BuildingModel = {
+            ...existingData,
+            UPRN: this.getPropertyValue(response, 'uprn'),
+            LodgementDate: this.getPropertyValue(response, 'lodgement_date'),
+            BuiltForm: this.getPropertyValue(response, 'built_form'), 
+            YearOfAssessment: this.getPropertyValue(response, 'lodgement_date') ? 
+                new Date(this.getPropertyValue(response, 'lodgement_date')).getFullYear().toString() : '',
+            StructureUnitType: this.getPropertyValue(response, 'structure_unit_type'),
+            FloorConstruction: this.getPropertyValue(response, 'floor_construction'),
+            FloorInsulation: this.getPropertyValue(response, 'floor_insulation'),
+            RoofConstruction: this.getPropertyValue(response, 'roof_construction'),
+            RoofInsulationLocation: this.getPropertyValue(response, 'roof_insulation_location'),
+            RoofInsulationThickness: this.getPropertyValue(response, 'roof_insulation_thickness'),
+            WallConstruction: this.getPropertyValue(response, 'wall_construction'),
+            WallInsulation: this.getPropertyValue(response, 'wall_insulation'),
+            WindowGlazing: this.getPropertyValue(response, 'window_glazing')
+        };
+
+        // Cache the detailed data for future use
+        this.updateBuildingCache(detailedBuilding);
+
+        console.log(detailedBuilding)
+        return detailedBuilding;
+    }
+
+    /**
+     * Helper method to get property value from building details response
+     */
+    private getPropertyValue(response: any, propertyName: string): any {
+        if (response && response[propertyName] !== undefined) {
+            return response[propertyName];
+        }
+
+        return undefined;
+    }
+
+    /**
+     * Update the building cache with detailed data
+     */
+    private updateBuildingCache(building: BuildingModel): void {
+        if (!building.UPRN || !building.TOID) return;
+
+        // Create a private cache 
+        if (!this._detailedBuildingsCache) {
+            this._detailedBuildingsCache = new Map<string, BuildingModel>();
+        }
+
+        this._detailedBuildingsCache.set(building.UPRN, building);
     }
 
     /**
@@ -551,6 +557,9 @@ export class DataService {
     }
 
     public getBuildingByUPRN(uprn: string): BuildingModel {
+        if (this._detailedBuildingsCache?.has(uprn)) {
+            return this._detailedBuildingsCache.get(uprn)!;
+        }
         const buildings = this.buildings();
 
         if (!buildings) {

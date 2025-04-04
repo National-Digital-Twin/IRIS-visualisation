@@ -2,7 +2,7 @@ export interface ResultsCard {
     name: string;
     Address: string;
     SAPBand: string;
-    PropertyType: string;
+    StructureUnitType: string;
     flagged: boolean;
     dwellings?: ResultsCard[];
 }
