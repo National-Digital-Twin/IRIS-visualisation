@@ -28,6 +28,12 @@
     --mat-option-focus-state-layer-color: var(--mat-sys-primary-container);
     --mat-option-hover-state-label-text-color: var(--mat-sys-on-surface-variant);
     --mat-option-hover-state-layer-color: var(--mat-sys-surface-container-low);
+    --font-size-large: 0.1rem;
+    --font-size-xlarge: 0.2rem;
+    --line-height-dense: 0.3rem;
+    --line-height-loose: 0.3rem;
+    --letter-spacing-dense: 0.05rem;
+    --letter-spacing-loose: 0.05rem;
 }
 
 html {
@@ -74,6 +80,16 @@ body {
     .mapboxgl-popup-content {
         @include mapbox.popup;
     }
+}
+
+body[colour-blind-mode='true'] {
+    --color-epc-a: #0051f2;
+    --color-epc-b: #377cf6;
+    --color-epc-c: #6da7fb;
+    --color-epc-d: #daffa5;
+    --color-epc-e: #ffd173;
+    --color-epc-f: #d9963a;
+    --color-epc-g: #b35a00;
 }
 
 h1 {
@@ -234,6 +250,118 @@ p {
             with-actions-content-padding: 0 4rem,
         )
     );
+}
+
+.font-size-large {
+    --mat-sys-body-large-size: calc(1rem + var(--font-size-large));
+    --mat-sys-body-medium-size: calc(0.875rem + var(--font-size-large));
+    --mat-sys-body-small-size: calc(0.75rem + var(--font-size-large));
+    --mat-sys-display-large-size: calc(3.562rem + var(--font-size-large));
+    --mat-sys-display-medium-size: calc(2.812rem + var(--font-size-large));
+    --mat-sys-display-small-size: calc(2.25rem + var(--font-size-large));
+    --mat-sys-headline-large-size: calc(2rem + var(--font-size-large));
+    --mat-sys-headline-medium-size: calc(1.75rem + var(--font-size-large));
+    --mat-sys-headline-small-size: calc(1.5rem + var(--font-size-large));
+    --mat-sys-label-large-size: calc(0.875rem + var(--font-size-large));
+    --mat-sys-label-medium-size: calc(0.75rem + var(--font-size-large));
+    --mat-sys-label-small-size: calc(0.688rem + var(--font-size-large));
+    --mat-sys-title-large-size: calc(1.375rem + var(--font-size-large));
+    --mat-sys-title-medium-size: calc(1rem + var(--font-size-large));
+    --mat-sys-title-small-size: calc(0.875rem + var(--font-size-large));
+}
+
+.font-size-xlarge {
+    --mat-sys-body-large-size: calc(1rem + var(--font-size-xlarge));
+    --mat-sys-body-medium-size: calc(0.875rem + var(--font-size-xlarge));
+    --mat-sys-body-small-size: calc(0.75rem + var(--font-size-xlarge));
+    --mat-sys-display-large-size: calc(3.562rem + var(--font-size-xlarge));
+    --mat-sys-display-medium-size: calc(2.812rem + var(--font-size-xlarge));
+    --mat-sys-display-small-size: calc(2.25rem + var(--font-size-xlarge));
+    --mat-sys-headline-large-size: calc(2rem + var(--font-size-xlarge));
+    --mat-sys-headline-medium-size: calc(1.75rem + var(--font-size-xlarge));
+    --mat-sys-headline-small-size: calc(1.5rem + var(--font-size-xlarge));
+    --mat-sys-label-large-size: calc(0.875rem + var(--font-size-xlarge));
+    --mat-sys-label-medium-size: calc(0.75rem + var(--font-size-xlarge));
+    --mat-sys-label-small-size: calc(0.688rem + var(--font-size-xlarge));
+    --mat-sys-title-large-size: calc(1.375rem + var(--font-size-xlarge));
+    --mat-sys-title-medium-size: calc(1rem + var(--font-size-xlarge));
+    --mat-sys-title-small-size: calc(0.875rem + var(--font-size-xlarge));
+}
+
+.line-height-dense {
+    --mat-sys-body-large-line-height: calc(1.5rem - var(--line-height-dense));
+    --mat-sys-body-medium-line-height: calc(1.25rem - var(--line-height-dense));
+    --mat-sys-body-small-line-height: calc(1rem - var(--line-height-dense));
+    --mat-sys-display-large-line-height: calc(4rem - var(--line-height-dense));
+    --mat-sys-display-medium-line-height: calc(3.25rem - var(--line-height-dense));
+    --mat-sys-display-small-line-height: calc(2.75rem - var(--line-height-dense));
+    --mat-sys-headline-large-line-height: calc(2.5rem - var(--line-height-dense));
+    --mat-sys-headline-medium-line-height: calc(2.25rem - var(--line-height-dense));
+    --mat-sys-headline-small-line-height: calc(2rem - var(--line-height-dense));
+    --mat-sys-label-large-line-height: calc(1.25rem - var(--line-height-dense));
+    --mat-sys-label-medium-line-height: calc(1rem - var(--line-height-dense));
+    --mat-sys-label-small-line-height: calc(1rem - var(--line-height-dense));
+    --mat-sys-title-large-line-height: calc(1.75rem - var(--line-height-dense));
+    --mat-sys-title-medium-line-height: calc(1.5rem - var(--line-height-dense));
+    --mat-sys-title-small-line-height: calc(1.25rem - var(--line-height-dense));
+
+    line-height: calc(1.4rem - var(--line-height-dense));
+}
+
+.line-height-loose {
+    --mat-sys-body-large-line-height: calc(1.5rem + var(--line-height-loose));
+    --mat-sys-body-medium-line-height: calc(1.25rem + var(--line-height-loose));
+    --mat-sys-body-small-line-height: calc(1rem + var(--line-height-loose));
+    --mat-sys-display-large-line-height: calc(4rem + var(--line-height-loose));
+    --mat-sys-display-medium-line-height: calc(3.25rem + var(--line-height-loose));
+    --mat-sys-display-small-line-height: calc(2.75rem + var(--line-height-loose));
+    --mat-sys-headline-large-line-height: calc(2.5rem + var(--line-height-loose));
+    --mat-sys-headline-medium-line-height: calc(2.25rem + var(--line-height-loose));
+    --mat-sys-headline-small-line-height: calc(2rem + var(--line-height-loose));
+    --mat-sys-label-large-line-height: calc(1.25rem + var(--line-height-loose));
+    --mat-sys-label-medium-line-height: calc(1rem + var(--line-height-loose));
+    --mat-sys-label-small-line-height: calc(1rem + var(--line-height-loose));
+    --mat-sys-title-large-line-height: calc(1.75rem + var(--line-height-loose));
+    --mat-sys-title-medium-line-height: calc(1.5rem + var(--line-height-loose));
+    --mat-sys-title-small-line-height: calc(1.25rem + var(--line-height-loose));
+
+    line-height: calc(1.4rem + var(--line-height-loose));
+}
+
+.letter-spacing-dense {
+    --mat-sys-body-large-tracking: calc(0.031rem - var(--letter-spacing-dense));
+    --mat-sys-body-medium-tracking: calc(0.016rem - var(--letter-spacing-dense));
+    --mat-sys-body-small-tracking: calc(0.025rem - var(--letter-spacing-dense));
+    --mat-sys-display-large-tracking: calc(-0.016rem - var(--letter-spacing-dense));
+    --mat-sys-display-medium-tracking: calc(0 - var(--letter-spacing-dense));
+    --mat-sys-display-small-tracking: calc(0 - var(--letter-spacing-dense));
+    --mat-sys-headline-large-tracking: calc(0 - var(--letter-spacing-dense));
+    --mat-sys-headline-medium-tracking: calc(0 - var(--letter-spacing-dense));
+    --mat-sys-headline-small-tracking: calc(0 - var(--letter-spacing-dense));
+    --mat-sys-label-large-tracking: calc(0.006rem - var(--letter-spacing-dense));
+    --mat-sys-label-medium-tracking: calc(0.031rem - var(--letter-spacing-dense));
+    --mat-sys-label-small-tracking: calc(0.031rem - var(--letter-spacing-dense));
+    --mat-sys-title-large-tracking: calc(0 - var(--letter-spacing-dense));
+    --mat-sys-title-medium-tracking: calc(0.009rem - var(--letter-spacing-dense));
+    --mat-sys-title-small-tracking: calc(0.006rem - var(--letter-spacing-dense));
+}
+
+.letter-spacing-loose {
+    --mat-sys-body-large-tracking: calc(0.031rem + var(--letter-spacing-loose));
+    --mat-sys-body-medium-tracking: calc(0.016rem + var(--letter-spacing-loose));
+    --mat-sys-body-small-tracking: calc(0.025rem + var(--letter-spacing-loose));
+    --mat-sys-display-large-tracking: calc(-0.016rem + var(--letter-spacing-loose));
+    --mat-sys-display-medium-tracking: calc(0 + var(--letter-spacing-loose));
+    --mat-sys-display-small-tracking: calc(0 + var(--letter-spacing-loose));
+    --mat-sys-headline-large-tracking: calc(0 + var(--letter-spacing-loose));
+    --mat-sys-headline-medium-tracking: calc(0 + var(--letter-spacing-loose));
+    --mat-sys-headline-small-tracking: calc(0 + var(--letter-spacing-loose));
+    --mat-sys-label-large-tracking: calc(0.006rem + var(--letter-spacing-loose));
+    --mat-sys-label-medium-tracking: calc(0.031rem + var(--letter-spacing-loose));
+    --mat-sys-label-small-tracking: calc(0.031rem + var(--letter-spacing-loose));
+    --mat-sys-title-large-tracking: calc(0 + var(--letter-spacing-loose));
+    --mat-sys-title-medium-tracking: calc(0.009rem + var(--letter-spacing-loose));
+    --mat-sys-title-small-tracking: calc(0.006rem + var(--letter-spacing-loose));
 }
 
 button {

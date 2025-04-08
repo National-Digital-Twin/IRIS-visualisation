@@ -32,7 +32,7 @@ export class UtilService {
     readonly #spatialQueryService = inject(SpatialQueryService);
     readonly #zone = inject(NgZone);
 
-    private readonly colorBlindMode = this.#settings.get(SETTINGS.ColorBlindMode);
+    private readonly colourBlindMode = this.#settings.get(SETTINGS.ColourBlindMode);
 
     public multiDwelling = signal<string | undefined>(undefined);
     public selectedCardUPRN = signal<string | undefined>(undefined);
@@ -218,7 +218,7 @@ export class UtilService {
      * then returns the corresponding EPC pattern.
      */
     public getEPCPattern(epcRatings: string[]): string {
-        const colorBlindMode = this.colorBlindMode();
+        const colorBlindMode = this.colourBlindMode();
         const meanEPC = this.getMeanEPCValue(epcRatings).toLowerCase();
         return colorBlindMode ? `cb-${meanEPC}-pattern` : `${meanEPC}-pattern`;
     }
@@ -286,7 +286,7 @@ export class UtilService {
     }
 
     public getEPCColour(epcRating: string): string {
-        const colorBlindMode = this.colorBlindMode();
+        const colorBlindMode = this.colourBlindMode();
 
         if (colorBlindMode) {
             return this.#runtimeConfig.epcColoursCD[epcRating || 'default'];

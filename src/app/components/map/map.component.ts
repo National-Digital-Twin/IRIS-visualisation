@@ -57,7 +57,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     public downloadAddresses: OutputEmitterRef<null> = output();
 
     public readonly theme$ = toObservable(this.#settings.get(SETTINGS.Theme)).pipe(takeUntilDestroyed());
-    private readonly colorBlindMode$ = toObservable(this.#settings.get(SETTINGS.ColorBlindMode)).pipe(takeUntilDestroyed());
+    private readonly colorBlindMode$ = toObservable(this.#settings.get(SETTINGS.ColourBlindMode)).pipe(takeUntilDestroyed());
 
     /** on map loaded, setup layers, controls etc */
     constructor() {
