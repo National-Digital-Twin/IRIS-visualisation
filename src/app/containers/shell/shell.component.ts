@@ -29,7 +29,7 @@ import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { UtilService } from '@core/services/utils.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { FeatureCollection, GeoJsonProperties, Geometry, Polygon } from 'geojson';
-import { EMPTY, Observable, combineLatest, filter, forkJoin, map, switchMap, take } from 'rxjs';
+import { EMPTY, Observable, catchError, combineLatest, filter, forkJoin, map, of, switchMap, take, tap } from 'rxjs';
 
 @Component({
     selector: 'c477-shell',
@@ -94,9 +94,9 @@ export class ShellComponent {
 
     constructor() {
         this.contextData$ = combineLatest([this.#dataService.contextData$, toObservable(this.#dataService.buildings)]).pipe(
-            map(([contextData, buildingData]) => {
+            switchMap(([contextData, buildingData]) => {
                 if (!buildingData) {
-                    return [];
+                    return of([]);
                 }
                 return this.aggregateEPC(contextData, buildingData);
             }),
@@ -399,12 +399,87 @@ export class ShellComponent {
         });
     }
 
+    /**
+     * Load ward EPC data from API
+     * @returns Observable of ward data with EPC information
+     */
+    private loadWardEPCData(): Observable<any> {
+        return this.#dataService.fetchWardEPCData().pipe(
+          tap({
+            next: (data) => {
+                console.log('Loaded ward EPC data from API');
+            },
+            error: (error) => {
+                console.error('Error loading ward EPC data:', error);
+            }
+          }),
+          catchError((error) => {
+            return of([]);
+          })
+        );
+    }
+
+    /**
+     * Merges the EPC data from the API with the GeoJSON ward boundaries
+     */
     private aggregateEPC(
         contextData: FeatureCollection<Geometry, GeoJsonProperties>[],
         buildings: BuildingMap,
-    ): FeatureCollection<Geometry, GeoJsonProperties>[] {
-        const aggregateData = this.#utilService.createAddressPoints(Object.values(buildings).flat(), contextData);
-        return aggregateData;
+    ): Observable<FeatureCollection<Geometry, GeoJsonProperties>[]> {
+        // Get the ward boundaries GeoJSON
+        const wardBoundaries = contextData[0];
+
+        return this.loadWardEPCData().pipe(
+          map(wardEPCData => {
+            // Create a lookup map for access to EPC data by ward name
+            const epcByWard = new Map();
+
+            if (Array.isArray(wardEPCData)) {
+                wardEPCData.forEach((ward: any) => {
+                    if (ward && ward.name) {
+                        epcByWard.set(ward.name, ward);
+                    }
+                });
+            }
+
+            const enhancedWardData = JSON.parse(JSON.stringify(wardBoundaries)) as FeatureCollection<Geometry, GeoJsonProperties>;
+
+            // Merge EPC data into each feature's properties
+            if (enhancedWardData.features) {
+                enhancedWardData.features = enhancedWardData.features.map(feature => {
+                    const wardName = feature.properties?.WD23NM || '';
+
+                    const epcData = epcByWard.get(wardName);
+
+                    if (epcData) {
+                        const modalRating = this.#utilService.calculateModalRating(epcData);
+
+                        feature.properties = {
+                            ...feature.properties,
+                            a_rating: epcData.a_rating || 0,
+                            b_rating: epcData.b_rating || 0,
+                            c_rating: epcData.c_rating || 0,
+                            d_rating: epcData.d_rating || 0,
+                            e_rating: epcData.e_rating || 0,
+                            f_rating: epcData.f_rating || 0,
+                            g_rating: epcData.g_rating || 0,
+                            no_rating: epcData.no_rating || 0,
+                            modal_rating: modalRating,
+                            aggEPC: modalRating,
+                            color: this.#utilService.getEPCColour(modalRating)
+                        };
+                    }
+
+                    return feature;
+                });
+            }
+
+            const matchedCount = enhancedWardData.features?.filter(f => f.properties?.aggEPC).length || 0;
+            console.log(`Successfully matched EPC data for ${matchedCount} out of ${enhancedWardData.features?.length || 0} wards`);
+
+            return [enhancedWardData];
+          })
+        );
     }
 
     public showInfo(): void {

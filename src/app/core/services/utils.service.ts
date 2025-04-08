@@ -295,6 +295,23 @@ export class UtilService {
         }
     }
 
+    public calculateModalRating(epcData: any): string {
+        const ratings = [
+        { rating: 'A', count: epcData.a_rating },
+        { rating: 'B', count: epcData.b_rating },
+        { rating: 'C', count: epcData.c_rating },
+        { rating: 'D', count: epcData.d_rating },
+        { rating: 'E', count: epcData.e_rating },
+        { rating: 'F', count: epcData.f_rating },
+        { rating: 'G', count: epcData.g_rating }
+        ];
+
+        ratings.sort((a, b) => b.count - a.count);
+
+        // Return the most common rating
+        return ratings[0].count > 0 ? ratings[0].rating : 'None';
+    }
+
     public filterBuildingsWithinBounds(buildings: BuildingMap, spatialQueryBounds?: mapboxgl.Point[]): BuildingMap {
         /** get all features within current map bounds */
         const currentMapFeatures = this.#mapService.queryFeatures();
@@ -426,96 +443,6 @@ export class UtilService {
             return '';
         }
         return fullAddress.split(',')[index];
-    }
-
-    /**
-     * Find the addresses that are within each boundary
-     * and calculate the mode EPC for the boundary
-     * @param data addresses with lat/lng coordinates
-     * @param contextData polygon boundary data
-     */
-    public createAddressPoints(
-        data: BuildingModel[],
-        contextData: FeatureCollection<Geometry, GeoJsonProperties>[],
-    ): FeatureCollection<Geometry, GeoJsonProperties>[] {
-        const coordArray: Feature<Point>[] = [];
-        const aggregateData: FeatureCollection<Geometry, GeoJsonProperties>[] = [];
-        /** create array of address geojson points */
-        data.forEach((p) => {
-            if (!p.longitude || !p.latitude) {
-                return;
-            }
-
-            const pt = point([+p.longitude, +p.latitude], {
-                UPRN: p.UPRN,
-                TOID: p.TOID ? p.TOID : p.ParentTOID,
-                EPC: p.EPC,
-            });
-
-            coordArray.push(pt);
-        });
-        /** create points geojson FeatureCollection */
-        const addressPointsFC = featureCollection(coordArray);
-        /** Iterate through each layer.  Could be parishes, wards, local authorities */
-        contextData.forEach((collection) => {
-            let newFeature = {};
-            let newCollection: FeatureCollection<Geometry, GeoJsonProperties> | undefined = undefined;
-            const featuresWithEPC: Feature<Polygon>[] = [];
-            /** iterate through each polygon feature */
-            collection.features.map((feature: Feature) => {
-                const f = feature as unknown as Polygon;
-                /** find address points within polygon */
-                const featuresInPolygon = pointsWithinPolygon(addressPointsFC, f);
-                /** find the mode EPC for the addresses within the polygon */
-                const { aggEPC, epcCounts } = this.calculateEPCMode(featuresInPolygon);
-                aggEPC.sort((a, b) => b.localeCompare(a, undefined, { sensitivity: 'base' }));
-
-                newFeature = {
-                    ...feature,
-                    properties: {
-                        ...feature.properties!,
-                        /** assign the lowest EPC value to the ward */
-                        aggEPC: aggEPC[0],
-                        ...epcCounts,
-                    },
-                };
-                featuresWithEPC.push(newFeature as Feature<Polygon, GeoJsonProperties>);
-            });
-            newCollection = {
-                ...collection,
-                features: featuresWithEPC,
-            } as FeatureCollection<Geometry, GeoJsonProperties>;
-            aggregateData.push(newCollection);
-        });
-        return aggregateData;
-    }
-
-    /**
-     * Calculate the mode EPC value for a set of buildings
-     * @param buildings buildings to calculate mode for
-     * @returns EPC mode
-     */
-    private calculateEPCMode(buildings: FeatureCollection<Point | MultiPoint, GeoJsonProperties>): { aggEPC: string[]; epcCounts: Record<string, number> } {
-        if (!buildings.features.length) {
-            return { aggEPC: [], epcCounts: {} };
-        }
-        const store: Record<string, number> = {};
-        let maxCount = 0;
-        buildings.features.map((b) => {
-            if (!store[b.properties!.EPC]) {
-                store[b.properties!.EPC] = 0;
-            }
-            store[b.properties!.EPC] += 1;
-            /**
-             * Exclude addresses with no EPC from count as it skews results because
-             * it includes non-residential addresses
-             */
-            if (b.properties!.EPC !== 'none' && store[b.properties!.EPC] > maxCount) {
-                maxCount = store[b.properties!.EPC];
-            }
-        });
-        const modes = Object.keys(store).filter((key) => store[key] === maxCount);
-        return { aggEPC: modes, epcCounts: store };
     }
 
     /**

@@ -15,7 +15,7 @@ import { EPCBuildingResponseModel, NoEPCBuildingResponseModel } from '@core/type
 import { FlagHistory } from '@core/types/flag-history';
 import { FlagMap, FlagResponse } from '@core/types/flag-response';
 import { SAPPoint, SAPPointMap } from '@core/types/sap-point';
-import { FeatureCollection } from 'geojson';
+import { FeatureCollection, GeoJsonProperties, Geometry } from 'geojson';
 import { EMPTY, Observable, Subscriber, catchError, combineLatest, first, forkJoin, map, of, switchMap, tap } from 'rxjs';
 
 type Loading<T> = T | 'loading';
@@ -302,15 +302,14 @@ export class DataService {
     public queryBuildingsInViewport(
         viewport: { minLat: number, maxLat: number, minLng: number, maxLng: number },
     ): Observable<MinimalBuildingData[]> {
-        console.log('Querying viewport:', viewport); // Debug logging
 
         const params = new HttpParams()
-            .set('min_lat', viewport.minLat.toString())
-            .set('max_lat', viewport.maxLat.toString())
-            .set('min_lng', viewport.minLng.toString())
-            .set('max_lng', viewport.maxLng.toString());
+            .set('minLong', viewport.minLng.toString())
+            .set('minLat', viewport.minLat.toString())
+            .set('maxLong', viewport.maxLng.toString())
+            .set('maxLat', viewport.maxLat.toString());
 
-        return this.#http.get<any[]>('/api/buildings/viewport', { 
+        return this.#http.get<any[]>('/api/buildings', { 
             params, 
             withCredentials: true 
         }).pipe(
@@ -330,43 +329,19 @@ export class DataService {
      * @returns Array of minimal building data objects
      */
     private mapViewportAPIResponse(results: any[]): MinimalBuildingData[] {
-        // Use a Map to deduplicate by UPRN
-        const buildingsMap = new Map<string, MinimalBuildingData>();
+        return results.map(row => {
+            const building: MinimalBuildingData = {
+                UPRN: row.uprn,
+                EPC: row.energy_rating ? this.parseEPCRating(row.energy_rating) : EPCRating.none,
+                latitude: row.latitude ? parseFloat(row.latitude) : undefined,
+                longitude: row.longitude ? parseFloat(row.longitude) : undefined,
+                addressText: row.addressText || undefined,
+                TOID: row.toid || undefined,
+                StructureUnitType: row.structure_unit_type || undefined
+            };
 
-        results.forEach(row => {
-            if (!row.UPRN) return;
-
-            // If we already have this UPRN, merge new data with existing
-            if (buildingsMap.has(row.UPRN)) {
-                const existing = buildingsMap.get(row.UPRN)!;
-
-                const merged: MinimalBuildingData = {
-                    ...existing,
-                    TOID: existing.TOID || row.TOID,
-                    ParentTOID: existing.ParentTOID || row.ParentTOID,
-                    addressText: existing.addressText || row.addressText,
-                    StructureUnitType: existing.StructureUnitType || row.StructureUnitType
-                };
-
-                buildingsMap.set(row.UPRN, merged);
-            } else {
-                const building: MinimalBuildingData = {
-                    UPRN: row.UPRN,
-                    EPC: row.EPCRating ? this.parseEPCRating(row.EPCRating) : EPCRating.none,
-                    latitude: row.latitude ? parseFloat(row.latitude) : undefined,
-                    longitude: row.longitude ? parseFloat(row.longitude) : undefined,
-                    addressText: row.addressText || undefined,
-                    TOID: row.TOID || undefined,
-                    ParentTOID: row.ParentTOID || undefined,
-                    StructureUnitType: row.StructureUnitType || undefined
-                };
-
-                buildingsMap.set(row.UPRN, building);
-            }
+            return building;
         });
-
-        // Convert Map back to array
-        return Array.from(buildingsMap.values());
     }
 
     /**
@@ -767,6 +742,25 @@ export class DataService {
             }
         });
         return map;
+    }
+
+    /**
+     * Fetch ward-level EPC data from API
+     * @returns Observable of ward data with EPC information
+     */
+    public fetchWardEPCData(): Observable<FeatureCollection<Geometry, GeoJsonProperties>> {
+        return this.#http.get<FeatureCollection<Geometry, GeoJsonProperties>>('/api/epc-statistics/wards', {
+        withCredentials: true
+        }).pipe(
+            catchError(error => {
+                console.error('Error fetching ward EPC data:', error);
+                const emptyCollection: FeatureCollection<Geometry, GeoJsonProperties> = {
+                    type: 'FeatureCollection',
+                    features: []
+                };
+                return of(emptyCollection);
+            })
+        );
     }
 }
 

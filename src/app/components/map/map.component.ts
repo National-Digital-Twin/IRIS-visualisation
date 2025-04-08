@@ -334,11 +334,20 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
             const properties = e.features[0].properties as Record<string, number>;
 
-            /** extract ratings from properties */
-            const epcRatings = Object.keys(properties)
-                .filter((k) => !isNaN(properties[k]))
-                .map((k) => ({ rating: k, count: properties[k] }))
-                .sort((a, b) => a.rating.localeCompare(b.rating));
+            // Create an array of EPC ratings with their counts
+            const epcRatings = [
+                { rating: 'A', count: properties.a_rating || 0 },
+                { rating: 'B', count: properties.b_rating || 0 },
+                { rating: 'C', count: properties.c_rating || 0 },
+                { rating: 'D', count: properties.d_rating || 0 },
+                { rating: 'E', count: properties.e_rating || 0 },
+                { rating: 'F', count: properties.f_rating || 0 },
+                { rating: 'G', count: properties.g_rating || 0 },
+                { rating: 'No Rating', count: properties.no_rating || 0 }
+            ].filter(item => item.count > 0);
+            
+            // Sort by rating
+            epcRatings.sort((a, b) => a.rating.localeCompare(b.rating));
 
             const histogram = this.#utilsService.createHistogram(epcRatings);
 
