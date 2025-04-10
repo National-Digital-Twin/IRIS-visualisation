@@ -45,7 +45,7 @@ export class MultiButtonFilterComponent implements ControlValueAccessor {
         this.hasChange(this.selectedValues());
     }
 
-    public writeValue(value: string[]): void {
+    public writeValue(value?: string[]): void {
         if (value) {
             this.selectedValues.set(value);
         } else {
