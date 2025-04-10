@@ -156,31 +156,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.#mapService.mapInstance.on('moveend', () => {
             this.setRouterParams();
 
-            // Get current viewport bounds
-            const bounds = this.#mapService.mapInstance.getBounds();
-            if (bounds) {
-                const viewport = {
-                    minLat: bounds.getSouth(),
-                    maxLat: bounds.getNorth(),
-                    minLng: bounds.getWest(),
-                    maxLng: bounds.getEast()
-                };
+            // Load buildings for the current viewport
+            this.loadBuildingsForCurrentViewport();
+        });
 
-                // Only load data when buildings become 3D models
-                const zoom = this.#mapService.mapInstance.getZoom();
-                if (zoom >= 16) {
-                    this.#dataService.loadBuildingsForViewport(viewport).subscribe({
-                        next: () => {
-                            // After loading, make sure the util service refreshes the colors
-                            this.#utilsService.createBuildingColourFilter();
-                        },
-                        error: (err) => {
-                            console.error('Error loading buildings for viewport:', err);
-                            this.#dataService.viewportBuildingsLoading.set(false);
-                        }
-                    });
-                }
-            }
+        /** Load initial data if map renders at a high zoom level */
+        this.#mapService.mapInstance.once('idle', () => {
+            // Load buildings for the initial viewport
+            this.loadBuildingsForCurrentViewport();
         });
 
         /** wards layer click */
@@ -317,7 +300,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         const { lng, lat } = this.#mapService.mapInstance.getCenter();
         const mapConfig: URLStateModel = {
             bearing,
-            center: [lng, lat],
+            center: [lat, lng],
             pitch,
             zoom,
         };
@@ -427,6 +410,36 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         };
 
         return paint;
+    }
+
+    /**
+     * Load buildings for the current viewport if zoom level is appropriate
+     */
+    private loadBuildingsForCurrentViewport(): void {
+        const bounds = this.#mapService.mapInstance.getBounds();
+        if (bounds) {
+            const viewport = {
+                minLat: bounds.getSouth(),
+                maxLat: bounds.getNorth(),
+                minLng: bounds.getWest(),
+                maxLng: bounds.getEast()
+            };
+        
+            // Only load data when buildings become 3D models
+            const zoom = this.#mapService.mapInstance.getZoom();
+            if (zoom >= 16) {
+                this.#dataService.loadBuildingsForViewport(viewport).subscribe({
+                next: () => {
+                    // After loading, make sure the util service refreshes the colors
+                    this.#utilsService.createBuildingColourFilter();
+                },
+                error: (err) => {
+                    console.error('Error loading buildings for viewport:', err);
+                    this.#dataService.viewportBuildingsLoading.set(false);
+                }
+                });
+            }
+        }
     }
 }
 

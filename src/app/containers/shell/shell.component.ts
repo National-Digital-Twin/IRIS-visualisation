@@ -413,9 +413,6 @@ export class ShellComponent {
                 console.error('Error loading ward EPC data:', error);
             }
           }),
-          catchError((error) => {
-            return of([]);
-          })
         );
     }
 

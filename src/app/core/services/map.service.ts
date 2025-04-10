@@ -40,15 +40,15 @@ export class MapService {
         this.#zone.onStable.pipe(first()).subscribe(() => {
             this.createMap(config);
             this.hookEvents();
-        });
 
-        this.mapInstance.once('idle', () => {
-            const initialBounds = this.mapInstance.getBounds();
-            if (initialBounds) {
-                this.#zone.run(() => {
-                    this.currentMapBounds.set(initialBounds);
-                });
-            }
+            this.mapInstance.once('idle', () => {
+                const initialBounds = this.mapInstance.getBounds();
+                if (initialBounds) {
+                    this.#zone.run(() => {
+                        this.currentMapBounds.set(initialBounds);
+                    });
+                }
+            });
         });
     }
 

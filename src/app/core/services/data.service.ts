@@ -54,7 +54,7 @@ export class DataService {
     );
 
     constructor() {
-        this.initialize();
+        this.initialise();
     }
 
     public buildings = computed(() => {
@@ -70,7 +70,7 @@ export class DataService {
                 UPRN: minimalBuilding.UPRN,
                 TOID: minimalBuilding.TOID,
                 ParentTOID: minimalBuilding.ParentTOID,
-                FullAddress: minimalBuilding.addressText || '',
+                FullAddress: minimalBuilding.fullAddress,
                 EPC: minimalBuilding.EPC, 
                 latitude: minimalBuilding.latitude,
                 longitude: minimalBuilding.longitude,
@@ -123,11 +123,9 @@ export class DataService {
     }
 
     /**
-     * Initialize the data service with lazy loading
-     * This replaces the eager loading approach and sets up just the necessary data
+     * Initialise the data service
      */
-    public initialize(): void {
-        // Load flags since they're needed regardless of viewport
+    public initialise(): void {
         this.loadFlags().subscribe();
     }
 
@@ -211,26 +209,6 @@ export class DataService {
     }
 
     /**
-     * Query Integration Architecture via SPARQL
-     * @param query SPARQL query
-     * @returns observable of parsed data
-     */
-    private selectTable(query: string, cacheUrl?: string): Observable<TableRow[]> {
-        const url = cacheUrl ?? `${this.#searchEndpoint}?query=${encodeURIComponent(query)}`;
-        const httpOptions = { withCredentials: true };
-
-        const tableObservable = new Observable((observer: Subscriber<TableRow[]>) => {
-            this.#http.get<SPARQLReturn>(url, httpOptions).subscribe((data: SPARQLReturn) => {
-                const newTable: Array<TableRow> = this.buildTable(data);
-                observer.next(newTable);
-                observer.complete();
-            });
-        });
-
-        return tableObservable;
-    }
-
-    /**
      * Loads all spatial context data
      * @returns FeatureCollection[] Array of geojson
      */
@@ -239,32 +217,6 @@ export class DataService {
             this.#http.get<FeatureCollection>(`assets/data/${mapLayerConfig.filename}`),
         );
         return forkJoin(requests).pipe(map((data: FeatureCollection[]) => data));
-    }
-
-    /**
-     * Converts a query result from the Integration Architecture to an
-     * array of objects
-     * @param SPARQLReturn Query result from Integration Architecture
-     * @returns Array of parsed data
-     */
-    private buildTable(SPARQLReturn: SPARQLReturn): TableRow[] {
-        const heads = SPARQLReturn.head.vars;
-        const data = SPARQLReturn.results.bindings;
-
-        const table = data.map(() => {
-            return heads.reduce((row, colname) => {
-                row[colname] = '';
-                return row;
-            }, {} as TableRow);
-        });
-
-        data.forEach((rowData, rowIndex) => {
-            for (const [colName, { value }] of Object.entries(rowData)) {
-                table[rowIndex][colName] = value;
-            }
-        });
-
-        return table;
     }
 
     /**
@@ -333,6 +285,7 @@ export class DataService {
             const building: MinimalBuildingData = {
                 UPRN: row.uprn,
                 EPC: row.energy_rating ? this.parseEPCRating(row.energy_rating) : EPCRating.none,
+                fullAddress: row.first_line_of_address || undefined,
                 latitude: row.latitude ? parseFloat(row.latitude) : undefined,
                 longitude: row.longitude ? parseFloat(row.longitude) : undefined,
                 addressText: row.addressText || undefined,
@@ -453,6 +406,7 @@ export class DataService {
         const detailedBuilding: BuildingModel = {
             ...existingData,
             UPRN: this.getPropertyValue(response, 'uprn'),
+            FullAddress: this.getPropertyValue(response, 'first_line_of_address'),
             LodgementDate: this.getPropertyValue(response, 'lodgement_date'),
             BuiltForm: this.getPropertyValue(response, 'built_form'), 
             YearOfAssessment: this.getPropertyValue(response, 'lodgement_date') ? 
@@ -498,37 +452,6 @@ export class DataService {
         }
 
         this._detailedBuildingsCache.set(building.UPRN, building);
-    }
-
-    /**
-     * Combine the two building datasets
-     * @param epcBuildings
-     * @param nonEPCBuildings
-     * @returns BuildingMap of all buildings
-     */
-    private combineBuildingData(epcBuildings: BuildingMap, nonEPCBuildings: BuildingMap, flaggedBuildings: FlagMap): BuildingMap {
-        const allBuildings: BuildingMap = { ...epcBuildings };
-
-        Object.entries(nonEPCBuildings).forEach(([toid, building]) => {
-            if (allBuildings[toid]) {
-                allBuildings[toid] = allBuildings[toid].concat(building);
-            } else {
-                allBuildings[toid] = building;
-            }
-        });
-
-        Object.entries(flaggedBuildings).forEach(([toid, flaggedList]) => {
-            if (allBuildings[toid]) {
-                flaggedList.forEach(({ UPRN, Flagged }) => {
-                    const building = allBuildings[toid].find((b) => b.UPRN === UPRN);
-                    if (building) {
-                        building.Flagged = Flagged;
-                    }
-                });
-            }
-        });
-
-        return allBuildings;
     }
 
     public getBuildingByUPRN(uprn: string): BuildingModel {
@@ -730,28 +653,24 @@ export class DataService {
         return flagMap;
     }
 
-    private mapSAPPointsToToids(data: SAPPoint[]): SAPPointMap {
-        const map: SAPPointMap = {};
-        data.forEach((d) => {
-            const toid = d.TOID ? d.TOID : d.ParentTOID;
-            if (!toid) return;
-            if (map[toid]) {
-                map[toid].push(d);
-            } else {
-                map[toid] = [d];
-            }
-        });
-        return map;
-    }
+    // Private cache for ward EPC data
+    private _wardEPCDataCache: any = null;
 
     /**
      * Fetch ward-level EPC data from API
      * @returns Observable of ward data with EPC information
      */
     public fetchWardEPCData(): Observable<FeatureCollection<Geometry, GeoJsonProperties>> {
+        if (this._wardEPCDataCache !== null) {
+            return of(this._wardEPCDataCache);
+        }
+
         return this.#http.get<FeatureCollection<Geometry, GeoJsonProperties>>('/api/epc-statistics/wards', {
         withCredentials: true
         }).pipe(
+            tap(data => {
+                this._wardEPCDataCache = data;
+            }),
             catchError(error => {
                 console.error('Error fetching ward EPC data:', error);
                 const emptyCollection: FeatureCollection<Geometry, GeoJsonProperties> = {
