@@ -14,6 +14,10 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
  ---
 
+## Unreleased
+
+  - [DPAV-589]: Redesigned header match common header style for NDTP apps.
+
 ## [0.90.1] - 2025.03.28
 
 ### Features
