@@ -88,6 +88,7 @@ export class ShellComponent {
     public spatialFilterEnabled = this.#spatialQueryService.spatialFilterEnabled;
     public title = 'IRIS';
     public userEmail = 'loading...';
+    public menuOpened = false;
 
     // get map state from route query params
     public bearing: InputSignal<number> = input<number, number>(0, { transform: numberAttribute });
@@ -146,10 +147,15 @@ export class ShellComponent {
                 .subscribe();
         });
 
-        this.#userDetailsService.get().subscribe((userDetails) => {
-            console.log(userDetails);
-            this.userEmail = userDetails.email;
-        });
+        this.#userDetailsService.get().subscribe(
+            (userDetails) => {
+                this.userEmail = userDetails.email;
+            },
+            (error) => {
+                console.error(`An error has occured: ${error}`);
+                this.userEmail = 'Loading...';
+            },
+        );
     }
 
     public handleFontSizeSwitchChange(event: MatRadioChange): void {
@@ -203,6 +209,14 @@ export class ShellComponent {
 
     private setColourBlindMode(colourBlindMode: boolean): void {
         this.#document?.body?.setAttribute('colour-blind-mode', colourBlindMode.toString());
+    }
+
+    public handleMenuOpened(): void {
+        this.menuOpened = true;
+    }
+
+    public handleMenuClosed(): void {
+        this.menuOpened = false;
     }
 
     public handleSignout(): void {

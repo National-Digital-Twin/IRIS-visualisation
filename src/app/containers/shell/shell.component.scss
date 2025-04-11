@@ -15,11 +15,8 @@
     gap: 1rem;
     align-items: center;
 
-    @include mat.icon-button-overrides(
-        (
-            icon-color: var(--mat-sys-surface-container-highest),
-        )
-    );
+    @include mat.icon-button-overrides((icon-color: var(--mat-sys-surface-container-highest),
+        ));
 
     .logo {
         display: flex;
@@ -62,6 +59,18 @@
         .mat-icon {
             color: #ffffff;
         }
+    }
+}
+
+.profile-filled {
+    color: rgb(255, 207, 6);
+
+    &.material-symbols-outlined {
+        font-variation-settings:
+            'FILL' 1,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24;
     }
 }
 

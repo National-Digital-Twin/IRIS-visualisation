@@ -71,10 +71,17 @@
                 <img src="/assets/iris-logo.svg" alt="NDTP Logo" />
                 <span>IRIS</span>
             </h1>
-            <button mat-icon-button class="control" aria-label="profile button" [matMenuTriggerFor]="menu">
-                <mat-icon aria-label="profille icon">account_circle</mat-icon>
+            <button
+                mat-icon-button
+                class="control"
+                aria-label="profile button"
+                [matMenuTriggerFor]="menu"
+                (menuOpened)="handleMenuOpened()"
+                (menuClosed)="handleMenuClosed()"
+            >
+                <mat-icon aria-label="profille icon" [ngClass]="{ 'profile-filled': this.menuOpened }">account_circle</mat-icon>
             </button>
-            <mat-menu #menu="matMenu" style="padding: 10px">
+            <mat-menu #menu="matMenu" class="profile-menu">
                 <p>{{ this.userEmail }}</p>
                 <mat-divider></mat-divider>
                 <button mat-menu-item class="control" aria-label="help" (keydown.space)="showInfo()" (click)="showInfo()" tabindex="0">
