@@ -3,7 +3,9 @@ import { CUSTOM_ELEMENTS_SCHEMA, Component, Input, InputSignal, NgZone, computed
 import { toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatRadioChange, MatRadioModule } from '@angular/material/radio';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -29,7 +31,9 @@ import { DataService } from '@core/services/data.service';
 import { FilterService } from '@core/services/filter.service';
 import { MapService } from '@core/services/map.service';
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
+import { SignoutService } from '@core/services/signout.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
+import { UserDetailsService } from '@core/services/user-details.service';
 import { UtilService } from '@core/services/utils.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { FeatureCollection, GeoJsonProperties, Geometry, Polygon } from 'geojson';
@@ -52,6 +56,8 @@ import { EMPTY, Observable, combineLatest, filter, forkJoin, map, switchMap, tak
         MatButtonModule,
         MatRadioModule,
         MatSlideToggleModule,
+        MatMenuModule,
+        MatDividerModule,
     ],
     templateUrl: './shell.component.html',
     styleUrl: './shell.component.scss',
@@ -69,6 +75,8 @@ export class ShellComponent {
     readonly #settings = inject(SettingsService);
     readonly #spatialQueryService = inject(SpatialQueryService);
     readonly #utilService = inject(UtilService);
+    readonly #userDetailsService = inject(UserDetailsService);
+    readonly #signoutService = inject(SignoutService);
     readonly #zone = inject(NgZone);
 
     public contextData$: Observable<FeatureCollection<Geometry, GeoJsonProperties>[]>;
@@ -79,6 +87,7 @@ export class ShellComponent {
     public showMinimap: boolean = true;
     public spatialFilterEnabled = this.#spatialQueryService.spatialFilterEnabled;
     public title = 'IRIS';
+    public userEmail = 'loading...';
 
     // get map state from route query params
     public bearing: InputSignal<number> = input<number, number>(0, { transform: numberAttribute });
@@ -136,6 +145,11 @@ export class ShellComponent {
                 )
                 .subscribe();
         });
+
+        this.#userDetailsService.get().subscribe((userDetails) => {
+            console.log(userDetails);
+            this.userEmail = userDetails.email;
+        });
     }
 
     public handleFontSizeSwitchChange(event: MatRadioChange): void {
@@ -189,6 +203,11 @@ export class ShellComponent {
 
     private setColourBlindMode(colourBlindMode: boolean): void {
         this.#document?.body?.setAttribute('colour-blind-mode', colourBlindMode.toString());
+    }
+
+    public handleSignout(): void {
+        this.#signoutService.voidSession();
+        window.location.href = this.#signoutService.signoutLinks?.signoutLink?.href ?? '/';
     }
 
     private updateBuildingLayerColour(): void {

@@ -45,3 +45,5 @@ services:
             - 3010:5021
         env_file:
             - './.env'
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
