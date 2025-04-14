@@ -15,11 +15,8 @@
     gap: 1rem;
     align-items: center;
 
-    @include mat.icon-button-overrides(
-        (
-            icon-color: var(--mat-sys-surface-container-highest),
-        )
-    );
+    @include mat.icon-button-overrides((icon-color: var(--mat-sys-surface-container-highest),
+        ));
 
     .logo {
         display: flex;
@@ -49,6 +46,82 @@
     }
 }
 
+.accessibility-controls-toolbar {
+    display: flex;
+    justify-content: space-between;
+    padding-right: 5px;
+
+    .mat-icon {
+        margin-right: 10px;
+    }
+
+    .mdc-icon-button {
+        .mat-icon {
+            color: #ffffff;
+        }
+    }
+}
+
+.profile-filled {
+    color: rgb(255, 207, 6);
+
+    &.material-symbols-outlined {
+        font-variation-settings:
+            'FILL' 1,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24;
+    }
+}
+
+.mat-sidenav {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+.mat-sidenav-content {
+    overflow: hidden;
+}
+
+.accessibility-controls-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.accessibility-controls-content {
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+
+    p:nth-child(1) {
+        margin-bottom: 0;
+    }
+
+    .content-adjustments {
+        display: flex;
+
+        div {
+            display: flex;
+            flex-direction: column;
+            margin-right: 10px;
+
+            p {
+                margin-left: 5px;
+            }
+        }
+
+        div:nth-last-child(1) {
+            margin-right: 0;
+        }
+    }
+}
+
+.accessibility-controls-radio-group {
+    display: flex;
+    flex-direction: column;
+}
+
 .content {
     overflow: hidden;
     width: 100%;
@@ -57,6 +130,7 @@
     .map-container {
         width: 100%;
         height: 100%;
+
         /** force mapbox logo to display */
         .mapboxgl-ctrl-bottom-left .mapboxgl-ctrl {
             display: block !important;

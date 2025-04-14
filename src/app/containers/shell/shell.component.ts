@@ -3,7 +3,12 @@ import { CUSTOM_ELEMENTS_SCHEMA, Component, Input, InputSignal, NgZone, computed
 import { toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatRadioChange, MatRadioModule } from '@angular/material/radio';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Params, Router } from '@angular/router';
 import { DetailsPanelComponent } from '@components/details-panel/details-panel.component';
@@ -25,7 +30,9 @@ import { DataService } from '@core/services/data.service';
 import { FilterService } from '@core/services/filter.service';
 import { MapService } from '@core/services/map.service';
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
+import { SignoutService } from '@core/services/signout.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
+import { UserDetailsService } from '@core/services/user-details.service';
 import { UtilService } from '@core/services/utils.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { FeatureCollection, GeoJsonProperties, Geometry, Polygon } from 'geojson';
@@ -41,9 +48,14 @@ import { EMPTY, Observable, combineLatest, filter, forkJoin, map, of, switchMap,
         MinimapComponent,
         ResultsPanelComponent,
         AsyncPipe,
+        MatSidenavModule,
         MatToolbarModule,
         MatIconModule,
         MatButtonModule,
+        MatRadioModule,
+        MatSlideToggleModule,
+        MatMenuModule,
+        MatDividerModule,
     ],
     templateUrl: './shell.component.html',
     styleUrl: './shell.component.scss',
@@ -61,6 +73,8 @@ export class ShellComponent {
     readonly #settings = inject(SettingsService);
     readonly #spatialQueryService = inject(SpatialQueryService);
     readonly #utilService = inject(UtilService);
+    readonly #userDetailsService = inject(UserDetailsService);
+    readonly #signoutService = inject(SignoutService);
     readonly #zone = inject(NgZone);
 
     public contextData$: Observable<FeatureCollection<Geometry, GeoJsonProperties>[]>;
@@ -71,6 +85,8 @@ export class ShellComponent {
     public showMinimap: boolean = true;
     public spatialFilterEnabled = this.#spatialQueryService.spatialFilterEnabled;
     public title = 'IRIS';
+    public userEmail = 'loading...';
+    public menuOpened = false;
 
     // get map state from route query params
     public bearing: InputSignal<number> = input<number, number>(0, { transform: numberAttribute });
@@ -128,16 +144,82 @@ export class ShellComponent {
                 )
                 .subscribe();
         });
+
+        this.#userDetailsService.get().subscribe(
+            (userDetails) => {
+                this.userEmail = userDetails.email;
+            },
+            (error) => {
+                console.error(`An error has occured: ${error}`);
+                this.userEmail = 'Loading...';
+            },
+        );
     }
 
-    public handleColorBlindSwitchChange(event: Event): void {
-        const colorBlindMode = (event.target as HTMLInputElement).checked;
-        this.setColorBlindMode(colorBlindMode);
-        this.#settings.set(SETTINGS.ColorBlindMode, colorBlindMode);
+    public handleFontSizeSwitchChange(event: MatRadioChange): void {
+        this.setFontSize(event.value);
     }
 
-    private setColorBlindMode(colorBlindMode: boolean): void {
-        this.#document?.body?.setAttribute('color-blind-mode', colorBlindMode.toString());
+    private setFontSize(fontSize: string): void {
+        const fontSizeClass = `font-size-${fontSize}`;
+        const allFontSizeClasses = ['font-size-medium', 'font-size-large', 'font-size-xlarge'];
+
+        this.replaceGlobalClasses(fontSizeClass, allFontSizeClasses);
+    }
+
+    public handleLineHeightSwitchChange(event: MatRadioChange): void {
+        this.setLineHeight(event.value);
+    }
+
+    private setLineHeight(fontSize: string): void {
+        const lineHeightClass = `line-height-${fontSize}`;
+        const allLineHeightClasses = ['line-height-dense', 'line-height-normal', 'line-height-loose'];
+
+        this.replaceGlobalClasses(lineHeightClass, allLineHeightClasses);
+    }
+
+    public handleLetterSpacingSwitchChange(event: MatRadioChange): void {
+        this.setLetterSpacing(event.value);
+    }
+
+    private setLetterSpacing(letterSpacing: string): void {
+        const letterSpacingClass = `letter-spacing-${letterSpacing}`;
+        const allLetterSpacingClasses = ['letter-spacing-dense', 'letter-spacing-normal', 'letter-spacing-loose'];
+
+        this.replaceGlobalClasses(letterSpacingClass, allLetterSpacingClasses);
+    }
+
+    private replaceGlobalClasses(classToAdd: string, classesToRemove: string[]): void {
+        classesToRemove.forEach((classToRemove) => {
+            if (this.#document?.body?.classList?.contains(classToRemove)) {
+                this.#document?.body?.classList?.remove(classToRemove);
+            }
+        });
+
+        this.#document?.body?.classList.add(classToAdd);
+    }
+
+    public handleColourBlindSwitchChange(event: MatSlideToggleChange): void {
+        const colourBlindMode = event.checked;
+        this.setColourBlindMode(colourBlindMode);
+        this.#settings.set(SETTINGS.ColourBlindMode, colourBlindMode);
+    }
+
+    private setColourBlindMode(colourBlindMode: boolean): void {
+        this.#document?.body?.setAttribute('colour-blind-mode', colourBlindMode.toString());
+    }
+
+    public handleMenuOpened(): void {
+        this.menuOpened = true;
+    }
+
+    public handleMenuClosed(): void {
+        this.menuOpened = false;
+    }
+
+    public handleSignout(): void {
+        this.#signoutService.voidSession();
+        window.location.href = this.#signoutService.signoutLinks?.signoutLink?.href ?? '/';
     }
 
     private updateBuildingLayerColour(): void {

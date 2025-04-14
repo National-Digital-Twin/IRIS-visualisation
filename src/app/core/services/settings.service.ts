@@ -8,7 +8,7 @@ import { Theme } from '@core/types/theme';
 
 export const SETTINGS = {
     Theme: new SettingsKey<Theme>('theme', 'light', false),
-    ColorBlindMode: new SettingsKey<boolean>('color-blind-mode', false, true),
+    ColourBlindMode: new SettingsKey<boolean>('colour-blind-mode', false, true),
 } as const;
 
 @Injectable({ providedIn: 'root' })

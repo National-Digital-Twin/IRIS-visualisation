@@ -13,7 +13,7 @@ patches:
       kind: ServiceAccount
 labels:
   - pairs:
-      env: demo
+      env: dev
 images:
   - name: iris-transparent-proxy-image:template
     newName: xxxxxxxx.dkr.ecr.eu-west-2.amazonaws.com/iris/transparent-proxy

@@ -7,7 +7,7 @@ import { BuildingMap, BuildingModel, BuildingParts } from '@core/models/building
 import { MapLayerConfig } from '@core/models/map-layer-config.model';
 import { MinimalBuildingData, MinimalBuildingMap } from '@core/models/minimal-building-data.model';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
-import { WRITE_BACK_ENDPOINT } from '@core/tokens/write-back-endpoint.token';
+import { BACKEND_API_ENDPOINT } from '@core/tokens/backend-endpoint.token';
 import { EPCBuildingResponseModel } from '@core/types/building-response';
 import { FlagHistory } from '@core/types/flag-history';
 import { FlagMap, FlagResponse } from '@core/types/flag-response';
@@ -19,7 +19,7 @@ type Loading<T> = T | 'loading';
 @Injectable({ providedIn: 'root' })
 export class DataService {
     readonly #http: HttpClient = inject(HttpClient);
-    readonly #writeBackEndpoint = inject(WRITE_BACK_ENDPOINT);
+    readonly #backendApiEndpoint = inject(BACKEND_API_ENDPOINT);
     readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
 
     public viewportBuildingsLoading = signal<boolean>(false);
@@ -535,7 +535,7 @@ export class DataService {
     public flagToInvestigate(building: BuildingModel): Observable<FlagHistory[]> {
         return this.#http
             .post<NonNullable<BuildingModel['Flagged']>>(
-                `${this.#writeBackEndpoint}/flag-to-investigate`,
+                `${this.#backendApiEndpoint}/flag-to-investigate`,
                 {
                     uri: `http://nationaldigitaltwin.gov.uk/data#building_${building.UPRN}`,
                 },
@@ -579,7 +579,7 @@ export class DataService {
 
         return this.#http
             .post<NonNullable<BuildingModel['Flagged']>>(
-                `${this.#writeBackEndpoint}/invalidate-flag`,
+                `${this.#backendApiEndpoint}/invalidate-flag`,
                 {
                     flagUri: building.Flagged,
                     assessmentTypeOverride: `http://nationaldigitaltwin.gov.uk/ontology#${key}`,
