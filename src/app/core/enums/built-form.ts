@@ -1,4 +1,4 @@
-export enum BuildForm {
+export enum BuiltForm {
     SemiDetached = 'Semi Detached',
     EndTerrace = 'End Terrace',
     Detached = 'Detached',

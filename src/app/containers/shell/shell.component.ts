@@ -15,7 +15,6 @@ import { DetailsPanelComponent } from '@components/details-panel/details-panel.c
 import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
 import { FlagModalComponent, FlagModalData, FlagModalResult } from '@components/flag-modal/flag.modal.component';
 import { InformationComponent } from '@components/information/information.component';
-import { LoadingScreenComponent } from '@components/loading-screen/loading-screen.component';
 import { MapComponent } from '@components/map/map.component';
 import { MinimapComponent } from '@components/minimap/minimap.component';
 import { RemoveFlagModalComponent, RemoveFlagModalData, RemoveFlagModalResult } from '@components/remove-flag-modal/remove-flag-modal.component';
@@ -37,14 +36,13 @@ import { UserDetailsService } from '@core/services/user-details.service';
 import { UtilService } from '@core/services/utils.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { FeatureCollection, GeoJsonProperties, Geometry, Polygon } from 'geojson';
-import { EMPTY, Observable, combineLatest, filter, forkJoin, map, switchMap, take } from 'rxjs';
+import { EMPTY, Observable, combineLatest, filter, forkJoin, map, of, switchMap, take, tap } from 'rxjs';
 
 @Component({
     selector: 'c477-shell',
     imports: [
         CommonModule,
         DetailsPanelComponent,
-        LoadingScreenComponent,
         MainFiltersComponent,
         MapComponent,
         MinimapComponent,
@@ -112,9 +110,9 @@ export class ShellComponent {
 
     constructor() {
         this.contextData$ = combineLatest([this.#dataService.contextData$, toObservable(this.#dataService.buildings)]).pipe(
-            map(([contextData, buildingData]) => {
+            switchMap(([contextData, buildingData]) => {
                 if (!buildingData) {
-                    return [];
+                    return of([]);
                 }
                 return this.aggregateEPC(contextData, buildingData);
             }),
@@ -446,9 +444,9 @@ export class ShellComponent {
         if (this.filterProps && Object.keys(this.filterProps).length > 0) {
             const params = this.createQueryParams({
                 EPC: [],
-                PropertyType: [],
+                StructureUnitType: [],
                 PostCode: [],
-                BuildForm: [],
+                BuiltForm: [],
                 WindowGlazing: [],
                 WallConstruction: [],
                 WallInsulation: [],
@@ -483,12 +481,81 @@ export class ShellComponent {
         });
     }
 
+    /**
+     * Load ward EPC data from API
+     * @returns Observable of ward data with EPC information
+     */
+    private loadWardEPCData(): Observable<any> {
+        return this.#dataService.fetchWardEPCData().pipe(
+          tap({
+            next: (data) => {
+                console.log('Loaded ward EPC data from API');
+            },
+            error: (error) => {
+                console.error('Error loading ward EPC data:', error);
+            }
+          }),
+        );
+    }
+
+    /**
+     * Merges the EPC data from the API with the GeoJSON ward boundaries
+     */
     private aggregateEPC(
         contextData: FeatureCollection<Geometry, GeoJsonProperties>[],
         buildings: BuildingMap,
-    ): FeatureCollection<Geometry, GeoJsonProperties>[] {
-        const aggregateData = this.#utilService.createAddressPoints(Object.values(buildings).flat(), contextData);
-        return aggregateData;
+    ): Observable<FeatureCollection<Geometry, GeoJsonProperties>[]> {
+        // Get the ward boundaries GeoJSON
+        const wardBoundaries = contextData[0];
+
+        return this.loadWardEPCData().pipe(
+          map(wardEPCData => {
+            // Create a lookup map for access to EPC data by ward name
+            const epcByWard = new Map();
+
+            if (Array.isArray(wardEPCData)) {
+                wardEPCData.forEach((ward: any) => {
+                    if (ward?.name) {
+                        epcByWard.set(ward.name, ward);
+                    }
+                });
+            }
+
+            const enhancedWardData = JSON.parse(JSON.stringify(wardBoundaries)) as FeatureCollection<Geometry, GeoJsonProperties>;
+
+            // Merge EPC data into each feature's properties
+            if (enhancedWardData.features) {
+                enhancedWardData.features = enhancedWardData.features.map(feature => {
+                    const wardName = feature.properties?.WD23NM ?? '';
+
+                    const epcData = epcByWard.get(wardName);
+
+                    if (epcData) {
+                        const modalRating = this.#utilService.calculateModalRating(epcData);
+
+                        feature.properties = {
+                            ...feature.properties,
+                            a_rating: epcData.a_rating ?? 0,
+                            b_rating: epcData.b_rating ?? 0,
+                            c_rating: epcData.c_rating ?? 0,
+                            d_rating: epcData.d_rating ?? 0,
+                            e_rating: epcData.e_rating ?? 0,
+                            f_rating: epcData.f_rating ?? 0,
+                            g_rating: epcData.g_rating ?? 0,
+                            no_rating: epcData.no_rating ?? 0,
+                            modal_rating: modalRating,
+                            aggEPC: modalRating,
+                            color: this.#utilService.getEPCColour(modalRating)
+                        };
+                    }
+
+                    return feature;
+                });
+            }
+
+            return [enhancedWardData];
+          })
+        );
     }
 
     public showInfo(): void {

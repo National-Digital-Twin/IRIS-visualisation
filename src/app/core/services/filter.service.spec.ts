@@ -24,12 +24,12 @@ describe('FilterService', () => {
         });
 
         it('should merge a new filter with current filters and remove duplicate values', () => {
-            const newFilter = { BuildForm: ['SemiDetached'] };
-            const currentFilters = { BuildForm: ['EndTerrace'], EPC: ['A'] };
+            const newFilter = { BuiltForm: ['SemiDetached'] };
+            const currentFilters = { BuiltForm: ['EndTerrace'], EPC: ['A'] };
             const result = service.createFilterString(newFilter, currentFilters);
 
             expect(result).toMatch(
-                /(BuildForm-(SemiDetached|EndTerrace)-(SemiDetached|EndTerrace):EPC-A)|(EPC-A:BuildForm-(SemiDetached|EndTerrace)-(SemiDetached|EndTerrace))/,
+                /(BuiltForm-(SemiDetached|EndTerrace)-(SemiDetached|EndTerrace):EPC-A)|(EPC-A:BuiltForm-(SemiDetached|EndTerrace)-(SemiDetached|EndTerrace))/,
             );
 
             const parts = result.split(':');
@@ -37,20 +37,20 @@ describe('FilterService', () => {
         });
 
         it('should handle an empty currentFilters object', () => {
-            const newFilter = { PropertyType: ['Bungalow'] };
+            const newFilter = { StructureUnitType: ['Bungalow'] };
             const result = service.createFilterString(newFilter, {});
-            expect(result).toBe('PropertyType-Bungalow');
+            expect(result).toBe('StructureUnitType-Bungalow');
         });
     });
 
     describe('parseFilterString', () => {
         it('should parse a filter string into a FilterProps object', () => {
-            const filterStr = 'EPC-C-G:BuildForm-SemiDetached-EndTerrace:PropertyType-Bungalow';
+            const filterStr = 'EPC-C-G:BuiltForm-SemiDetached-EndTerrace:StructureUnitType-Bungalow';
             const parsed = service.parseFilterString(filterStr);
             expect(parsed).toEqual({
                 EPC: ['C', 'G'],
-                BuildForm: ['SemiDetached', 'EndTerrace'],
-                PropertyType: ['Bungalow'],
+                BuiltForm: ['SemiDetached', 'EndTerrace'],
+                StructureUnitType: ['Bungalow'],
             });
         });
 
@@ -65,7 +65,7 @@ describe('FilterService', () => {
 
     describe('integration between create and parse', () => {
         it('should be reversible: parsing a created filter string returns equivalent filter values', () => {
-            const newFilter = { EPC: ['C', 'G'], BuildForm: ['SemiDetached'] };
+            const newFilter = { EPC: ['C', 'G'], BuiltForm: ['SemiDetached'] };
             const filterStr = service.createFilterString(newFilter);
             const parsed = service.parseFilterString(filterStr);
 

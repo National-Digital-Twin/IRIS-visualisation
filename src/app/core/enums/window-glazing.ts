@@ -1,10 +1,10 @@
 export enum WindowGlazing {
-    DoubleGlazedAfter2002Window = 'Double Glazed After 2002 Window',
-    DoubleGlazedBefore2002Window = 'Double Glazed Before 2002 Window',
-    DoubleGlazedWindow = 'Double Glazed Window',
-    SecondaryGlazedWindow = 'Secondary Glazed Window',
-    SingleGlazedWindow = 'Single Glazed Window',
-    TripleGlazedWindow = 'Triple Glazed Window',
+    DoubleGlazingAfter2002 = 'Double Glazed After 2002 Window',
+    DoubleGlazingBefore2002 = 'Double Glazed Before 2002 Window',
+    DoubleGlazing = 'Double Glazed Window',
+    SecondaryGlazing = 'Secondary Glazed Window',
+    SingleGlazing = 'Single Glazed Window',
+    TripleGlazing = 'Triple Glazed Window',
     NoData = 'No Data',
 }
 

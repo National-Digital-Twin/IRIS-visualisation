@@ -1,14 +1,14 @@
 export enum WallConstruction {
-    GraniteOrWhinstoneWall = 'Granite Or Whinstone Wall',
-    SandstoneWall = 'Sandstone Wall',
-    SandstoneOrLimestoneWall = 'Sandstone Or Limestone Wall',
-    SolidBrickWall = 'Solid Brick Wall',
+    GraniteOrWhinstone = 'Granite Or Whinstone Wall',
+    Sandstone = 'Sandstone Wall',
+    SandstoneOrLimestone = 'Sandstone Or Limestone Wall',
+    SolidBrick = 'Solid Brick Wall',
     CavityWall = 'Cavity Wall',
-    TimberFrameWall = 'Timber Frame Wall',
-    SystemBuiltWall = 'System Built Wall',
+    TimberFrame = 'Timber Frame Wall',
+    SystemBuilt = 'System Built Wall',
     CobWall = 'Cob Wall',
     ParkHomeWall = 'Park Home Wall',
-    Wall = 'Other', //replaces PartOfBuilding
+    Other = 'Other', //replaces PartOfBuilding
     NoData = 'No Data',
 }
 

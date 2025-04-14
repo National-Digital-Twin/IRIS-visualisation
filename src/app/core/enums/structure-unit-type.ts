@@ -1,4 +1,4 @@
-export enum PropertyType {
+export enum StructureUnitType {
     House = 'House',
     Flat = 'Flat',
     Bungalow = 'Bungalow',

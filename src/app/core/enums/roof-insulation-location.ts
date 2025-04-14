@@ -1,17 +1,18 @@
 export enum RoofInsulationLocation {
-    RaftersRoofInsulation = 'Rafters Roof Insulation',
-    JoistsRoofInsulation = 'Joists Roof Insulation',
+    InsulatedAtRafters = 'Rafters Roof Insulation',
+    InsulatedAtJoists = 'Joists Roof Insulation',
     CeilingInsulation = 'Ceiling Insulation',
     FlatRoofInsulation = 'Flat Roof Insulation',
     SlopingCeilingRoofInsulation = 'Sloping Ceiling Roof Insulation',
     AssumedNoInsulation = 'Assumed No Insulation',
     AssumedLoftInsulation = 'Assumed Loft Insulation',
     LoftInsulation = 'Loft Insulation',
-    AssumedLimitedInsulation = 'Assumed Limited Insulation',
+    LimitedInsulationAssumed = 'Assumed Limited Insulation',
     LimitedInsulation = 'Limited Insulation',
     InsulatedAssumed = 'Insulated Assumed',
-    NoInsulationAssumed = 'No Insulation Assumed',
+    NoInsulationAssumedInRoof = 'No Insulation Assumed',
     ThatchedWithAdditionalRoofInsulation = 'Thatched With Additional Roof Insulation',
+    NoInsulationInRoof = 'No Insulation',
     NoData = 'No Data',
 }
 

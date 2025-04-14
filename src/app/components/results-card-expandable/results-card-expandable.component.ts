@@ -30,13 +30,13 @@ export class ResultsCardExpandableComponent {
     public downloadData: OutputEmitterRef<DownloadBuilding> = output();
 
     public parentDataset: BuildingModel = {
-        BuildForm: undefined,
+        BuiltForm: undefined,
         EPC: undefined,
         FullAddress: '',
-        InspectionDate: undefined,
+        LodgementDate: undefined,
         ParentTOID: '',
         PostCode: undefined,
-        PropertyType: undefined,
+        StructureUnitType: undefined,
         UPRN: '',
         Flagged: undefined,
         SAPPoints: undefined,

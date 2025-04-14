@@ -14,12 +14,12 @@ import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/sl
 import { LabelComponent } from '@components/label/label.component';
 import { FilterPanelComponent } from '@containers/filter-panel/filter-panel.component';
 import {
-    BuildForm,
+    BuiltForm,
     EPCRating,
     FloorConstruction,
     FloorInsulation,
     PostCode,
-    PropertyType,
+    StructureUnitType,
     RoofConstruction,
     RoofInsulationLocation,
     RoofInsulationThickness,
@@ -66,7 +66,7 @@ export class MainFiltersComponent {
     public addressForm: FormGroup;
     public epcRatings: Record<string, string> = EPCRating;
     public numberFilters: number = 0;
-    public propertyTypes: Record<string, string> = PropertyType;
+    public propertyTypes: Record<string, string> = StructureUnitType;
     public addressOptions: WritableSignal<AddressSearchData[]> = signal([]);
 
     private advancedFiltersForm?: FormGroup;
@@ -170,7 +170,7 @@ export class MainFiltersComponent {
                 this.numberFilters = 0;
                 this.setAdvancedFilters.emit({
                     PostCode: [],
-                    BuildForm: [],
+                    BuiltForm: [],
                     WindowGlazing: [],
                     WallConstruction: [],
                     WallInsulation: [],
@@ -196,7 +196,7 @@ export class MainFiltersComponent {
     }
 
     public propertyTypeChange(e: MatSelectChange): void {
-        this.setRouteParams.emit({ PropertyType: e.value });
+        this.setRouteParams.emit({ StructureUnitType: e.value });
     }
 
     public ratingChange(e: MatSelectChange): void {
@@ -216,7 +216,7 @@ export class MainFiltersComponent {
 
         this.advancedFiltersForm = this.#fb.group<AdvancedFiltersFormModel>({
             PostCode: [filterProps.PostCode as unknown as PostCode],
-            BuildForm: [filterProps.BuildForm as unknown as BuildForm],
+            BuiltForm: [filterProps.BuiltForm as unknown as BuiltForm],
             YearOfAssessment: [filterProps.YearOfAssessment as unknown as YearOfAssessment],
             WindowGlazing: [filterProps.WindowGlazing as unknown as WindowGlazing],
             WallConstruction: [filterProps.WallConstruction as unknown as WallConstruction],
@@ -239,7 +239,7 @@ export class MainFiltersComponent {
 
     public clearPropertyType($event: Event): void {
         $event.stopPropagation();
-        this.setRouteParams.emit({ PropertyType: [] });
+        this.setRouteParams.emit({ StructureUnitType: [] });
     }
 
     public clearAll(): void {

@@ -17,8 +17,8 @@
 
                 <div class="labels">
                     <c477-label [epcRating]="building.EPC" [sapPoints]="building.SAPPoints" [expired]="epcExpired()" />
-                    @if (building.PropertyType) {
-                        <c477-label>{{ building.PropertyType }}</c477-label>
+                    @if (building.StructureUnitType) {
+                        <c477-label>{{ building.StructureUnitType }}</c477-label>
                     }
                 </div>
             </div>
@@ -57,8 +57,8 @@
         <dl class="horizontal">
             <dt>Built form:</dt>
             <dd>
-                @if (building.BuildForm) {
-                    {{ buildForm[building!.BuildForm!] }}
+                @if (building.BuiltForm) {
+                    {{ builtForm[building!.BuiltForm!] }}
                 } @else {
                     No data
                 }
@@ -66,11 +66,11 @@
 
             <dt>Inspection date:</dt>
             <dd [ngClass]="{ warn: expired }">
-                @if (building.InspectionDate) {
+                @if (building.LodgementDate) {
                     @if (expired) {
                         <mat-icon>warning</mat-icon>
                     }
-                    {{ building.InspectionDate | date }}
+                    {{ building.LodgementDate | date }}
                 } @else {
                     No data
                 }
