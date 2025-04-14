@@ -1,6 +1,6 @@
 import { InjectionToken } from '@angular/core';
 
-export const WRITE_BACK_ENDPOINT = new InjectionToken<string>('WRITE_BACK_ENDPOINT', {
+export const BACKEND_API_ENDPOINT = new InjectionToken<string>('BACKEND_API_ENDPOINT', {
     providedIn: 'root',
     factory: (): string => `/api`,
 });

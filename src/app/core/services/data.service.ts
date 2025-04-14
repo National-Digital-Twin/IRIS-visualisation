@@ -6,10 +6,10 @@ import { InvalidateFlagReason } from '@core/enums/invalidate-flag-reason';
 import { BuildingMap, BuildingModel, BuildingParts } from '@core/models/building.model';
 import { MapLayerConfig } from '@core/models/map-layer-config.model';
 import { SPARQLReturn, TableRow } from '@core/models/rdf-data.model';
+import { BACKEND_API_ENDPOINT } from '@core/tokens/backend-endpoint.token';
 import { EPC_DATA_FILE_NAME, NON_EPC_DATA_FILE_NAME, SAP_DATA_FILE_NAME } from '@core/tokens/cache.token';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
-import { WRITE_BACK_ENDPOINT } from '@core/tokens/write-back-endpoint.token';
 import { EPCBuildingResponseModel, NoEPCBuildingResponseModel } from '@core/types/building-response';
 import { FlagHistory } from '@core/types/flag-history';
 import { FlagMap, FlagResponse } from '@core/types/flag-response';
@@ -23,7 +23,7 @@ type Loading<T> = T | 'loading';
 export class DataService {
     readonly #http: HttpClient = inject(HttpClient);
     readonly #searchEndpoint: string = inject(SEARCH_ENDPOINT);
-    readonly #writeBackEndpoint = inject(WRITE_BACK_ENDPOINT);
+    readonly #backendApiEndpoint = inject(BACKEND_API_ENDPOINT);
     readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
 
     public activeFlag = signal<Loading<FlagHistory> | undefined>(undefined);
@@ -177,10 +177,8 @@ export class DataService {
         const buildingMap: BuildingMap = {};
         buildings.forEach((row: BuildingModel) => {
             /** add 'none' for buildings with no EPC rating */
-            if (row.EPC === undefined) {
-                row.EPC = EPCRating.none;
-            }
-            const toid = row.TOID ? row.TOID : row.ParentTOID;
+            row.EPC ??= EPCRating.none;
+            const toid = row.TOID ?? row.ParentTOID;
             if (!toid) {
                 return;
             }
@@ -205,7 +203,7 @@ export class DataService {
         const buildingMap: BuildingMap = {};
 
         buildings.forEach((row: EPCBuildingResponseModel) => {
-            const toid = row.TOID ? row.TOID : row.ParentTOID;
+            const toid = row.TOID ?? row.ParentTOID;
 
             /** if there is no TOID the building cannot be visualised */
             if (!toid) {
@@ -281,7 +279,7 @@ export class DataService {
                 YearOfAssessment: undefined,
             };
             /** if there is no TOID the building cannot be visualised */
-            const toid = building.TOID ? building.TOID : building.ParentTOID;
+            const toid = building.TOID ?? building.ParentTOID;
             if (!toid) return;
             if (buildingMap[toid]) {
                 buildingMap[toid].push(building);
@@ -414,7 +412,7 @@ export class DataService {
     public flagToInvestigate(building: BuildingModel): Observable<FlagHistory[]> {
         return this.#http
             .post<NonNullable<BuildingModel['Flagged']>>(
-                `${this.#writeBackEndpoint}/flag-to-investigate`,
+                `${this.#backendApiEndpoint}/flag-to-investigate`,
                 {
                     uri: `http://nationaldigitaltwin.gov.uk/data#building_${building.UPRN}`,
                 },
@@ -422,7 +420,7 @@ export class DataService {
             )
             .pipe(
                 switchMap((flagUri) => {
-                    const toid = building.TOID ? building.TOID : building.ParentTOID;
+                    const toid = building.TOID ?? building.ParentTOID;
                     if (!toid) throw new Error(`Building ${building.UPRN} has no TOID`);
                     building.Flagged = flagUri;
                     const flag: FlagResponse = {
@@ -458,7 +456,7 @@ export class DataService {
 
         return this.#http
             .post<NonNullable<BuildingModel['Flagged']>>(
-                `${this.#writeBackEndpoint}/invalidate-flag`,
+                `${this.#backendApiEndpoint}/invalidate-flag`,
                 {
                     flagUri: building.Flagged,
                     assessmentTypeOverride: `http://nationaldigitaltwin.gov.uk/ontology#${key}`,
@@ -467,7 +465,7 @@ export class DataService {
             )
             .pipe(
                 switchMap(() => {
-                    const toid = building.TOID ? building.TOID : building.ParentTOID;
+                    const toid = building.TOID ?? building.ParentTOID;
                     if (!toid) throw new Error(`Building ${building.UPRN} has no TOID`);
                     /* set flagged property to undefined */
                     building.Flagged = undefined;
@@ -508,7 +506,7 @@ export class DataService {
     private mapFlagsToToids(flags: FlagResponse[]): FlagMap {
         const flagMap: FlagMap = {};
         flags.forEach((flag) => {
-            const toid = flag.TOID ? flag.TOID : flag.ParentTOID;
+            const toid = flag.TOID ?? flag.ParentTOID;
             if (!toid) throw new Error(`Flag ${flag.UPRN} has no TOID`);
             if (flagMap[toid]) {
                 flagMap[toid].push(flag);
@@ -522,7 +520,7 @@ export class DataService {
     private mapSAPPointsToToids(data: SAPPoint[]): SAPPointMap {
         const map: SAPPointMap = {};
         data.forEach((d) => {
-            const toid = d.TOID ? d.TOID : d.ParentTOID;
+            const toid = d.TOID ?? d.ParentTOID;
             if (!toid) return;
             if (map[toid]) {
                 map[toid].push(d);

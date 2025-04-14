@@ -1,58 +1,151 @@
-<mat-toolbar class="toolbar-container">
-    <h1 class="logo">
-        <img src="/assets/iris-logo.svg" alt="NDTP Logo" />
-        <span>IRIS</span>
-    </h1>
-    <button mat-icon-button class="control" aria-label="help" (keydown.space)="showInfo()" (click)="showInfo()" tabindex="0">
-        <mat-icon aria-label="help">help_outlined</mat-icon>
-    </button>
-</mat-toolbar>
+<mat-sidenav-container fullscreen>
+    <mat-sidenav #sidenav mode="over" position="end" [fixedInViewport]="true">
+        <mat-toolbar class="accessibility-controls-toolbar">
+            <div class="accessibility-controls-heading">
+                <mat-icon aria-label="accessibility settings" svgIcon="accessibility_custom"></mat-icon>
+                <span>Accessibility Controls</span>
+            </div>
+            <button mat-icon-button class="control" aria-label="close accessibility controls" (click)="sidenav.close()" tabIndex="0">
+                <mat-icon aria-label="close accessibility controls">close</mat-icon>
+            </button>
+        </mat-toolbar>
+        <div class="accessibility-controls-content">
+            <p>Colour Adjustments</p>
+            <div>
+                <p>Theme</p>
+                <mat-radio-group aria-label="select a theme option" class="accessibility-controls-radio-group">
+                    <mat-radio-button disabled>Auto</mat-radio-button>
+                    <mat-radio-button [checked]="true" [value]="0">Light</mat-radio-button>
+                    <mat-radio-button disabled>Dark</mat-radio-button>
+                </mat-radio-group>
+            </div>
+            <p>Content Adjustments</p>
+            <div class="content-adjustments">
+                <div>
+                    <p>Font Size</p>
+                    <mat-radio-group
+                        aria-label="select a content adjustment option"
+                        class="accessibility-controls-radio-group"
+                        (change)="handleFontSizeSwitchChange($event)"
+                    >
+                        <mat-radio-button value="medium" checked>Meduim</mat-radio-button>
+                        <mat-radio-button value="large">Large</mat-radio-button>
+                        <mat-radio-button value="xlarge">X-Large</mat-radio-button>
+                    </mat-radio-group>
+                </div>
+                <div>
+                    <p>Line Height</p>
+                    <mat-radio-group
+                        aria-label="select a line height adjustment option"
+                        class="accessibility-controls-radio-group"
+                        (change)="handleLineHeightSwitchChange($event)"
+                    >
+                        <mat-radio-button value="dense">Dense</mat-radio-button>
+                        <mat-radio-button value="normal" checked>Normal</mat-radio-button>
+                        <mat-radio-button value="loose">Loose</mat-radio-button>
+                    </mat-radio-group>
+                </div>
+                <div>
+                    <p>Letter Spacing</p>
+                    <mat-radio-group
+                        aria-label="select a letter spacing adjustment option"
+                        class="accessibility-controls-radio-group"
+                        (change)="handleLetterSpacingSwitchChange($event)"
+                    >
+                        <mat-radio-button value="dense">Dense</mat-radio-button>
+                        <mat-radio-button value="normal" checked>Normal</mat-radio-button>
+                        <mat-radio-button value="loose">Loose</mat-radio-button>
+                    </mat-radio-group>
+                </div>
+            </div>
+            <p>Colour Vision Deficiency</p>
+            <div>
+                <mat-slide-toggle (change)="handleColourBlindSwitchChange($event)">Enable</mat-slide-toggle>
+            </div>
+        </div>
+    </mat-sidenav>
 
-<div class="content">
-    @if (loading()) {
-        <c477-loading-screen />
-    } @else {
-        <c477-main-filters
-            [filterProps]="filterProps"
-            (clearAllFilters)="clearAllFilters()"
-            (setRouteParams)="setFilterParams($event)"
-            (setAdvancedFilters)="setAdvancedFilters($event)"
-            (addressSelected)="setSelectedBuildingTOID($event)"
-        />
+    <mat-sidenav-content>
+        <mat-toolbar class="toolbar-container">
+            <h1 class="logo">
+                <img src="/assets/iris-logo.svg" alt="NDTP Logo" />
+                <span>IRIS</span>
+            </h1>
+            <button
+                mat-icon-button
+                class="control"
+                aria-label="profile button"
+                [matMenuTriggerFor]="menu"
+                (menuOpened)="handleMenuOpened()"
+                (menuClosed)="handleMenuClosed()"
+            >
+                <mat-icon aria-label="profille icon" [ngClass]="{ 'profile-filled': this.menuOpened }">account_circle</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu" class="profile-menu">
+                <p>{{ this.userEmail }}</p>
+                <mat-divider></mat-divider>
+                <button mat-menu-item class="control" aria-label="help" (keydown.space)="showInfo()" (click)="showInfo()">
+                    <mat-icon aria-label="user guide">account_box</mat-icon>
+                    <span>User guide</span>
+                </button>
+                <button mat-menu-item class="control" aria-label="accessibility settings button" (click)="sidenav.open()">
+                    <mat-icon aria-label="accessibility settings">settings</mat-icon>
+                    <span>Settings</span>
+                </button>
+                <button mat-menu-item class="control" aria-label="sign out button" (click)="handleSignout()">
+                    <mat-icon aria-label="sign out">logout</mat-icon>
+                    <span>Sign out</span>
+                </button>
+            </mat-menu>
+        </mat-toolbar>
 
-        <c477-results-panel (flag)="onFlag($event)" (removeFlag)="onRemoveFlag($event)" (resultsPanelCollapsed)="resultsPanelCollapsed = $event" />
+        <div class="content">
+            @if (loading()) {
+                <c477-loading-screen />
+            } @else {
+                <c477-main-filters
+                    [filterProps]="filterProps"
+                    (clearAllFilters)="clearAllFilters()"
+                    (setRouteParams)="setFilterParams($event)"
+                    (setAdvancedFilters)="setAdvancedFilters($event)"
+                    (addressSelected)="setSelectedBuildingTOID($event)"
+                />
 
-        <c477-details-panel
-            (closePanel)="closeDetails()"
-            (downloadData)="downloadData($event)"
-            (flag)="onFlag($event)"
-            (removeFlag)="onRemoveFlag($event)"
-            [resultsPanelCollapsed]="resultsPanelCollapsed"
-        />
-    }
-    <div class="map-container">
-        <c477-map
-            [contextData]="(contextData$ | async) || []"
-            [spatialFilterEnabled]="spatialFilterEnabled()"
-            [mapConfig]="mapConfig"
-            (setRouteParams)="setRouteMapParams($event)"
-            (deleteSpatialFilter)="deleteSpatialFilter()"
-            (downloadAddresses)="downloadAddresses()"
-            (resetMapView)="resetMapView()"
-            (resetNorth)="resetNorth()"
-            (tilt2D)="tilt2D($event)"
-            (zoomIn)="zoomIn()"
-            (zoomOut)="zoomOut()"
-            (setSearchArea)="setSearchArea($event)"
-            (setSelectedBuildingTOID)="setSelectedBuildingTOID($event)"
-            (setMinimapData)="minimapData = $event"
-            (toggleMinimap)="showMinimap = !showMinimap"
-        />
-    </div>
-    @if (showMinimap) {
-        <c477-minimap [minimapData]="minimapData" />
-    }
-</div>
+                <c477-results-panel (flag)="onFlag($event)" (removeFlag)="onRemoveFlag($event)" (resultsPanelCollapsed)="resultsPanelCollapsed = $event" />
+
+                <c477-details-panel
+                    (closePanel)="closeDetails()"
+                    (downloadData)="downloadData($event)"
+                    (flag)="onFlag($event)"
+                    (removeFlag)="onRemoveFlag($event)"
+                    [resultsPanelCollapsed]="resultsPanelCollapsed"
+                />
+            }
+            <div class="map-container">
+                <c477-map
+                    [contextData]="(contextData$ | async) || []"
+                    [spatialFilterEnabled]="spatialFilterEnabled()"
+                    [mapConfig]="mapConfig"
+                    (setRouteParams)="setRouteMapParams($event)"
+                    (deleteSpatialFilter)="deleteSpatialFilter()"
+                    (downloadAddresses)="downloadAddresses()"
+                    (resetMapView)="resetMapView()"
+                    (resetNorth)="resetNorth()"
+                    (tilt2D)="tilt2D($event)"
+                    (zoomIn)="zoomIn()"
+                    (zoomOut)="zoomOut()"
+                    (setSearchArea)="setSearchArea($event)"
+                    (setSelectedBuildingTOID)="setSelectedBuildingTOID($event)"
+                    (setMinimapData)="minimapData = $event"
+                    (toggleMinimap)="showMinimap = !showMinimap"
+                />
+            </div>
+            @if (showMinimap) {
+                <c477-minimap [minimapData]="minimapData" />
+            }
+        </div>
+    </mat-sidenav-content>
+</mat-sidenav-container>
 
 <!-- SPDX-License-Identifier: Apache-2.0
 © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
