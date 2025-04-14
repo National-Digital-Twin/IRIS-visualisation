@@ -177,10 +177,8 @@ export class DataService {
         const buildingMap: BuildingMap = {};
         buildings.forEach((row: BuildingModel) => {
             /** add 'none' for buildings with no EPC rating */
-            if (row.EPC === undefined) {
-                row.EPC = EPCRating.none;
-            }
-            const toid = row.TOID ? row.TOID : row.ParentTOID;
+            row.EPC ??= EPCRating.none;
+            const toid = row.TOID ?? row.ParentTOID;
             if (!toid) {
                 return;
             }
@@ -205,7 +203,7 @@ export class DataService {
         const buildingMap: BuildingMap = {};
 
         buildings.forEach((row: EPCBuildingResponseModel) => {
-            const toid = row.TOID ? row.TOID : row.ParentTOID;
+            const toid = row.TOID ?? row.ParentTOID;
 
             /** if there is no TOID the building cannot be visualised */
             if (!toid) {
@@ -281,7 +279,7 @@ export class DataService {
                 YearOfAssessment: undefined,
             };
             /** if there is no TOID the building cannot be visualised */
-            const toid = building.TOID ? building.TOID : building.ParentTOID;
+            const toid = building.TOID ?? building.ParentTOID;
             if (!toid) return;
             if (buildingMap[toid]) {
                 buildingMap[toid].push(building);
@@ -422,7 +420,7 @@ export class DataService {
             )
             .pipe(
                 switchMap((flagUri) => {
-                    const toid = building.TOID ? building.TOID : building.ParentTOID;
+                    const toid = building.TOID ?? building.ParentTOID;
                     if (!toid) throw new Error(`Building ${building.UPRN} has no TOID`);
                     building.Flagged = flagUri;
                     const flag: FlagResponse = {
@@ -467,7 +465,7 @@ export class DataService {
             )
             .pipe(
                 switchMap(() => {
-                    const toid = building.TOID ? building.TOID : building.ParentTOID;
+                    const toid = building.TOID ?? building.ParentTOID;
                     if (!toid) throw new Error(`Building ${building.UPRN} has no TOID`);
                     /* set flagged property to undefined */
                     building.Flagged = undefined;
@@ -508,7 +506,7 @@ export class DataService {
     private mapFlagsToToids(flags: FlagResponse[]): FlagMap {
         const flagMap: FlagMap = {};
         flags.forEach((flag) => {
-            const toid = flag.TOID ? flag.TOID : flag.ParentTOID;
+            const toid = flag.TOID ?? flag.ParentTOID;
             if (!toid) throw new Error(`Flag ${flag.UPRN} has no TOID`);
             if (flagMap[toid]) {
                 flagMap[toid].push(flag);
@@ -522,7 +520,7 @@ export class DataService {
     private mapSAPPointsToToids(data: SAPPoint[]): SAPPointMap {
         const map: SAPPointMap = {};
         data.forEach((d) => {
-            const toid = d.TOID ? d.TOID : d.ParentTOID;
+            const toid = d.TOID ?? d.ParentTOID;
             if (!toid) return;
             if (map[toid]) {
                 map[toid].push(d);

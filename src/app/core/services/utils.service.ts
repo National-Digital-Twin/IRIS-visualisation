@@ -448,7 +448,7 @@ export class UtilService {
 
             const pt = point([+p.longitude, +p.latitude], {
                 UPRN: p.UPRN,
-                TOID: p.TOID ? p.TOID : p.ParentTOID,
+                TOID: p.TOID ?? p.ParentTOID,
                 EPC: p.EPC,
             });
 

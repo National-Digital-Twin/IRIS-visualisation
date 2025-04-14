@@ -31,7 +31,7 @@ export class SignoutService {
 
     public voidSession(): void {
         if (this.signoutLinks) {
-            this.#http.get(this.signoutLinks!.oAuth2Signout);
+            this.#http.get(this.signoutLinks.oAuth2Signout);
         }
     }
 }
