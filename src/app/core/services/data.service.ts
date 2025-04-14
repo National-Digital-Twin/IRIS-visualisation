@@ -1,29 +1,24 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { EPCRating, FloorConstruction, RoofConstruction, WallConstruction, WindowGlazing } from '@core/enums';
 import { InvalidateFlagReason } from '@core/enums/invalidate-flag-reason';
 import { BuildingMap, BuildingModel, BuildingParts } from '@core/models/building.model';
 import { MapLayerConfig } from '@core/models/map-layer-config.model';
 import { MinimalBuildingData, MinimalBuildingMap } from '@core/models/minimal-building-data.model';
-import { SPARQLReturn, TableRow } from '@core/models/rdf-data.model';
-import { EPC_DATA_FILE_NAME, NON_EPC_DATA_FILE_NAME, SAP_DATA_FILE_NAME } from '@core/tokens/cache.token';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
-import { SEARCH_ENDPOINT } from '@core/tokens/search-endpoint.token';
 import { WRITE_BACK_ENDPOINT } from '@core/tokens/write-back-endpoint.token';
-import { EPCBuildingResponseModel, NoEPCBuildingResponseModel } from '@core/types/building-response';
+import { EPCBuildingResponseModel } from '@core/types/building-response';
 import { FlagHistory } from '@core/types/flag-history';
 import { FlagMap, FlagResponse } from '@core/types/flag-response';
-import { SAPPoint, SAPPointMap } from '@core/types/sap-point';
 import { FeatureCollection, GeoJsonProperties, Geometry } from 'geojson';
-import { EMPTY, Observable, Subscriber, catchError, combineLatest, first, forkJoin, map, of, switchMap, tap } from 'rxjs';
+import { EMPTY, Observable, catchError, first, forkJoin, map, of, switchMap, tap } from 'rxjs';
 
 type Loading<T> = T | 'loading';
 
 @Injectable({ providedIn: 'root' })
 export class DataService {
     readonly #http: HttpClient = inject(HttpClient);
-    readonly #searchEndpoint: string = inject(SEARCH_ENDPOINT);
     readonly #writeBackEndpoint = inject(WRITE_BACK_ENDPOINT);
     readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
 
@@ -227,10 +222,8 @@ export class DataService {
         const buildingMap: BuildingMap = {};
         buildings.forEach((row: BuildingModel) => {
             /** add 'none' for buildings with no EPC rating */
-            if (row.EPC === undefined) {
-                row.EPC = EPCRating.none;
-            }
-            const toid = row.TOID ? row.TOID : row.ParentTOID;
+            row.EPC ??= EPCRating.none;
+            const toid = row.TOID ?? row.ParentTOID;
             if (!toid) {
                 return;
             }
@@ -283,12 +276,12 @@ export class DataService {
             const building: MinimalBuildingData = {
                 UPRN: row.uprn,
                 EPC: row.energy_rating ? this.parseEPCRating(row.energy_rating) : EPCRating.none,
-                fullAddress: row.first_line_of_address || undefined,
+                fullAddress: row.first_line_of_address ?? undefined,
                 latitude: row.latitude ? parseFloat(row.latitude) : undefined,
                 longitude: row.longitude ? parseFloat(row.longitude) : undefined,
-                addressText: row.addressText || undefined,
-                TOID: row.toid || undefined,
-                StructureUnitType: row.structure_unit_type || undefined
+                addressText: row.addressText ?? undefined,
+                TOID: row.toid ?? undefined,
+                StructureUnitType: row.structure_unit_type ?? undefined
             };
 
             return building;
@@ -337,7 +330,7 @@ export class DataService {
         const buildingMap: MinimalBuildingMap = {};
         
         newBuildings.forEach(building => {
-            const toid = building.TOID ? building.TOID : building.ParentTOID;
+            const toid = building.TOID ?? building.ParentTOID;;
 
             if (!toid) return;
 
@@ -550,7 +543,7 @@ export class DataService {
             )
             .pipe(
                 switchMap((flagUri) => {
-                    const toid = building.TOID ? building.TOID : building.ParentTOID;
+                    const toid = building.TOID ?? building.ParentTOID;
                     if (!toid) throw new Error(`Building ${building.UPRN} has no TOID`);
                     building.Flagged = flagUri;
                     const flag: FlagResponse = {
@@ -595,7 +588,7 @@ export class DataService {
             )
             .pipe(
                 switchMap(() => {
-                    const toid = building.TOID ? building.TOID : building.ParentTOID;
+                    const toid = building.TOID ?? building.ParentTOID;
                     if (!toid) throw new Error(`Building ${building.UPRN} has no TOID`);
                     /* set flagged property to undefined */
                     building.Flagged = undefined;
@@ -636,7 +629,7 @@ export class DataService {
     private mapFlagsToToids(flags: FlagResponse[]): FlagMap {
         const flagMap: FlagMap = {};
         flags.forEach((flag) => {
-            const toid = flag.TOID ? flag.TOID : flag.ParentTOID;
+            const toid = flag.TOID ?? flag.ParentTOID;
             if (!toid) throw new Error(`Flag ${flag.UPRN} has no TOID`);
             if (flagMap[toid]) {
                 flagMap[toid].push(flag);

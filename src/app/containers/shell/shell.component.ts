@@ -29,7 +29,7 @@ import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { UtilService } from '@core/services/utils.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { FeatureCollection, GeoJsonProperties, Geometry, Polygon } from 'geojson';
-import { EMPTY, Observable, catchError, combineLatest, filter, forkJoin, map, of, switchMap, take, tap } from 'rxjs';
+import { EMPTY, Observable, combineLatest, filter, forkJoin, map, of, switchMap, take, tap } from 'rxjs';
 
 @Component({
     selector: 'c477-shell',
@@ -433,7 +433,7 @@ export class ShellComponent {
 
             if (Array.isArray(wardEPCData)) {
                 wardEPCData.forEach((ward: any) => {
-                    if (ward && ward.name) {
+                    if (ward?.name) {
                         epcByWard.set(ward.name, ward);
                     }
                 });
@@ -444,7 +444,7 @@ export class ShellComponent {
             // Merge EPC data into each feature's properties
             if (enhancedWardData.features) {
                 enhancedWardData.features = enhancedWardData.features.map(feature => {
-                    const wardName = feature.properties?.WD23NM || '';
+                    const wardName = feature.properties?.WD23NM ?? '';
 
                     const epcData = epcByWard.get(wardName);
 
@@ -453,14 +453,14 @@ export class ShellComponent {
 
                         feature.properties = {
                             ...feature.properties,
-                            a_rating: epcData.a_rating || 0,
-                            b_rating: epcData.b_rating || 0,
-                            c_rating: epcData.c_rating || 0,
-                            d_rating: epcData.d_rating || 0,
-                            e_rating: epcData.e_rating || 0,
-                            f_rating: epcData.f_rating || 0,
-                            g_rating: epcData.g_rating || 0,
-                            no_rating: epcData.no_rating || 0,
+                            a_rating: epcData.a_rating ?? 0,
+                            b_rating: epcData.b_rating ?? 0,
+                            c_rating: epcData.c_rating ?? 0,
+                            d_rating: epcData.d_rating ?? 0,
+                            e_rating: epcData.e_rating ?? 0,
+                            f_rating: epcData.f_rating ?? 0,
+                            g_rating: epcData.g_rating ?? 0,
+                            no_rating: epcData.no_rating ?? 0,
                             modal_rating: modalRating,
                             aggEPC: modalRating,
                             color: this.#utilService.getEPCColour(modalRating)
@@ -470,9 +470,6 @@ export class ShellComponent {
                     return feature;
                 });
             }
-
-            const matchedCount = enhancedWardData.features?.filter(f => f.properties?.aggEPC).length || 0;
-            console.log(`Successfully matched EPC data for ${matchedCount} out of ${enhancedWardData.features?.length || 0} wards`);
 
             return [enhancedWardData];
           })
