@@ -248,10 +248,10 @@ export class DataService {
     ): Observable<MinimalBuildingData[]> {
 
         const params = new HttpParams()
-            .set('minLong', viewport.minLng.toString())
-            .set('minLat', viewport.minLat.toString())
-            .set('maxLong', viewport.maxLng.toString())
-            .set('maxLat', viewport.maxLat.toString());
+            .set('min_long', viewport.minLng.toString())
+            .set('min_lat', viewport.minLat.toString())
+            .set('max_long', viewport.maxLng.toString())
+            .set('max_lat', viewport.maxLat.toString());
 
         return this.#http.get<any[]>('/api/buildings', { 
             params, 
