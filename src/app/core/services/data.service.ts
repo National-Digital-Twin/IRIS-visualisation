@@ -185,7 +185,6 @@ export class DataService {
                                 building.BuiltForm !== undefined;
 
         if (!hasDetailedData && building.UPRN) {
-            console.log(`Loading missing details for building ${building.UPRN}`);
             this.loadBuildingDetails(building.UPRN).pipe(
             first()
             ).subscribe({
@@ -265,7 +264,6 @@ export class DataService {
             params, 
             withCredentials: true 
         }).pipe(
-            tap(response => console.log('API response:', response)), // Debug logging
             map(results => this.mapViewportAPIResponse(results)),
             catchError(error => {
                 console.error('Error fetching buildings:', error);
@@ -383,12 +381,9 @@ export class DataService {
             return of({} as BuildingModel);
         }
 
-        console.log(`Loading detailed data for building ${uprn}`);
-
         return this.#http.get<any>(`/api/buildings/${uprn}`, { 
             withCredentials: true 
         }).pipe(
-            tap(response => console.log('Building detail response:', response)),
             map(response => this.mapBuildingDetailResponse(response, uprn)),
             catchError(error => {
                 console.error(`Error loading details for building ${uprn}:`, error);
@@ -406,7 +401,7 @@ export class DataService {
         const detailedBuilding: BuildingModel = {
             ...existingData,
             UPRN: this.getPropertyValue(response, 'uprn'),
-            FullAddress: this.getPropertyValue(response, 'first_line_of_address'),
+            FullAddress: existingData.FullAddress,
             LodgementDate: this.getPropertyValue(response, 'lodgement_date'),
             BuiltForm: this.getPropertyValue(response, 'built_form'), 
             YearOfAssessment: this.getPropertyValue(response, 'lodgement_date') ? 
@@ -425,7 +420,6 @@ export class DataService {
         // Cache the detailed data for future use
         this.updateBuildingCache(detailedBuilding);
 
-        console.log(detailedBuilding)
         return detailedBuilding;
     }
 

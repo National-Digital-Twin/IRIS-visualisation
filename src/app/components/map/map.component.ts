@@ -424,7 +424,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                 minLng: bounds.getWest(),
                 maxLng: bounds.getEast()
             };
-        
+
             // Only load data when buildings become 3D models
             const zoom = this.#mapService.mapInstance.getZoom();
             if (zoom >= 16) {
@@ -434,7 +434,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                     this.#utilsService.createBuildingColourFilter();
                 },
                 error: (err) => {
-                    console.error('Error loading buildings for viewport:', err);
                     this.#dataService.viewportBuildingsLoading.set(false);
                 }
                 });
