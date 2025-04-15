@@ -533,7 +533,7 @@ export class ShellComponent {
         // Merge EPC data into each feature's properties
         if (enhancedWardData.features) {
             enhancedWardData.features = enhancedWardData.features.map(feature => {
-                const wardName = feature.properties?.WD23NM || '';
+                const wardName = feature.properties?.WD23NM ?? '';
 
                 const epcData = epcByWard.get(wardName);
 

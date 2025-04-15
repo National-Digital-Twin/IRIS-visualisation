@@ -5,10 +5,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipModule } from '@angular/material/tooltip';
 import { LegendComponent } from '@components/legend/legend.component';
-import { DataService } from '@core/services/data.service';
 import { MapLayerConfig } from '@core/models/map-layer-config.model';
 import { MinimapData } from '@core/models/minimap-data.model';
 import { URLStateModel } from '@core/models/url-state.model';
+import { DataService } from '@core/services/data.service';
 import { MapService } from '@core/services/map.service';
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
 import { UtilService } from '@core/services/utils.service';
@@ -330,9 +330,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                 { rating: 'E', count: properties.e_rating || 0 },
                 { rating: 'F', count: properties.f_rating || 0 },
                 { rating: 'G', count: properties.g_rating || 0 },
-                { rating: 'No Rating', count: properties.no_rating || 0 }
-            ].filter(item => item.count > 0);
-            
+                { rating: 'No Rating', count: properties.no_rating || 0 },
+            ].filter((item) => item.count > 0);
+
             // Sort by rating
             epcRatings.sort((a, b) => a.rating.localeCompare(b.rating));
 
@@ -426,7 +426,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                 minLat: bounds.getSouth(),
                 maxLat: bounds.getNorth(),
                 minLng: bounds.getWest(),
-                maxLng: bounds.getEast()
+                maxLng: bounds.getEast(),
             };
 
             // Only load data when buildings become 3D models
