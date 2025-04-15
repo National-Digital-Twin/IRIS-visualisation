@@ -119,16 +119,16 @@ export class ShellComponent {
                 const wardBoundaries = contextData[0];
 
                 return this.loadWardEPCData().pipe(
-                    map(wardEPCData => {
+                    map((wardEPCData) => {
                         const enhancedData = this.processWardData(wardBoundaries, wardEPCData);
 
                         // Cache the processed data
                         this._enhancedWardDataCache = enhancedData;
 
                         return enhancedData;
-                    })
+                    }),
                 );
-            })
+            }),
         );
 
         // close minimap by default on smaller screens
@@ -500,14 +500,14 @@ export class ShellComponent {
      */
     private loadWardEPCData(): Observable<any> {
         return this.#dataService.fetchWardEPCData().pipe(
-          tap({
-            next: (data) => {
-                console.log('Loaded ward EPC data from API');
-            },
-            error: (error) => {
-                console.error('Error loading ward EPC data:', error);
-            }
-          }),
+            tap({
+                next: (data) => {
+                    console.log('Loaded ward EPC data from API');
+                },
+                error: (error) => {
+                    console.error('Error loading ward EPC data:', error);
+                }
+            }),
         );
     }
 
