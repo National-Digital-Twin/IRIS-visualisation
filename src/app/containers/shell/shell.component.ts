@@ -88,6 +88,8 @@ export class ShellComponent {
     public userEmail = 'loading...';
     public menuOpened = false;
 
+    private _enhancedWardDataCache: FeatureCollection<Geometry, GeoJsonProperties>[] | null = null;
+
     // get map state from route query params
     public bearing: InputSignal<number> = input<number, number>(0, { transform: numberAttribute });
     public lat: InputSignal<number> = input<number, number>(0, { transform: numberAttribute });
@@ -109,13 +111,25 @@ export class ShellComponent {
     public loading = computed(() => this.#dataService.loading());
 
     constructor() {
-        this.contextData$ = combineLatest([this.#dataService.contextData$, toObservable(this.#dataService.buildings)]).pipe(
-            switchMap(([contextData, buildingData]) => {
-                if (!buildingData) {
-                    return of([]);
+        this.contextData$ = this.#dataService.contextData$.pipe(
+            switchMap(contextData => {
+                if (this._enhancedWardDataCache) {
+                    return of(this._enhancedWardDataCache);
                 }
-                return this.aggregateEPC(contextData, buildingData);
-            }),
+
+                const wardBoundaries = contextData[0];
+                
+                return this.loadWardEPCData().pipe(
+                    map(wardEPCData => {
+                        const enhancedData = this.processWardData(wardBoundaries, wardEPCData);
+
+                        // Cache the processed data
+                        this._enhancedWardDataCache = enhancedData;
+
+                        return enhancedData;
+                    })
+                );
+            })
         );
 
         // close minimap by default on smaller screens
@@ -499,63 +513,55 @@ export class ShellComponent {
     }
 
     /**
-     * Merges the EPC data from the API with the GeoJSON ward boundaries
+     * Process ward data with EPC information
      */
-    private aggregateEPC(
-        contextData: FeatureCollection<Geometry, GeoJsonProperties>[],
-        buildings: BuildingMap,
-    ): Observable<FeatureCollection<Geometry, GeoJsonProperties>[]> {
-        // Get the ward boundaries GeoJSON
-        const wardBoundaries = contextData[0];
+    private processWardData(
+        wardBoundaries: FeatureCollection<Geometry, GeoJsonProperties>,
+        wardEPCData: any
+    ): FeatureCollection<Geometry, GeoJsonProperties>[] {
+        const epcByWard = new Map();
 
-        return this.loadWardEPCData().pipe(
-          map(wardEPCData => {
-            // Create a lookup map for access to EPC data by ward name
-            const epcByWard = new Map();
+        if (Array.isArray(wardEPCData)) {
+            wardEPCData.forEach((ward: any) => {
+                if (ward && ward.name) {
+                    epcByWard.set(ward.name, ward);
+                }
+            });
+        }
 
-            if (Array.isArray(wardEPCData)) {
-                wardEPCData.forEach((ward: any) => {
-                    if (ward?.name) {
-                        epcByWard.set(ward.name, ward);
-                    }
-                });
-            }
+        const enhancedWardData = JSON.parse(JSON.stringify(wardBoundaries)) as FeatureCollection<Geometry, GeoJsonProperties>;
 
-            const enhancedWardData = JSON.parse(JSON.stringify(wardBoundaries)) as FeatureCollection<Geometry, GeoJsonProperties>;
+        // Merge EPC data into each feature's properties
+        if (enhancedWardData.features) {
+            enhancedWardData.features = enhancedWardData.features.map(feature => {
+                const wardName = feature.properties?.WD23NM || '';
 
-            // Merge EPC data into each feature's properties
-            if (enhancedWardData.features) {
-                enhancedWardData.features = enhancedWardData.features.map(feature => {
-                    const wardName = feature.properties?.WD23NM ?? '';
+                const epcData = epcByWard.get(wardName);
 
-                    const epcData = epcByWard.get(wardName);
+                if (epcData) {
+                    const modalRating = this.#utilService.calculateModalRating(epcData);
 
-                    if (epcData) {
-                        const modalRating = this.#utilService.calculateModalRating(epcData);
+                    feature.properties = {
+                        ...feature.properties,
+                        a_rating: epcData.a_rating || 0,
+                        b_rating: epcData.b_rating || 0,
+                        c_rating: epcData.c_rating || 0,
+                        d_rating: epcData.d_rating || 0,
+                        e_rating: epcData.e_rating || 0,
+                        f_rating: epcData.f_rating || 0,
+                        g_rating: epcData.g_rating || 0,
+                        no_rating: epcData.no_rating || 0,
+                        modal_rating: modalRating,
+                        aggEPC: modalRating,
+                        color: this.#utilService.getEPCColour(modalRating)
+                    };
+                }
 
-                        feature.properties = {
-                            ...feature.properties,
-                            a_rating: epcData.a_rating ?? 0,
-                            b_rating: epcData.b_rating ?? 0,
-                            c_rating: epcData.c_rating ?? 0,
-                            d_rating: epcData.d_rating ?? 0,
-                            e_rating: epcData.e_rating ?? 0,
-                            f_rating: epcData.f_rating ?? 0,
-                            g_rating: epcData.g_rating ?? 0,
-                            no_rating: epcData.no_rating ?? 0,
-                            modal_rating: modalRating,
-                            aggEPC: modalRating,
-                            color: this.#utilService.getEPCColour(modalRating)
-                        };
-                    }
+                return feature;
+            });
+        }
 
-                    return feature;
-                });
-            }
-
-            return [enhancedWardData];
-          })
-        );
+        return [enhancedWardData];
     }
 
     public showInfo(): void {

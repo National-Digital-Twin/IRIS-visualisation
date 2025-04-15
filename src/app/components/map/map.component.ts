@@ -207,6 +207,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                     expression: ['==', 'WD23NM', ``],
                 });
             }
+
+            if (zoom < 16) {
+                this.#dataService.clearBuildingsCache();
+            }
         });
 
         this.wardPopup.on('close', () => {
