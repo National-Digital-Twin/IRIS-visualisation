@@ -1,6 +1,5 @@
 import { AsyncPipe, CommonModule, DOCUMENT } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, Component, Input, InputSignal, NgZone, computed, effect, inject, input, numberAttribute } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
@@ -21,7 +20,7 @@ import { RemoveFlagModalComponent, RemoveFlagModalData, RemoveFlagModalResult } 
 import { MainFiltersComponent } from '@containers/main-filters/main-filters.component';
 import { ResultsPanelComponent } from '@containers/results-panel/results-panel.component';
 import { AdvancedFiltersFormModel, FilterKeys, FilterProps } from '@core/models/advanced-filters.model';
-import { BuildingMap, BuildingModel } from '@core/models/building.model';
+import { BuildingModel } from '@core/models/building.model';
 import { DownloadDataWarningData, DownloadDataWarningResponse } from '@core/models/download-data-warning.model';
 import { MinimapData } from '@core/models/minimap-data.model';
 import { URLStateModel } from '@core/models/url-state.model';
@@ -36,7 +35,7 @@ import { UserDetailsService } from '@core/services/user-details.service';
 import { UtilService } from '@core/services/utils.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { FeatureCollection, GeoJsonProperties, Geometry, Polygon } from 'geojson';
-import { EMPTY, Observable, combineLatest, filter, forkJoin, map, of, switchMap, take, tap } from 'rxjs';
+import { EMPTY, Observable, filter, forkJoin, map, of, switchMap, take, tap } from 'rxjs';
 
 @Component({
     selector: 'c477-shell',
@@ -523,7 +522,7 @@ export class ShellComponent {
 
         if (Array.isArray(wardEPCData)) {
             wardEPCData.forEach((ward: any) => {
-                if (ward && ward.name) {
+                if (ward?.name) {
                     epcByWard.set(ward.name, ward);
                 }
             });
@@ -543,14 +542,14 @@ export class ShellComponent {
 
                     feature.properties = {
                         ...feature.properties,
-                        a_rating: epcData.a_rating || 0,
-                        b_rating: epcData.b_rating || 0,
-                        c_rating: epcData.c_rating || 0,
-                        d_rating: epcData.d_rating || 0,
-                        e_rating: epcData.e_rating || 0,
-                        f_rating: epcData.f_rating || 0,
-                        g_rating: epcData.g_rating || 0,
-                        no_rating: epcData.no_rating || 0,
+                        a_rating: epcData.a_rating ?? 0,
+                        b_rating: epcData.b_rating ?? 0,
+                        c_rating: epcData.c_rating ?? 0,
+                        d_rating: epcData.d_rating ?? 0,
+                        e_rating: epcData.e_rating ?? 0,
+                        f_rating: epcData.f_rating ?? 0,
+                        g_rating: epcData.g_rating ?? 0,
+                        no_rating: epcData.no_rating ?? 0,
                         modal_rating: modalRating,
                         aggEPC: modalRating,
                         color: this.#utilService.getEPCColour(modalRating)
