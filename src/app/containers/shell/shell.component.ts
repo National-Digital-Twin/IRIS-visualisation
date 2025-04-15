@@ -111,13 +111,13 @@ export class ShellComponent {
 
     constructor() {
         this.contextData$ = this.#dataService.contextData$.pipe(
-            switchMap(contextData => {
+            switchMap((contextData) => {
                 if (this._enhancedWardDataCache) {
                     return of(this._enhancedWardDataCache);
                 }
 
                 const wardBoundaries = contextData[0];
-                
+
                 return this.loadWardEPCData().pipe(
                     map(wardEPCData => {
                         const enhancedData = this.processWardData(wardBoundaries, wardEPCData);

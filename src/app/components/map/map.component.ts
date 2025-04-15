@@ -433,13 +433,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             const zoom = this.#mapService.mapInstance.getZoom();
             if (zoom >= 16) {
                 this.#dataService.loadBuildingsForViewport(viewport).subscribe({
-                next: () => {
-                    // After loading, make sure the util service refreshes the colors
-                    this.#utilsService.createBuildingColourFilter();
-                },
-                error: (err) => {
-                    this.#dataService.viewportBuildingsLoading.set(false);
-                }
+                    next: () => {
+                        // After loading, make sure the util service refreshes the colors
+                        this.#utilsService.createBuildingColourFilter();
+                    },
+                    error: () => {
+                        this.#dataService.viewportBuildingsLoading.set(false);
+                    }
                 });
             }
         }
