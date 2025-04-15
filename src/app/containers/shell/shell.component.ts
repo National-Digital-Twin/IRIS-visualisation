@@ -1,6 +1,5 @@
 import { AsyncPipe, CommonModule, DOCUMENT } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, Component, Input, InputSignal, NgZone, computed, effect, inject, input, numberAttribute } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
@@ -21,7 +20,7 @@ import { RemoveFlagModalComponent, RemoveFlagModalData, RemoveFlagModalResult } 
 import { MainFiltersComponent } from '@containers/main-filters/main-filters.component';
 import { ResultsPanelComponent } from '@containers/results-panel/results-panel.component';
 import { AdvancedFiltersFormModel, FilterKeys, FilterProps } from '@core/models/advanced-filters.model';
-import { BuildingMap, BuildingModel } from '@core/models/building.model';
+import { BuildingModel } from '@core/models/building.model';
 import { DownloadDataWarningData, DownloadDataWarningResponse } from '@core/models/download-data-warning.model';
 import { MinimapData } from '@core/models/minimap-data.model';
 import { URLStateModel } from '@core/models/url-state.model';
@@ -36,7 +35,7 @@ import { UserDetailsService } from '@core/services/user-details.service';
 import { UtilService } from '@core/services/utils.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { FeatureCollection, GeoJsonProperties, Geometry, Polygon } from 'geojson';
-import { EMPTY, Observable, combineLatest, filter, forkJoin, map, of, switchMap, take, tap } from 'rxjs';
+import { EMPTY, Observable, filter, forkJoin, map, of, switchMap, take, tap } from 'rxjs';
 
 @Component({
     selector: 'c477-shell',
@@ -88,6 +87,8 @@ export class ShellComponent {
     public userEmail = 'loading...';
     public menuOpened = false;
 
+    private _enhancedWardDataCache: FeatureCollection<Geometry, GeoJsonProperties>[] | null = null;
+
     // get map state from route query params
     public bearing: InputSignal<number> = input<number, number>(0, { transform: numberAttribute });
     public lat: InputSignal<number> = input<number, number>(0, { transform: numberAttribute });
@@ -109,12 +110,24 @@ export class ShellComponent {
     public loading = computed(() => this.#dataService.loading());
 
     constructor() {
-        this.contextData$ = combineLatest([this.#dataService.contextData$, toObservable(this.#dataService.buildings)]).pipe(
-            switchMap(([contextData, buildingData]) => {
-                if (!buildingData) {
-                    return of([]);
+        this.contextData$ = this.#dataService.contextData$.pipe(
+            switchMap((contextData) => {
+                if (this._enhancedWardDataCache) {
+                    return of(this._enhancedWardDataCache);
                 }
-                return this.aggregateEPC(contextData, buildingData);
+
+                const wardBoundaries = contextData[0];
+
+                return this.loadWardEPCData().pipe(
+                    map((wardEPCData) => {
+                        const enhancedData = this.processWardData(wardBoundaries, wardEPCData);
+
+                        // Cache the processed data
+                        this._enhancedWardDataCache = enhancedData;
+
+                        return enhancedData;
+                    }),
+                );
             }),
         );
 
@@ -487,75 +500,67 @@ export class ShellComponent {
      */
     private loadWardEPCData(): Observable<any> {
         return this.#dataService.fetchWardEPCData().pipe(
-          tap({
-            next: (data) => {
-                console.log('Loaded ward EPC data from API');
-            },
-            error: (error) => {
-                console.error('Error loading ward EPC data:', error);
-            }
-          }),
+            tap({
+                next: (data) => {
+                    console.log('Loaded ward EPC data from API');
+                },
+                error: (error) => {
+                    console.error('Error loading ward EPC data:', error);
+                }
+            }),
         );
     }
 
     /**
-     * Merges the EPC data from the API with the GeoJSON ward boundaries
+     * Process ward data with EPC information
      */
-    private aggregateEPC(
-        contextData: FeatureCollection<Geometry, GeoJsonProperties>[],
-        buildings: BuildingMap,
-    ): Observable<FeatureCollection<Geometry, GeoJsonProperties>[]> {
-        // Get the ward boundaries GeoJSON
-        const wardBoundaries = contextData[0];
+    private processWardData(
+        wardBoundaries: FeatureCollection<Geometry, GeoJsonProperties>,
+        wardEPCData: any
+    ): FeatureCollection<Geometry, GeoJsonProperties>[] {
+        const epcByWard = new Map();
 
-        return this.loadWardEPCData().pipe(
-          map(wardEPCData => {
-            // Create a lookup map for access to EPC data by ward name
-            const epcByWard = new Map();
+        if (Array.isArray(wardEPCData)) {
+            wardEPCData.forEach((ward: any) => {
+                if (ward?.name) {
+                    epcByWard.set(ward.name, ward);
+                }
+            });
+        }
 
-            if (Array.isArray(wardEPCData)) {
-                wardEPCData.forEach((ward: any) => {
-                    if (ward?.name) {
-                        epcByWard.set(ward.name, ward);
-                    }
-                });
-            }
+        const enhancedWardData = JSON.parse(JSON.stringify(wardBoundaries)) as FeatureCollection<Geometry, GeoJsonProperties>;
 
-            const enhancedWardData = JSON.parse(JSON.stringify(wardBoundaries)) as FeatureCollection<Geometry, GeoJsonProperties>;
+        // Merge EPC data into each feature's properties
+        if (enhancedWardData.features) {
+            enhancedWardData.features = enhancedWardData.features.map(feature => {
+                const wardName = feature.properties?.WD23NM ?? '';
 
-            // Merge EPC data into each feature's properties
-            if (enhancedWardData.features) {
-                enhancedWardData.features = enhancedWardData.features.map(feature => {
-                    const wardName = feature.properties?.WD23NM ?? '';
+                const epcData = epcByWard.get(wardName);
 
-                    const epcData = epcByWard.get(wardName);
+                if (epcData) {
+                    const modalRating = this.#utilService.calculateModalRating(epcData);
 
-                    if (epcData) {
-                        const modalRating = this.#utilService.calculateModalRating(epcData);
+                    feature.properties = {
+                        ...feature.properties,
+                        a_rating: epcData.a_rating ?? 0,
+                        b_rating: epcData.b_rating ?? 0,
+                        c_rating: epcData.c_rating ?? 0,
+                        d_rating: epcData.d_rating ?? 0,
+                        e_rating: epcData.e_rating ?? 0,
+                        f_rating: epcData.f_rating ?? 0,
+                        g_rating: epcData.g_rating ?? 0,
+                        no_rating: epcData.no_rating ?? 0,
+                        modal_rating: modalRating,
+                        aggEPC: modalRating,
+                        color: this.#utilService.getEPCColour(modalRating)
+                    };
+                }
 
-                        feature.properties = {
-                            ...feature.properties,
-                            a_rating: epcData.a_rating ?? 0,
-                            b_rating: epcData.b_rating ?? 0,
-                            c_rating: epcData.c_rating ?? 0,
-                            d_rating: epcData.d_rating ?? 0,
-                            e_rating: epcData.e_rating ?? 0,
-                            f_rating: epcData.f_rating ?? 0,
-                            g_rating: epcData.g_rating ?? 0,
-                            no_rating: epcData.no_rating ?? 0,
-                            modal_rating: modalRating,
-                            aggEPC: modalRating,
-                            color: this.#utilService.getEPCColour(modalRating)
-                        };
-                    }
+                return feature;
+            });
+        }
 
-                    return feature;
-                });
-            }
-
-            return [enhancedWardData];
-          })
-        );
+        return [enhancedWardData];
     }
 
     public showInfo(): void {

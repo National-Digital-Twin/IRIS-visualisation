@@ -41,6 +41,10 @@ export class DataService {
     private readonly buildingsFlagged = signal<FlagMap>({});
     private readonly buildingsFlagged$ = toObservable(this.buildingsFlagged);
 
+    private readonly _buildingsCache = new Map<string, MinimalBuildingData>();
+    private readonly _buildingCacheOrder: string[] = []; // FIFO tracking
+    private readonly MAX_CACHED_BUILDINGS = 10000; // Number of properties
+
     private _detailedBuildingsCache = new Map<string, BuildingModel>();
 
     private readonly flags$ = this.#http.get<FlagResponse[]>('/api/flagged-buildings', { withCredentials: true }).pipe(
@@ -304,6 +308,7 @@ export class DataService {
 
     /**
      * Load buildings for the current viewport and update the minimal building data
+     * Uses the cache when possible and updates with API data
      * @param viewport The current map viewport bounds
      * @returns Observable of the loaded minimal building map
      */
@@ -311,14 +316,36 @@ export class DataService {
         viewport: { minLat: number, maxLat: number, minLng: number, maxLng: number }
     ): Observable<MinimalBuildingMap> {
         this.viewportBuildingsLoading.set(true);
-    
+
+        const cachedBuildingsInViewport = this.getBuildingsFromCacheInViewport(viewport);
+
+        if (cachedBuildingsInViewport.length > 0) {
+            // Update the UI with cached buildings
+            this.updateMinimalBuildingsWithViewportData(cachedBuildingsInViewport);
+        }
+
+        const cachedUPRNs = new Set(cachedBuildingsInViewport.map(b => b.UPRN));
+
         return this.queryBuildingsInViewport(viewport).pipe(
-            tap(buildings => {
-                // Update minimal buildings data with new viewport data
-                this.updateMinimalBuildingsWithViewportData(buildings);
+            map(apiBuildingData => {
+                // Find buildings from API that aren't in the cache
+                const newBuildings = apiBuildingData.filter(b => !cachedUPRNs.has(b.UPRN));
+
+                newBuildings.forEach(building => {
+                    this.addBuildingToCache(building);
+                });
+                
+                // Update the UI with all buildings
+                this.updateMinimalBuildingsWithViewportData(apiBuildingData);
                 this.viewportBuildingsLoading.set(false);
+
+                return this.minimalBuildings();
             }),
-            map(() => this.minimalBuildings())
+            catchError(error => {
+                console.error('Error fetching buildings:', error);
+                this.viewportBuildingsLoading.set(false);
+                return of(this.minimalBuildings());
+            })
         );
     }
 
@@ -362,6 +389,80 @@ export class DataService {
 
             return mergedMap;
         });
+    }
+
+    /**
+     * Gets buildings from cache that are within the current viewport
+     * @param viewport The current viewport bounds
+     * @returns Array of buildings from cache in the viewport
+     */
+    private getBuildingsFromCacheInViewport(
+        viewport: { minLat: number, maxLat: number, minLng: number, maxLng: number }
+    ): MinimalBuildingData[] {
+        const buildingsInViewport: MinimalBuildingData[] = [];
+        
+        this._buildingsCache.forEach(building => {
+            if (this.isInViewport(building, viewport)) {
+                buildingsInViewport.push(building);
+            }
+        });
+        
+        return buildingsInViewport;
+    }
+
+    /**
+     * Determines if a building is within the current viewport
+     * @param building The building to check
+     * @param viewport The current viewport bounds
+     * @returns True if building is in viewport
+     */
+    private isInViewport(
+        building: MinimalBuildingData, 
+        viewport: { minLat: number, maxLat: number, minLng: number, maxLng: number }
+    ): boolean {
+        if (!building.latitude || !building.longitude) return false;
+        
+        return (
+            building.latitude >= viewport.minLat &&
+            building.latitude <= viewport.maxLat &&
+            building.longitude >= viewport.minLng &&
+            building.longitude <= viewport.maxLng
+        );
+    }
+
+    /**
+     * Adds a building to the cache, maintaining FIFO order
+     * @param building The building to add to the cache
+     */
+    private addBuildingToCache(building: MinimalBuildingData): void {
+        if (!building.UPRN) return;
+
+        // If building is already in cache, update it and move it to the end of the order
+        if (this._buildingsCache.has(building.UPRN)) {
+            const index = this._buildingCacheOrder.indexOf(building.UPRN);
+            if (index !== -1) {
+                this._buildingCacheOrder.splice(index, 1);
+            }
+        }
+
+        this._buildingsCache.set(building.UPRN, building);
+        this._buildingCacheOrder.push(building.UPRN);
+
+        while (this._buildingCacheOrder.length > this.MAX_CACHED_BUILDINGS) {
+            const oldestUPRN = this._buildingCacheOrder.shift();
+            if (oldestUPRN) {
+                this._buildingsCache.delete(oldestUPRN);
+            }
+        }
+    }
+
+    /**
+     * Clears the buildings cache
+     */
+    public clearBuildingsCache(): void {
+        console.log('Clearing buildings cache');
+        this._buildingsCache.clear();
+        this._buildingCacheOrder.length = 0;
     }
 
     /**
