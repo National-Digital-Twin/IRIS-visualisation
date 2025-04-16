@@ -506,12 +506,12 @@ export class ShellComponent {
      */
     private processWardData(
         wardBoundaries: FeatureCollection<Geometry, GeoJsonProperties>,
-        wardEPCData: Observable<FeatureCollection<Geometry, GeoJsonProperties>>,
+        wardEPCData: any,
     ): FeatureCollection<Geometry, GeoJsonProperties>[] {
         const epcByWard = new Map();
 
         if (Array.isArray(wardEPCData)) {
-            wardEPCData.forEach((ward: FeatureCollection<Geometry, GeoJsonProperties>) => {
+            wardEPCData.forEach((ward: any) => {
                 if (ward?.name) {
                     epcByWard.set(ward.name, ward);
                 }

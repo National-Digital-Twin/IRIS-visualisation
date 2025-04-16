@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BACKEND_API_ENDPOINT } from '@core/tokens/backend-endpoint.token';
 import { Observable, throwError } from 'rxjs';
@@ -35,9 +35,7 @@ export class SignoutService {
             return this.#http.get(this.signoutLinks.oAuth2Signout, { withCredentials: true });
         }
 
-        return throwError(() => {
-            new Error('No sign out links available to void the session!');
-        });
+        return throwError(() => new Error('No sign out links available to void the session!'));
     }
 }
 
