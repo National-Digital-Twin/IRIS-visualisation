@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BACKEND_API_ENDPOINT } from '@core/tokens/backend-endpoint.token';
-import { Observable, throwError } from 'rxjs';
+import { Observable } from 'rxjs';
 
 interface RedirectUrl {
     href: string;
@@ -29,13 +29,14 @@ export class SignoutService {
         return this.#http.get<SignoutLinksResponse>(`${this.#backendApiEndpoint}/signout-links`);
     }
 
-    // eslint-disable-next-line no-explicit-any
-    public voidSession(): Observable<any> {
+    // This method uses fetch because we do not want to automatically redirect the user to the location provided
+    // by the response of the HTTP request as it will return a 302 response when successful.
+    public voidSession(): Promise<object> {
         if (this.signoutLinks) {
-            return this.#http.get(this.signoutLinks.oauth2SignoutUrl, { withCredentials: true });
+            return fetch(this.signoutLinks.oauth2SignoutUrl, { method: 'GET', redirect: 'manual' });
         }
 
-        return throwError(() => new Error('No sign out links available to void the session!'));
+        return Promise.reject(new Error('No sign out links available to void the session!'));
     }
 }
 
