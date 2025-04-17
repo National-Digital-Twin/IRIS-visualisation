@@ -33,7 +33,7 @@ export class SignoutService {
     // by the response of the HTTP request as it will return a 302 response when successful.
     public voidSession(): Promise<object> {
         if (this.signoutLinks) {
-            return fetch(this.signoutLinks.oauth2SignoutUrl, { method: 'GET', redirect: 'manual' });
+            return fetch(this.signoutLinks.oauth2SignoutUrl, { method: 'GET', redirect: 'manual', credentials: 'include' });
         }
 
         return Promise.reject(new Error('No sign out links available to void the session!'));
