@@ -1,11 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BACKEND_API_ENDPOINT } from '@core/tokens/backend-endpoint.token';
-import { map, Observable } from 'rxjs';
-
-interface UserDetailsResponse {
-    content: UserDetails;
-}
+import { Observable } from 'rxjs';
 
 interface UserDetails {
     email: string;
@@ -17,11 +13,9 @@ export class UserDetailsService {
     readonly #backendApiEndpoint = inject(BACKEND_API_ENDPOINT);
 
     public get(): Observable<UserDetails> {
-        return this.#http
-            .get<UserDetailsResponse>(`${this.#backendApiEndpoint}/user-details`, {
-                withCredentials: true,
-            })
-            .pipe(map((response) => response.content));
+        return this.#http.get<UserDetails>(`${this.#backendApiEndpoint}/user-details`, {
+            withCredentials: true,
+        });
     }
 }
 

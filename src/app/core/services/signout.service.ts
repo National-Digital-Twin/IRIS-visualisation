@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { BACKEND_API_ENDPOINT } from '@core/tokens/backend-endpoint.token';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 
 interface SignoutLink {
     href: string;
@@ -29,10 +29,13 @@ export class SignoutService {
         return this.#http.get<SignoutLinksResponse>(`${this.#backendApiEndpoint}/signout-links`);
     }
 
-    public voidSession(): void {
+    // eslint-disable-next-line no-explicit-any
+    public voidSession(): Observable<any> {
         if (this.signoutLinks) {
-            this.#http.get(this.signoutLinks.oAuth2Signout);
+            return this.#http.get(this.signoutLinks.oAuth2Signout, { withCredentials: true });
         }
+
+        return throwError(() => new Error('No sign out links available to void the session!'));
     }
 }
 

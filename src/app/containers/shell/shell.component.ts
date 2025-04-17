@@ -35,7 +35,7 @@ import { UserDetailsService } from '@core/services/user-details.service';
 import { UtilService } from '@core/services/utils.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { FeatureCollection, GeoJsonProperties, Geometry, Polygon } from 'geojson';
-import { EMPTY, Observable, filter, forkJoin, map, of, switchMap, take, tap } from 'rxjs';
+import { EMPTY, Observable, filter, forkJoin, map, of, switchMap, take } from 'rxjs';
 
 @Component({
     selector: 'c477-shell',
@@ -118,7 +118,7 @@ export class ShellComponent {
 
                 const wardBoundaries = contextData[0];
 
-                return this.loadWardEPCData().pipe(
+                return this.#dataService.fetchWardEPCData().pipe(
                     map((wardEPCData) => {
                         const enhancedData = this.processWardData(wardBoundaries, wardEPCData);
 
@@ -231,8 +231,15 @@ export class ShellComponent {
     }
 
     public handleSignout(): void {
-        this.#signoutService.voidSession();
-        window.location.href = this.#signoutService.signoutLinks?.signoutLink?.href ?? '/';
+        this.#signoutService.voidSession()?.subscribe({
+            next: () => {
+                window.location.href = this.#signoutService.signoutLinks?.signoutLink?.href ?? '/';
+            },
+            error: (error) => {
+                console.error(error);
+                window.location.href = '/';
+            },
+        });
     }
 
     private updateBuildingLayerColour(): void {
@@ -495,28 +502,11 @@ export class ShellComponent {
     }
 
     /**
-     * Load ward EPC data from API
-     * @returns Observable of ward data with EPC information
-     */
-    private loadWardEPCData(): Observable<any> {
-        return this.#dataService.fetchWardEPCData().pipe(
-            tap({
-                next: (data) => {
-                    console.log('Loaded ward EPC data from API');
-                },
-                error: (error) => {
-                    console.error('Error loading ward EPC data:', error);
-                }
-            }),
-        );
-    }
-
-    /**
      * Process ward data with EPC information
      */
     private processWardData(
         wardBoundaries: FeatureCollection<Geometry, GeoJsonProperties>,
-        wardEPCData: any
+        wardEPCData: any,
     ): FeatureCollection<Geometry, GeoJsonProperties>[] {
         const epcByWard = new Map();
 
@@ -532,7 +522,7 @@ export class ShellComponent {
 
         // Merge EPC data into each feature's properties
         if (enhancedWardData.features) {
-            enhancedWardData.features = enhancedWardData.features.map(feature => {
+            enhancedWardData.features = enhancedWardData.features.map((feature) => {
                 const wardName = feature.properties?.WD23NM ?? '';
 
                 const epcData = epcByWard.get(wardName);
@@ -552,7 +542,7 @@ export class ShellComponent {
                         no_rating: epcData.no_rating ?? 0,
                         modal_rating: modalRating,
                         aggEPC: modalRating,
-                        color: this.#utilService.getEPCColour(modalRating)
+                        color: this.#utilService.getEPCColour(modalRating),
                     };
                 }
 
