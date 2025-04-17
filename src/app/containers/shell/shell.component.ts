@@ -230,16 +230,16 @@ export class ShellComponent {
         this.menuOpened = false;
     }
 
-    public handleSignout(): void {
-        this.#signoutService.voidSession().subscribe({
-            next: () => {
+    public async handleSignout(): Promise<void> {
+        await this.#signoutService
+            .voidSession()
+            .then(() => {
                 window.location.href = this.#signoutService.signoutLinks?.redirectUrl?.href ?? '/';
-            },
-            error: (error) => {
+            })
+            .catch((error) => {
                 console.error(error);
                 window.location.href = '/';
-            },
-        });
+            });
     }
 
     private updateBuildingLayerColour(): void {
