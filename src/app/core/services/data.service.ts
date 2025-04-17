@@ -22,6 +22,8 @@ export class DataService {
     readonly #backendApiEndpoint = inject(BACKEND_API_ENDPOINT);
     readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
 
+    public uiReady = signal<boolean>(true);
+
     public viewportBuildingsLoading = signal<boolean>(false);
     public minimalBuildings = signal<MinimalBuildingMap>({});
 
@@ -31,8 +33,8 @@ export class DataService {
     public flagHistory = signal<Loading<FlagHistory[]>>([]);
 
     public loading = computed(() => {
-        // Loading is either the initial loading state or based on viewport building loading
-        return this.viewportBuildingsLoading();
+        // Loading set to false after initial load
+        return !this.uiReady();
     });
 
     public selectedBuilding = signal<BuildingModel | undefined>(undefined);
@@ -460,7 +462,6 @@ export class DataService {
      * Clears the buildings cache
      */
     public clearBuildingsCache(): void {
-        console.log('Clearing buildings cache');
         this._buildingsCache.clear();
         this._buildingCacheOrder.length = 0;
     }
