@@ -231,7 +231,7 @@ export class ShellComponent {
     }
 
     public handleSignout(): void {
-        this.#signoutService.voidSession()?.subscribe({
+        this.#signoutService.voidSession().subscribe({
             next: () => {
                 window.location.href = this.#signoutService.signoutLinks?.signoutLink?.href ?? '/';
             },

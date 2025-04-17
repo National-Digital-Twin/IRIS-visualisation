@@ -8,7 +8,7 @@ interface SignoutLink {
 }
 
 interface SignoutLinksResponse {
-    oAuth2Signout: string;
+    oauth2Signout: string;
     signoutLink: SignoutLink;
 }
 
@@ -32,7 +32,7 @@ export class SignoutService {
     // eslint-disable-next-line no-explicit-any
     public voidSession(): Observable<any> {
         if (this.signoutLinks) {
-            return this.#http.get(this.signoutLinks.oAuth2Signout, { withCredentials: true });
+            return this.#http.get(this.signoutLinks.oauth2Signout, { withCredentials: true });
         }
 
         return throwError(() => new Error('No sign out links available to void the session!'));
