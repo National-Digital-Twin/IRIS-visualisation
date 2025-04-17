@@ -36,7 +36,7 @@ export class SignoutService {
             return fetch(this.signoutLinks.oauth2SignoutUrl, { method: 'GET', redirect: 'manual' });
         }
 
-        return Promise.reject('No sign out links available to void the session!');
+        return Promise.reject(new Error('No sign out links available to void the session!'));
     }
 }
 
