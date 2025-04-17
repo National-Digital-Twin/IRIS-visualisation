@@ -3,11 +3,11 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { EPCRating, FloorConstruction, RoofConstruction, WallConstruction, WindowGlazing } from '@core/enums';
 import { InvalidateFlagReason } from '@core/enums/invalidate-flag-reason';
-import { BuildingMap, BuildingModel, BuildingParts } from '@core/models/building.model';
+import { BuildingAPIResponse, BuildingMap, BuildingModel, BuildingParts } from '@core/models/building.model';
 import { MapLayerConfig } from '@core/models/map-layer-config.model';
 import { MinimalBuildingData, MinimalBuildingMap } from '@core/models/minimal-building-data.model';
-import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { BACKEND_API_ENDPOINT } from '@core/tokens/backend-endpoint.token';
+import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { EPCBuildingResponseModel } from '@core/types/building-response';
 import { FlagHistory } from '@core/types/flag-history';
 import { FlagMap, FlagResponse } from '@core/types/flag-response';
@@ -63,32 +63,32 @@ export class DataService {
         const buildingMap: BuildingMap = {};
 
         Object.entries(minimalBuildingsMap).forEach(([toid, buildings]) => {
-            buildingMap[toid] = buildings.map(minimalBuilding => {
+            buildingMap[toid] = buildings.map((minimalBuilding) => {
                 // Convert MinimalBuildingData to BuildingModel with minimal data
                 return {
-                UPRN: minimalBuilding.UPRN,
-                TOID: minimalBuilding.TOID,
-                ParentTOID: minimalBuilding.ParentTOID,
-                FullAddress: minimalBuilding.fullAddress,
-                EPC: minimalBuilding.EPC, 
-                latitude: minimalBuilding.latitude,
-                longitude: minimalBuilding.longitude,
-                StructureUnitType: minimalBuilding.StructureUnitType,
-                // Set other fields to undefined until detailed data is loaded
-                PostCode: undefined,
-                BuiltForm: undefined,
-                LodgementDate: undefined,
-                YearOfAssessment: undefined,
-                SAPPoints: undefined,
-                FloorConstruction: undefined,
-                FloorInsulation: undefined,
-                RoofConstruction: undefined,
-                RoofInsulationLocation: undefined,
-                RoofInsulationThickness: undefined,
-                WallConstruction: undefined,
-                WallInsulation: undefined,
-                WindowGlazing: undefined,
-                Flagged: undefined
+                    UPRN: minimalBuilding.UPRN,
+                    TOID: minimalBuilding.TOID,
+                    ParentTOID: minimalBuilding.ParentTOID,
+                    FullAddress: minimalBuilding.fullAddress,
+                    EPC: minimalBuilding.EPC,
+                    latitude: minimalBuilding.latitude,
+                    longitude: minimalBuilding.longitude,
+                    StructureUnitType: minimalBuilding.StructureUnitType,
+                    // Set other fields to undefined until detailed data is loaded
+                    PostCode: undefined,
+                    BuiltForm: undefined,
+                    LodgementDate: undefined,
+                    YearOfAssessment: undefined,
+                    SAPPoints: undefined,
+                    FloorConstruction: undefined,
+                    FloorInsulation: undefined,
+                    RoofConstruction: undefined,
+                    RoofInsulationLocation: undefined,
+                    RoofInsulationThickness: undefined,
+                    WallConstruction: undefined,
+                    WallInsulation: undefined,
+                    WindowGlazing: undefined,
+                    Flagged: undefined,
                 } as BuildingModel;
             });
         });
@@ -104,7 +104,7 @@ export class DataService {
      */
     private applyFlagsToBuildings(buildingMap: BuildingMap): void {
         const flaggedBuildings = this.buildingsFlagged();
-        
+
         Object.entries(flaggedBuildings).forEach(([toid, flaggedList]) => {
             if (buildingMap[toid]) {
                 flaggedList.forEach(({ UPRN, Flagged }) => {
@@ -133,14 +133,14 @@ export class DataService {
      */
     private loadFlags(): Observable<void> {
         return this.#http.get<FlagResponse[]>('/api/flagged-buildings', { withCredentials: true }).pipe(
-          map((flags: FlagResponse[]) => this.getCurrentFlags(flags)),
-          map((currentFlags) => this.mapFlagsToToids(currentFlags)),
-          tap(flagMap => {
-            this.buildingsFlagged.set(flagMap);
-            // Update viewport loading signal
-            this.viewportBuildingsLoading.set(false);
-          }),
-          map(() => void 0)
+            map((flags: FlagResponse[]) => this.getCurrentFlags(flags)),
+            map((currentFlags) => this.mapFlagsToToids(currentFlags)),
+            tap((flagMap) => {
+                this.buildingsFlagged.set(flagMap);
+                // Update viewport loading signal
+                this.viewportBuildingsLoading.set(false);
+            }),
+            map(() => void 0),
         );
     }
 
@@ -180,21 +180,20 @@ export class DataService {
 
         this.selectedBuilding.set(building);
 
-        const hasDetailedData = building.StructureUnitType !== undefined && 
-                                building.BuiltForm !== undefined;
+        const hasDetailedData = building.StructureUnitType !== undefined && building.BuiltForm !== undefined;
 
         if (!hasDetailedData && building.UPRN) {
-            this.loadBuildingDetails(building.UPRN).pipe(
-            first()
-            ).subscribe({
-            next: (detailedBuilding) => {
-                // Update the selected building with detailed data
-                this.selectedBuilding.set(detailedBuilding);
-            },
-            error: (error) => {
-                console.error(`Failed to load details for building ${building.UPRN}:`, error);
-            }
-            });
+            this.loadBuildingDetails(building.UPRN)
+                .pipe(first())
+                .subscribe({
+                    next: (detailedBuilding) => {
+                        // Update the selected building with detailed data
+                        this.selectedBuilding.set(detailedBuilding);
+                    },
+                    error: (error) => {
+                        console.error(`Failed to load details for building ${building.UPRN}:`, error);
+                    },
+                });
         }
     }
 
@@ -247,26 +246,28 @@ export class DataService {
      * @param pageSize Number of results per page
      * @returns Observable of minimal building data
      */
-    public queryBuildingsInViewport(
-        viewport: { minLat: number, maxLat: number, minLng: number, maxLng: number },
-    ): Observable<MinimalBuildingData[]> {
-
+    public queryBuildingsInViewport(viewport: { minLat: number; maxLat: number; minLng: number; maxLng: number }): Observable<MinimalBuildingData[]> {
         const params = new HttpParams()
             .set('min_long', viewport.minLng.toString())
             .set('min_lat', viewport.minLat.toString())
             .set('max_long', viewport.maxLng.toString())
             .set('max_lat', viewport.maxLat.toString());
 
-        return this.#http.get<any[]>('/api/buildings', { 
-            params, 
-            withCredentials: true 
-        }).pipe(
-            map(results => this.mapViewportAPIResponse(results)),
-            catchError(error => {
-                console.error('Error fetching buildings:', error);
-                this.viewportBuildingsLoading.set(false);
-                return of([]);
-            })
+        return (
+            this.#http
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                .get<BuildingAPIResponse[]>('/api/buildings', {
+                    params,
+                    withCredentials: true,
+                })
+                .pipe(
+                    map((results) => this.mapViewportAPIResponse(results)),
+                    catchError((error) => {
+                        console.error('Error fetching buildings:', error);
+                        this.viewportBuildingsLoading.set(false);
+                        return of([]);
+                    }),
+                )
         );
     }
 
@@ -275,17 +276,17 @@ export class DataService {
      * @param results API response
      * @returns Array of minimal building data objects
      */
-    private mapViewportAPIResponse(results: any[]): MinimalBuildingData[] {
-        return results.map(row => {
+    private mapViewportAPIResponse(results: BuildingAPIResponse[]): MinimalBuildingData[] {
+        return results.map((row) => {
             const building: MinimalBuildingData = {
-                UPRN: row.uprn,
-                EPC: row.energy_rating ? this.parseEPCRating(row.energy_rating) : EPCRating.none,
-                fullAddress: row.first_line_of_address ?? undefined,
-                latitude: row.latitude ? parseFloat(row.latitude) : undefined,
-                longitude: row.longitude ? parseFloat(row.longitude) : undefined,
-                addressText: row.addressText ?? undefined,
-                TOID: row.toid ?? undefined,
-                StructureUnitType: row.structure_unit_type ?? undefined
+                UPRN: row.Uprn,
+                EPC: row.EnergyRating ? this.parseEPCRating(row.EnergyRating) : EPCRating.none,
+                fullAddress: row.FirstLineOfAddress ?? undefined,
+                latitude: row.Latitude ? parseFloat(row.Latitude) : undefined,
+                longitude: row.Longitude ? parseFloat(row.Longitude) : undefined,
+                addressText: row.AddressText ?? undefined,
+                TOID: row.Toid ?? undefined,
+                StructureUnitType: row.StructureUnitType ?? undefined,
             };
 
             return building;
@@ -312,9 +313,7 @@ export class DataService {
      * @param viewport The current map viewport bounds
      * @returns Observable of the loaded minimal building map
      */
-    public loadBuildingsForViewport(
-        viewport: { minLat: number, maxLat: number, minLng: number, maxLng: number }
-    ): Observable<MinimalBuildingMap> {
+    public loadBuildingsForViewport(viewport: { minLat: number; maxLat: number; minLng: number; maxLng: number }): Observable<MinimalBuildingMap> {
         this.viewportBuildingsLoading.set(true);
 
         const cachedBuildingsInViewport = this.getBuildingsFromCacheInViewport(viewport);
@@ -324,28 +323,28 @@ export class DataService {
             this.updateMinimalBuildingsWithViewportData(cachedBuildingsInViewport);
         }
 
-        const cachedUPRNs = new Set(cachedBuildingsInViewport.map(b => b.UPRN));
+        const cachedUPRNs = new Set(cachedBuildingsInViewport.map((b) => b.UPRN));
 
         return this.queryBuildingsInViewport(viewport).pipe(
-            map(apiBuildingData => {
+            map((apiBuildingData) => {
                 // Find buildings from API that aren't in the cache
-                const newBuildings = apiBuildingData.filter(b => !cachedUPRNs.has(b.UPRN));
+                const newBuildings = apiBuildingData.filter((b) => !cachedUPRNs.has(b.UPRN));
 
-                newBuildings.forEach(building => {
+                newBuildings.forEach((building) => {
                     this.addBuildingToCache(building);
                 });
-                
+
                 // Update the UI with all buildings
                 this.updateMinimalBuildingsWithViewportData(apiBuildingData);
                 this.viewportBuildingsLoading.set(false);
 
                 return this.minimalBuildings();
             }),
-            catchError(error => {
+            catchError((error) => {
                 console.error('Error fetching buildings:', error);
                 this.viewportBuildingsLoading.set(false);
                 return of(this.minimalBuildings());
-            })
+            }),
         );
     }
 
@@ -355,9 +354,9 @@ export class DataService {
      */
     private updateMinimalBuildingsWithViewportData(newBuildings: MinimalBuildingData[]): void {
         const buildingMap: MinimalBuildingMap = {};
-        
-        newBuildings.forEach(building => {
-            const toid = building.TOID ?? building.ParentTOID;;
+
+        newBuildings.forEach((building) => {
+            const toid = building.TOID ?? building.ParentTOID;
 
             if (!toid) return;
 
@@ -368,7 +367,7 @@ export class DataService {
             }
         });
 
-        this.minimalBuildings.update(currentMap => {
+        this.minimalBuildings.update((currentMap) => {
             const mergedMap: MinimalBuildingMap = { ...currentMap };
 
             Object.entries(buildingMap).forEach(([toid, buildings]) => {
@@ -376,13 +375,13 @@ export class DataService {
                     mergedMap[toid] = buildings;
                 } else {
                     // If this TOID exists, need to merge buildings, deduplicating by UPRN
-                    const existingUPRNs = new Set(mergedMap[toid].map(b => b.UPRN));
+                    const existingUPRNs = new Set(mergedMap[toid].map((b) => b.UPRN));
 
                     // Add only buildings with UPRNs that don't already exist for this TOID
-                    buildings.forEach(building => {
-                    if (!existingUPRNs.has(building.UPRN)) {
-                        mergedMap[toid].push(building);
-                    }
+                    buildings.forEach((building) => {
+                        if (!existingUPRNs.has(building.UPRN)) {
+                            mergedMap[toid].push(building);
+                        }
                     });
                 }
             });
@@ -396,17 +395,15 @@ export class DataService {
      * @param viewport The current viewport bounds
      * @returns Array of buildings from cache in the viewport
      */
-    private getBuildingsFromCacheInViewport(
-        viewport: { minLat: number, maxLat: number, minLng: number, maxLng: number }
-    ): MinimalBuildingData[] {
+    private getBuildingsFromCacheInViewport(viewport: { minLat: number; maxLat: number; minLng: number; maxLng: number }): MinimalBuildingData[] {
         const buildingsInViewport: MinimalBuildingData[] = [];
-        
-        this._buildingsCache.forEach(building => {
+
+        this._buildingsCache.forEach((building) => {
             if (this.isInViewport(building, viewport)) {
                 buildingsInViewport.push(building);
             }
         });
-        
+
         return buildingsInViewport;
     }
 
@@ -416,12 +413,9 @@ export class DataService {
      * @param viewport The current viewport bounds
      * @returns True if building is in viewport
      */
-    private isInViewport(
-        building: MinimalBuildingData, 
-        viewport: { minLat: number, maxLat: number, minLng: number, maxLng: number }
-    ): boolean {
+    private isInViewport(building: MinimalBuildingData, viewport: { minLat: number; maxLat: number; minLng: number; maxLng: number }): boolean {
         if (!building.latitude || !building.longitude) return false;
-        
+
         return (
             building.latitude >= viewport.minLat &&
             building.latitude <= viewport.maxLat &&
@@ -475,15 +469,17 @@ export class DataService {
             return of({} as BuildingModel);
         }
 
-        return this.#http.get<any>(`/api/buildings/${uprn}`, { 
-            withCredentials: true 
-        }).pipe(
-            map(response => this.mapBuildingDetailResponse(response, uprn)),
-            catchError(error => {
-                console.error(`Error loading details for building ${uprn}:`, error);
-                return of(this.getBuildingByUPRN(uprn));
+        return this.#http
+            .get<any>(`/api/buildings/${uprn}`, {
+                withCredentials: true,
             })
-        );
+            .pipe(
+                map((response) => this.mapBuildingDetailResponse(response, uprn)),
+                catchError((error) => {
+                    console.error(`Error loading details for building ${uprn}:`, error);
+                    return of(this.getBuildingByUPRN(uprn));
+                }),
+            );
     }
 
     /**
@@ -497,9 +493,10 @@ export class DataService {
             UPRN: this.getPropertyValue(response, 'uprn'),
             FullAddress: existingData.FullAddress,
             LodgementDate: this.getPropertyValue(response, 'lodgement_date'),
-            BuiltForm: this.getPropertyValue(response, 'built_form'), 
-            YearOfAssessment: this.getPropertyValue(response, 'lodgement_date') ? 
-                new Date(this.getPropertyValue(response, 'lodgement_date')).getFullYear().toString() : '',
+            BuiltForm: this.getPropertyValue(response, 'built_form'),
+            YearOfAssessment: this.getPropertyValue(response, 'lodgement_date')
+                ? new Date(this.getPropertyValue(response, 'lodgement_date')).getFullYear().toString()
+                : '',
             StructureUnitType: this.getPropertyValue(response, 'structure_unit_type'),
             FloorConstruction: this.getPropertyValue(response, 'floor_construction'),
             FloorInsulation: this.getPropertyValue(response, 'floor_insulation'),
@@ -508,7 +505,7 @@ export class DataService {
             RoofInsulationThickness: this.getPropertyValue(response, 'roof_insulation_thickness'),
             WallConstruction: this.getPropertyValue(response, 'wall_construction'),
             WallInsulation: this.getPropertyValue(response, 'wall_insulation'),
-            WindowGlazing: this.getPropertyValue(response, 'window_glazing')
+            WindowGlazing: this.getPropertyValue(response, 'window_glazing'),
         };
 
         // Cache the detailed data for future use
@@ -534,7 +531,7 @@ export class DataService {
     private updateBuildingCache(building: BuildingModel): void {
         if (!building.UPRN || !building.TOID) return;
 
-        // Create a private cache 
+        // Create a private cache
         if (!this._detailedBuildingsCache) {
             this._detailedBuildingsCache = new Map<string, BuildingModel>();
         }
@@ -753,21 +750,23 @@ export class DataService {
             return of(this._wardEPCDataCache);
         }
 
-        return this.#http.get<FeatureCollection<Geometry, GeoJsonProperties>>('/api/epc-statistics/wards', {
-        withCredentials: true
-        }).pipe(
-            tap(data => {
-                this._wardEPCDataCache = data;
-            }),
-            catchError(error => {
-                console.error('Error fetching ward EPC data:', error);
-                const emptyCollection: FeatureCollection<Geometry, GeoJsonProperties> = {
-                    type: 'FeatureCollection',
-                    features: []
-                };
-                return of(emptyCollection);
+        return this.#http
+            .get<FeatureCollection<Geometry, GeoJsonProperties>>('/api/epc-statistics/wards', {
+                withCredentials: true,
             })
-        );
+            .pipe(
+                tap((data) => {
+                    this._wardEPCDataCache = data;
+                }),
+                catchError((error) => {
+                    console.error('Error fetching ward EPC data:', error);
+                    const emptyCollection: FeatureCollection<Geometry, GeoJsonProperties> = {
+                        type: 'FeatureCollection',
+                        features: [],
+                    };
+                    return of(emptyCollection);
+                }),
+            );
     }
 }
 

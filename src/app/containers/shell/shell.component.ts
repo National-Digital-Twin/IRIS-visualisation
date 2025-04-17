@@ -22,6 +22,7 @@ import { ResultsPanelComponent } from '@containers/results-panel/results-panel.c
 import { AdvancedFiltersFormModel, FilterKeys, FilterProps } from '@core/models/advanced-filters.model';
 import { BuildingModel } from '@core/models/building.model';
 import { DownloadDataWarningData, DownloadDataWarningResponse } from '@core/models/download-data-warning.model';
+import { EPCData } from '@core/models/epc-data.model';
 import { MinimapData } from '@core/models/minimap-data.model';
 import { URLStateModel } from '@core/models/url-state.model';
 import { DataDownloadService } from '@core/services/data-download.service';
@@ -120,7 +121,8 @@ export class ShellComponent {
 
                 return this.loadWardEPCData().pipe(
                     map((wardEPCData) => {
-                        const enhancedData = this.processWardData(wardBoundaries, wardEPCData);
+                        const epcDataArray = this.transformToEPCData(wardEPCData);
+                        const enhancedData = this.processWardData(wardBoundaries, epcDataArray);
 
                         // Cache the processed data
                         this._enhancedWardDataCache = enhancedData;
@@ -498,17 +500,38 @@ export class ShellComponent {
      * Load ward EPC data from API
      * @returns Observable of ward data with EPC information
      */
-    private loadWardEPCData(): Observable<any> {
+    private loadWardEPCData(): Observable<FeatureCollection<Geometry, GeoJsonProperties>> {
         return this.#dataService.fetchWardEPCData().pipe(
             tap({
-                next: (data) => {
+                next: () => {
                     console.log('Loaded ward EPC data from API');
                 },
                 error: (error) => {
                     console.error('Error loading ward EPC data:', error);
-                }
+                },
             }),
         );
+    }
+
+    private transformToEPCData(featureCollection: FeatureCollection<Geometry, GeoJsonProperties>): EPCData[] {
+        if (!featureCollection.features) {
+            return [];
+        }
+
+        return featureCollection.features.map((feature) => {
+            const properties = feature.properties || {};
+            return {
+                name: properties.WD23NM || '',
+                a_rating: properties.a_rating || 0,
+                b_rating: properties.b_rating || 0,
+                c_rating: properties.c_rating || 0,
+                d_rating: properties.d_rating || 0,
+                e_rating: properties.e_rating || 0,
+                f_rating: properties.f_rating || 0,
+                g_rating: properties.g_rating || 0,
+                no_rating: properties.no_rating || 0,
+            };
+        });
     }
 
     /**
@@ -516,12 +539,12 @@ export class ShellComponent {
      */
     private processWardData(
         wardBoundaries: FeatureCollection<Geometry, GeoJsonProperties>,
-        wardEPCData: any
+        wardEPCData: EPCData[],
     ): FeatureCollection<Geometry, GeoJsonProperties>[] {
-        const epcByWard = new Map();
+        const epcByWard = new Map<string, EPCData>();
 
         if (Array.isArray(wardEPCData)) {
-            wardEPCData.forEach((ward: any) => {
+            wardEPCData.forEach((ward: EPCData) => {
                 if (ward?.name) {
                     epcByWard.set(ward.name, ward);
                 }
@@ -532,7 +555,7 @@ export class ShellComponent {
 
         // Merge EPC data into each feature's properties
         if (enhancedWardData.features) {
-            enhancedWardData.features = enhancedWardData.features.map(feature => {
+            enhancedWardData.features = enhancedWardData.features.map((feature) => {
                 const wardName = feature.properties?.WD23NM ?? '';
 
                 const epcData = epcByWard.get(wardName);
@@ -552,7 +575,7 @@ export class ShellComponent {
                         no_rating: epcData.no_rating ?? 0,
                         modal_rating: modalRating,
                         aggEPC: modalRating,
-                        color: this.#utilService.getEPCColour(modalRating)
+                        color: this.#utilService.getEPCColour(modalRating),
                     };
                 }
 

@@ -188,7 +188,7 @@ export class MapService {
         });
     }
 
-    public getViewportBoundingBox(): { minLat: number, maxLat: number, minLng: number, maxLng: number } | null {
+    public getViewportBoundingBox(): { minLat: number; maxLat: number; minLng: number; maxLng: number } | null {
         const bounds = this.currentMapBounds();
         if (!bounds) return null;
 
@@ -196,7 +196,7 @@ export class MapService {
             minLat: bounds.getSouth(),
             maxLat: bounds.getNorth(),
             minLng: bounds.getWest(),
-            maxLng: bounds.getEast()
+            maxLng: bounds.getEast(),
         };
     }
 

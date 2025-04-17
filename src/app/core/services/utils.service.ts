@@ -1,6 +1,7 @@
 import { Injectable, NgZone, inject, signal } from '@angular/core';
 import { FilterProps } from '@core/models/advanced-filters.model';
 import { BuildingMap, BuildingModel } from '@core/models/building.model';
+import { EPCData } from '@core/models/epc-data.model';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
@@ -293,15 +294,15 @@ export class UtilService {
         }
     }
 
-    public calculateModalRating(epcData: any): string {
+    public calculateModalRating(epcData: EPCData): string {
         const ratings = [
-        { rating: 'A', count: epcData.a_rating },
-        { rating: 'B', count: epcData.b_rating },
-        { rating: 'C', count: epcData.c_rating },
-        { rating: 'D', count: epcData.d_rating },
-        { rating: 'E', count: epcData.e_rating },
-        { rating: 'F', count: epcData.f_rating },
-        { rating: 'G', count: epcData.g_rating }
+            { rating: 'A', count: epcData.a_rating },
+            { rating: 'B', count: epcData.b_rating },
+            { rating: 'C', count: epcData.c_rating },
+            { rating: 'D', count: epcData.d_rating },
+            { rating: 'E', count: epcData.e_rating },
+            { rating: 'F', count: epcData.f_rating },
+            { rating: 'G', count: epcData.g_rating },
         ];
 
         ratings.sort((a, b) => b.count - a.count);

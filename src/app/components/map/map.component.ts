@@ -439,7 +439,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                     },
                     error: () => {
                         this.#dataService.viewportBuildingsLoading.set(false);
-                    }
+                    },
                 });
             }
         }
