@@ -233,7 +233,7 @@ export class ShellComponent {
     public handleSignout(): void {
         this.#signoutService.voidSession().subscribe({
             next: () => {
-                window.location.href = this.#signoutService.signoutLinks?.signoutLink?.href ?? '/';
+                window.location.href = this.#signoutService.signoutLinks?.redirectUrl?.href ?? '/';
             },
             error: (error) => {
                 console.error(error);

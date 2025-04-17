@@ -3,13 +3,13 @@ import { inject, Injectable } from '@angular/core';
 import { BACKEND_API_ENDPOINT } from '@core/tokens/backend-endpoint.token';
 import { Observable, throwError } from 'rxjs';
 
-interface SignoutLink {
+interface RedirectUrl {
     href: string;
 }
 
 interface SignoutLinksResponse {
-    oauth2Signout: string;
-    signoutLink: SignoutLink;
+    oauth2SignoutUrl: string;
+    redirectUrl: RedirectUrl;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -32,7 +32,7 @@ export class SignoutService {
     // eslint-disable-next-line no-explicit-any
     public voidSession(): Observable<any> {
         if (this.signoutLinks) {
-            return this.#http.get(this.signoutLinks.oauth2Signout, { withCredentials: true });
+            return this.#http.get(this.signoutLinks.oauth2SignoutUrl, { withCredentials: true });
         }
 
         return throwError(() => new Error('No sign out links available to void the session!'));
