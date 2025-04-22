@@ -3,16 +3,17 @@
 
 <mat-button-toggle-group [attr.aria-label]="title()" [name]="title()" [multiple]="true" (change)="filterChange($event)">
     @for (option of options(); track option) {
-      @let invalid = enabledOptions && !enabledOptions.includes(option);
-      <mat-button-toggle 
-        [ngClass]="{ invalid: invalid }" 
-        [value]="option" 
-        [checked]="selected.includes(option)"
-        [disabled]="disabled() || (invalid && !selected.includes(option))">
-        {{ option | camelCaseSpace }}
-      </mat-button-toggle>
+        @let invalid = enabledOptions && !enabledOptions.includes(option);
+        <mat-button-toggle
+            [ngClass]="{ invalid: invalid }"
+            [value]="option"
+            [checked]="selected.includes(option)"
+            [disabled]="disabled() || (invalid && !selected.includes(option))"
+        >
+            {{ option | camelCaseSpace }}
+        </mat-button-toggle>
     }
-  </mat-button-toggle-group>
+</mat-button-toggle-group>
 
 <!-- SPDX-License-Identifier: Apache-2.0
 © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme

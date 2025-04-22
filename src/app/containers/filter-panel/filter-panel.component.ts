@@ -154,25 +154,24 @@ export class FilterPanelComponent {
 
     constructor() {
         this.advancedFiltersForm = this.#data.form;
-        
+
         // Get the current viewport bounding box
         const viewport = this.#mapService.getViewportBoundingBox();
-        
+
         if (viewport) {
             // Load detailed buildings for the current viewport
-            this.#dataService.queryDetailedBuildingsInViewport(viewport)
-                .subscribe({
-                    next: buildings => {
-                        console.log('Detailed buildings loaded:', buildings.length);
-                        this.detailedBuildings = buildings;
-                        this.updateFilterOptions();
-                    },
-                    error: error => {
-                        console.error('Error loading detailed buildings:', error);
-                        this.detailedBuildings = [];
-                        this.updateFilterOptions();
-                    }
-                });
+            this.#dataService.queryDetailedBuildingsInViewport(viewport).subscribe({
+                next: (buildings) => {
+                    console.log('Detailed buildings loaded:', buildings.length);
+                    this.detailedBuildings = buildings;
+                    this.updateFilterOptions();
+                },
+                error: (error) => {
+                    console.error('Error loading detailed buildings:', error);
+                    this.detailedBuildings = [];
+                    this.updateFilterOptions();
+                },
+            });
         } else {
             this.updateFilterOptions();
         }
@@ -215,22 +214,22 @@ export class FilterPanelComponent {
     private updateFilterOptions(): void {
         if (this.detailedBuildings.length > 0) {
             const postcodes = this.#filterOptions.getAvailablePostcodes(this.detailedBuildings);
-            
+
             const years = this.#filterOptions.getAvailableYears(this.detailedBuildings);
 
-            this.generalFilters.update(filters => {
+            this.generalFilters.update((filters) => {
                 const updatedFilters = [...filters];
 
-                const postcodeFilter = updatedFilters.find(f => f.formControlName === 'PostCode');
+                const postcodeFilter = updatedFilters.find((f) => f.formControlName === 'PostCode');
                 if (postcodeFilter) {
                     postcodeFilter.data = postcodes;
                 }
 
-                const yearFilter = updatedFilters.find(f => f.formControlName === 'YearOfAssessment');
+                const yearFilter = updatedFilters.find((f) => f.formControlName === 'YearOfAssessment');
                 if (yearFilter) {
                     yearFilter.data = years;
                 }
-                
+
                 return updatedFilters;
             });
         }
@@ -243,36 +242,34 @@ export class FilterPanelComponent {
             // No data available, don't update enabled states
             return;
         }
-        
+
         // Define property mapping for each filter type
         const propertyMapping = {
-            'BuiltForm': 'BuiltForm',
-            'WindowGlazing': 'WindowGlazing',
-            'WallConstruction': 'WallConstruction',
-            'WallInsulation': 'WallInsulation',
-            'FloorConstruction': 'FloorConstruction',
-            'FloorInsulation': 'FloorInsulation',
-            'RoofConstruction': 'RoofConstruction',
-            'RoofInsulationLocation': 'RoofInsulationLocation',
-            'RoofInsulationThickness': 'RoofInsulationThickness'
+            BuiltForm: 'BuiltForm',
+            WindowGlazing: 'WindowGlazing',
+            WallConstruction: 'WallConstruction',
+            WallInsulation: 'WallInsulation',
+            FloorConstruction: 'FloorConstruction',
+            FloorInsulation: 'FloorInsulation',
+            RoofConstruction: 'RoofConstruction',
+            RoofInsulationLocation: 'RoofInsulationLocation',
+            RoofInsulationThickness: 'RoofInsulationThickness',
         };
-        
+
         // Calculate filtered buildings based on current selections
         const filteredBuildings = this.filterDetailedBuildings();
         console.log('Filtered buildings count:', filteredBuildings.length);
 
-        this.otherPanels().forEach(panel => {
-            panel.filters.forEach(filter => {
+        this.otherPanels().forEach((panel) => {
+            panel.filters.forEach((filter) => {
                 const controlName = filter.formControlName;
                 const propertyName = propertyMapping[controlName as keyof typeof propertyMapping];
-                
+
                 if (propertyName) {
-                    const validOptions = filter.data.filter(option => 
-                        this.#filterOptions.isValueInDataset(option, propertyName, filteredBuildings)
-                    );
-                    
+                    const validOptions = filter.data.filter((option) => this.#filterOptions.isValueInDataset(option, propertyName, filteredBuildings));
+
                     filter.validOptions = validOptions;
-                    
+
                     // For special cases (postcode, year, etc.)
                     if (controlName === 'PostCode') {
                         filter.validOptions = this.#filterOptions.getAvailablePostcodes(filteredBuildings);
@@ -282,69 +279,66 @@ export class FilterPanelComponent {
                         const validExpiry: string[] = [];
                         const tenYearsAgo = new Date();
                         tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
-                        
-                        const expiredEPCValid = filteredBuildings.some(b => b.LodgementDate && new Date(b.LodgementDate) < tenYearsAgo);
-                        const inDateEPCValid = filteredBuildings.some(b => b.LodgementDate && new Date(b.LodgementDate) >= tenYearsAgo);
-                        
+
+                        const expiredEPCValid = filteredBuildings.some((b) => b.LodgementDate && new Date(b.LodgementDate) < tenYearsAgo);
+                        const inDateEPCValid = filteredBuildings.some((b) => b.LodgementDate && new Date(b.LodgementDate) >= tenYearsAgo);
+
                         if (expiredEPCValid) validExpiry.push('EPC Expired');
                         if (inDateEPCValid) validExpiry.push('EPC In Date');
-                        
+
                         filter.validOptions = validExpiry;
                     }
                 }
             });
         });
-        
+
         // Check if we have any valid filter options
-        this.noValidFilterOptions = this.otherPanels().every(panel => 
-            panel.filters.every(filter => 
-                !filter.validOptions || filter.validOptions.length === 0
-            )
+        this.noValidFilterOptions = this.otherPanels().every((panel) =>
+            panel.filters.every((filter) => !filter.validOptions || filter.validOptions.length === 0),
         );
     }
 
     // Filter detailed buildings based on the current form values
     private filterDetailedBuildings(): BuildingModel[] {
         const formValue = this.advancedFiltersForm.value;
-        const filterKeys = Object.keys(formValue).filter(key => 
-            formValue[key] && Array.isArray(formValue[key]) && formValue[key].length > 0
-        );
+        const filterKeys = Object.keys(formValue).filter((key) => formValue[key] && Array.isArray(formValue[key]) && formValue[key].length > 0);
 
         if (filterKeys.length === 0) {
             return this.detailedBuildings;
         }
-        
-        console.log('Active filters:', filterKeys);
-        console.log('Filter values:', filterKeys.map(key => ({ [key]: formValue[key] })));
 
-        return this.detailedBuildings.filter(building => {
-            return filterKeys.every(key => {
+        console.log('Active filters:', filterKeys);
+        console.log(
+            'Filter values:',
+            filterKeys.map((key) => ({ [key]: formValue[key] })),
+        );
+
+        return this.detailedBuildings.filter((building) => {
+            return filterKeys.every((key) => {
                 if (!formValue[key] || formValue[key].length === 0) {
                     return true;
                 }
-                
+
                 // Special handling for EPCExpiry
                 if (key === 'EPCExpiry') {
                     const tenYearsAgo = new Date();
                     tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
-                    
+
                     if (!building.LodgementDate) {
                         return false;
                     }
-                    
+
                     const lodgementDate = new Date(building.LodgementDate);
                     const isExpired = lodgementDate < tenYearsAgo;
-                    
-                    return (
-                        (formValue[key].includes('EPC Expired') && isExpired) ||
-                        (formValue[key].includes('EPC In Date') && !isExpired)
-                    );
+
+                    return (formValue[key].includes('EPC Expired') && isExpired) || (formValue[key].includes('EPC In Date') && !isExpired);
                 }
 
                 const propertyValue = building[key as keyof BuildingModel];
 
-                return propertyValue !== undefined && formValue[key].some((filterValue: string) => 
-                    String(propertyValue).toLowerCase() === String(filterValue).toLowerCase()
+                return (
+                    propertyValue !== undefined &&
+                    formValue[key].some((filterValue: string) => String(propertyValue).toLowerCase() === String(filterValue).toLowerCase())
                 );
             });
         });
@@ -358,30 +352,30 @@ export class FilterPanelComponent {
 
     public applyFilters(): void {
         const filteredBuildings = this.filterDetailedBuildings();
-        
+
         console.log(`Applying filters: Found ${filteredBuildings.length} buildings matching criteria`);
-        
+
         if (filteredBuildings.length > 0) {
             // Convert to BuildingMap format
             const buildingMap: Record<string, BuildingModel[]> = {};
-            
-            filteredBuildings.forEach(building => {
+
+            filteredBuildings.forEach((building) => {
                 const toid = building.TOID ?? building.ParentTOID;
                 if (!toid) return;
-                
+
                 if (buildingMap[toid]) {
                     buildingMap[toid].push(building);
                 } else {
                     buildingMap[toid] = [building];
                 }
             });
-            
+
             // Set the buildings selection to display in results panel
             this.#dataService.setSelectedBuildings(Object.values(buildingMap));
 
-            this.#dialogRef.close({ 
+            this.#dialogRef.close({
                 value: this.advancedFiltersForm.value,
-                filteredBuildings: buildingMap
+                filteredBuildings: buildingMap,
             });
         } else {
             console.log('No buildings match the selected filters');

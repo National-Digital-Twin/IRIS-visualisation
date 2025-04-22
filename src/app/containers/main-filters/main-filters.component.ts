@@ -63,7 +63,7 @@ export class MainFiltersComponent {
     readonly #mapService = inject(MapService);
     readonly #spatialQueryService = inject(SpatialQueryService);
     readonly #destroyRef = inject(DestroyRef);
-    readonly #dataService = inject(DataService)
+    readonly #dataService = inject(DataService);
 
     public addressForm: FormGroup;
     public epcRatings: Record<string, string> = EPCRating;
@@ -263,10 +263,9 @@ export class MainFiltersComponent {
 
         const viewport = this.#mapService.getViewportBoundingBox();
         if (viewport) {
-            this.#dataService.queryDetailedBuildingsInViewport(viewport).subscribe(buildings => {
+            this.#dataService.queryDetailedBuildingsInViewport(viewport).subscribe((buildings) => {
                 // If the advanced filters panel is open, update its options
-                const filterPanel = this.#dialog.openDialogs.find(dialog => 
-                    dialog.componentInstance instanceof FilterPanelComponent);
+                const filterPanel = this.#dialog.openDialogs.find((dialog) => dialog.componentInstance instanceof FilterPanelComponent);
 
                 if (filterPanel) {
                     (filterPanel.componentInstance as FilterPanelComponent).updateWithNewBuildings(buildings);
