@@ -295,6 +295,78 @@ export class DataService {
     }
 
     /**
+     * Query detailed buildings within the current viewport
+     * @param viewport The current map viewport bounds
+     * @returns Observable of detailed building data
+     */
+    public queryDetailedBuildingsInViewport(
+        viewport: { minLat: number, maxLat: number, minLng: number, maxLng: number },
+    ): Observable<BuildingModel[]> {
+        const params = new HttpParams()
+            .set('min_long', viewport.minLng.toString())
+            .set('min_lat', viewport.minLat.toString())
+            .set('max_long', viewport.maxLng.toString())
+            .set('max_lat', viewport.maxLat.toString());
+
+        console.log('Querying detailed buildings with params:', 
+            `min_lat=${viewport.minLat}, max_lat=${viewport.maxLat}, min_long=${viewport.minLng}, max_long=${viewport.maxLng}`);
+
+        return this.#http.get<any[]>('/api/detailed-buildings', { 
+            params, 
+            withCredentials: true 
+        }).pipe(
+            tap(results => console.log('Detailed buildings API response:', results.length)),
+            map(results => this.mapDetailedBuildingsResponse(results)),
+            catchError(error => {
+                console.error('Error fetching detailed buildings:', error);
+                return of([]);
+            })
+        );
+    }
+
+    /**
+     * Map detailed buildings API response to BuildingModel objects
+     */
+    private mapDetailedBuildingsResponse(results: any[]): BuildingModel[] {
+        console.log(`Mapping ${results.length} detailed buildings...`);
+        
+        return results.map(building => {
+            const model: BuildingModel = {
+                UPRN: building.uprn,
+                TOID: building.toid,
+                ParentTOID: building.parent_toid,
+                LodgementDate: building.lodgement_date,
+                PostCode: building.postcode,
+                WindowGlazing: building.window_glazing,
+                WallConstruction: building.wall_construction,
+                WallInsulation: building.wall_insulation,
+                FloorConstruction: building.floor_construction,
+                FloorInsulation: building.floor_insulation,
+                RoofConstruction: building.roof_construction,
+                RoofInsulationLocation: building.roof_insulation_location,
+                RoofInsulationThickness: building.roof_insulation_thickness,
+                // Set a default EPC if not provided
+                EPC: building.energy_rating ? this.parseEPCRating(building.energy_rating) : EPCRating.none,
+                latitude: building.latitude,
+                longitude: building.longitude,
+                FullAddress: building.first_line_of_address,
+                YearOfAssessment: building.lodgement_date ? 
+                    new Date(building.lodgement_date).getFullYear().toString() : undefined,
+                BuiltForm: building.built_form
+            };
+
+            Object.keys(model).forEach(key => {
+                const typedKey = key as keyof BuildingModel;
+                if (model[typedKey] === '') {
+                    (model as any)[typedKey] = undefined;
+                }
+            });
+            
+            return model;
+        });
+    }
+
+    /**
      * Parse EPC rating from string to enum
      */
     private parseEPCRating(epcValue: string): EPCRating {
@@ -347,6 +419,57 @@ export class DataService {
                 console.error('Error fetching buildings:', error);
                 this.viewportBuildingsLoading.set(false);
                 return of(this.minimalBuildings());
+            })
+        );
+    }
+
+    /**
+     * Load detailed buildings for the current viewport
+     * @param viewport The current map viewport bounds
+     * @returns Observable of the loaded detailed buildings
+     */
+    public loadDetailedBuildingsForViewport(
+        viewport: { minLat: number, maxLat: number, minLng: number, maxLng: number }
+    ): Observable<BuildingModel[]> {
+        this.viewportBuildingsLoading.set(true);
+        
+        return this.queryDetailedBuildingsInViewport(viewport).pipe(
+            tap(detailedBuildings => {
+                const buildingMap: BuildingMap = {};
+                
+                detailedBuildings.forEach(building => {
+                    const toid = building.TOID ?? building.ParentTOID;
+                    if (!toid) return;
+                    
+                    if (buildingMap[toid]) {
+                        buildingMap[toid].push(building);
+                    } else {
+                        buildingMap[toid] = [building];
+                    }
+                });
+                
+                // Update minimal buildings with new data
+                const minimalMap: MinimalBuildingMap = {};
+                Object.entries(buildingMap).forEach(([toid, buildings]) => {
+                    minimalMap[toid] = buildings.map(b => ({
+                        UPRN: b.UPRN,
+                        EPC: b.EPC ?? EPCRating.none,
+                        fullAddress: b.FullAddress,
+                        latitude: b.latitude !== undefined ? Number(b.latitude) : undefined,
+                        longitude: b.longitude !== undefined ? Number(b.longitude) : undefined,
+                        TOID: b.TOID,
+                        ParentTOID: b.ParentTOID,
+                        StructureUnitType: b.StructureUnitType
+                    }));
+                });
+                
+                this.minimalBuildings.update(current => ({...current, ...minimalMap}));
+                this.viewportBuildingsLoading.set(false);
+            }),
+            catchError(error => {
+                console.error('Error loading detailed buildings for viewport:', error);
+                this.viewportBuildingsLoading.set(false);
+                return of([]);
             })
         );
     }

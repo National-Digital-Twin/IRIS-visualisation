@@ -418,6 +418,19 @@ export class ShellComponent {
             zoom,
         };
         this.navigate(queryParams);
+
+        const filtersActive = Object.keys(this.filterProps).length > 0;
+        if (filtersActive && zoom >= 15) {
+            // Update building filter with new viewport data
+            const viewport = this.#mapService.getViewportBoundingBox();
+            if (viewport) {
+                this.#dataService.loadDetailedBuildingsForViewport(viewport).subscribe(() => {
+                    this.updateBuildingLayerColour();
+                });
+            }
+        } else {
+            this.updateBuildingLayerColour();
+        }
     }
 
     public onFlag(buildings: BuildingModel[]): void {

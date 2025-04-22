@@ -52,6 +52,19 @@ export class MultiButtonFilterComponent implements ControlValueAccessor {
             this.selectedValues.set([]);
         }
     }
+
+    public isOptionDisabled(option: string): boolean {
+        if (!this.validOptions() || this.validOptions().length === 0) {
+            return false;
+        }
+
+        // If the option is already selected, don't disable it
+        if (this.selectedValues().includes(option)) {
+            return false;
+        }
+
+        return !this.validOptions().includes(option);
+    }
 }
 
 // SPDX-License-Identifier: Apache-2.0

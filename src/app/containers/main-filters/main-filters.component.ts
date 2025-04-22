@@ -31,6 +31,7 @@ import {
 import { AddressSearchData } from '@core/models/address-search-results.model';
 import { AdvancedFiltersFormModel, EPCExpiry, FilterProps } from '@core/models/advanced-filters.model';
 import { AddressSearchService } from '@core/services/address-search.service';
+import { DataService } from '@core/services/data.service';
 import { MapService } from '@core/services/map.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { LngLat } from 'mapbox-gl';
@@ -62,6 +63,7 @@ export class MainFiltersComponent {
     readonly #mapService = inject(MapService);
     readonly #spatialQueryService = inject(SpatialQueryService);
     readonly #destroyRef = inject(DestroyRef);
+    readonly #dataService = inject(DataService)
 
     public addressForm: FormGroup;
     public epcRatings: Record<string, string> = EPCRating;
@@ -251,6 +253,26 @@ export class MainFiltersComponent {
     public filtersExist(): boolean {
         const filterProps = this.filterProps();
         return (filterProps && Object.keys(filterProps).length > 0) || this.#spatialQueryService.spatialFilterEnabled();
+    }
+
+    public updateFiltersForNewViewport(): void {
+        // Only update if filters are active
+        if (Object.keys(this.filterProps()).length === 0) {
+            return;
+        }
+
+        const viewport = this.#mapService.getViewportBoundingBox();
+        if (viewport) {
+            this.#dataService.queryDetailedBuildingsInViewport(viewport).subscribe(buildings => {
+                // If the advanced filters panel is open, update its options
+                const filterPanel = this.#dialog.openDialogs.find(dialog => 
+                    dialog.componentInstance instanceof FilterPanelComponent);
+
+                if (filterPanel) {
+                    (filterPanel.componentInstance as FilterPanelComponent).updateWithNewBuildings(buildings);
+                }
+            });
+        }
     }
 }
 
