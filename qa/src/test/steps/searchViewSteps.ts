@@ -16,46 +16,49 @@ Given('I select the {string} from the dropdown list', async function (searchStri
     await sleep(10000);
 });
 
-//TODO: Will be implemented in the next PR
 When('I click the property {string}', async function (string) {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
+    searchViewPage = new SearchViewPage(basePage.page);
+    // coordinates for selected house
+    await basePage.sleep(10000);
+    await searchViewPage.clickMapLocation(632, 368);
 });
 
-//TODO: Will be implemented in the next PR
 Then('I should be able to view the property details', async function () {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
+    searchViewPage = new SearchViewPage(basePage.page);
+    await searchViewPage.verifyDetailsPanelVisible();
 });
 
-//TODO: Will be implemented in the next PR
 Then('I should be a able to zoom on the property', async function () {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
+    searchViewPage = new SearchViewPage(basePage.page);
+    await searchViewPage.zoomOnTheMapWithScreenshotComparison();
 });
 
-//TODO: Will be implemented in the next PR
-When('I search a location by ward details', async function () {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
+When('I zoom out on the map to display wards', async function () {
+    searchViewPage = new SearchViewPage(basePage.page);
+    await searchViewPage.zoomOutOfTheMap(3);
+    await basePage.sleep(2000);
 });
 
-//TODO: Will be implemented in the next PR
 Then('I should be able to click on a ward', async function () {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
+    searchViewPage = new SearchViewPage(basePage.page);
+    await basePage.sleep(2000);
+    await searchViewPage.clickMapLocation(450,386);
+    await basePage.sleep(500);
 });
 
-//TODO: Will be implemented in the next PR
+Then('I should see the Ward Details panel', async function () {
+    searchViewPage = new SearchViewPage(basePage.page);
+    await searchViewPage.verifyWardDetailsPanelVisible();
+});
+
 Then('I should be able to pan around the map', async function () {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
+    searchViewPage = new SearchViewPage(basePage.page);
+    await searchViewPage.panWithScreenshotComparison();
 });
 
-//TODO: Will be implemented in the next PR
 Then('I should be able to add a flag to the property', async function () {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
+    searchViewPage = new SearchViewPage(basePage.page);
+    await searchViewPage.addPropertyFlag();
 });
 
 //TODO: Will be implemented in the next PR
@@ -70,24 +73,24 @@ Then('I should be able to view the reason for removal of a Flag from a property'
     return 'pending';
 });
 
-//TODO: Will be implemented in the next PR
 When('I add the Filter area around the multiple properties', async function () {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
+    searchViewPage = new SearchViewPage(basePage.page);
+    await searchViewPage.drawFilterArea();
 });
 
 //TODO: Will be implemented in the next PR
 Then('I should view the filtered properties in the area', async function () {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
+    searchViewPage = new SearchViewPage(basePage.page);
+    await searchViewPage.verifyFilteredPropertiesPanelVisible();
 });
 
 //TODO: Will be implemented in the next PR
-Then('I should be able add additional filter by {string}', async function (string) {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
+Then('I should be able add additional filter by {string}', async function (filterType: string) {
+    searchViewPage = new SearchViewPage(basePage.page);
+    await searchViewPage.addNewFilter(filterType);
 });
 
 export const sleep = (ms: number): Promise<void> => {
     return new Promise((resolve) => setTimeout(resolve, ms));
 };
+

@@ -10,6 +10,11 @@ export default class PlaywrightWrapper {
         });
     }
 
+    // Custom sleep function
+    async customSleep(ms: number): Promise<void> {
+        return new Promise((resolve) => { setTimeout(resolve, ms); });
+    }
+
     async waitAndClick(locator: string) {
         const element = this.page.locator(locator);
         await element.waitFor({
