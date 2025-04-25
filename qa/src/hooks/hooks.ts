@@ -79,7 +79,7 @@ After(async function TestCaseHook({ pickle, result }) {
       this.attach(`Trace file: ${traceFileLink}`, 'text/html');
     } else {
       // eslint-disable-next-line no-console
-      console.log('File does not exist.');
+      console.error('File does not exist.');
     }
   }
 });

@@ -153,7 +153,7 @@ export default class SearchViewPage {
                 await this.filterByEPC();
                 break;
             default:
-                console.log('No Matching filter types');
+                console.error('No Matching filter types');
                 break;
         }
 
