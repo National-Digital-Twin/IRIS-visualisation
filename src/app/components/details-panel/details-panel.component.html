@@ -38,7 +38,7 @@
             </div>
 
             <div class="actions">
-                @if (!activeFlag) {
+                @if (building.Flagged === undefined) {
                     <button mat-flat-button aria-label="Flag property" (click)="flag.emit([building!])"><mat-icon>flag</mat-icon> Add a flag</button>
                 } @else {
                     <button mat-flat-button class="remove" aria-label="Remove property flag" (click)="removeFlag.emit(building!)">
@@ -163,16 +163,20 @@
     <div class="flagging">
         @if (activeFlag || (flagHistory && flagHistory.length > 0)) {
             <h3>Active Flag</h3>
-            @if (activeFlag && activeFlag !== 'loading') {
-                <dl class="horizontal">
-                    <dt>Flagged by:</dt>
-                    <dd>{{ activeFlag.FlaggedByName }}</dd>
-
-                    <dt>Flag date:</dt>
-                    <dd>{{ activeFlag.FlagDate | date: 'dd-MMM-YYYY' }}</dd>
-                </dl>
+            @if (activeFlag) {
+                @if (activeFlag !== 'loading') {
+                    <dl class="horizontal">
+                        <dt>Flagged by:</dt>
+                        <dd>{{ activeFlag.FlaggedByName }}</dd>
+    
+                        <dt>Flag date:</dt>
+                        <dd>{{ activeFlag.FlagDate | date: 'dd-MMM-YYYY' }}</dd>
+                    </dl>
+                } @else {
+                    <mat-progress-bar mode="indeterminate" />
+                }
             } @else {
-                <mat-progress-bar mode="indeterminate" />
+                <p>There are no active flags for this dwelling</p>
             }
 
             <h3>Previous Flags</h3>

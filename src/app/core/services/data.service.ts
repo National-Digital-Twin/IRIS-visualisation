@@ -163,12 +163,7 @@ export class DataService {
                 const flags = flagHistory.filter((f) => f.Flagged && f.AssessmentReason);
                 this.flagHistory.set(flags);
                 const flag = flagHistory.find((f) => f.Flagged && !f.AssessmentReason);
-                if (flag === undefined) {
-                    this.activeFlag.set(undefined);
-                }
-                else {
-                    this.activeFlag.set(flag);
-                }
+                this.activeFlag.set(flag);
             }),
         );
     }
