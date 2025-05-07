@@ -163,16 +163,19 @@
     <div class="flagging">
         @if (activeFlag || (flagHistory && flagHistory.length > 0)) {
             <h3>Active Flag</h3>
-            @if (activeFlag && activeFlag !== 'loading') {
-                <dl class="horizontal">
-                    <dt>Flagged by:</dt>
-                    <dd>{{ activeFlag.FlaggedByGivenName }} {{ activeFlag.FlaggedBySurname }}</dd>
-
-                    <dt>Flag date:</dt>
-                    <dd>{{ activeFlag.FlagDate | date: 'dd-MMM-YYYY' }}</dd>
-                </dl>
+            @if (activeFlag) {
+                @if (activeFlag !== 'loading') {
+                    <dl class="horizontal">
+                        <dt>Flagged by:</dt>
+                        <dd>{{ activeFlag.FlaggedByName }}</dd>
+                        <dt>Flag date:</dt>
+                        <dd>{{ activeFlag.FlagDate | date: 'dd-MMM-YYYY' }}</dd>
+                    </dl>
+                } @else {
+                    <mat-progress-bar mode="indeterminate" />
+                }
             } @else {
-                <mat-progress-bar mode="indeterminate" />
+                <p>There are no active flags for this dwelling</p>
             }
 
             <h3>Previous Flags</h3>
@@ -186,13 +189,13 @@
 
                                 <dl class="horizontal">
                                     <dt>Flagged by:</dt>
-                                    <dd>{{ flag.FlaggedByGivenName }} {{ flag.FlaggedBySurname }}</dd>
+                                    <dd>{{ flag.FlaggedByName }}</dd>
 
                                     <dt>Remove date:</dt>
                                     <dd>{{ flag.AssessmentDate | date: 'dd-MMM-YYYY' }}</dd>
 
                                     <dt>Removed by:</dt>
-                                    <dd>{{ flag.AssessorGivenName }} {{ flag.AssessorSurname }}</dd>
+                                    <dd>{{ flag.AssessorName }}</dd>
 
                                     <dt>Reason:</dt>
                                     <dd>{{ invalidateReason[flag.AssessmentReason] }}</dd>

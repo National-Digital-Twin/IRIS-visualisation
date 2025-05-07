@@ -635,11 +635,12 @@ export class DataService {
     }
 
     public flagToInvestigate(building: BuildingModel): Observable<FlagHistory[]> {
+        const lodgementDate = building.LodgementDate ? `_${building.LodgementDate.replaceAll("-", "")}` : ""
         return this.#http
             .post<NonNullable<BuildingModel['Flagged']>>(
                 `${this.#backendApiEndpoint}/flag-to-investigate`,
                 {
-                    uri: `http://nationaldigitaltwin.gov.uk/data#building_${building.UPRN}`,
+                    uri: `http://ndtp.co.uk/data#StructureUnitState_${building.UPRN}${lodgementDate}`,
                 },
                 { withCredentials: true },
             )
@@ -651,9 +652,7 @@ export class DataService {
                     const flag: FlagResponse = {
                         UPRN: building.UPRN,
                         TOID: building.TOID,
-                        ParentTOID: building.ParentTOID,
-                        Flagged: flagUri,
-                        FlagDate: new Date().toISOString(),
+                        Flagged: flagUri
                     };
                     this.buildingsFlagged.update((f) => ({
                         ...f,
@@ -673,7 +672,8 @@ export class DataService {
 
     public invalidateFlag(building: BuildingModel, reason: InvalidateFlagReason): Observable<FlagHistory[]> {
         /* If building has no flag, throw error */
-        if (building.Flagged === undefined) throw new Error(`Building ${building.UPRN} has no flag`);
+        let activeFlag = this.activeFlag();
+        if (activeFlag === undefined || activeFlag === 'loading' || !activeFlag) throw new Error(`Building ${building.UPRN} has no flag`);
 
         /* convert reason string to enum key */
         const keys = Object.keys(InvalidateFlagReason) as Array<keyof typeof InvalidateFlagReason>;
@@ -683,8 +683,8 @@ export class DataService {
             .post<NonNullable<BuildingModel['Flagged']>>(
                 `${this.#backendApiEndpoint}/invalidate-flag`,
                 {
-                    flagUri: building.Flagged,
-                    assessmentTypeOverride: `http://nationaldigitaltwin.gov.uk/ontology#${key}`,
+                    flagUri: activeFlag.Flagged,
+                    assessmentTypeOverride: `http://ndtp.co.uk/ontology#${key}`,
                 },
                 { withCredentials: true },
             )
@@ -720,8 +720,8 @@ export class DataService {
      */
     private getCurrentFlags(flags: FlagResponse[]): FlagResponse[] {
         const result = Object.values(
-            flags.reduce((acc: Record<string, FlagResponse>, { UPRN, FlagDate, Flagged, ParentTOID, TOID }) => {
-                if (!acc[UPRN] || Date.parse(acc[UPRN].FlagDate) < Date.parse(FlagDate)) acc[UPRN] = { UPRN, FlagDate, Flagged, ParentTOID, TOID };
+            flags.reduce((acc: Record<string, FlagResponse>, { UPRN, Flagged, TOID }) => {
+                acc[UPRN] = { UPRN, Flagged, TOID };
                 return acc;
             }, {}),
         );
@@ -731,7 +731,7 @@ export class DataService {
     private mapFlagsToToids(flags: FlagResponse[]): FlagMap {
         const flagMap: FlagMap = {};
         flags.forEach((flag) => {
-            const toid = flag.TOID ?? flag.ParentTOID;
+            const toid = flag.TOID;
             if (!toid) throw new Error(`Flag ${flag.UPRN} has no TOID`);
             if (flagMap[toid]) {
                 flagMap[toid].push(flag);
