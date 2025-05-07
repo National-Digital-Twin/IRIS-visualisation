@@ -634,7 +634,7 @@ export class DataService {
     }
 
     public flagToInvestigate(building: BuildingModel): Observable<FlagHistory[]> {
-        var lodgementDate = building.LodgementDate ? `_${building.LodgementDate.replaceAll("-", "")}` : ""
+        const lodgementDate = building.LodgementDate ? `_${building.LodgementDate.replaceAll("-", "")}` : ""
         return this.#http
             .post<NonNullable<BuildingModel['Flagged']>>(
                 `${this.#backendApiEndpoint}/flag-to-investigate`,
