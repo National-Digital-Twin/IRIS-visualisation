@@ -9,7 +9,7 @@ import { MapLayerConfig } from '@core/models/map-layer-config.model';
 import { MinimapData } from '@core/models/minimap-data.model';
 import { URLStateModel } from '@core/models/url-state.model';
 import { DataService } from '@core/services/data.service';
-import { MapService } from '@core/services/map.service';
+import { MAP_SERVICE, MapDraw } from '@core/services/map.token';
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
 import { UtilService } from '@core/services/utils.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
@@ -28,7 +28,7 @@ import { map, skip, take } from 'rxjs';
 })
 export class MapComponent implements AfterViewInit, OnDestroy {
     readonly #settings = inject(SettingsService);
-    readonly #mapService = inject(MapService);
+    readonly #mapService = inject(MAP_SERVICE);
     readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
     readonly #utilsService = inject(UtilService);
     readonly #dataService = inject(DataService);
@@ -38,7 +38,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     public showLegend: boolean = false;
     public twoDimensions: boolean = false;
 
-    private drawControl?: MapboxDraw;
+    private drawControl?: MapDraw;
     private readonly wardPopup = new Popup();
 
     public mapConfig: InputSignal<URLStateModel> = input.required();
@@ -117,8 +117,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
      * Map event listeners
      */
     private initMapEvents(): void {
-        this.#mapService.mapInstance.on('error', (error) => console.log('[MAP]', 'Map Error', { error }));
-        this.#mapService.mapInstance.on('styleimagemissing', (error) => console.log('[MAP]', 'Image Missing', { error }));
+        this.#mapService.mapInstance.on('error', (error: Error) => console.log('[MAP]', 'Map Error', { error }));
+        this.#mapService.mapInstance.on('styleimagemissing', (error: Error) => console.log('[MAP]', 'Image Missing', { error }));
 
         /* If the map style changes, re-add layers */
         this.#mapService.mapInstance.on('style.load', () => this.#mapService.addLayers().pipe(take(1)).subscribe());
@@ -439,7 +439,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                     },
                     error: () => {
                         this.#dataService.viewportBuildingsLoading.set(false);
-                    }
+                    },
                 });
             }
         }

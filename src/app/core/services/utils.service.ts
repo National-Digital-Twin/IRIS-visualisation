@@ -7,9 +7,9 @@ import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token'
 import { MapLayerId } from '@core/types/map-layer-id';
 import { booleanWithin } from '@turf/boolean-within';
 import { Polygon } from 'geojson';
-import { ExpressionSpecification, LngLat, PaintSpecification } from 'mapbox-gl';
+import { ExpressionSpecification, PaintSpecification } from 'mapbox-gl';
 import { DataService } from './data.service';
-import { MapService } from './map.service';
+import { MAP_SERVICE, MapLatLng } from './map.token';
 import { SpatialQueryService } from './spatial-query.service';
 
 type MapLayerPaintKeys = keyof PaintSpecification;
@@ -24,7 +24,7 @@ type CurrentExpressions = Record<MapLayerPaintKeys, ExpressionAndMapLayerFilter>
 @Injectable({ providedIn: 'root' })
 export class UtilService {
     readonly #dataService = inject(DataService);
-    readonly #mapService = inject(MapService);
+    readonly #mapService = inject(MAP_SERVICE);
     readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
     readonly #settings = inject(SettingsService);
     readonly #spatialQueryService = inject(SpatialQueryService);
@@ -295,13 +295,13 @@ export class UtilService {
 
     public calculateModalRating(epcData: any): string {
         const ratings = [
-        { rating: 'A', count: epcData.a_rating },
-        { rating: 'B', count: epcData.b_rating },
-        { rating: 'C', count: epcData.c_rating },
-        { rating: 'D', count: epcData.d_rating },
-        { rating: 'E', count: epcData.e_rating },
-        { rating: 'F', count: epcData.f_rating },
-        { rating: 'G', count: epcData.g_rating }
+            { rating: 'A', count: epcData.a_rating },
+            { rating: 'B', count: epcData.b_rating },
+            { rating: 'C', count: epcData.c_rating },
+            { rating: 'D', count: epcData.d_rating },
+            { rating: 'E', count: epcData.e_rating },
+            { rating: 'F', count: epcData.f_rating },
+            { rating: 'G', count: epcData.g_rating },
         ];
 
         ratings.sort((a, b) => b.count - a.count);
@@ -516,7 +516,7 @@ export class UtilService {
      * @param UPRN
      * @param mapCenter
      */
-    public viewDetailsButtonClick(TOID: string, UPRN: string, mapCenter: LngLat): void {
+    public viewDetailsButtonClick(TOID: string, UPRN: string, mapCenter: MapLatLng): void {
         /** if its not viewing details for a multi dwelling select on map */
         if (this.multiDwelling() === undefined) {
             this.selectSingleDwellingOnMap(TOID);
@@ -690,94 +690,6 @@ export class UtilService {
 
     private openResultsPanel(buildings: BuildingModel[]): void {
         this.#dataService.setSelectedBuildings([buildings]);
-    }
-
-    public getValidFilters(filters: FilterProps): FilterProps {
-        const advancedFilterKeys = Object.keys(filters);
-        const filterCopy = { ...filters };
-        // remove advanced filters without a value
-        Object.keys(filterCopy).forEach((key) => {
-            const filterKey = key as keyof FilterProps;
-            if (filterCopy[filterKey] === null) {
-                delete filterCopy[filterKey];
-            }
-        });
-
-        // identify main filter props
-        const mainFilterProps = { ...this.filterProps() };
-        Object.keys(mainFilterProps).forEach((key) => {
-            const filterKey = key as keyof FilterProps;
-            if (advancedFilterKeys.includes(key)) {
-                delete mainFilterProps[filterKey];
-            }
-        });
-        // merge filters to create new potential filter
-        const newFilter = { ...mainFilterProps, ...filterCopy };
-
-        const unfilteredBuildings = this.#dataService.buildings();
-
-        if (!unfilteredBuildings) {
-            return {};
-        }
-
-        // filter buildings based on potential filter
-        const potentiallyFilteredBuildings = this.filterBuildings(unfilteredBuildings, newFilter);
-
-        // get unique set of valid options for each advanced filter
-        const flattenedBuildings = Object.values(potentiallyFilteredBuildings).flat();
-
-        const uniqueOptions = this.getUniqueOptions(advancedFilterKeys, flattenedBuildings);
-
-        // determine which epc expiry options are valid
-        const validExpiry: string[] = [];
-        const expiredEPCValid = flattenedBuildings.find((b) => this.epcExpired(b.LodgementDate));
-        const inDateEPCValid = flattenedBuildings.find((b) => this.epcInDate(b.LodgementDate));
-        if (expiredEPCValid) {
-            validExpiry.push('EPC Expired');
-        }
-        if (inDateEPCValid) {
-            validExpiry.push('EPC In Date');
-        }
-
-        return { ...uniqueOptions, EPCExpiry: validExpiry };
-    }
-
-    public getAllUniqueFilterOptions(filters: FilterProps): FilterProps {
-        const unfilteredBuildings = this.#dataService.buildings();
-
-        if (!unfilteredBuildings) {
-            return {};
-        }
-
-        const flattenedBuildings = Object.values(unfilteredBuildings).flat();
-        const filterKeys = Object.keys(filters);
-        // Do not fetch EPC Expiry values from data as these are static
-        if (filterKeys.includes('EPCExpiry')) {
-            filterKeys.splice(filterKeys.indexOf('EPCExpiry'), 1);
-        }
-        const options = this.getUniqueOptions(filterKeys, flattenedBuildings);
-        return options;
-    }
-
-    public getUniqueOptions(filterKeys: string[], flattenedBuildings: BuildingModel[]): FilterProps {
-        const availableValues: FilterProps = {};
-        filterKeys.forEach((key) => {
-            const keyProp = key as keyof BuildingModel;
-            const options = [...new Set(flattenedBuildings.map((b) => b[keyProp] ?? ''))].sort((a, b) =>
-                a.localeCompare(b, undefined, { sensitivity: 'base' }),
-            );
-
-            if (options.includes('NoData')) {
-                options.push(options.splice(options.indexOf('NoData'), 1)[0]);
-            }
-
-            if (options.includes('')) {
-                options.splice(options.indexOf(''), 1);
-            }
-
-            availableValues[key as keyof FilterProps] = options;
-        });
-        return availableValues;
     }
 }
 

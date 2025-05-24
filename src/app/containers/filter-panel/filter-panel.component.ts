@@ -1,25 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, effect, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogClose, MatDialogContent, MatDialogRef } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MultiButtonFilterComponent } from '@components/multi-button-filter/multi-button-filter.component';
-import { FilterProps, MultiButtonFilterOption } from '@core/models/advanced-filters.model';
-import { UtilService } from '@core/services/utils.service';
+import { BoundingBox } from '@core/models';
+import { MAP_SERVICE } from '@core/services/map.token';
 import { map } from 'rxjs';
+import { FilterMeta, filterNames, FilterPanel, FilterPanelService, panelNames } from './filter-panel.service';
 
-type DialogData = {
-    filterProps?: FilterProps;
-    form: FormGroup;
-};
-
-type PanelData = {
-    panelTitle: string;
-    filters: MultiButtonFilterOption[];
+export type FilterDialogData = {
+    filterProps?: Record<(typeof filterNames)[number], string[]>;
 };
 
 @Component({
@@ -38,182 +32,90 @@ type PanelData = {
     ],
     templateUrl: './filter-panel.component.html',
     styleUrl: './filter-panel.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FilterPanelComponent {
-    readonly #data: DialogData = inject(MAT_DIALOG_DATA);
+export class FilterPanelComponent implements OnInit {
+    readonly #mapService = inject(MAP_SERVICE);
+    readonly #filterPanelService: FilterPanelService = inject(FilterPanelService);
+
+    readonly #data: FilterDialogData = inject(MAT_DIALOG_DATA);
     readonly #dialogRef = inject(MatDialogRef<FilterPanelComponent>);
-    readonly #utilService = inject(UtilService);
-    readonly #destroyRef = inject(DestroyRef);
 
-    public advancedFiltersForm: FormGroup;
-    public noValidFilterOptions: boolean = false;
-
-    private readonly expiredOptions = ['EPC In Date', 'EPC Expired'];
-
-    private readonly generalFilters = signal<MultiButtonFilterOption[]>([
-        {
-            title: 'Post Code',
-            data: [],
-            formControlName: 'PostCode',
-            selectedValues: this.#data.filterProps?.PostCode,
-        },
-        {
-            title: 'Build Form',
-            data: [],
-            formControlName: 'BuiltForm',
-            selectedValues: this.#data.filterProps?.BuiltForm,
-        },
-        {
-            title: 'Year of Inspection',
-            data: [],
-            formControlName: 'YearOfAssessment',
-            selectedValues: this.#data.filterProps?.YearOfAssessment,
-        },
-        {
-            title: 'EPC Expiry',
-            data: this.expiredOptions,
-            formControlName: 'EPCExpiry',
-            selectedValues: this.#data.filterProps?.EPCExpiry,
-        },
-    ]);
-
-    private readonly glazingFilters = signal<MultiButtonFilterOption[]>([
-        {
-            title: 'Multiple Glazing Type',
-            data: [],
-            formControlName: 'WindowGlazing',
-            selectedValues: this.#data.filterProps?.WindowGlazing,
-        },
-    ]);
-
-    private readonly wallFilters = signal<MultiButtonFilterOption[]>([
-        {
-            title: 'Wall Construction',
-            data: [],
-            formControlName: 'WallConstruction',
-            selectedValues: this.#data.filterProps?.WallConstruction,
-        },
-        {
-            title: 'Wall Insulation',
-            data: [],
-            formControlName: 'WallInsulation',
-            selectedValues: this.#data.filterProps?.WallInsulation,
-        },
-    ]);
-
-    private readonly floorFilters = signal<MultiButtonFilterOption[]>([
-        {
-            title: 'Floor Construction',
-            data: [],
-            formControlName: 'FloorConstruction',
-            selectedValues: this.#data.filterProps?.FloorConstruction,
-        },
-        {
-            title: 'Floor Insulation',
-            data: [],
-            formControlName: 'FloorInsulation',
-            selectedValues: this.#data.filterProps?.FloorInsulation,
-        },
-    ]);
-
-    private readonly roofFilters = signal<MultiButtonFilterOption[]>([
-        {
-            title: 'Roof Construction',
-            data: [],
-            formControlName: 'RoofConstruction',
-            selectedValues: this.#data.filterProps?.RoofConstruction,
-        },
-        {
-            title: 'Roof Insulation Location',
-            data: [],
-            formControlName: 'RoofInsulationLocation',
-            selectedValues: this.#data.filterProps?.RoofInsulationLocation,
-        },
-        {
-            title: 'Roof Insulation Thickness',
-            data: [],
-            formControlName: 'RoofInsulationThickness',
-            selectedValues: this.#data.filterProps?.RoofInsulationThickness,
-        },
-    ]);
-
-    public otherPanels = computed<PanelData[]>(() => [
-        { panelTitle: 'General', filters: this.generalFilters() },
-        { panelTitle: 'Glazing', filters: this.glazingFilters() },
-        { panelTitle: 'Wall', filters: this.wallFilters() },
-        { panelTitle: 'Floor', filters: this.floorFilters() },
-        { panelTitle: 'Roof', filters: this.roofFilters() },
-    ]);
+    public filtersForm: FormGroup = new FormGroup({});
+    public boundingBox: WritableSignal<BoundingBox | null> = signal(null);
+    public filterPanels: WritableSignal<FilterPanel[]> = signal([]);
 
     constructor() {
-        this.advancedFiltersForm = this.#data.form;
+        effect(() => {
+            const boundingBox = this.boundingBox();
 
-        this.setOptions();
-        this.setValidOptions();
+            if (boundingBox) {
+                this.#filterPanelService
+                    .retrieveFilterPanels(boundingBox, this.#data.filterProps)
+                    .pipe(map((panels) => this.filterPanels.set(panels)))
+                    .subscribe();
+            }
+        });
 
-        this.advancedFiltersForm.valueChanges
-            .pipe(
-                map(() => this.setValidOptions()),
-                takeUntilDestroyed(this.#destroyRef),
-            )
-            .subscribe();
+        effect(() => {
+            const panels = this.filterPanels();
+
+            if (panels.length === 0) {
+                return;
+            }
+
+            const filters = panels.reduce((curr, next) => {
+                return [...curr, ...next.filters];
+            }, [] as FilterMeta[]);
+
+            const values = filters.reduce((curr, next) => ({ ...curr, [next.name]: next.selected }), {} as Record<string, string[]>);
+
+            const formControls = filterNames.reduce((curr, next) => {
+                const field = { [next]: new FormControl(values[next] ?? []) };
+                return { ...curr, ...field };
+            }, {});
+
+            this.filtersForm = new FormGroup(formControls);
+        });
     }
 
-    get dialogData(): DialogData {
-        return this.#data;
+    public ngOnInit(): void {
+        const bounds = this.#mapService.currentMapBounds();
+
+        if (bounds) {
+            const boundingBox: BoundingBox = {
+                minX: bounds.getSouth(),
+                maxX: bounds.getNorth(),
+                minY: bounds.getWest(),
+                maxY: bounds.getEast(),
+            };
+            this.boundingBox.set(boundingBox);
+        }
     }
 
-    public clearAll(): void {
-        this.advancedFiltersForm.reset();
-        this.#dialogRef.close({ clear: true });
-    }
+    public expandPanel(panelTitle: string): boolean {
+        const hasSelection = Object.values<string[]>(this.filtersForm.value).some((value) => value.length > 0);
 
-    public checkFiltersApplied(panelTitle: string): boolean {
-        if (panelTitle === 'General' && Object.keys(this.advancedFiltersForm.value).every((key) => this.advancedFiltersForm.value[key] === null)) {
-            // open first panel if form is empty
-            return true;
-        } else {
-            const panel = this.otherPanels().find((panel) => panel.panelTitle === panelTitle);
+        if (hasSelection) {
+            const panels = this.filterPanels();
+            const panel = panels.find((panel) => panel.title === panelTitle);
 
             if (!panel) {
                 return false;
             }
 
-            return panel.filters.some((filter) => {
-                return this.advancedFiltersForm.value[filter.formControlName];
-            });
+            return panel.filters.some((filter) => this.filtersForm.value[filter.name].length > 0);
         }
+
+        if (panelTitle === panelNames[0]) {
+            return true;
+        }
+        return false;
     }
 
-    private setOptions(): void {
-        const allOptions = this.#utilService.getAllUniqueFilterOptions(this.advancedFiltersForm.value);
-
-        Object.keys(allOptions).forEach((key) => {
-            this.otherPanels().map((panel) => {
-                panel.filters.map((filter) => {
-                    if (filter.formControlName === key) {
-                        filter.data = allOptions[key] ?? filter.data;
-                    }
-                });
-            });
-        });
-    }
-
-    private setValidOptions(): void {
-        const validOptions = this.#utilService.getValidFilters(this.advancedFiltersForm.value);
-        Object.keys(validOptions).forEach((key) => {
-            this.otherPanels().map((panel) => {
-                panel.filters.map((filter) => {
-                    if (filter.formControlName === key) {
-                        filter.validOptions = validOptions[key];
-                    }
-                });
-            });
-        });
-
-        this.noValidFilterOptions = Object.keys(validOptions).every((key) => {
-            return validOptions[key as keyof FilterProps]?.length === 0;
-        });
+    public clearAll(): void {
+        this.filtersForm.reset();
+        this.#dialogRef.close({ clear: true });
     }
 }
 

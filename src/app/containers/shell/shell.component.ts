@@ -27,7 +27,7 @@ import { URLStateModel } from '@core/models/url-state.model';
 import { DataDownloadService } from '@core/services/data-download.service';
 import { DataService } from '@core/services/data.service';
 import { FilterService } from '@core/services/filter.service';
-import { MapService } from '@core/services/map.service';
+import { MAP_SERVICE } from '@core/services/map.token';
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
 import { SignoutService } from '@core/services/signout.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
@@ -66,7 +66,7 @@ export class ShellComponent {
     readonly #dialog = inject(MatDialog);
     readonly #document = inject(DOCUMENT);
     readonly #filterService = inject(FilterService);
-    readonly #mapService = inject(MapService);
+    readonly #mapService = inject(MAP_SERVICE);
     readonly #router = inject(Router);
     readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
     readonly #settings = inject(SettingsService);

@@ -6,11 +6,11 @@ import { booleanWithin } from '@turf/boolean-within';
 import { point } from '@turf/helpers';
 import { BBox, Polygon } from 'geojson';
 import { LngLat, LngLatBounds, Point } from 'mapbox-gl';
-import { MapService } from './map.service';
+import { MAP_SERVICE } from './map.token';
 
 @Injectable({ providedIn: 'root' })
 export class SpatialQueryService {
-    readonly #mapService = inject(MapService);
+    readonly #mapService = inject(MAP_SERVICE);
 
     public selectedBuildingTOID = signal<string | undefined>(undefined);
     public spatialFilterBounds = signal<Point[] | undefined>(undefined);

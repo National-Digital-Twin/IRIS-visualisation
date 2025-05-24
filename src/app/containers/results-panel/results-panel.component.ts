@@ -15,7 +15,7 @@ import { BuildingModel } from '@core/models/building.model';
 import { DownloadBuilding, DownloadDataWarningData, DownloadDataWarningResponse } from '@core/models/download-data-warning.model';
 import { DataDownloadService } from '@core/services/data-download.service';
 import { DataService } from '@core/services/data.service';
-import { MapService } from '@core/services/map.service';
+import { MAP_SERVICE } from '@core/services/map.token';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { UtilService } from '@core/services/utils.service';
 import { LngLat } from 'mapbox-gl';
@@ -43,7 +43,7 @@ export class ResultsPanelComponent {
     readonly #spatialQueryService = inject(SpatialQueryService);
     readonly #utilService = inject(UtilService);
     readonly #dataDownloadService = inject(DataDownloadService);
-    readonly #mapService = inject(MapService);
+    readonly #mapService = inject(MAP_SERVICE);
 
     public buildingSelection = this.#dataService.buildingsSelection;
     public checkedCards = signal<BuildingModel[]>([]);

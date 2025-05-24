@@ -32,27 +32,27 @@ describe('SettingsService', () => {
         it('should initialize settings with default values', () => {
             expect(service.settings()).toEqual({
                 'theme': 'light',
-                'color-blind-mode': false,
+                'colour-blind-mode': false,
             });
-            expect(mockLocalStorage.getItem).toHaveBeenCalledWith(`${STORAGE_KEY_VALUE}-color-blind-mode`);
+            expect(mockLocalStorage.getItem).toHaveBeenCalledWith(`${STORAGE_KEY_VALUE}-colour-blind-mode`);
         });
     });
 
     describe('set', () => {
         it('should update the settings value if colourblind is enabled', () => {
-            service.set(SETTINGS.ColorBlindMode, true);
+            service.set(SETTINGS.ColourBlindMode, true);
             expect(service.settings()).toEqual({
                 'theme': 'light',
-                'color-blind-mode': true,
+                'colour-blind-mode': true,
             });
-            expect(mockLocalStorage.setItem).toHaveBeenCalledWith(`${STORAGE_KEY_VALUE}-color-blind-mode`, JSON.stringify(true));
+            expect(mockLocalStorage.setItem).toHaveBeenCalledWith(`${STORAGE_KEY_VALUE}-colour-blind-mode`, JSON.stringify(true));
         });
 
         it('should update the settings value if theme is dark', () => {
             service.set(SETTINGS.Theme, 'dark');
             expect(service.settings()).toEqual({
                 'theme': 'dark',
-                'color-blind-mode': false,
+                'colour-blind-mode': false,
             });
             expect(mockLocalStorage.setItem).not.toHaveBeenCalledWith(`${STORAGE_KEY_VALUE}-theme`, expect.anything());
         });
