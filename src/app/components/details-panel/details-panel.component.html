@@ -155,6 +155,15 @@
                     No data
                 }
             </dd>
+
+            <dt>Fuel type:</dt>
+            <dd>
+                @if (building.FuelType && fuelType[building!.FuelType!]) {
+                    {{ fuelType[building!.FuelType!] }}
+                } @else {
+                    No data
+                }
+            </dd>
         </dl>
     </div>
 </ng-template>

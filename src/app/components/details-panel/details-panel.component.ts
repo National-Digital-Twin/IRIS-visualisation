@@ -14,6 +14,7 @@ import {
     BuildForm,
     FloorConstruction,
     FloorInsulation,
+    FuelType,
     InvalidateFlagReason,
     RoofConstruction,
     RoofInsulationLocation,
@@ -74,6 +75,7 @@ export class DetailsPanelComponent implements OnInit {
     public wall: Record<string, string> = WallConstruction;
     public wallInsulation: Record<string, string> = WallInsulation;
     public windowGlazing: Record<string, string> = WindowGlazing;
+    public fuelType: Record<string, string> = FuelType;
 
     private readonly updateFlagHistory$ = toObservable(this.buildingDetails).pipe(
         takeUntilDestroyed(),
