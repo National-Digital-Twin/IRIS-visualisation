@@ -11,7 +11,7 @@ import { DownloadWarningComponent } from '@components/download-warning/download-
 import { LabelComponent } from '@components/label/label.component';
 import { InfoPanelComponent } from '@containers/info-panel';
 import {
-    BuildForm,
+    BuiltForm,
     FloorConstruction,
     FloorInsulation,
     FuelType,
@@ -62,7 +62,7 @@ export class DetailsPanelComponent implements OnInit {
     public removeFlag: OutputEmitterRef<BuildingModel> = output();
 
     public activeFlag$ = toObservable(this.#dataService.activeFlag);
-    public buildForm: Record<string, string> = BuildForm;
+    public builtForm: Record<string, string> = BuiltForm;
     public buildingDetails = this.#dataService.selectedBuilding;
     public buildingSelection = this.#dataService.buildingsSelection;
     public flagHistory$ = toObservable(this.#dataService.flagHistory);
@@ -92,7 +92,7 @@ export class DetailsPanelComponent implements OnInit {
     }
 
     public epcExpired(): boolean {
-        return this.#utilService.epcExpired(this.buildingDetails()?.InspectionDate);
+        return this.#utilService.epcExpired(this.buildingDetails()?.LodgementDate);
     }
 
     public openDownloadWarning(): void {

@@ -1,4 +1,4 @@
-import { BuildForm, EPCRating, FuelType, PostCode, PropertyType } from '@core/enums';
+import { BuiltForm, EPCRating, FuelType, PostCode, StructureUnitType } from '@core/enums';
 
 export type BuildingModel = {
     UPRN: string;
@@ -6,10 +6,10 @@ export type BuildingModel = {
     ParentTOID?: string;
     FullAddress: string;
     PostCode?: PostCode;
-    PropertyType?: PropertyType;
-    BuildForm?: BuildForm;
+    StructureUnitType?: StructureUnitType;
+    BuiltForm?: BuiltForm;
     FuelType?: FuelType;
-    InspectionDate?: string;
+    LodgementDate?: string;
     YearOfAssessment?: string;
     EPC?: EPCRating;
     SAPPoints?: string;

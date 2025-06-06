@@ -8,6 +8,7 @@ import { LegendComponent } from '@components/legend/legend.component';
 import { MapLayerConfig } from '@core/models/map-layer-config.model';
 import { MinimapData } from '@core/models/minimap-data.model';
 import { URLStateModel } from '@core/models/url-state.model';
+import { DataService } from '@core/services/data.service';
 import { MapService } from '@core/services/map.service';
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
 import { UtilService } from '@core/services/utils.service';
@@ -30,6 +31,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     readonly #mapService = inject(MapService);
     readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
     readonly #utilsService = inject(UtilService);
+    readonly #dataService = inject(DataService);
 
     public bearing: number = 0;
     public drawActive: boolean = false;
@@ -57,7 +59,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     public downloadAddresses: OutputEmitterRef<null> = output();
 
     public readonly theme$ = toObservable(this.#settings.get(SETTINGS.Theme)).pipe(takeUntilDestroyed());
-    private readonly colorBlindMode$ = toObservable(this.#settings.get(SETTINGS.ColorBlindMode)).pipe(takeUntilDestroyed());
+    private readonly colorBlindMode$ = toObservable(this.#settings.get(SETTINGS.ColourBlindMode)).pipe(takeUntilDestroyed());
 
     /** on map loaded, setup layers, controls etc */
     constructor() {
@@ -153,6 +155,15 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         /** Get map state whenever the map is moved */
         this.#mapService.mapInstance.on('moveend', () => {
             this.setRouterParams();
+
+            // Load buildings for the current viewport
+            this.loadBuildingsForCurrentViewport();
+        });
+
+        /** Load initial data if map renders at a high zoom level */
+        this.#mapService.mapInstance.once('idle', () => {
+            // Load buildings for the initial viewport
+            this.loadBuildingsForCurrentViewport();
         });
 
         /** wards layer click */
@@ -195,6 +206,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                     layerId: 'wards-selected',
                     expression: ['==', 'WD23NM', ``],
                 });
+            }
+
+            if (zoom < 16) {
+                this.#dataService.clearBuildingsCache();
             }
         });
 
@@ -306,11 +321,20 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
             const properties = e.features[0].properties as Record<string, number>;
 
-            /** extract ratings from properties */
-            const epcRatings = Object.keys(properties)
-                .filter((k) => !isNaN(properties[k]))
-                .map((k) => ({ rating: k, count: properties[k] }))
-                .sort((a, b) => a.rating.localeCompare(b.rating));
+            // Create an array of EPC ratings with their counts
+            const epcRatings = [
+                { rating: 'A', count: properties.a_rating || 0 },
+                { rating: 'B', count: properties.b_rating || 0 },
+                { rating: 'C', count: properties.c_rating || 0 },
+                { rating: 'D', count: properties.d_rating || 0 },
+                { rating: 'E', count: properties.e_rating || 0 },
+                { rating: 'F', count: properties.f_rating || 0 },
+                { rating: 'G', count: properties.g_rating || 0 },
+                { rating: 'No Rating', count: properties.no_rating || 0 },
+            ].filter((item) => item.count > 0);
+
+            // Sort by rating
+            epcRatings.sort((a, b) => a.rating.localeCompare(b.rating));
 
             const histogram = this.#utilsService.createHistogram(epcRatings);
 
@@ -390,6 +414,35 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         };
 
         return paint;
+    }
+
+    /**
+     * Load buildings for the current viewport if zoom level is appropriate
+     */
+    private loadBuildingsForCurrentViewport(): void {
+        const bounds = this.#mapService.mapInstance.getBounds();
+        if (bounds) {
+            const viewport = {
+                minLat: bounds.getSouth(),
+                maxLat: bounds.getNorth(),
+                minLng: bounds.getWest(),
+                maxLng: bounds.getEast(),
+            };
+
+            // Only load data when buildings become 3D models
+            const zoom = this.#mapService.mapInstance.getZoom();
+            if (zoom >= 16) {
+                this.#dataService.loadBuildingsForViewport(viewport).subscribe({
+                    next: () => {
+                        // After loading, make sure the util service refreshes the colors
+                        this.#utilsService.createBuildingColourFilter();
+                    },
+                    error: () => {
+                        this.#dataService.viewportBuildingsLoading.set(false);
+                    }
+                });
+            }
+        }
     }
 }
 

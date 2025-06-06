@@ -16,7 +16,7 @@ export class DataDownloadService {
     public downloadXlsxData(data: BuildingModel[]): void {
         const dateData = data.map((date) => ({
             ...date,
-            InspectionDate: date.InspectionDate ? new Date(date.InspectionDate) : '',
+            LodgementDate: date.LodgementDate ? new Date(date.LodgementDate) : '',
         }));
 
         const ws = utils.json_to_sheet(dateData, {
@@ -27,9 +27,9 @@ export class DataDownloadService {
                 'ParentTOID',
                 'FullAddress',
                 'PostCode',
-                'PropertyType',
-                'BuildForm',
-                'InspectionDate',
+                'StructureUnitType',
+                'BuiltForm',
+                'LodgementDate',
                 'YearOfAssessment',
                 'EPC',
                 'SAPPoints',

@@ -6,9 +6,7 @@ import { SETTINGS, SettingsService } from '@core/services/settings.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { MapLayerId } from '@core/types/map-layer-id';
 import { booleanWithin } from '@turf/boolean-within';
-import { featureCollection, point } from '@turf/helpers';
-import { pointsWithinPolygon } from '@turf/points-within-polygon';
-import { Feature, FeatureCollection, GeoJsonProperties, Geometry, MultiPoint, Point, Polygon } from 'geojson';
+import { Polygon } from 'geojson';
 import { ExpressionSpecification, LngLat, PaintSpecification } from 'mapbox-gl';
 import { DataService } from './data.service';
 import { MapService } from './map.service';
@@ -32,7 +30,7 @@ export class UtilService {
     readonly #spatialQueryService = inject(SpatialQueryService);
     readonly #zone = inject(NgZone);
 
-    private readonly colorBlindMode = this.#settings.get(SETTINGS.ColorBlindMode);
+    private readonly colourBlindMode = this.#settings.get(SETTINGS.ColourBlindMode);
 
     public multiDwelling = signal<string | undefined>(undefined);
     public selectedCardUPRN = signal<string | undefined>(undefined);
@@ -218,7 +216,7 @@ export class UtilService {
      * then returns the corresponding EPC pattern.
      */
     public getEPCPattern(epcRatings: string[]): string {
-        const colorBlindMode = this.colorBlindMode();
+        const colorBlindMode = this.colourBlindMode();
         const meanEPC = this.getMeanEPCValue(epcRatings).toLowerCase();
         return colorBlindMode ? `cb-${meanEPC}-pattern` : `${meanEPC}-pattern`;
     }
@@ -286,13 +284,30 @@ export class UtilService {
     }
 
     public getEPCColour(epcRating: string): string {
-        const colorBlindMode = this.colorBlindMode();
+        const colorBlindMode = this.colourBlindMode();
 
         if (colorBlindMode) {
             return this.#runtimeConfig.epcColoursCD[epcRating || 'default'];
         } else {
             return this.#runtimeConfig.epcColours[epcRating || 'default'];
         }
+    }
+
+    public calculateModalRating(epcData: any): string {
+        const ratings = [
+        { rating: 'A', count: epcData.a_rating },
+        { rating: 'B', count: epcData.b_rating },
+        { rating: 'C', count: epcData.c_rating },
+        { rating: 'D', count: epcData.d_rating },
+        { rating: 'E', count: epcData.e_rating },
+        { rating: 'F', count: epcData.f_rating },
+        { rating: 'G', count: epcData.g_rating }
+        ];
+
+        ratings.sort((a, b) => b.count - a.count);
+
+        // Return the most common rating
+        return ratings[0].count > 0 ? ratings[0].rating : 'None';
     }
 
     public filterBuildingsWithinBounds(buildings: BuildingMap, spatialQueryBounds?: mapboxgl.Point[]): BuildingMap {
@@ -351,9 +366,9 @@ export class UtilService {
                     const tenYearsAgo = new Date();
                     tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
                     if (
-                        building.InspectionDate &&
-                        ((filterProps[key as keyof FilterProps]?.includes('EPC Expired') && new Date(building.InspectionDate) < tenYearsAgo) ||
-                            (filterProps[key as keyof FilterProps]?.includes('EPC In Date') && new Date(building.InspectionDate) >= tenYearsAgo))
+                        building.LodgementDate &&
+                        ((filterProps[key as keyof FilterProps]?.includes('EPC Expired') && new Date(building.LodgementDate) < tenYearsAgo) ||
+                            (filterProps[key as keyof FilterProps]?.includes('EPC In Date') && new Date(building.LodgementDate) >= tenYearsAgo))
                     ) {
                         return true;
                     } else {
@@ -372,22 +387,22 @@ export class UtilService {
         return filteredBuildings;
     }
 
-    public epcExpired(inspectionDate?: string): boolean {
-        if (!inspectionDate) {
+    public epcExpired(lodgementDate?: string): boolean {
+        if (!lodgementDate) {
             return false;
         }
         const tenYearsAgo = new Date();
         tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
-        return new Date(inspectionDate) < tenYearsAgo;
+        return new Date(lodgementDate) < tenYearsAgo;
     }
 
-    public epcInDate(inspectionDate?: string): boolean {
-        if (!inspectionDate) {
+    public epcInDate(lodgementDate?: string): boolean {
+        if (!lodgementDate) {
             return false;
         }
         const tenYearsAgo = new Date();
         tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
-        return new Date(inspectionDate) >= tenYearsAgo;
+        return new Date(lodgementDate) >= tenYearsAgo;
     }
 
     /**
@@ -426,96 +441,6 @@ export class UtilService {
             return '';
         }
         return fullAddress.split(',')[index];
-    }
-
-    /**
-     * Find the addresses that are within each boundary
-     * and calculate the mode EPC for the boundary
-     * @param data addresses with lat/lng coordinates
-     * @param contextData polygon boundary data
-     */
-    public createAddressPoints(
-        data: BuildingModel[],
-        contextData: FeatureCollection<Geometry, GeoJsonProperties>[],
-    ): FeatureCollection<Geometry, GeoJsonProperties>[] {
-        const coordArray: Feature<Point>[] = [];
-        const aggregateData: FeatureCollection<Geometry, GeoJsonProperties>[] = [];
-        /** create array of address geojson points */
-        data.forEach((p) => {
-            if (!p.longitude || !p.latitude) {
-                return;
-            }
-
-            const pt = point([+p.longitude, +p.latitude], {
-                UPRN: p.UPRN,
-                TOID: p.TOID ? p.TOID : p.ParentTOID,
-                EPC: p.EPC,
-            });
-
-            coordArray.push(pt);
-        });
-        /** create points geojson FeatureCollection */
-        const addressPointsFC = featureCollection(coordArray);
-        /** Iterate through each layer.  Could be parishes, wards, local authorities */
-        contextData.forEach((collection) => {
-            let newFeature = {};
-            let newCollection: FeatureCollection<Geometry, GeoJsonProperties> | undefined = undefined;
-            const featuresWithEPC: Feature<Polygon>[] = [];
-            /** iterate through each polygon feature */
-            collection.features.map((feature: Feature) => {
-                const f = feature as unknown as Polygon;
-                /** find address points within polygon */
-                const featuresInPolygon = pointsWithinPolygon(addressPointsFC, f);
-                /** find the mode EPC for the addresses within the polygon */
-                const { aggEPC, epcCounts } = this.calculateEPCMode(featuresInPolygon);
-                aggEPC.sort((a, b) => b.localeCompare(a, undefined, { sensitivity: 'base' }));
-
-                newFeature = {
-                    ...feature,
-                    properties: {
-                        ...feature.properties!,
-                        /** assign the lowest EPC value to the ward */
-                        aggEPC: aggEPC[0],
-                        ...epcCounts,
-                    },
-                };
-                featuresWithEPC.push(newFeature as Feature<Polygon, GeoJsonProperties>);
-            });
-            newCollection = {
-                ...collection,
-                features: featuresWithEPC,
-            } as FeatureCollection<Geometry, GeoJsonProperties>;
-            aggregateData.push(newCollection);
-        });
-        return aggregateData;
-    }
-
-    /**
-     * Calculate the mode EPC value for a set of buildings
-     * @param buildings buildings to calculate mode for
-     * @returns EPC mode
-     */
-    private calculateEPCMode(buildings: FeatureCollection<Point | MultiPoint, GeoJsonProperties>): { aggEPC: string[]; epcCounts: Record<string, number> } {
-        if (!buildings.features.length) {
-            return { aggEPC: [], epcCounts: {} };
-        }
-        const store: Record<string, number> = {};
-        let maxCount = 0;
-        buildings.features.map((b) => {
-            if (!store[b.properties!.EPC]) {
-                store[b.properties!.EPC] = 0;
-            }
-            store[b.properties!.EPC] += 1;
-            /**
-             * Exclude addresses with no EPC from count as it skews results because
-             * it includes non-residential addresses
-             */
-            if (b.properties!.EPC !== 'none' && store[b.properties!.EPC] > maxCount) {
-                maxCount = store[b.properties!.EPC];
-            }
-        });
-        const modes = Object.keys(store).filter((key) => store[key] === maxCount);
-        return { aggEPC: modes, epcCounts: store };
     }
 
     /**
@@ -805,8 +730,8 @@ export class UtilService {
 
         // determine which epc expiry options are valid
         const validExpiry: string[] = [];
-        const expiredEPCValid = flattenedBuildings.find((b) => this.epcExpired(b.InspectionDate));
-        const inDateEPCValid = flattenedBuildings.find((b) => this.epcInDate(b.InspectionDate));
+        const expiredEPCValid = flattenedBuildings.find((b) => this.epcExpired(b.LodgementDate));
+        const inDateEPCValid = flattenedBuildings.find((b) => this.epcInDate(b.LodgementDate));
         if (expiredEPCValid) {
             validExpiry.push('EPC Expired');
         }

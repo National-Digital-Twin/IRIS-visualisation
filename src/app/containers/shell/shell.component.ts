@@ -1,23 +1,26 @@
 import { AsyncPipe, CommonModule, DOCUMENT } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, Component, Input, InputSignal, NgZone, computed, effect, inject, input, numberAttribute } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatRadioChange, MatRadioModule } from '@angular/material/radio';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Params, Router } from '@angular/router';
 import { DetailsPanelComponent } from '@components/details-panel/details-panel.component';
 import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
 import { FlagModalComponent, FlagModalData, FlagModalResult } from '@components/flag-modal/flag.modal.component';
 import { InformationComponent } from '@components/information/information.component';
-import { LoadingScreenComponent } from '@components/loading-screen/loading-screen.component';
 import { MapComponent } from '@components/map/map.component';
 import { MinimapComponent } from '@components/minimap/minimap.component';
 import { RemoveFlagModalComponent, RemoveFlagModalData, RemoveFlagModalResult } from '@components/remove-flag-modal/remove-flag-modal.component';
 import { MainFiltersComponent } from '@containers/main-filters/main-filters.component';
 import { ResultsPanelComponent } from '@containers/results-panel/results-panel.component';
 import { AdvancedFiltersFormModel, FilterKeys, FilterProps } from '@core/models/advanced-filters.model';
-import { BuildingMap, BuildingModel } from '@core/models/building.model';
+import { BuildingModel } from '@core/models/building.model';
 import { DownloadDataWarningData, DownloadDataWarningResponse } from '@core/models/download-data-warning.model';
 import { MinimapData } from '@core/models/minimap-data.model';
 import { URLStateModel } from '@core/models/url-state.model';
@@ -26,26 +29,32 @@ import { DataService } from '@core/services/data.service';
 import { FilterService } from '@core/services/filter.service';
 import { MapService } from '@core/services/map.service';
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
+import { SignoutService } from '@core/services/signout.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
+import { UserDetailsService } from '@core/services/user-details.service';
 import { UtilService } from '@core/services/utils.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { FeatureCollection, GeoJsonProperties, Geometry, Polygon } from 'geojson';
-import { EMPTY, Observable, combineLatest, filter, forkJoin, map, switchMap, take } from 'rxjs';
+import { EMPTY, Observable, filter, forkJoin, map, of, switchMap, take } from 'rxjs';
 
 @Component({
     selector: 'c477-shell',
     imports: [
         CommonModule,
         DetailsPanelComponent,
-        LoadingScreenComponent,
         MainFiltersComponent,
         MapComponent,
         MinimapComponent,
         ResultsPanelComponent,
         AsyncPipe,
+        MatSidenavModule,
         MatToolbarModule,
         MatIconModule,
         MatButtonModule,
+        MatRadioModule,
+        MatSlideToggleModule,
+        MatMenuModule,
+        MatDividerModule,
     ],
     templateUrl: './shell.component.html',
     styleUrl: './shell.component.scss',
@@ -63,6 +72,8 @@ export class ShellComponent {
     readonly #settings = inject(SettingsService);
     readonly #spatialQueryService = inject(SpatialQueryService);
     readonly #utilService = inject(UtilService);
+    readonly #userDetailsService = inject(UserDetailsService);
+    readonly #signoutService = inject(SignoutService);
     readonly #zone = inject(NgZone);
 
     public contextData$: Observable<FeatureCollection<Geometry, GeoJsonProperties>[]>;
@@ -73,6 +84,10 @@ export class ShellComponent {
     public showMinimap: boolean = true;
     public spatialFilterEnabled = this.#spatialQueryService.spatialFilterEnabled;
     public title = 'IRIS';
+    public userEmail = 'loading...';
+    public menuOpened = false;
+
+    private _enhancedWardDataCache: FeatureCollection<Geometry, GeoJsonProperties>[] | null = null;
 
     // get map state from route query params
     public bearing: InputSignal<number> = input<number, number>(0, { transform: numberAttribute });
@@ -95,12 +110,24 @@ export class ShellComponent {
     public loading = computed(() => this.#dataService.loading());
 
     constructor() {
-        this.contextData$ = combineLatest([this.#dataService.contextData$, toObservable(this.#dataService.buildings)]).pipe(
-            map(([contextData, buildingData]) => {
-                if (!buildingData) {
-                    return [];
+        this.contextData$ = this.#dataService.contextData$.pipe(
+            switchMap((contextData) => {
+                if (this._enhancedWardDataCache) {
+                    return of(this._enhancedWardDataCache);
                 }
-                return this.aggregateEPC(contextData, buildingData);
+
+                const wardBoundaries = contextData[0];
+
+                return this.#dataService.fetchWardEPCData().pipe(
+                    map((wardEPCData) => {
+                        const enhancedData = this.processWardData(wardBoundaries, wardEPCData);
+
+                        // Cache the processed data
+                        this._enhancedWardDataCache = enhancedData;
+
+                        return enhancedData;
+                    }),
+                );
             }),
         );
 
@@ -130,16 +157,89 @@ export class ShellComponent {
                 )
                 .subscribe();
         });
+
+        this.#userDetailsService.get().subscribe(
+            (userDetails) => {
+                this.userEmail = userDetails.email;
+            },
+            (error) => {
+                console.error(`An error has occured: ${error}`);
+                this.userEmail = 'Loading...';
+            },
+        );
     }
 
-    public handleColorBlindSwitchChange(event: Event): void {
-        const colorBlindMode = (event.target as HTMLInputElement).checked;
-        this.setColorBlindMode(colorBlindMode);
-        this.#settings.set(SETTINGS.ColorBlindMode, colorBlindMode);
+    public handleFontSizeSwitchChange(event: MatRadioChange): void {
+        this.setFontSize(event.value);
     }
 
-    private setColorBlindMode(colorBlindMode: boolean): void {
-        this.#document?.body?.setAttribute('color-blind-mode', colorBlindMode.toString());
+    private setFontSize(fontSize: string): void {
+        const fontSizeClass = `font-size-${fontSize}`;
+        const allFontSizeClasses = ['font-size-medium', 'font-size-large', 'font-size-xlarge'];
+
+        this.replaceGlobalClasses(fontSizeClass, allFontSizeClasses);
+    }
+
+    public handleLineHeightSwitchChange(event: MatRadioChange): void {
+        this.setLineHeight(event.value);
+    }
+
+    private setLineHeight(fontSize: string): void {
+        const lineHeightClass = `line-height-${fontSize}`;
+        const allLineHeightClasses = ['line-height-dense', 'line-height-normal', 'line-height-loose'];
+
+        this.replaceGlobalClasses(lineHeightClass, allLineHeightClasses);
+    }
+
+    public handleLetterSpacingSwitchChange(event: MatRadioChange): void {
+        this.setLetterSpacing(event.value);
+    }
+
+    private setLetterSpacing(letterSpacing: string): void {
+        const letterSpacingClass = `letter-spacing-${letterSpacing}`;
+        const allLetterSpacingClasses = ['letter-spacing-dense', 'letter-spacing-normal', 'letter-spacing-loose'];
+
+        this.replaceGlobalClasses(letterSpacingClass, allLetterSpacingClasses);
+    }
+
+    private replaceGlobalClasses(classToAdd: string, classesToRemove: string[]): void {
+        classesToRemove.forEach((classToRemove) => {
+            if (this.#document?.body?.classList?.contains(classToRemove)) {
+                this.#document?.body?.classList?.remove(classToRemove);
+            }
+        });
+
+        this.#document?.body?.classList.add(classToAdd);
+    }
+
+    public handleColourBlindSwitchChange(event: MatSlideToggleChange): void {
+        const colourBlindMode = event.checked;
+        this.setColourBlindMode(colourBlindMode);
+        this.#settings.set(SETTINGS.ColourBlindMode, colourBlindMode);
+    }
+
+    private setColourBlindMode(colourBlindMode: boolean): void {
+        this.#document?.body?.setAttribute('colour-blind-mode', colourBlindMode.toString());
+    }
+
+    public handleMenuOpened(): void {
+        this.menuOpened = true;
+    }
+
+    public handleMenuClosed(): void {
+        this.menuOpened = false;
+    }
+
+    public async handleSignout(): Promise<void> {
+        await this.#signoutService
+            .voidSession()
+            .then(() => {
+                window.location.href = this.#signoutService.signoutLinks?.redirectUrl?.href ?? '/';
+            })
+            .catch((error) => {
+                console.error(error);
+                window.location.href = '/';
+            });
     }
 
     private updateBuildingLayerColour(): void {
@@ -364,9 +464,9 @@ export class ShellComponent {
         if (this.filterProps && Object.keys(this.filterProps).length > 0) {
             const params = this.createQueryParams({
                 EPC: [],
-                PropertyType: [],
+                StructureUnitType: [],
                 PostCode: [],
-                BuildForm: [],
+                BuiltForm: [],
                 WindowGlazing: [],
                 WallConstruction: [],
                 WallInsulation: [],
@@ -402,12 +502,56 @@ export class ShellComponent {
         });
     }
 
-    private aggregateEPC(
-        contextData: FeatureCollection<Geometry, GeoJsonProperties>[],
-        buildings: BuildingMap,
+    /**
+     * Process ward data with EPC information
+     */
+    private processWardData(
+        wardBoundaries: FeatureCollection<Geometry, GeoJsonProperties>,
+        wardEPCData: any,
     ): FeatureCollection<Geometry, GeoJsonProperties>[] {
-        const aggregateData = this.#utilService.createAddressPoints(Object.values(buildings).flat(), contextData);
-        return aggregateData;
+        const epcByWard = new Map();
+
+        if (Array.isArray(wardEPCData)) {
+            wardEPCData.forEach((ward: any) => {
+                if (ward?.name) {
+                    epcByWard.set(ward.name, ward);
+                }
+            });
+        }
+
+        const enhancedWardData = JSON.parse(JSON.stringify(wardBoundaries)) as FeatureCollection<Geometry, GeoJsonProperties>;
+
+        // Merge EPC data into each feature's properties
+        if (enhancedWardData.features) {
+            enhancedWardData.features = enhancedWardData.features.map((feature) => {
+                const wardName = feature.properties?.WD23NM ?? '';
+
+                const epcData = epcByWard.get(wardName);
+
+                if (epcData) {
+                    const modalRating = this.#utilService.calculateModalRating(epcData);
+
+                    feature.properties = {
+                        ...feature.properties,
+                        a_rating: epcData.a_rating ?? 0,
+                        b_rating: epcData.b_rating ?? 0,
+                        c_rating: epcData.c_rating ?? 0,
+                        d_rating: epcData.d_rating ?? 0,
+                        e_rating: epcData.e_rating ?? 0,
+                        f_rating: epcData.f_rating ?? 0,
+                        g_rating: epcData.g_rating ?? 0,
+                        no_rating: epcData.no_rating ?? 0,
+                        modal_rating: modalRating,
+                        aggEPC: modalRating,
+                        color: this.#utilService.getEPCColour(modalRating),
+                    };
+                }
+
+                return feature;
+            });
+        }
+
+        return [enhancedWardData];
     }
 
     public showInfo(): void {

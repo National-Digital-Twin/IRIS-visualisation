@@ -1,0 +1,7 @@
+PREFIX authz: <http://ndtp.co.uk/security#>
+
+[] authz:user "user1" ;
+    authz:userAttribute "developer";
+    authz:userAttribute "NON-GOV";
+    authz:userAttribute "National-Digital-Twin-Programme";
+    .
