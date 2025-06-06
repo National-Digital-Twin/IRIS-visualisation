@@ -18,6 +18,7 @@ import {
     EPCRating,
     FloorConstruction,
     FloorInsulation,
+    FuelType,
     PostCode,
     PropertyType,
     RoofConstruction,
@@ -181,6 +182,7 @@ export class MainFiltersComponent {
                     RoofInsulationThickness: [],
                     YearOfAssessment: [],
                     EPCExpiry: [],
+                    FuelType: [],
                 });
             } else {
                 // reset the form to the original values on cancel
@@ -227,6 +229,7 @@ export class MainFiltersComponent {
             RoofInsulationLocation: [filterProps.RoofInsulationLocation as unknown as RoofInsulationLocation],
             RoofInsulationThickness: [filterProps.RoofInsulationThickness as unknown as RoofInsulationThickness],
             EPCExpiry: [filterProps.EPCExpiry as unknown as EPCExpiry],
+            FuelType: [filterProps.FuelType as unknown as FuelType],
         });
         this.numberFilters = this.countFilters(this.advancedFiltersForm.value);
         return this.advancedFiltersForm;

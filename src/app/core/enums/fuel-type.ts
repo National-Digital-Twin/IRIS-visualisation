@@ -1,0 +1,15 @@
+export enum FuelType {
+    Anthracite = 'Anthracite',
+    Biogas = 'Biogas',
+    Biomass = 'Biomass',
+    Coal = 'Coal',
+    DualFuel = 'Dual Fuel',
+    Electricity = 'Electricity',
+    MainsGas = 'Mains Gas',
+    Oil = 'Oil',
+    Other = 'Other',
+    SmokelessCoal = 'Smokeless Coal',
+    WoodChips = 'Wood Chips',
+    WoodLogs = 'Wood Logs',
+    WoodPellets = 'Wood Pellets',
+}

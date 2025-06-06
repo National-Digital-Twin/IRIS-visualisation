@@ -58,6 +58,12 @@ export class FilterPanelComponent {
             selectedValues: this.#data.filterProps?.PostCode,
         },
         {
+            title: 'Fuel Type',
+            data: [],
+            formControlName: 'FuelType',
+            selectedValues: this.#data.filterProps?.FuelType,
+        },
+        {
             title: 'Build Form',
             data: [],
             formControlName: 'BuildForm',

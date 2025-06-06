@@ -10,6 +10,7 @@ import {
     WallInsulation,
     WindowGlazing,
     YearOfAssessment,
+    FuelType,
 } from '@core/enums';
 import { Moment } from 'moment/moment';
 
@@ -26,7 +27,8 @@ export type AdvancedFilter =
     | typeof WindowGlazing
     | typeof WallConstruction
     | typeof WallInsulation
-    | typeof YearOfAssessment;
+    | typeof YearOfAssessment
+    | typeof FuelType;
 
 export interface DateFormModel {
     singleYear: Moment | null;
@@ -46,6 +48,7 @@ export interface AdvancedFiltersFormModel {
     RoofInsulationThickness: RoofInsulationThickness[] | null;
     YearOfAssessment: YearOfAssessment[] | null;
     EPCExpiry: EPCExpiry[] | null;
+    FuelType: FuelType[] | null;
 }
 
 export interface MultiButtonFilterOption {
@@ -72,6 +75,7 @@ export interface FilterProps {
     WallInsulation?: string[];
     YearOfAssessment?: string[];
     EPCExpiry?: string[];
+    FuelType?: string[];
 }
 
 export type FilterKeys =
@@ -88,7 +92,8 @@ export type FilterKeys =
     | 'RoofInsulationThickness'
     | 'WallConstruction'
     | 'WallInsulation'
-    | 'YearOfAssessment';
+    | 'YearOfAssessment'
+    | 'FuelType';
 
 // SPDX-License-Identifier: Apache-2.0
 // © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme

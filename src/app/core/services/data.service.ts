@@ -228,6 +228,7 @@ export class DataService {
                 PostCode: row.PostCode,
                 PropertyType: row.PropertyType,
                 BuildForm: row.BuildForm,
+                FuelType: row.FuelType,
                 InspectionDate: row.InspectionDate,
                 YearOfAssessment: yearOfAssessment,
                 EPC: epc,

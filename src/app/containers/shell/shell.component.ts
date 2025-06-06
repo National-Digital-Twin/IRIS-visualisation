@@ -378,6 +378,7 @@ export class ShellComponent {
                 YearOfAssessment: [],
                 Flagged: [],
                 EPCExpiry: [],
+                FuelType: [],
             });
             this.navigate(params);
             /** delete spatial filter if it exists */

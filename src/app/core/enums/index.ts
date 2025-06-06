@@ -12,6 +12,7 @@ export * from './wall-construction';
 export * from './wall-insulation';
 export * from './window-glazing';
 export * from './year-of-assessment';
+export * from './fuel-type';
 
 // SPDX-License-Identifier: Apache-2.0
 // © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme

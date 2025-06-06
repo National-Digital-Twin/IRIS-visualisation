@@ -1,4 +1,4 @@
-import { BuildForm, EPCRating, PostCode, PropertyType } from '@core/enums';
+import { BuildForm, EPCRating, FuelType, PostCode, PropertyType } from '@core/enums';
 
 export type EPCBuildingResponseModel = {
     BuildForm: BuildForm;
@@ -14,11 +14,20 @@ export type EPCBuildingResponseModel = {
     PropertyType: PropertyType;
     UPRN: string;
     TOID?: string;
+    FuelType?: FuelType;
 };
 
 export type NoEPCBuildingResponseModel = Omit<
     EPCBuildingResponseModel,
-    'BuildForm' | 'EPC' | 'InspectionDate' | 'InsulationTypes' | 'InsulationThickness' | 'InsulationThicknessLowerBound' | 'PartTypes' | 'PropertyType'
+    | 'BuildForm'
+    | 'EPC'
+    | 'InspectionDate'
+    | 'InsulationTypes'
+    | 'InsulationThickness'
+    | 'InsulationThicknessLowerBound'
+    | 'PartTypes'
+    | 'PropertyType'
+    | 'FuelType'
 > & {
     latitude: string;
     longitude: string;
