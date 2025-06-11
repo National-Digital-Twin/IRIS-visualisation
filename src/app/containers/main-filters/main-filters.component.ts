@@ -162,6 +162,7 @@ export class MainFiltersComponent {
                     RoofInsulationThickness: [],
                     YearOfAssessment: [],
                     EPCExpiry: [],
+                    FuelType: [],
                 });
             }
         });

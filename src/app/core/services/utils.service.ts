@@ -11,6 +11,9 @@ import { ExpressionSpecification, PaintSpecification } from 'mapbox-gl';
 import { DataService } from './data.service';
 import { MAP_SERVICE, MapLatLng } from './map.token';
 import { SpatialQueryService } from './spatial-query.service';
+import { FilterableBuilding, FilterableBuildingService } from './filterable-building.service';
+import { remove } from 'jszip';
+import { FilterableBuildingModel } from '@core/models/filterable-building.model';
 
 type MapLayerPaintKeys = keyof PaintSpecification;
 
@@ -24,6 +27,7 @@ type CurrentExpressions = Record<MapLayerPaintKeys, ExpressionAndMapLayerFilter>
 @Injectable({ providedIn: 'root' })
 export class UtilService {
     readonly #dataService = inject(DataService);
+    readonly #filterableBuildingService = inject(FilterableBuildingService);
     readonly #mapService = inject(MAP_SERVICE);
     readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
     readonly #settings = inject(SettingsService);
@@ -51,13 +55,14 @@ export class UtilService {
      */
     public createBuildingColourFilter(): void {
         const unfilteredBuildings = this.#dataService.buildings();
+        const filterableBuildingModels = this.#filterableBuildingService.FilterableBuildingModels();
 
         if (!unfilteredBuildings || !Object.keys(unfilteredBuildings).length) {
             return;
         }
 
         const filterProps = this.filterProps();
-        const buildings = this.filterBuildings(unfilteredBuildings, filterProps);
+        const buildings = this.filterBuildings(unfilteredBuildings, filterableBuildingModels, filterProps);
 
         const spatialFilter = this.#spatialQueryService.spatialFilterBounds();
         const filteredBuildings = this.filterBuildingsWithinBounds(buildings, spatialFilter);
@@ -340,7 +345,7 @@ export class UtilService {
      * @param buildings all buildings data
      * @returns BuildingMap of filtered buildings
      */
-    public filterBuildings(buildings: BuildingMap, filterProps: FilterProps): BuildingMap {
+    public filterBuildings(buildings: BuildingMap, filterableBuildingModels: FilterableBuildingModel[], filterProps: FilterProps): BuildingMap {
         if (Object.keys(filterProps).length === 0) {
             return buildings;
         }
@@ -349,40 +354,56 @@ export class UtilService {
         const buildingsArray = Array.from(Object.values(buildings).flat());
         const filterKeys = Object.keys(filterProps);
         // filter buildings
-        const filtered = buildingsArray.filter((building: BuildingModel) =>
-            filterKeys.every((key) => {
-                if (!filterProps[key as keyof FilterProps]?.length) {
-                    return true;
-                }
-                // remove additional quotes for year filter
-                // may not need this any more?
-                const removeQuotes = filterProps[key as keyof FilterProps]?.map((k) => k.replace(/['"]+/g, ''));
-                /** if flagged filter exists return the building if it has a flag */
-                if (key === 'Flagged' && building.Flagged !== undefined) {
-                    return true;
-                }
-                // compare inspection dates to 10 years ago
-                else if (key === 'EPCExpiry') {
-                    const tenYearsAgo = new Date();
-                    tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
-                    if (
-                        building.LodgementDate &&
-                        ((filterProps[key as keyof FilterProps]?.includes('EPC Expired') && new Date(building.LodgementDate) < tenYearsAgo) ||
-                            (filterProps[key as keyof FilterProps]?.includes('EPC In Date') && new Date(building.LodgementDate) >= tenYearsAgo))
-                    ) {
+        const filteredUprns = filterableBuildingModels
+            .filter((filterableBuildingModel: FilterableBuildingModel) =>
+                filterKeys.every((key) => {
+                    if (!filterProps[key as keyof FilterProps]?.length) {
                         return true;
-                    } else {
-                        return false;
                     }
-                } else {
-                    return removeQuotes?.includes(
-                        // eslint-disable-next-line
-                        // @ts-ignore
-                        building[key as keyof BuildingModel],
-                    );
-                }
-            }),
-        );
+                    // remove additional quotes for year filter
+                    // may not need this any more?
+                    const removeQuotes = filterProps[key as keyof FilterProps]?.map((k) => k.replace(/['"]+/g, ''));
+                    /** if flagged filter exists return the building if it has a flag */
+                    if (key === 'Flagged') {
+                        return filterableBuildingModel.Flagged;
+                    }
+                    // compare inspection dates to 10 years ago
+                    else if (key === 'EPCExpiry') {
+                        const tenYearsAgo = new Date();
+                        tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
+                        if (
+                            filterableBuildingModel.LodgementDate &&
+                            ((filterProps[key as keyof FilterProps]?.includes('EPC Expired') &&
+                                new Date(filterableBuildingModel.LodgementDate) < tenYearsAgo) ||
+                                (filterProps[key as keyof FilterProps]?.includes('EPC In Date') &&
+                                    new Date(filterableBuildingModel.LodgementDate) >= tenYearsAgo))
+                        ) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    } else if (key === 'StructureUnitType' || key === 'EPC') {
+                        const matchedBuildingModel = buildingsArray.find((building) => building.UPRN === filterableBuildingModel.UPRN);
+                        console.log(`List of filters are: ${removeQuotes}`);
+                        return (
+                            matchedBuildingModel &&
+                            removeQuotes?.includes(
+                                // eslint-disable-next-line
+                                // @ts-ignore
+                                matchedBuildingModel[key as keyof BuildingModel],
+                            )
+                        );
+                    } else {
+                        return removeQuotes?.includes(
+                            // eslint-disable-next-line
+                            // @ts-ignore
+                            filterableBuildingModel[key as keyof FilterableBuildingModel],
+                        );
+                    }
+                }),
+            )
+            .map((filteredDetailedBuildingModel) => filteredDetailedBuildingModel.UPRN);
+        const filtered = buildingsArray.filter((building) => filteredUprns.includes(building.UPRN));
         const filteredBuildings: BuildingMap = this.#dataService.mapBuildings(filtered);
         return filteredBuildings;
     }

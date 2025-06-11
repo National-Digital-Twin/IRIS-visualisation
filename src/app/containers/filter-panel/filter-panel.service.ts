@@ -10,6 +10,7 @@ export const filterKeys = [
     'built_form',
     'inspection_year',
     'energy_rating',
+    'fuel_type',
     'window_glazing',
     'wall_construction',
     'wall_insulation',
@@ -25,6 +26,7 @@ export const filterNames = [
     'BuiltForm',
     'YearOfAssessment',
     'EPCExpiry',
+    'FuelType',
     'WindowGlazing',
     'WallConstruction',
     'WallInsulation',
@@ -60,7 +62,7 @@ export class FilterPanelService {
     #http = inject(HttpClient);
 
     public static PANELS: FilterPanel[] = [
-        { title: 'General', keys: ['postcode', 'built_form', 'inspection_year', 'energy_rating'], filters: [] },
+        { title: 'General', keys: ['postcode', 'built_form', 'inspection_year', 'energy_rating', 'fuel_type'], filters: [] },
         { title: 'Glazing', keys: ['window_glazing'], filters: [] },
         { title: 'Wall', keys: ['wall_construction', 'wall_insulation'], filters: [] },
         { title: 'Floor', keys: ['floor_construction', 'floor_insulation'], filters: [] },
@@ -72,6 +74,7 @@ export class FilterPanelService {
         { key: 'built_form', name: 'BuiltForm', label: 'Build Form', values: [], selected: [] },
         { key: 'inspection_year', name: 'YearOfAssessment', label: 'Year of Inspection', values: [], selected: [] },
         { key: 'energy_rating', name: 'EPCExpiry', label: 'EPC Expiry', values: [], selected: [] },
+        { key: 'fuel_type', name: 'FuelType', label: 'Fuel Type', values: [], selected: [] },
         { key: 'window_glazing', name: 'WindowGlazing', label: 'Multiple Glazing Type', values: [], selected: [] },
         { key: 'wall_construction', name: 'WallConstruction', label: 'Wall Construction', values: [], selected: [] },
         { key: 'wall_insulation', name: 'WallInsulation', label: 'Wall Insulation', values: [], selected: [] },
@@ -89,7 +92,7 @@ export class FilterPanelService {
         params = params.set('min_long', boundingBox.minY);
         params = params.set('max_long', boundingBox.maxY);
 
-        return this.#http.get<Record<string, string[]>>('/api/filters/buildings', { params }).pipe(
+        return this.#http.get<Record<string, string[]>>('/api/filter-summary', { params }).pipe(
             map((filterData) => {
                 const filters = FilterPanelService.FILTERS;
                 return filters.map((filter) => ({ ...filter, values: filterData[filter.key], selected: selection ? selection[filter.name] : [] }));

@@ -9,6 +9,7 @@ import { MapLayerConfig } from '@core/models/map-layer-config.model';
 import { MinimapData } from '@core/models/minimap-data.model';
 import { URLStateModel } from '@core/models/url-state.model';
 import { DataService } from '@core/services/data.service';
+import { FilterableBuildingService } from '@core/services/filterable-building.service';
 import { MAP_SERVICE, MapDraw } from '@core/services/map.token';
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
 import { UtilService } from '@core/services/utils.service';
@@ -32,6 +33,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
     readonly #utilsService = inject(UtilService);
     readonly #dataService = inject(DataService);
+    readonly #filterableBuildingService = inject(FilterableBuildingService);
 
     public bearing: number = 0;
     public drawActive: boolean = false;
@@ -44,6 +46,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     public mapConfig: InputSignal<URLStateModel> = input.required();
     public spatialFilterEnabled: InputSignal<boolean> = input(false);
     public contextData: InputSignal<FeatureCollection<Geometry, GeoJsonProperties>[]> = input.required();
+    public filtersExist: InputSignal<boolean> = input.required();
 
     public resetMapView: OutputEmitterRef<null> = output();
     public resetNorth: OutputEmitterRef<null> = output();
@@ -439,6 +442,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                     },
                     error: () => {
                         this.#dataService.viewportBuildingsLoading.set(false);
+                    },
+                });
+                this.#filterableBuildingService.loadFilterableBuildingModelsInViewport(viewport).subscribe({
+                    next: () => {
+                        // After loading, make sure the util service refreshes the colors
+                        if (this.filtersExist()) {
+                            this.#utilsService.createBuildingColourFilter();
+                        }
                     },
                 });
             }

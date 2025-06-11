@@ -47,7 +47,7 @@ export class DataService {
     private readonly _buildingCacheOrder: string[] = []; // FIFO tracking
     private readonly MAX_CACHED_BUILDINGS = 10000; // Number of properties
 
-    private _detailedBuildingsCache = new Map<string, BuildingModel>();
+    private _selectedBuildingsCache = new Map<string, BuildingModel>();
 
     private readonly flags$ = this.#http.get<FlagResponse[]>('/api/flagged-buildings', { withCredentials: true }).pipe(
         map((flags: FlagResponse[]) => this.getCurrentFlags(flags)),
@@ -279,7 +279,6 @@ export class DataService {
                 fullAddress: row.first_line_of_address ?? undefined,
                 latitude: row.latitude ? parseFloat(row.latitude) : undefined,
                 longitude: row.longitude ? parseFloat(row.longitude) : undefined,
-                addressText: row.addressText ?? undefined,
                 TOID: row.toid ?? undefined,
                 StructureUnitType: row.structure_unit_type ?? undefined,
             };
@@ -526,16 +525,16 @@ export class DataService {
         if (!building.UPRN || !building.TOID) return;
 
         // Create a private cache
-        if (!this._detailedBuildingsCache) {
-            this._detailedBuildingsCache = new Map<string, BuildingModel>();
+        if (!this._selectedBuildingsCache) {
+            this._selectedBuildingsCache = new Map<string, BuildingModel>();
         }
 
-        this._detailedBuildingsCache.set(building.UPRN, building);
+        this._selectedBuildingsCache.set(building.UPRN, building);
     }
 
     public getBuildingByUPRN(uprn: string): BuildingModel {
-        if (this._detailedBuildingsCache?.has(uprn)) {
-            return this._detailedBuildingsCache.get(uprn)!;
+        if (this._selectedBuildingsCache?.has(uprn)) {
+            return this._selectedBuildingsCache.get(uprn)!;
         }
         const buildings = this.buildings();
 

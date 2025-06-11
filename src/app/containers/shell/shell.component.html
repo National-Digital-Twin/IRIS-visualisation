@@ -142,6 +142,7 @@
                     (setSelectedBuildingTOID)="setSelectedBuildingTOID($event)"
                     (setMinimapData)="minimapData = $event"
                     (toggleMinimap)="showMinimap = !showMinimap"
+                    [filtersExist]="filtersExist()"
                 />
             </div>
             @if (showMinimap) {

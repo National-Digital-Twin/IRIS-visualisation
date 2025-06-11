@@ -478,6 +478,7 @@ export class ShellComponent {
                 YearOfAssessment: [],
                 Flagged: [],
                 EPCExpiry: [],
+                FuelType: [],
             });
             this.navigate(params);
             /** delete spatial filter if it exists */
@@ -557,6 +558,10 @@ export class ShellComponent {
         this.#dialog.open<InformationComponent>(InformationComponent, {
             panelClass: 'information',
         });
+    }
+
+    public filtersExist(): boolean {
+        return (this.filterProps && Object.keys(this.filterProps).length > 0) || this.#spatialQueryService.spatialFilterEnabled();
     }
 }
 
