@@ -16,6 +16,16 @@ import { EMPTY, Observable, catchError, first, forkJoin, map, of, switchMap, tap
 
 type Loading<T> = T | 'loading';
 
+export type Building = {
+    uprn: string;
+    energy_rating?: string;
+    toid?: string;
+    first_line_of_address?: string;
+    lattitude: string;
+    longitude: string;
+    structure_unit_type?: string;
+};
+
 @Injectable({ providedIn: 'root' })
 export class DataService {
     readonly #http: HttpClient = inject(HttpClient);
@@ -252,7 +262,7 @@ export class DataService {
             .set('max_lat', viewport.maxLat.toString());
 
         return this.#http
-            .get<any[]>('/api/buildings', {
+            .get<Building[]>('/api/buildings', {
                 params,
                 withCredentials: true,
             })

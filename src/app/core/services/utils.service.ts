@@ -1,6 +1,7 @@
 import { Injectable, NgZone, inject, signal } from '@angular/core';
 import { FilterProps } from '@core/models/advanced-filters.model';
 import { BuildingMap, BuildingModel } from '@core/models/building.model';
+import { FilterableBuildingModel } from '@core/models/filterable-building.model';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
@@ -9,11 +10,9 @@ import { booleanWithin } from '@turf/boolean-within';
 import { Polygon } from 'geojson';
 import { ExpressionSpecification, PaintSpecification } from 'mapbox-gl';
 import { DataService } from './data.service';
+import { FilterableBuildingService } from './filterable-building.service';
 import { MAP_SERVICE, MapLatLng } from './map.token';
 import { SpatialQueryService } from './spatial-query.service';
-import { FilterableBuilding, FilterableBuildingService } from './filterable-building.service';
-import { remove } from 'jszip';
-import { FilterableBuildingModel } from '@core/models/filterable-building.model';
 
 type MapLayerPaintKeys = keyof PaintSpecification;
 

@@ -507,7 +507,7 @@ export class ShellComponent {
      */
     private processWardData(
         wardBoundaries: FeatureCollection<Geometry, GeoJsonProperties>,
-        wardEPCData: any,
+        wardEPCData: FeatureCollection<Geometry, GeoJsonProperties>,
     ): FeatureCollection<Geometry, GeoJsonProperties>[] {
         const epcByWard = new Map();
 

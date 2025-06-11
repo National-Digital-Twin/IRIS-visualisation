@@ -1,8 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { BuiltForm } from '@core/enums';
-import { catchError, map, Observable, of } from 'rxjs';
 import { FilterableBuildingModel } from '@core/models/filterable-building.model';
+import { catchError, map, Observable, of } from 'rxjs';
 
 export type FilterableBuilding = {
     uprn: string;

@@ -56,8 +56,9 @@ export class ResultsPanelComponent {
     public resultsPanelCollapsed: OutputEmitterRef<boolean> = output();
 
     public viewPort = viewChild<CdkVirtualScrollViewport>(CdkVirtualScrollViewport);
+    public dialog = inject(MatDialog);
 
-    constructor(public dialog: MatDialog) {
+    constructor() {
         /** listen for UPRN set from map click */
         effect(() => {
             const selectedUPRN = this.#utilService.selectedUPRN();
