@@ -22,8 +22,8 @@ export type FilterableBuilding = {
 
 @Injectable({ providedIn: 'root' })
 export class FilterableBuildingService {
-    #http = inject(HttpClient);
-    #filterableBuildings = signal<FilterableBuilding[]>([]);
+    readonly #http = inject(HttpClient);
+    readonly #filterableBuildings = signal<FilterableBuilding[]>([]);
 
     public FilterableBuildingModels = computed(() => {
         return this.#filterableBuildings().map((filterableBuilding) => this.mapToBuildingModel(filterableBuilding));
@@ -80,8 +80,8 @@ export class FilterableBuildingService {
     }
 
     private parsePostcode(postcode: string): string {
-        const postcodePartMatch = postcode.match(/^[A-Z0-9]{3,4}/);
-        if (postcodePartMatch && postcodePartMatch[0]) {
+        const postcodePartMatch = /^[A-Z0-9]{3,4}/.exec(postcode);
+        if (postcodePartMatch?.[0]) {
             return postcodePartMatch[0];
         }
 

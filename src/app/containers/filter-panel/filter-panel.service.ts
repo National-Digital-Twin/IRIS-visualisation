@@ -59,9 +59,9 @@ export type FilterPanel = {
 
 @Injectable({ providedIn: 'root' })
 export class FilterPanelService {
-    #http = inject(HttpClient);
+    readonly #http = inject(HttpClient);
 
-    public static PANELS: FilterPanel[] = [
+    public static readonly PANELS: FilterPanel[] = [
         { title: 'General', keys: ['postcode', 'built_form', 'inspection_year', 'energy_rating', 'fuel_type'], filters: [] },
         { title: 'Glazing', keys: ['window_glazing'], filters: [] },
         { title: 'Wall', keys: ['wall_construction', 'wall_insulation'], filters: [] },
@@ -69,7 +69,7 @@ export class FilterPanelService {
         { title: 'Roof', keys: ['roof_construction', 'roof_insulation_location', 'roof_insulation_thickness'], filters: [] },
     ];
 
-    public static FILTERS: FilterMeta[] = [
+    public static readonly FILTERS: FilterMeta[] = [
         { key: 'postcode', name: 'PostCode', label: 'Post Code', values: [], selected: [] },
         { key: 'built_form', name: 'BuiltForm', label: 'Build Form', values: [], selected: [] },
         { key: 'inspection_year', name: 'YearOfAssessment', label: 'Year of Inspection', values: [], selected: [] },

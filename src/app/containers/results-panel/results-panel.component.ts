@@ -104,7 +104,7 @@ export class ResultsPanelComponent {
      * @param building selected building
      */
     public viewDetails(selectedBuilding: BuildingModel): void {
-        const TOID = selectedBuilding.TOID ? selectedBuilding.TOID : selectedBuilding.ParentTOID;
+        const TOID = selectedBuilding.TOID ?? selectedBuilding.ParentTOID;
 
         const center = this.getZoomCenter(TOID!);
         this.#utilService.viewDetailsButtonClick(TOID!, selectedBuilding.UPRN, center);
@@ -115,7 +115,7 @@ export class ResultsPanelComponent {
      * @param selectedBuilding building for selected card
      */
     public cardSelected(selectedBuilding: BuildingModel): void {
-        const TOID = selectedBuilding.TOID ? selectedBuilding.TOID : selectedBuilding.ParentTOID;
+        const TOID = selectedBuilding.TOID ?? selectedBuilding.ParentTOID;
         const UPRN = selectedBuilding.UPRN;
         /**
          * if selected card building uprn === the current selected card uprn
