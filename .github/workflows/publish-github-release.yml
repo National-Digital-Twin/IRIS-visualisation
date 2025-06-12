@@ -109,7 +109,7 @@ jobs:
         with:
           tag_name: "v${{ needs.versioning.outputs.version }}"
           name: "Release v${{ needs.versioning.outputs.version }}"
-          body: "Automated release for version ${{ needs.versioning.outputs.version }}"
+          body: "Automated release for version ${{ needs.versioning.outputs.version }}. For details of fixes, new features and changes in this release, please see [CHANGELOG.md](${{ github.server_url }}/${{ github.repository }}/blob/main/CHANGELOG.md)."
           draft: false
           prerelease: false
           files: |
