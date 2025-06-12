@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
+
 name: Release on New Release Branch
 
 on:
@@ -75,47 +78,3 @@ jobs:
       repo_name: "iris/transparent-proxy"
       app_name: "transparent-proxy"
       version: ${{ needs.versioning.outputs.version }}
-
-  tagging:
-    name: Create Git Tag
-    needs: [versioning, frontend-push-to-ECR, proxy-push-to-ECR]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Ensure full history for tagging
-
-      - name: Print Version Before Tagging
-        run: |
-          echo "Tagging Version: v${{ needs.versioning.outputs.version }}"
-
-      - name: Create Git Tag
-        uses: rickstaa/action-create-tag@v1
-        with:
-          tag: "v${{ needs.versioning.outputs.version }}"
-          message: "Release v${{ needs.versioning.outputs.version }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true
-
-  release:
-    name: Create GitHub Release
-    needs: [versioning, tagging]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Print Version Before Release
-        run: |
-          echo "Creating Release for Version: v${{ needs.versioning.outputs.version }}"
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: "v${{ needs.versioning.outputs.version }}"
-          name: "Release v${{ needs.versioning.outputs.version }}"
-          body: "Automated release for version ${{ needs.versioning.outputs.version }}"
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true
