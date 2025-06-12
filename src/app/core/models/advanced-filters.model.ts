@@ -46,6 +46,7 @@ export interface AdvancedFiltersFormModel {
     RoofInsulationThickness: RoofInsulationThickness[] | null;
     YearOfAssessment: YearOfAssessment[] | null;
     EPCExpiry: EPCExpiry[] | null;
+    FuelType: string[] | null;
 }
 
 export interface MultiButtonFilterOption {

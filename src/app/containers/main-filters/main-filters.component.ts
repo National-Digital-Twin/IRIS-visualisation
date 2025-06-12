@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, InputSignal, OutputEmitterRef, WritableSignal, effect, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,25 +13,11 @@ import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { LabelComponent } from '@components/label/label.component';
 import { FilterPanelComponent } from '@containers/filter-panel/filter-panel.component';
-import {
-    BuiltForm,
-    EPCRating,
-    FloorConstruction,
-    FloorInsulation,
-    PostCode,
-    StructureUnitType,
-    RoofConstruction,
-    RoofInsulationLocation,
-    RoofInsulationThickness,
-    WallConstruction,
-    WallInsulation,
-    WindowGlazing,
-    YearOfAssessment,
-} from '@core/enums';
+import { EPCRating, StructureUnitType } from '@core/enums';
 import { AddressSearchData } from '@core/models/address-search-results.model';
-import { AdvancedFiltersFormModel, EPCExpiry, FilterProps } from '@core/models/advanced-filters.model';
+import { AdvancedFiltersFormModel, FilterProps } from '@core/models/advanced-filters.model';
 import { AddressSearchService } from '@core/services/address-search.service';
-import { MapService } from '@core/services/map.service';
+import { MAP_SERVICE } from '@core/services/map.token';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { LngLat } from 'mapbox-gl';
 import { catchError, debounceTime, filter, map, of, switchMap } from 'rxjs';
@@ -56,10 +42,9 @@ import { catchError, debounceTime, filter, map, of, switchMap } from 'rxjs';
     providers: [{ provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { subscriptSizing: 'dynamic' } }],
 })
 export class MainFiltersComponent {
-    readonly #fb: FormBuilder = inject(FormBuilder);
     readonly #dialog = inject(MatDialog);
     readonly #addressSearchService = inject(AddressSearchService);
-    readonly #mapService = inject(MapService);
+    readonly #mapService = inject(MAP_SERVICE);
     readonly #spatialQueryService = inject(SpatialQueryService);
     readonly #destroyRef = inject(DestroyRef);
 
@@ -68,8 +53,6 @@ export class MainFiltersComponent {
     public numberFilters: number = 0;
     public propertyTypes: Record<string, string> = StructureUnitType;
     public addressOptions: WritableSignal<AddressSearchData[]> = signal([]);
-
-    private advancedFiltersForm?: FormGroup;
 
     public filterProps: InputSignal<FilterProps> = input.required();
 
@@ -106,7 +89,7 @@ export class MainFiltersComponent {
                 return;
             }
 
-            this.advancedFiltersForm = this.createForm();
+            this.numberFilters = Object.values(filterProps).reduce((curr, next) => curr + next.length, 0);
         });
     }
 
@@ -158,12 +141,10 @@ export class MainFiltersComponent {
             maxWidth: '60rem',
             data: {
                 filterProps: this.filterProps(),
-                form: this.advancedFiltersForm,
             },
         });
 
         dialogRef.afterClosed().subscribe((res) => {
-            console.log(res);
             if (res?.value) {
                 this.setAdvancedFilters.emit(res.value);
             } else if (res?.clear) {
@@ -181,18 +162,10 @@ export class MainFiltersComponent {
                     RoofInsulationThickness: [],
                     YearOfAssessment: [],
                     EPCExpiry: [],
+                    FuelType: [],
                 });
-            } else {
-                // reset the form to the original values on cancel
-                this.createForm();
             }
         });
-    }
-
-    private countFilters(formValue: AdvancedFiltersFormModel): number {
-        return Object.keys(formValue).reduce((acc, val) => {
-            return acc + (formValue[val as keyof AdvancedFiltersFormModel]?.length ?? 0);
-        }, 0);
     }
 
     public propertyTypeChange(e: MatSelectChange): void {
@@ -211,27 +184,6 @@ export class MainFiltersComponent {
         }
     }
 
-    private createForm(): FormGroup {
-        const filterProps = this.filterProps();
-
-        this.advancedFiltersForm = this.#fb.group<AdvancedFiltersFormModel>({
-            PostCode: [filterProps.PostCode as unknown as PostCode],
-            BuiltForm: [filterProps.BuiltForm as unknown as BuiltForm],
-            YearOfAssessment: [filterProps.YearOfAssessment as unknown as YearOfAssessment],
-            WindowGlazing: [filterProps.WindowGlazing as unknown as WindowGlazing],
-            WallConstruction: [filterProps.WallConstruction as unknown as WallConstruction],
-            WallInsulation: [filterProps.WallInsulation as unknown as WallInsulation],
-            FloorConstruction: [filterProps.FloorConstruction as unknown as FloorConstruction],
-            FloorInsulation: [filterProps.FloorInsulation as unknown as FloorInsulation],
-            RoofConstruction: [filterProps.RoofConstruction as unknown as RoofConstruction],
-            RoofInsulationLocation: [filterProps.RoofInsulationLocation as unknown as RoofInsulationLocation],
-            RoofInsulationThickness: [filterProps.RoofInsulationThickness as unknown as RoofInsulationThickness],
-            EPCExpiry: [filterProps.EPCExpiry as unknown as EPCExpiry],
-        });
-        this.numberFilters = this.countFilters(this.advancedFiltersForm.value);
-        return this.advancedFiltersForm;
-    }
-
     public clearEPC($event: Event): void {
         $event.stopPropagation();
         this.setRouteParams.emit({ EPC: [] });
@@ -244,7 +196,6 @@ export class MainFiltersComponent {
 
     public clearAll(): void {
         this.numberFilters = 0;
-        this.advancedFiltersForm?.reset();
         this.clearAllFilters.emit();
     }
 

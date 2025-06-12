@@ -27,7 +27,7 @@ import { URLStateModel } from '@core/models/url-state.model';
 import { DataDownloadService } from '@core/services/data-download.service';
 import { DataService } from '@core/services/data.service';
 import { FilterService } from '@core/services/filter.service';
-import { MapService } from '@core/services/map.service';
+import { MAP_SERVICE } from '@core/services/map.token';
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
 import { SignoutService } from '@core/services/signout.service';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
@@ -66,7 +66,7 @@ export class ShellComponent {
     readonly #dialog = inject(MatDialog);
     readonly #document = inject(DOCUMENT);
     readonly #filterService = inject(FilterService);
-    readonly #mapService = inject(MapService);
+    readonly #mapService = inject(MAP_SERVICE);
     readonly #router = inject(Router);
     readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
     readonly #settings = inject(SettingsService);
@@ -478,6 +478,7 @@ export class ShellComponent {
                 YearOfAssessment: [],
                 Flagged: [],
                 EPCExpiry: [],
+                FuelType: [],
             });
             this.navigate(params);
             /** delete spatial filter if it exists */
@@ -506,7 +507,7 @@ export class ShellComponent {
      */
     private processWardData(
         wardBoundaries: FeatureCollection<Geometry, GeoJsonProperties>,
-        wardEPCData: any,
+        wardEPCData: FeatureCollection<Geometry, GeoJsonProperties>,
     ): FeatureCollection<Geometry, GeoJsonProperties>[] {
         const epcByWard = new Map();
 
@@ -557,6 +558,10 @@ export class ShellComponent {
         this.#dialog.open<InformationComponent>(InformationComponent, {
             panelClass: 'information',
         });
+    }
+
+    public filtersExist(): boolean {
+        return (this.filterProps && Object.keys(this.filterProps).length > 0) || this.#spatialQueryService.spatialFilterEnabled();
     }
 }
 
