@@ -59,7 +59,7 @@ jobs:
                   node-version: '24.x'
 
             - name: Install Dependencies
-              run: npm ci
+              run: npm ci --legacy-peer-deps
 
             - name: Run Linting
               run: npm run lint:app
@@ -103,7 +103,7 @@ jobs:
                   node-version: '24.x'
 
             - name: Install Dependencies
-              run: npm ci
+              run: npm ci --legacy-peer-deps
 
             - name: Build Frontend
               run: |
