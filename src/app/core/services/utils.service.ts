@@ -322,12 +322,16 @@ export class UtilService {
         const spatialFilter = spatialQueryBounds ? this.#spatialQueryService.spatialFilterGeom() : undefined;
         const filteredToids: BuildingMap = {};
         currentMapFeatures
-            .filter((feature) =>
+            .filter((feature) => {
                 // if there is a spatial filter
-                // remove any features outside of
+                // remove any polygon features outside of
                 // the filter geometry
-                spatialFilter ? booleanWithin(feature.geometry as Polygon, spatialFilter?.geometry as Polygon) : feature,
-            )
+                if (feature.geometry.type === 'Polygon') {
+                    return spatialFilter ? booleanWithin(feature.geometry as Polygon, spatialFilter?.geometry as Polygon) : feature;
+                }
+
+                return false;
+            })
             .sort((a, b) => (a.properties!.TOID < b.properties!.TOID ? -1 : 1))
             .map((feature) => {
                 const building = buildings[feature.properties!.TOID];
