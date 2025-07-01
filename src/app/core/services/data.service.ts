@@ -634,7 +634,7 @@ export class DataService {
     }
 
     public flagToInvestigate(building: BuildingModel): Observable<FlagHistory[]> {
-        const lodgementDate = building.LodgementDate ? `_${building.LodgementDate.replaceAll("-", "")}` : ""
+        const lodgementDate = building.LodgementDate ? `_${building.LodgementDate.replaceAll('-', '')}` : '';
         return this.#http
             .post<NonNullable<BuildingModel['Flagged']>>(
                 `${this.#backendApiEndpoint}/flag-to-investigate`,
@@ -651,7 +651,7 @@ export class DataService {
                     const flag: FlagResponse = {
                         UPRN: building.UPRN,
                         TOID: building.TOID,
-                        Flagged: flagUri
+                        Flagged: flagUri,
                     };
                     this.buildingsFlagged.update((f) => ({
                         ...f,
@@ -671,7 +671,7 @@ export class DataService {
 
     public invalidateFlag(building: BuildingModel, reason: InvalidateFlagReason): Observable<FlagHistory[]> {
         /* If building has no flag, throw error */
-        let activeFlag = this.activeFlag();
+        const activeFlag = this.activeFlag();
         if (activeFlag === undefined || activeFlag === 'loading' || !activeFlag) throw new Error(`Building ${building.UPRN} has no flag`);
 
         /* convert reason string to enum key */
