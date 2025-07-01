@@ -324,9 +324,13 @@ export class UtilService {
         currentMapFeatures
             .filter((feature) =>
                 // if there is a spatial filter
-                // remove any features outside of
+                // remove any polygon features outside of
                 // the filter geometry
-                spatialFilter ? booleanWithin(feature.geometry as Polygon, spatialFilter?.geometry as Polygon) : feature,
+                feature.geometry.type === 'Polygon'
+                    ? spatialFilter
+                        ? booleanWithin(feature.geometry as Polygon, spatialFilter?.geometry as Polygon)
+                        : feature
+                    : false,
             )
             .sort((a, b) => (a.properties!.TOID < b.properties!.TOID ? -1 : 1))
             .map((feature) => {
