@@ -2,8 +2,7 @@
     "production": true,
     "env": "prod",
     "addressSearch": {
-        "maxResults": 100,
-        "localCustodianCode": 2114
+        "maxResults": 100
     },
     "cache": {
         "epc": "/assets/data/epc-data.json",

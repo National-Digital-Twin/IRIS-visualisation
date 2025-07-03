@@ -32,7 +32,6 @@ export class AddressSearchService {
         const params = new HttpParams()
             .set('query', queryString)
             .set('maxresults', this.#runtimeConfiguration.addressSearch.maxResults)
-            .set('FQ', `LOCAL_CUSTODIAN_CODE:${this.#runtimeConfiguration.addressSearch.localCustodianCode}`)
             .set('output_srs', 'EPSG:4326');
 
         const url: string = `${environment.transparent_proxy.url}/os/search/places/v1/find`;

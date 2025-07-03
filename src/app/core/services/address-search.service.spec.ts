@@ -9,7 +9,6 @@ import { AddressSearchService } from './address-search.service';
 const runtimeConfig = {
     addressSearch: {
         maxResults: 10,
-        localCustodianCode: 'en-GB',
     },
 };
 
@@ -43,7 +42,7 @@ describe('AddressSearchService', () => {
             .pipe(map((result) => expect(result).toEqual([])))
             .subscribe(() => done());
 
-        const params = new HttpParams().set('query', 'POSTCODE').set('maxresults', '10').set('FQ', 'LOCAL_CUSTODIAN_CODE:en-GB').set('output_srs', 'EPSG:4326');
+        const params = new HttpParams().set('query', 'POSTCODE').set('maxresults', '10').set('output_srs', 'EPSG:4326');
 
         const req = httpMock.expectOne(`/transparent-proxy/os/search/places/v1/find?${params.toString()}`);
         expect(req.request.method).toBe('GET');
@@ -67,7 +66,7 @@ describe('AddressSearchService', () => {
             .pipe(map((result) => expect(result).toEqual([{ UPRN: '1' }, { UPRN: '2' }, { UPRN: '3' }, { UPRN: '4' }, { UPRN: '5' }])))
             .subscribe(() => done());
 
-        const params = new HttpParams().set('query', 'POSTCODE').set('maxresults', '10').set('FQ', 'LOCAL_CUSTODIAN_CODE:en-GB').set('output_srs', 'EPSG:4326');
+        const params = new HttpParams().set('query', 'POSTCODE').set('maxresults', '10').set('output_srs', 'EPSG:4326');
 
         const req = httpMock.expectOne(`/transparent-proxy/os/search/places/v1/find?${params.toString()}`);
         expect(req.request.method).toBe('GET');
