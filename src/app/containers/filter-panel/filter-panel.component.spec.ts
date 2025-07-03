@@ -49,6 +49,7 @@ const mockData: FilterDialogData = {
         RoofInsulationThickness: [],
         Flagged: [],
         StructureUnitType: [],
+        FuelType: [],
     },
 };
 

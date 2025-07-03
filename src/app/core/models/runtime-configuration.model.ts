@@ -14,7 +14,6 @@ export interface RuntimeConfigurationModel {
     env: 'local' | 'dev' | 'prod';
     /** Address search configuration */
     addressSearch: {
-        localCustodianCode: number;
         maxResults: number;
     };
     cache: {

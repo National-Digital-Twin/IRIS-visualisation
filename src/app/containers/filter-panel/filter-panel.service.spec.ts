@@ -56,7 +56,10 @@ describe('DataService', () => {
                         [4, 1, 2, 2, 3].map((size, idx) => expect(result.at(idx)?.filters).toHaveLength(size));
                     }),
                 )
-                .subscribe(() => done());
+                .subscribe({
+                    next: () => done(),
+                    error: (err) => done(err),
+                });
 
             const params = new HttpParams().set('min_lat', '1').set('max_lat', '2').set('min_long', '3').set('max_long', '4');
 
