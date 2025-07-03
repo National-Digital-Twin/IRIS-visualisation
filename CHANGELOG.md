@@ -28,6 +28,10 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
   - Playwright tests fixed
   - Draw polygon bug fixed
 
+### Other
+
+  - Updated dependencies to latest version
+
 ## [0.90.1] - 2025.03.28
 
 ### Features
