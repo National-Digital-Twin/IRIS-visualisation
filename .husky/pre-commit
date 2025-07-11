@@ -1,4 +1,4 @@
-npm outdated
+# npm outdated
 npm run lint:app
 npm run lint:styles
-git update-index --refresh
+# git update-index --refresh

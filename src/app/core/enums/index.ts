@@ -11,6 +11,7 @@ export * from './roof-insulation-thickness';
 export * from './wall-construction';
 export * from './wall-insulation';
 export * from './window-glazing';
+export * from './fuel-type';
 export * from './year-of-assessment';
 
 // SPDX-License-Identifier: Apache-2.0

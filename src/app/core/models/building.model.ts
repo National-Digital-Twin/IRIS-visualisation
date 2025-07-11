@@ -23,6 +23,7 @@ export type BuildingModel = {
     Flagged?: string;
     longitude?: string;
     latitude?: string;
+    FuelType?: string;
 };
 
 export interface BuildingMap {
