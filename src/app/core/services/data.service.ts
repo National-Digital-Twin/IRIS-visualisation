@@ -509,7 +509,7 @@ export class DataService {
             WallConstruction: this.getPropertyValue(response, 'wall_construction'),
             WallInsulation: this.getPropertyValue(response, 'wall_insulation'),
             WindowGlazing: this.getPropertyValue(response, 'window_glazing'),
-            FuelType: this.getPropertyValue(response, 'fueltype')
+            FuelType: this.getPropertyValue(response, 'fueltype'),
         };
 
         // Cache the detailed data for future use

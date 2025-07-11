@@ -12,7 +12,7 @@ export enum FuelType {
     SmokelessCoal = 'Smokeless Coal',
     WoodChips = 'Wood Chips',
     WoodLogs = 'Wood Logs',
-    WoodPellets = 'Wood Pellets'
+    WoodPellets = 'Wood Pellets',
 }
 
 // SPDX-License-Identifier: Apache-2.0
