@@ -22,6 +22,7 @@ import {
     WallInsulation,
     WindowGlazing,
 } from '@core/enums';
+import { FuelType } from '@core/enums/fuel-type';
 import { BuildingModel } from '@core/models/building.model';
 import { DownloadDataWarningData, DownloadDataWarningResponse } from '@core/models/download-data-warning.model';
 import { DataService } from '@core/services/data.service';
@@ -74,6 +75,7 @@ export class DetailsPanelComponent implements OnInit {
     public wall: Record<string, string> = WallConstruction;
     public wallInsulation: Record<string, string> = WallInsulation;
     public windowGlazing: Record<string, string> = WindowGlazing;
+    public fuelType: Record<string, string> = FuelType;
 
     private readonly updateFlagHistory$ = toObservable(this.buildingDetails).pipe(
         takeUntilDestroyed(),
