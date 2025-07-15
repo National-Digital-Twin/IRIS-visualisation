@@ -1,4 +1,4 @@
-FROM nginx:1.27.4
+FROM nginx:1.29.0
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends libxslt1.1=1.1.35-1+deb12u1 && \
