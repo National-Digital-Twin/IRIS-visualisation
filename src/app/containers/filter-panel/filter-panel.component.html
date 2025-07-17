@@ -1,40 +1,38 @@
-<mat-dialog-content>
-    <form [formGroup]="advancedFiltersForm">
-        <mat-accordion displayMode="flat" [multi]="true">
-            @for (panel of otherPanels(); track $index) {
-                <mat-expansion-panel class="mat-elevation-z" [expanded]="checkFiltersApplied(panel.panelTitle)">
-                    <mat-expansion-panel-header>{{ panel.panelTitle }}</mat-expansion-panel-header>
-                    <div class="content">
-                        @for (filter of panel.filters; track $index) {
-                            @if (filter.data.length) {
-                                <h4>{{ filter.title }}</h4>
-                                <c477-multi-button-filter
-                                    [formControlName]="filter.formControlName"
-                                    [title]="filter.title"
-                                    [options]="filter.data"
-                                    [validOptions]="filter.validOptions ?? []"
-                                />
+@let panels = filterPanels();
+
+@if (!panels.length) {
+    <mat-dialog-content>Loading filter options...</mat-dialog-content>
+
+    <mat-dialog-actions>
+        <button mat-stroked-button mat-dialog-close>Cancel</button>
+    </mat-dialog-actions>
+} @else {
+    <mat-dialog-content>
+        <form [formGroup]="filtersForm">
+            <mat-accordion displayMode="flat" [multi]="true">
+                @for (panel of panels; track panel.title) {
+                    <mat-expansion-panel class="mat-elevation-z" [expanded]="expandPanel(panel.title)">
+                        <mat-expansion-panel-header>{{ panel.title }}</mat-expansion-panel-header>
+                        <div class="content">
+                            @for (filter of panel.filters; track filter.name) {
+                                @if (filter.values) {
+                                    <h4>{{ filter.label }}</h4>
+                                    <c477-multi-button-filter [formControlName]="filter.name" [title]="filter.label" [options]="filter.values" />
+                                }
                             }
-                        }
-                    </div>
-                </mat-expansion-panel>
-            }
-        </mat-accordion>
-    </form>
-</mat-dialog-content>
+                        </div>
+                    </mat-expansion-panel>
+                }
+            </mat-accordion>
+        </form>
+    </mat-dialog-content>
 
-<mat-dialog-actions>
-    @if (noValidFilterOptions) {
-        <div class="invalid-filter">
-            <mat-icon>warning</mat-icon>
-            There are no dwellings that match this filter criteria
-        </div>
-    }
-
-    <button mat-button (click)="clearAll()">Clear all</button>
-    <button mat-stroked-button mat-dialog-close>Cancel</button>
-    <button mat-flat-button [mat-dialog-close]="advancedFiltersForm" cdkFocusInitial>Apply filters</button>
-</mat-dialog-actions>
+    <mat-dialog-actions>
+        <button mat-button (click)="clearAll()">Clear all</button>
+        <button mat-stroked-button mat-dialog-close>Cancel</button>
+        <button mat-flat-button [mat-dialog-close]="filtersForm" cdkFocusInitial>Apply filters</button>
+    </mat-dialog-actions>
+}
 
 <!-- SPDX-License-Identifier: Apache-2.0
 © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme

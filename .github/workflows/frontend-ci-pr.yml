@@ -1,127 +1,130 @@
+# SPDX-License-Identifier: Apache-2.0
+# © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
+
 name: Frontend CI on PR
 
 on:
-  workflow_call:
-  pull_request:
-    branches:
-      - 'develop'
-    paths:
-      - "src/**"
-      - ".github/workflows/frontend-ci-pr.yml"
-      - ".github/workflows/frontend-ci-pr-merge.yml"
-  workflow_dispatch:
+    workflow_call:
+    pull_request:
+        branches:
+            - 'develop'
+        paths:
+            - 'src/**'
+            - '.github/workflows/frontend-ci-pr.yml'
+            - '.github/workflows/frontend-ci-pr-merge.yml'
+    workflow_dispatch:
 
 permissions:
-  contents: read
-  packages: read
-  statuses: write # To report GitHub Actions status checks
+    contents: read
+    packages: read
+    statuses: write # To report GitHub Actions status checks
 
 jobs:
-  dependencies:
-    name: Dependency Checks
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    env:
-      GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    dependencies:
+        name: Dependency Checks
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        env:
+            GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "23.x"
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '24.x'
 
-      - name: Install Dependencies
-        run: npm ci
+            - name: Install Dependencies
+              run: npm ci --legacy-peer-deps
 
-      - name: Check for Outdated Dependencies
-        run: npm audit
-        continue-on-error: true
+            - name: Check for Outdated Dependencies
+              run: npm audit
+              continue-on-error: true
 
-  linting:
-    name: Code Linting
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: dependencies
-    env:
-      GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    linting:
+        name: Code Linting
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        needs: dependencies
+        env:
+            GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "23.x"
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '24.x'
 
-      - name: Install Dependencies
-        run: npm ci
+            - name: Install Dependencies
+              run: npm ci --legacy-peer-deps
 
-      - name: Run Linting
-        run: npm run lint:app
-        continue-on-error: true
+            - name: Run Linting
+              run: npm run lint:app
+              continue-on-error: true
 
-  security-scanning:
-    name: Security Scanning
-    runs-on: ubuntu-latest
-    needs: linting
-    timeout-minutes: 10
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    security-scanning:
+        name: Security Scanning
+        runs-on: ubuntu-latest
+        needs: linting
+        timeout-minutes: 10
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          scan-type: "fs"
-          scan-ref: .
-          format: "table"
-          exit-code: "1"
-          ignore-unfixed: true
-          severity: "CRITICAL,HIGH"
-        continue-on-error: true
+            - name: Run Trivy vulnerability scanner
+              uses: aquasecurity/trivy-action@0.28.0
+              with:
+                  scan-type: 'fs'
+                  scan-ref: .
+                  format: 'table'
+                  exit-code: '1'
+                  ignore-unfixed: true
+                  severity: 'CRITICAL,HIGH'
+              continue-on-error: true
 
-  docker-build-test-scan:
-    name: Build, Docker Build, Test & Scan
-    runs-on: ubuntu-latest
-    needs: security-scanning
-    timeout-minutes: 20
-    env:
-      GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    environment: development
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    docker-build-test-scan:
+        name: Build, Docker Build, Test & Scan
+        runs-on: ubuntu-latest
+        needs: security-scanning
+        timeout-minutes: 20
+        env:
+            GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        environment: development
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "23.x"
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '24.x'
 
-      - name: Install Dependencies
-        run: npm ci
+            - name: Install Dependencies
+              run: npm ci --legacy-peer-deps
 
-      - name: Build Frontend
-        run: |
-          npm run build
+            - name: Build Frontend
+              run: |
+                  npm run build
 
-      - name: List files in dist dir
-        if: success()
-        run: |
-          ls -l dist/
+            - name: List files in dist dir
+              if: success()
+              run: |
+                  ls -l dist/
 
-      - name: Build Docker Image
-        run: |
-          docker build -t iris/visualiser:latest -f docker/Dockerfile .
+            - name: Build Docker Image
+              run: |
+                  docker build -t iris/visualiser:latest -f docker/Dockerfile .
 
-      - name: Run Trivy Scan on Docker Image
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          image-ref: "iris/visualiser:latest"
-          format: "table"
-          exit-code: "1"
-          ignore-unfixed: true
-          vuln-type: "os,library"
-          severity: "CRITICAL,HIGH"
-        continue-on-error: true
+            - name: Run Trivy Scan on Docker Image
+              uses: aquasecurity/trivy-action@0.28.0
+              with:
+                  image-ref: 'iris/visualiser:latest'
+                  format: 'table'
+                  exit-code: '1'
+                  ignore-unfixed: true
+                  vuln-type: 'os,library'
+                  severity: 'CRITICAL,HIGH'
+              continue-on-error: true

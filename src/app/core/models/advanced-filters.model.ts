@@ -1,5 +1,5 @@
 import {
-    BuildForm,
+    BuiltForm,
     FloorConstruction,
     FloorInsulation,
     PostCode,
@@ -16,7 +16,7 @@ import { Moment } from 'moment/moment';
 export type EPCExpiry = 'EPC Expired' | 'EPC In Date';
 
 export type AdvancedFilter =
-    | typeof BuildForm
+    | typeof BuiltForm
     | typeof FloorConstruction
     | typeof FloorInsulation
     | typeof PostCode
@@ -35,7 +35,7 @@ export interface DateFormModel {
 }
 export interface AdvancedFiltersFormModel {
     PostCode: PostCode[] | null;
-    BuildForm: BuildForm[] | null;
+    BuiltForm: BuiltForm[] | null;
     WindowGlazing: WindowGlazing[] | null;
     WallConstruction: WallConstruction[] | null;
     WallInsulation: WallInsulation[] | null;
@@ -46,6 +46,7 @@ export interface AdvancedFiltersFormModel {
     RoofInsulationThickness: RoofInsulationThickness[] | null;
     YearOfAssessment: YearOfAssessment[] | null;
     EPCExpiry: EPCExpiry[] | null;
+    FuelType: string[] | null;
 }
 
 export interface MultiButtonFilterOption {
@@ -57,14 +58,14 @@ export interface MultiButtonFilterOption {
 }
 
 export interface FilterProps {
-    BuildForm?: string[];
+    BuiltForm?: string[];
     EPC?: string[];
     Flagged?: string[];
     FloorConstruction?: string[];
     FloorInsulation?: string[];
     WindowGlazing?: string[];
     PostCode?: string[];
-    PropertyType?: string[];
+    StructureUnitType?: string[];
     RoofConstruction?: string[];
     RoofInsulationLocation?: string[];
     RoofInsulationThickness?: string[];
@@ -75,14 +76,14 @@ export interface FilterProps {
 }
 
 export type FilterKeys =
-    | 'BuildForm'
+    | 'BuiltForm'
     | 'EPC'
     | 'FloorConstruction'
     | 'FloorInsulation'
     | 'Flagged'
     | 'WindowGlazing'
     | 'PostCode'
-    | 'PropertyType'
+    | 'StructureUnitType'
     | 'RoofConstruction'
     | 'RoofInsulationLocation'
     | 'RoofInsulationThickness'

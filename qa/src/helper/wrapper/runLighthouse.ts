@@ -51,7 +51,7 @@ async function getUserLogin() {
     nloginPage = new LoginPage(basePage.page);
     await nloginPage.navigateToLoginPage(process.env.IRISURL);
     basePage.logger.info('Navigated to the application');
-    await nloginPage.loginUser(process.env.USERNAME, process.env.PASSWORD);
+    await nloginPage.loginUser(process.env.TESTUSER, process.env.TESTPASS);
 
     await basePage.page.waitForURL(process.env.IRISURL);
 

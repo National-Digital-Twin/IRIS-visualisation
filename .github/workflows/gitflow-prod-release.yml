@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
+
 name: Prod Release on Merge to Main
 
 on:
@@ -6,7 +9,7 @@ on:
       - main
 
 env:
-  SOURCE_AWS_ACCOUNT_ID: "${{ vars.DEMO_AWS_ACCOUNT_ID }}"
+  SOURCE_AWS_ACCOUNT_ID: "${{ vars.STAGING_AWS_ACCOUNT_ID }}"
   DESTINATION_AWS_ACCOUNT_ID: "${{ vars.PROD_AWS_ACCOUNT_ID }}"
 
 permissions:

@@ -15,7 +15,7 @@ import { BuildingModel } from '@core/models/building.model';
 import { DownloadBuilding, DownloadDataWarningData, DownloadDataWarningResponse } from '@core/models/download-data-warning.model';
 import { DataDownloadService } from '@core/services/data-download.service';
 import { DataService } from '@core/services/data.service';
-import { MapService } from '@core/services/map.service';
+import { MAP_SERVICE } from '@core/services/map.token';
 import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { UtilService } from '@core/services/utils.service';
 import { LngLat } from 'mapbox-gl';
@@ -43,7 +43,7 @@ export class ResultsPanelComponent {
     readonly #spatialQueryService = inject(SpatialQueryService);
     readonly #utilService = inject(UtilService);
     readonly #dataDownloadService = inject(DataDownloadService);
-    readonly #mapService = inject(MapService);
+    readonly #mapService = inject(MAP_SERVICE);
 
     public buildingSelection = this.#dataService.buildingsSelection;
     public checkedCards = signal<BuildingModel[]>([]);
@@ -56,8 +56,9 @@ export class ResultsPanelComponent {
     public resultsPanelCollapsed: OutputEmitterRef<boolean> = output();
 
     public viewPort = viewChild<CdkVirtualScrollViewport>(CdkVirtualScrollViewport);
+    public dialog = inject(MatDialog);
 
-    constructor(public dialog: MatDialog) {
+    constructor() {
         /** listen for UPRN set from map click */
         effect(() => {
             const selectedUPRN = this.#utilService.selectedUPRN();
@@ -103,7 +104,7 @@ export class ResultsPanelComponent {
      * @param building selected building
      */
     public viewDetails(selectedBuilding: BuildingModel): void {
-        const TOID = selectedBuilding.TOID ? selectedBuilding.TOID : selectedBuilding.ParentTOID;
+        const TOID = selectedBuilding.TOID ?? selectedBuilding.ParentTOID;
 
         const center = this.getZoomCenter(TOID!);
         this.#utilService.viewDetailsButtonClick(TOID!, selectedBuilding.UPRN, center);
@@ -114,7 +115,7 @@ export class ResultsPanelComponent {
      * @param selectedBuilding building for selected card
      */
     public cardSelected(selectedBuilding: BuildingModel): void {
-        const TOID = selectedBuilding.TOID ? selectedBuilding.TOID : selectedBuilding.ParentTOID;
+        const TOID = selectedBuilding.TOID ?? selectedBuilding.ParentTOID;
         const UPRN = selectedBuilding.UPRN;
         /**
          * if selected card building uprn === the current selected card uprn

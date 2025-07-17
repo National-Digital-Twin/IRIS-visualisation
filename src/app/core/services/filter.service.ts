@@ -37,7 +37,7 @@ export class FilterService {
 
     /**
      *
-     * @param filter 'EPC-C-G:BuildForm-SemiDetached-EndTerrace:PropertyType-Bungalow'
+     * @param filter 'EPC-C-G:BuiltForm-SemiDetached-EndTerrace:StructureUnitType-Bungalow'
      */
     public parseFilterString(filter: string): FilterProps {
         const filterProps: FilterProps = {};

@@ -14,6 +14,24 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
  ---
 
+## [0.91.0] - 2025-07-04
+
+### Features
+
+  - [DPAV-589]: Redesigned header match common header style for NDTP apps.
+  - [DPAV-326]: Implemented the new data loading approach
+  - [DPAV-326]: Implemented caching of building data
+  - [DPAV-967]: Restored advanced filter functionality after changes for new data loading approach
+
+### Bugfixes
+
+  - Playwright tests fixed
+  - Draw polygon bug fixed
+
+### Other
+
+  - Updated dependencies to latest version
+
 ## [0.90.1] - 2025.03.28
 
 ### Features

@@ -1,7 +1,7 @@
 resource "github_repository" "repository" {
   name                   = basename(dirname(path.cwd))
   description            = var.repository_description
-  visibility             = "private"
+  visibility             = "public"
   delete_branch_on_merge = false
   has_downloads          = true
   has_issues             = true

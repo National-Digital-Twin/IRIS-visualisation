@@ -2,7 +2,6 @@
   path: /spec/hosts/0
   value: iris.app.ndtp.co.uk
 
-
 - op: replace
   path: /spec/gateways/0
   value: iris/iris-ingress-gateway

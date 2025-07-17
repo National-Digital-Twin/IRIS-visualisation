@@ -7,6 +7,7 @@
 ## Prerequisites  
 Before using this repository, ensure you have the following dependencies installed:  
 - **Required Tooling:** NVM, Angular CLI
+- Have the [iris-api](https://github.com/National-Digital-Twin/iris-api) cloned.
 
 ### 1. Download 
 ```sh  
@@ -35,6 +36,14 @@ npm install
 ```
 
 ### 3. Configuration  
+
+Please ensure you have a docker image built for the `iris-api` with the tag `iris-api`, for the `transparent-proxy` with the tag `iris-transparent-proxy` and for the `secure-agent-graph` with the tag `iris-sag`.
+
+To build the image for the `iris-api` please navigate to the `iris-api` repository. To build the `transparent-proxy` image please navigate to the `./transparent-proxy/` folder. To build the image for the `secure agent graph` please navigate to the `./developer_resources/` folder. You will need to create a PAT (classic token) with the read:packages permission and sign into the GitHub docker repository using the command below (you can used the pat token that you created earlier).
+
+```sh
+echo <my-pat-token> | docker login ghcr.io -u <my-username> --password-stdin
+```
 
 For local development, create a `environment.local.ts` file in `environments` and a `\local\config.json` directory & file in `configurations`. These two files should have the same structure as the existing environment files. These local files are not committed to git, and can have any secret keys added safely.
 

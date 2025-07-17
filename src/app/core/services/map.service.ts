@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { Injectable, NgZone, inject, signal } from '@angular/core';
+import { NgZone, inject, signal } from '@angular/core';
 import { transformUrlForProxy } from '@core/helpers';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
 import { URLStateModel } from '@core/models/url-state.model';
@@ -16,9 +16,9 @@ import mapboxgl, {
     SourceSpecification,
 } from 'mapbox-gl';
 import { AsyncSubject, EMPTY, Observable, catchError, finalize, first, forkJoin, from, map, of, switchMap } from 'rxjs';
+import { MapService } from './map.token';
 
-@Injectable({ providedIn: 'root' })
-export class MapService {
+export class MapBoxService implements MapService<mapboxgl.Map> {
     readonly #document = inject(DOCUMENT);
     readonly #zone = inject(NgZone);
     readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
@@ -40,6 +40,15 @@ export class MapService {
         this.#zone.onStable.pipe(first()).subscribe(() => {
             this.createMap(config);
             this.hookEvents();
+
+            this.mapInstance.once('idle', () => {
+                const initialBounds = this.mapInstance.getBounds();
+                if (initialBounds) {
+                    this.#zone.run(() => {
+                        this.currentMapBounds.set(initialBounds);
+                    });
+                }
+            });
         });
     }
 
@@ -167,6 +176,28 @@ export class MapService {
                 )
                 .subscribe();
         });
+
+        this.mapInstance.on('moveend', () => {
+            // Update the current bounds when a map movement ends
+            const bounds = this.mapInstance.getBounds();
+            if (bounds) {
+                this.#zone.run(() => {
+                    this.currentMapBounds.set(bounds);
+                });
+            }
+        });
+    }
+
+    public getViewportBoundingBox(): { minLat: number; maxLat: number; minLng: number; maxLng: number } | null {
+        const bounds = this.currentMapBounds();
+        if (!bounds) return null;
+
+        return {
+            minLat: bounds.getSouth(),
+            maxLat: bounds.getNorth(),
+            minLng: bounds.getWest(),
+            maxLng: bounds.getEast(),
+        };
     }
 
     public addDrawControl(): MapboxDraw {

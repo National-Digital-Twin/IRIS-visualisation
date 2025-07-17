@@ -6,5 +6,10 @@
             "^/api": ""
         },
         "changeOrigin": true
+    },
+    "/transparent-proxy": {
+        "target": "http://localhost:5013",
+        "secure": false,
+        "changeOrigin": true
     }
 }

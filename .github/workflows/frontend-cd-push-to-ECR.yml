@@ -1,107 +1,110 @@
+# SPDX-License-Identifier: Apache-2.0
+# © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
+
 name: Frontend CD - push to ECR
 
 on:
-  workflow_call:
-    inputs:
-      aws_account_number:
-        type: string
-        required: true
-        description: "AWS Account Number for ECR"
-      repo_name:
-        type: string
-        required: true
-        description: "Name of the repository in ECR"
-      app_name:
-        type: string
-        required: true
-        description: "Name of app - frontend, backend or transparent-proxy"
-      version:
-        type: string
-        required: true
-        description: "Version number passed from main workflow"
-  workflow_dispatch:
-    inputs:
-      aws_account_number:
-        type: string
-        required: true
-        description: "AWS Account Number for ECR"
-      repo_name:
-        type: string
-        required: true
-        description: "Name of the repository in ECR"
-      app_name:
-        type: string
-        required: true
-        description: "Name of app - frontend, backend or transparent-proxy"
-      version:
-        type: string
-        required: true
-        description: "Version number passed from main workflow"
+    workflow_call:
+        inputs:
+            aws_account_number:
+                type: string
+                required: true
+                description: 'AWS Account Number for ECR'
+            repo_name:
+                type: string
+                required: true
+                description: 'Name of the repository in ECR'
+            app_name:
+                type: string
+                required: true
+                description: 'Name of app - frontend, backend or transparent-proxy'
+            version:
+                type: string
+                required: true
+                description: 'Version number passed from main workflow'
+    workflow_dispatch:
+        inputs:
+            aws_account_number:
+                type: string
+                required: true
+                description: 'AWS Account Number for ECR'
+            repo_name:
+                type: string
+                required: true
+                description: 'Name of the repository in ECR'
+            app_name:
+                type: string
+                required: true
+                description: 'Name of app - frontend, backend or transparent-proxy'
+            version:
+                type: string
+                required: true
+                description: 'Version number passed from main workflow'
 
 permissions:
-  id-token: write
-  contents: read
-  packages: read
-  statuses: write
+    id-token: write
+    contents: read
+    packages: read
+    statuses: write
 
 jobs:
-  docker-build-push:
-    name: Docker Build & Push
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    env:
-      GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    environment: development
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    docker-build-push:
+        name: Docker Build & Push
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        env:
+            GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        environment: development
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
 
-      - name: Use Provided Version
-        run: |
-          echo "VERSION=${{ inputs.version }}" >> $GITHUB_ENV
+            - name: Use Provided Version
+              run: |
+                  echo "VERSION=${{ inputs.version }}" >> $GITHUB_ENV
 
-      - name: Debug Version Output
-        run: |
-          echo "Using provided version: $VERSION"
+            - name: Debug Version Output
+              run: |
+                  echo "Using provided version: $VERSION"
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "23.x"
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '24.x'
 
-      - name: Install Dependencies
-        run: npm ci
+            - name: Install Dependencies
+              run: npm ci --legacy-peer-deps
 
-      - name: Build Frontend
-        run: |
-          npm run build
+            - name: Build Frontend
+              run: |
+                  npm run build
 
-      - name: Build Docker Image
-        run: |
-          docker build --load \
-                  -t ${{ inputs.aws_account_number }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.repo_name }}:${{ github.sha }} \
-                  -t ${{ inputs.aws_account_number }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.repo_name }}:${{ inputs.version }} \
-                  -f docker/Dockerfile .
+            - name: Build Docker Image
+              run: |
+                  docker build --load \
+                          -t ${{ inputs.aws_account_number }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.repo_name }}:${{ github.sha }} \
+                          -t ${{ inputs.aws_account_number }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.repo_name }}:${{ inputs.version }} \
+                          -f docker/Dockerfile .
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::${{ inputs.aws_account_number }}:role/ecr-access-for-github
-          aws-region: eu-west-2
-          role-session-name: githubsession
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                  role-to-assume: arn:aws:iam::${{ inputs.aws_account_number }}:role/ecr-access-for-github
+                  aws-region: eu-west-2
+                  role-session-name: githubsession
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+            - name: Login to Amazon ECR
+              id: login-ecr
+              uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Push Docker Image to ECR
-        run: |
-          docker image push --all-tags ${{ inputs.aws_account_number }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.repo_name }}
+            - name: Push Docker Image to ECR
+              run: |
+                  docker image push --all-tags ${{ inputs.aws_account_number }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.repo_name }}
 
-      - name: Verify Docker Image
-        run: |
-          docker images
-          aws ecr describe-images --repository-name ${{ inputs.repo_name }} --query 'sort_by(imageDetails, &imagePushedAt)[-1]' --output table  >> $GITHUB_STEP_SUMMARY
+            - name: Verify Docker Image
+              run: |
+                  docker images
+                  aws ecr describe-images --repository-name ${{ inputs.repo_name }} --query 'sort_by(imageDetails, &imagePushedAt)[-1]' --output table  >> $GITHUB_STEP_SUMMARY
