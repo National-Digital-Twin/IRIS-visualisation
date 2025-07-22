@@ -14,6 +14,16 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
  ---
 
+## [0.92.1] - 2025-07-22
+
+- Updated changelog prior to release 0.92.0
+
+## [0.92.0] - 2025-07-18
+
+### Features
+
+- [DPAV-1352]: Updated detailed building view to show main fuel type
+
 ## [0.91.0] - 2025-07-04
 
 ### Features
