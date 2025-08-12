@@ -29,7 +29,7 @@
             </button>
         </div>
         <div class="control-group">
-            <button class="control" mat-mini-fab matTooltip="Draw filter area" [ngClass]="{ active: this.drawActive }" (click)="setDrawMode('polygon')">
+            <button class="control" mat-mini-fab matTooltip="Draw filter area" [class.active]="drawActive" (click)="setDrawMode('polygon')">
                 <img class="icon" [src]="this.drawActive ? 'assets/icons/polyline-white.svg' : 'assets/icons/polyline.svg'" alt="Draw filter area" />
             </button>
             @if (hasSpatialFilter && mapInstance.getZoom() < 15) {
@@ -52,6 +52,62 @@
             @if (showLegend) {
                 <c477-legend />
             }
+        </div>
+        <div class="control-group">
+            <button mat-mini-fab class="control" [matMenuTriggerFor]="layersMenu" matTooltip="Layers" [class.active]="activeLayersCount > 0">
+                <mat-icon>layers</mat-icon>
+            </button>
+            <mat-menu #layersMenu="matMenu" class="layers-menu" xPosition="before" [overlapTrigger]="false">
+                <div>
+                    <button mat-menu-item [matMenuTriggerFor]="epcSubmenu">
+                        <mat-icon>bar_chart</mat-icon>
+                        <span>EPC ratings</span>
+                    </button>
+                    <mat-menu #epcSubmenu="matMenu" class="layers-submenu" [overlapTrigger]="false" xPosition="before">
+                        <button mat-menu-item (click)="toggleEpcLayer('regions')" [class.active]="layerStates.epc.regions">
+                            <span>Regions</span>
+                        </button>
+                        <button mat-menu-item (click)="toggleEpcLayer('counties')" [class.active]="layerStates.epc.counties">
+                            <span>Counties</span>
+                        </button>
+                        <button mat-menu-item (click)="toggleEpcLayer('districts')" [class.active]="layerStates.epc.districts">
+                            <span>Districts</span>
+                        </button>
+                        <button mat-menu-item (click)="toggleEpcLayer('wards')" [class.active]="layerStates.epc.wards">
+                            <span>Wards</span>
+                        </button>
+                    </mat-menu>
+                </div>
+
+                <div>
+                    <button mat-menu-item [matMenuTriggerFor]="windRainSubmenu">
+                        <mat-icon>air</mat-icon>
+                        <span>Wind-driven rain</span>
+                    </button>
+                    <mat-menu #windRainSubmenu="matMenu" class="layers-submenu" [overlapTrigger]="false" xPosition="before">
+                        <button mat-menu-item (click)="toggleWindDrivenRainLayer('twoDegree')" [class.active]="layerStates.windDrivenRain.twoDegree">
+                            <span>2 degree warming projection</span>
+                        </button>
+                        <button mat-menu-item (click)="toggleWindDrivenRainLayer('fourDegree')" [class.active]="layerStates.windDrivenRain.fourDegree">
+                            <span>4 degree warming projection</span>
+                        </button>
+                    </mat-menu>
+                </div>
+
+                <div>
+                    <button mat-menu-item (click)="toggleIcingDaysLayer()" [class.active]="layerStates.icingDays">
+                        <mat-icon>ac_unit</mat-icon>
+                        <span>Icing days</span>
+                    </button>
+                </div>
+
+                <div>
+                    <button mat-menu-item (click)="toggleHotSummerDaysLayer()" [class.active]="layerStates.hotSummerDays">
+                        <mat-icon>thermostat</mat-icon>
+                        <span>Hot summer days (30°C+)</span>
+                    </button>
+                </div>
+            </mat-menu>
         </div>
     </div>
     <div class="map-controls bottom">

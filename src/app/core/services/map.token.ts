@@ -35,6 +35,8 @@ export interface MapService<T> {
 
     addMapLayer(layerConfig: unknown): T;
 
+    removeMapLayerAndSource(layerId: string): T | void;
+
     filterMapLayer(filter: unknown): T;
 
     setMapLayerPaint(layerId: string, paintProperty: string, value: unknown): T | void;

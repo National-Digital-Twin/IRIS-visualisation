@@ -39,31 +39,42 @@
 html {
     color-scheme: light;
 
-    @include mat.theme((color: (primary: light-theme.$primary-palette,
+    @include mat.theme(
+        (
+            color: (
+                primary: light-theme.$primary-palette,
                 tertiary: light-theme.$tertiary-palette,
                 theme-type: light,
             ),
             typography: Roboto,
             density: 0,
-        ));
+        )
+    );
 }
 
 body {
     line-height: 1.4rem;
 
-    @include mat.form-field-overrides((filled-container-color: var(--mat-sys-surface-container-lowest),
-        ));
+    @include mat.form-field-overrides(
+        (
+            filled-container-color: var(--mat-sys-surface-container-lowest),
+        )
+    );
 
     &[theme='dark'] {
         color-scheme: dark;
 
-        @include mat.theme((color: (primary: dark-theme.$primary-palette,
+        @include mat.theme(
+            (
+                color: (
+                    primary: dark-theme.$primary-palette,
                     tertiary: dark-theme.$tertiary-palette,
                     theme-type: dark,
                 ),
                 typography: Roboto,
                 density: 0,
-            ));
+            )
+        );
     }
 
     .mapboxgl-popup-content {
@@ -119,24 +130,35 @@ p {
     font-weight: var(--mat-sys-body-medium-weight);
 }
 
-@include mat.toolbar-overrides((standard-height: 56px,
+@include mat.toolbar-overrides(
+    (
+        standard-height: 56px,
         container-background-color: #002244,
         container-text-color: var(--mat-sys-on-primary),
-    ));
+    )
+);
 
-@include mat.button-overrides((text-container-shape: var(--border-radius),
+@include mat.button-overrides(
+    (
+        text-container-shape: var(--border-radius),
         text-label-text-transform: uppercase,
         filled-container-shape: var(--border-radius),
         filled-label-text-transform: uppercase,
         outlined-container-shape: var(--border-radius),
         outlined-label-text-transform: uppercase,
-    ));
+    )
+);
 
-@include mat.button-toggle-overrides((selected-state-text-color: var(--mat-sys-on-surface-variant),
+@include mat.button-toggle-overrides(
+    (
+        selected-state-text-color: var(--mat-sys-on-surface-variant),
         selected-state-background-color: var(--mat-sys-primary-container),
-    ));
+    )
+);
 
-@include mat.slide-toggle-overrides(( // General
+@include mat.slide-toggle-overrides(
+    (
+        // General
         track-height: 1rem,
         track-outline-width: 0,
         pressed-handle-size: 2rem,
@@ -165,55 +187,122 @@ p {
         selected-track-color: var(--mat-sys-primary-container),
         selected-focus-track-color: var(--mat-sys-primary-container),
         selected-hover-track-color: var(--mat-sys-primary-container),
-        selected-pressed-track-color: var(--mat-sys-primary-container)));
+        selected-pressed-track-color: var(--mat-sys-primary-container)
+    )
+);
 
-@include mat.form-field-overrides((filled-container-color: var(--mat-sys-surface-container-lowest),
+@include mat.form-field-overrides(
+    (
+        filled-container-color: var(--mat-sys-surface-container-lowest),
         filled-active-indicator-height: 0,
         filled-focus-active-indicator-height: 0,
-    ));
+    )
+);
 
-@include mat.divider-overrides((color: var(--mat-sys-outline-variant),
-    ));
+@include mat.divider-overrides(
+    (
+        color: var(--mat-sys-outline-variant),
+    )
+);
 
-@include mat.autocomplete-overrides((background-color: var(--mat-sys-surface-container-lowest),
-    ));
+@include mat.autocomplete-overrides(
+    (
+        background-color: var(--mat-sys-surface-container-lowest),
+    )
+);
 
-@include mat.tabs-overrides((divider-color: var(--mat-sys-outline-variant),
+@include mat.tabs-overrides(
+    (
+        divider-color: var(--mat-sys-outline-variant),
         active-label-text-color: var(--mat-sys-primary),
-    ));
+    )
+);
 
-@include mat.select-overrides((panel-background-color: var(--mat-sys-surface-container-lowest),
-    ));
+@include mat.select-overrides(
+    (
+        panel-background-color: var(--mat-sys-surface-container-lowest),
+    )
+);
 
-@include mat.expansion-overrides((container-shape: 0,
+@include mat.expansion-overrides(
+    (
+        container-shape: 0,
         container-background-color: var(--mat-sys-surface-container-lowest),
         header-hover-state-layer-color: var(--mat-sys-surface-bright),
-    ));
+    )
+);
 
-@include mat.dialog-overrides((container-shape: var(--border-radius),
+@include mat.dialog-overrides(
+    (
+        container-shape: var(--border-radius),
         container-color: var(--mat-sys-surface-container-lowest),
         headline-padding: 2rem 2rem 1rem,
         actions-padding: 1rem 2rem 2rem,
         with-actions-content-padding: 1rem 2rem,
-    ));
+    )
+);
+
+@include mat.menu-overrides(
+    (
+        divider-top-spacing: 0,
+        container-shape: var(--border-radius),
+        item-leading-spacing: 2rem,
+        item-trailing-spacing: 3rem,
+        item-with-icon-leading-spacing: 1rem,
+        item-with-icon-trailing-spacing: 1em,
+        item-label-text-color: #002244,
+        item-icon-color: #002244,
+        container-color: var(--mat-sys-surface-container-lowest),
+    )
+);
 
 .download-modal {
-    @include mat.dialog-overrides((headline-padding: 3rem 4rem 1rem,
+    @include mat.dialog-overrides(
+        (
+            headline-padding: 3rem 4rem 1rem,
             actions-padding: 2rem 4rem 3rem,
             with-actions-content-padding: 0 4rem,
-        ));
+        )
+    );
 }
 
 .profile-menu {
-    @include mat.menu-overrides((item-label-text-color: #002244,
-            item-icon-color: #002244,
-            container-color: var(--mat-sys-surface-container-lowest)));
-
     p {
-        padding-right: 10px;
-        padding-left: 10px;
+        padding-right: 1rem;
+        padding-left: 1rem;
         font-size: 1rem;
         opacity: 0.38;
+    }
+
+    button.mat-mdc-menu-item {
+        padding-right: 3rem;
+    }
+}
+
+.layers-menu {
+    position: absolute;
+    top: -3rem;
+    right: 3rem;
+    margin-right: 0.5rem;
+}
+
+.layers-submenu {
+    position: absolute;
+    top: 0;
+    right: 0.25rem;
+    margin-right: 0.5rem;
+}
+
+.mat-mdc-menu-panel {
+    .mat-mdc-menu-content {
+        padding: 0;
+    }
+
+    .mat-mdc-menu-item {
+        &.active {
+            color: var(--mat-sys-on-surface-variant);
+            background-color: var(--mat-sys-primary-container);
+        }
     }
 }
 
@@ -333,7 +422,7 @@ button {
     &.mdc-button {
         line-height: normal;
 
-        &>.mat-icon {
+        & > .mat-icon {
             width: 1.5rem;
             height: 1.5rem;
             font-size: 1.5rem;

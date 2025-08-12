@@ -3,6 +3,7 @@ import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, inpu
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipModule } from '@angular/material/tooltip';
 import { LegendComponent } from '@components/legend/legend.component';
 import { MapLayerConfig } from '@core/models/map-layer-config.model';
@@ -16,12 +17,12 @@ import { UtilService } from '@core/services/utils.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { FeatureCollection, GeoJsonProperties, Geometry, Polygon } from 'geojson';
-import { AnyLayer, FillLayerSpecification, GeoJSONFeature, MapMouseEvent, Popup, SourceSpecification } from 'mapbox-gl';
+import { AnyLayer, FillLayerSpecification, GeoJSONFeature, LayerSpecification, MapMouseEvent, Popup, SourceSpecification } from 'mapbox-gl';
 import { map, skip, take } from 'rxjs';
 
 @Component({
     selector: 'c477-map',
-    imports: [CommonModule, LegendComponent, MatButtonModule, MatIconModule, MatTooltipModule],
+    imports: [CommonModule, LegendComponent, MatButtonModule, MatIconModule, MatMenuModule, MatTooltipModule],
     templateUrl: './map.component.html',
     styleUrl: './map.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,6 +40,31 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     public drawActive: boolean = false;
     public showLegend: boolean = false;
     public twoDimensions: boolean = false;
+
+    public layersMenuOpen: boolean = false;
+    public layerStates = {
+        epc: {
+            regions: false,
+            counties: false,
+            districts: false,
+            wards: false,
+        },
+        windDrivenRain: {
+            twoDegree: false,
+            fourDegree: false,
+        },
+        icingDays: false,
+        hotSummerDays: false,
+    };
+
+    public get activeLayersCount(): number {
+        let count = 0;
+        count += Object.values(this.layerStates.epc).filter(Boolean).length;
+        count += Object.values(this.layerStates.windDrivenRain).filter(Boolean).length;
+        count += this.layerStates.icingDays ? 1 : 0;
+        count += this.layerStates.hotSummerDays ? 1 : 0;
+        return count;
+    }
 
     private drawControl?: MapDraw;
     private readonly wardPopup = new Popup();
@@ -257,6 +283,97 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     public changeDimensions(): void {
         this.twoDimensions = !this.twoDimensions;
         this.tilt2D.emit(this.twoDimensions);
+    }
+
+    public toggleEpcLayer(type: 'regions' | 'counties' | 'districts' | 'wards'): void {
+        this.layerStates.epc[type] = !this.layerStates.epc[type];
+
+        const layerConfig = this.generateConfig(`epc-${type}-layer`);
+        if (this.layerStates.epc[type]) {
+            this.addSampleLayer(layerConfig);
+        } else {
+            this.#mapService.removeMapLayerAndSource(layerConfig.id);
+        }
+    }
+
+    public toggleWindDrivenRainLayer(type: 'twoDegree' | 'fourDegree'): void {
+        this.layerStates.windDrivenRain[type] = !this.layerStates.windDrivenRain[type];
+
+        const layerConfig = this.generateConfig(`wind-driven-rain-${type}-layer`);
+        if (this.layerStates.windDrivenRain[type]) {
+            this.addSampleLayer(layerConfig);
+        } else {
+            this.#mapService.removeMapLayerAndSource(layerConfig.id);
+        }
+    }
+
+    public toggleIcingDaysLayer(): void {
+        this.layerStates.icingDays = !this.layerStates.icingDays;
+
+        const layerConfig = this.generateConfig('icing-days-layer');
+        if (this.layerStates.icingDays) {
+            this.addSampleLayer(layerConfig);
+        } else {
+            this.#mapService.removeMapLayerAndSource(layerConfig.id);
+        }
+    }
+
+    public toggleHotSummerDaysLayer(): void {
+        this.layerStates.hotSummerDays = !this.layerStates.hotSummerDays;
+
+        const layerConfig = this.generateConfig('hot-summer-days-layer');
+        if (this.layerStates.hotSummerDays) {
+            this.addSampleLayer(layerConfig);
+        } else {
+            this.#mapService.removeMapLayerAndSource(layerConfig.id);
+        }
+    }
+
+    private generateConfig(id: string): LayerSpecification {
+        return {
+            id,
+            type: 'fill',
+            source: id,
+            paint: {
+                'fill-color': '#ff6b6b',
+                'fill-opacity': 0.6,
+                'fill-outline-color': '#d63031',
+            },
+        } as LayerSpecification;
+    }
+
+    private addSampleLayer(layerConfig: LayerSpecification): void {
+        const center = this.#mapService.mapInstance.getCenter();
+        const demoData = {
+            type: 'FeatureCollection',
+            features: [
+                {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Polygon',
+                        coordinates: [
+                            [
+                                [center.lng - 0.01, center.lat - 0.01],
+                                [center.lng + 0.01, center.lat - 0.01],
+                                [center.lng + 0.01, center.lat + 0.01],
+                                [center.lng - 0.01, center.lat + 0.01],
+                                [center.lng - 0.01, center.lat - 0.01],
+                            ],
+                        ],
+                    },
+                    properties: {},
+                },
+            ],
+        };
+
+        if (layerConfig.source) {
+            this.#mapService.addMapSource(layerConfig.source, {
+                type: 'geojson',
+                data: demoData,
+            });
+
+            this.#mapService.addMapLayer(layerConfig);
+        }
     }
 
     private deleteSearchArea(): void {

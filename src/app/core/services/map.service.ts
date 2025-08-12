@@ -69,6 +69,14 @@ export class MapBoxService implements MapService<mapboxgl.Map> {
         return this.#zone.runOutsideAngular(() => this.mapInstance.addLayer(layerConfig));
     }
 
+    public removeMapLayerAndSource(layerId: string): mapboxgl.Map | void {
+        const layer = this.mapInstance.getLayer(layerId);
+        if (layer?.source) {
+            this.mapInstance.removeLayer(layerId);
+            this.mapInstance.removeSource(layer.source);
+        }
+    }
+
     /**
      * Add Map Image.
      *
