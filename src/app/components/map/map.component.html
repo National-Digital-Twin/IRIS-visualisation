@@ -85,11 +85,30 @@
                         <span>Wind-driven rain</span>
                     </button>
                     <mat-menu #windRainSubmenu="matMenu" class="layers-submenu" [overlapTrigger]="false" xPosition="before">
-                        <button mat-menu-item (click)="toggleWindDrivenRainLayer('twoDegree')" [class.active]="layerStates.windDrivenRain.twoDegree">
-                            <span>2 degree warming projection</span>
+                        <button mat-menu-item (click)="toggleWindDrivenRainLayer('twoDegree0')" [class.active]="layerStates.windDrivenRain.twoDegree0">
+                            <span>2°C warming - North</span>
                         </button>
-                        <button mat-menu-item (click)="toggleWindDrivenRainLayer('fourDegree')" [class.active]="layerStates.windDrivenRain.fourDegree">
-                            <span>4 degree warming projection</span>
+                        <button mat-menu-item (click)="toggleWindDrivenRainLayer('twoDegree90')" [class.active]="layerStates.windDrivenRain.twoDegree90">
+                            <span>2°C warming - East</span>
+                        </button>
+                        <button mat-menu-item (click)="toggleWindDrivenRainLayer('twoDegree180')" [class.active]="layerStates.windDrivenRain.twoDegree180">
+                            <span>2°C warming - South</span>
+                        </button>
+                        <button mat-menu-item (click)="toggleWindDrivenRainLayer('twoDegree270')" [class.active]="layerStates.windDrivenRain.twoDegree270">
+                            <span>2°C warming - West</span>
+                        </button>
+                        <mat-divider></mat-divider>
+                        <button mat-menu-item (click)="toggleWindDrivenRainLayer('fourDegree0')" [class.active]="layerStates.windDrivenRain.fourDegree0">
+                            <span>4°C warming - North</span>
+                        </button>
+                        <button mat-menu-item (click)="toggleWindDrivenRainLayer('fourDegree90')" [class.active]="layerStates.windDrivenRain.fourDegree90">
+                            <span>4°C warming - East</span>
+                        </button>
+                        <button mat-menu-item (click)="toggleWindDrivenRainLayer('fourDegree180')" [class.active]="layerStates.windDrivenRain.fourDegree180">
+                            <span>4°C warming - South</span>
+                        </button>
+                        <button mat-menu-item (click)="toggleWindDrivenRainLayer('fourDegree270')" [class.active]="layerStates.windDrivenRain.fourDegree270">
+                            <span>4°C warming - West</span>
                         </button>
                     </mat-menu>
                 </div>

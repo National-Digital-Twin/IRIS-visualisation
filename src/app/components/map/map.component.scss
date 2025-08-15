@@ -78,3 +78,53 @@
         }
     }
 }
+
+.layers-menu {
+    .mat-mdc-menu-panel {
+        &.mat-menu-before {
+            position: absolute;
+            top: 0;
+            right: 1rem;
+        }
+
+        .menu-section {
+            border-bottom: 1px solid var(--mat-sys-outline-variant);
+
+            &:last-child {
+                border-bottom: none;
+            }
+        }
+
+        .mat-mdc-menu-item {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+
+            mat-icon {
+                margin-right: 0;
+            }
+
+            &.active {
+                color: var(--mat-sys-on-primary-container);
+                background-color: var(--mat-sys-primary-container);
+            }
+        }
+    }
+}
+
+.layers-submenu {
+    .mat-mdc-menu-panel {
+        &.mat-menu-before {
+            position: absolute;
+            top: 0;
+            right: 1rem;
+        }
+
+        .mat-mdc-menu-item {
+            &.active {
+                color: var(--mat-sys-on-primary-container);
+                background-color: var(--mat-sys-primary-container);
+            }
+        }
+    }
+}

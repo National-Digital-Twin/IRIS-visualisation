@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, input, InputSignal, OnDestroy, output, OutputEmitterRef } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipModule } from '@angular/material/tooltip';
@@ -11,18 +12,20 @@ import { MinimapData } from '@core/models/minimap-data.model';
 import { URLStateModel } from '@core/models/url-state.model';
 import { DataService } from '@core/services/data.service';
 import { FilterableBuildingService } from '@core/services/filterable-building.service';
+import { LayerFactoryService } from '@core/services/layers/layer-factory.service';
 import { MAP_SERVICE, MapDraw } from '@core/services/map.token';
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
 import { UtilService } from '@core/services/utils.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { FeatureCollection, GeoJsonProperties, Geometry, Polygon } from 'geojson';
-import { AnyLayer, FillLayerSpecification, GeoJSONFeature, LayerSpecification, MapMouseEvent, Popup, SourceSpecification } from 'mapbox-gl';
+import * as mapboxgl from 'mapbox-gl';
+import { AnyLayer, FillLayerSpecification, GeoJSONFeature, MapMouseEvent, Popup, SourceSpecification } from 'mapbox-gl';
 import { map, skip, take } from 'rxjs';
 
 @Component({
     selector: 'c477-map',
-    imports: [CommonModule, LegendComponent, MatButtonModule, MatIconModule, MatMenuModule, MatTooltipModule],
+    imports: [CommonModule, LegendComponent, MatButtonModule, MatDividerModule, MatIconModule, MatMenuModule, MatTooltipModule],
     templateUrl: './map.component.html',
     styleUrl: './map.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,6 +38,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     readonly #utilsService = inject(UtilService);
     readonly #dataService = inject(DataService);
     readonly #filterableBuildingService = inject(FilterableBuildingService);
+    readonly #layerFactory = inject(LayerFactoryService);
 
     public bearing: number = 0;
     public drawActive: boolean = false;
@@ -50,20 +54,21 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             wards: false,
         },
         windDrivenRain: {
-            twoDegree: false,
-            fourDegree: false,
+            twoDegree0: false,
+            twoDegree90: false,
+            twoDegree180: false,
+            twoDegree270: false,
+            fourDegree0: false,
+            fourDegree90: false,
+            fourDegree180: false,
+            fourDegree270: false,
         },
         icingDays: false,
         hotSummerDays: false,
     };
 
     public get activeLayersCount(): number {
-        let count = 0;
-        count += Object.values(this.layerStates.epc).filter(Boolean).length;
-        count += Object.values(this.layerStates.windDrivenRain).filter(Boolean).length;
-        count += this.layerStates.icingDays ? 1 : 0;
-        count += this.layerStates.hotSummerDays ? 1 : 0;
-        return count;
+        return this.#layerFactory.getVisibleLayers().length;
     }
 
     private drawControl?: MapDraw;
@@ -286,103 +291,94 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }
 
     public toggleEpcLayer(type: 'regions' | 'counties' | 'districts' | 'wards'): void {
-        this.layerStates.epc[type] = !this.layerStates.epc[type];
+        const layerId = `epc-${type}-layer`;
+        const layer = this.#layerFactory.getLayer(layerId);
 
-        const layerConfig = this.generateConfig(`epc-${type}-layer`);
-        if (this.layerStates.epc[type]) {
-            this.addSampleLayer(layerConfig);
-        } else {
-            this.#mapService.removeMapLayerAndSource(layerConfig.id);
+        if (layer) {
+            if (this.layerStates.epc[type]) {
+                layer.hide();
+                this.layerStates.epc[type] = false;
+            } else {
+                this.hideAllLayers();
+                layer.show();
+                this.layerStates.epc[type] = true;
+            }
         }
     }
 
-    public toggleWindDrivenRainLayer(type: 'twoDegree' | 'fourDegree'): void {
-        this.layerStates.windDrivenRain[type] = !this.layerStates.windDrivenRain[type];
+    public toggleWindDrivenRainLayer(
+        type: 'twoDegree0' | 'twoDegree90' | 'twoDegree180' | 'twoDegree270' | 'fourDegree0' | 'fourDegree90' | 'fourDegree180' | 'fourDegree270',
+    ): void {
+        const layerId = `wind-driven-rain-${type}-layer`;
+        const layer = this.#layerFactory.getLayer(layerId);
 
-        const layerConfig = this.generateConfig(`wind-driven-rain-${type}-layer`);
-        if (this.layerStates.windDrivenRain[type]) {
-            this.addSampleLayer(layerConfig);
-        } else {
-            this.#mapService.removeMapLayerAndSource(layerConfig.id);
+        if (layer) {
+            if (this.layerStates.windDrivenRain[type]) {
+                layer.hide();
+                this.layerStates.windDrivenRain[type] = false;
+            } else {
+                this.hideAllLayers();
+                layer.show();
+                this.layerStates.windDrivenRain[type] = true;
+            }
         }
     }
 
     public toggleIcingDaysLayer(): void {
-        this.layerStates.icingDays = !this.layerStates.icingDays;
+        const layerId = 'icing-days-layer';
+        const layer = this.#layerFactory.getLayer(layerId);
 
-        const layerConfig = this.generateConfig('icing-days-layer');
-        if (this.layerStates.icingDays) {
-            this.addSampleLayer(layerConfig);
-        } else {
-            this.#mapService.removeMapLayerAndSource(layerConfig.id);
+        if (layer) {
+            if (this.layerStates.icingDays) {
+                layer.hide();
+                this.layerStates.icingDays = false;
+            } else {
+                this.hideAllLayers();
+                layer.show();
+                this.layerStates.icingDays = true;
+            }
         }
     }
 
     public toggleHotSummerDaysLayer(): void {
-        this.layerStates.hotSummerDays = !this.layerStates.hotSummerDays;
+        const layerId = 'hot-summer-days-layer';
+        const layer = this.#layerFactory.getLayer(layerId);
 
-        const layerConfig = this.generateConfig('hot-summer-days-layer');
-        if (this.layerStates.hotSummerDays) {
-            this.addSampleLayer(layerConfig);
-        } else {
-            this.#mapService.removeMapLayerAndSource(layerConfig.id);
+        if (layer) {
+            if (this.layerStates.hotSummerDays) {
+                layer.hide();
+                this.layerStates.hotSummerDays = false;
+            } else {
+                this.hideAllLayers();
+                layer.show();
+                this.layerStates.hotSummerDays = true;
+            }
         }
     }
 
-    private generateConfig(id: string): LayerSpecification {
-        return {
-            id,
-            type: 'fill',
-            source: id,
-            paint: {
-                'fill-color': '#ff6b6b',
-                'fill-opacity': 0.6,
-                'fill-outline-color': '#d63031',
-            },
-        } as LayerSpecification;
-    }
+    private hideAllLayers(): void {
+        Object.keys(this.layerStates.epc).forEach((type) => {
+            this.layerStates.epc[type as keyof typeof this.layerStates.epc] = false;
+        });
 
-    private addSampleLayer(layerConfig: LayerSpecification): void {
-        const center = this.#mapService.mapInstance.getCenter();
-        const demoData = {
-            type: 'FeatureCollection',
-            features: [
-                {
-                    type: 'Feature',
-                    geometry: {
-                        type: 'Polygon',
-                        coordinates: [
-                            [
-                                [center.lng - 0.01, center.lat - 0.01],
-                                [center.lng + 0.01, center.lat - 0.01],
-                                [center.lng + 0.01, center.lat + 0.01],
-                                [center.lng - 0.01, center.lat + 0.01],
-                                [center.lng - 0.01, center.lat - 0.01],
-                            ],
-                        ],
-                    },
-                    properties: {},
-                },
-            ],
-        };
+        Object.keys(this.layerStates.windDrivenRain).forEach((type) => {
+            this.layerStates.windDrivenRain[type as keyof typeof this.layerStates.windDrivenRain] = false;
+        });
 
-        if (layerConfig.source) {
-            this.#mapService.addMapSource(layerConfig.source, {
-                type: 'geojson',
-                data: demoData,
-            });
+        this.layerStates.icingDays = false;
+        this.layerStates.hotSummerDays = false;
 
-            this.#mapService.addMapLayer(layerConfig);
-        }
+        const allLayers = this.#layerFactory.getAllLayers();
+        allLayers.forEach((layer) => {
+            if (layer.isVisible) {
+                layer.hide();
+            }
+        });
     }
 
     private deleteSearchArea(): void {
         this.drawActive = false;
-        // delete search geom
         this.drawControl?.deleteAll();
-        // reset building colour to entire map
-        // by updating map bounds to trigger
-        // filter
         this.deleteSpatialFilter.emit(null);
     }
 
