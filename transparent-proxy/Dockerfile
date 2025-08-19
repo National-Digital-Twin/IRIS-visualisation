@@ -1,8 +1,4 @@
-FROM nginx:1.29.0
-
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends libxslt1.1=1.1.35-1+deb12u1 && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+FROM nginxinc/nginx-unprivileged:1.29-alpine3.22
 
 RUN ["rm", "/etc/nginx/conf.d/default.conf"]
 

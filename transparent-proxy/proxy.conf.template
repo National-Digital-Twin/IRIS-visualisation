@@ -1,8 +1,8 @@
 proxy_cache_path /tmp/nginx_cache levels=1:2 keys_zone=tp_cache:100m max_size=200m inactive=10000s use_temp_path=off;
 
 server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
+    listen 8080 default_server;
+    listen [::]:8080 default_server;
 
     resolver kube-dns.kube-system.svc.cluster.local valid=30s;
 
