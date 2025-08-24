@@ -25,13 +25,36 @@ export interface WindDrivenRainProperties {
     wdr40_315: number;
 }
 
-@Injectable({
-    providedIn: 'root',
-})
+export interface HotSummerDaysProperties {
+    objectid: number;
+    latitude: number;
+    longitude: number;
+    hsd_15_median: number;
+    hsd_20_median: number;
+    hsd_25_median: number;
+    hsd_30_median: number;
+    hsd_40_median: number;
+    hsd_baseline_01_20_median: number;
+}
+
+export interface IcingDaysProperties {
+    objectid: number;
+    icingdays: number;
+}
+
+@Injectable({ providedIn: 'root' })
 export class ClimateDataService {
     readonly #http = inject(HttpClient);
 
     public getWindDrivenRainData(): Observable<FeatureCollection<Geometry, WindDrivenRainProperties>> {
         return this.#http.get<FeatureCollection<Geometry, WindDrivenRainProperties>>(`/api/data/climate/wind-driven-rain`);
+    }
+
+    public getHotSummerDaysData(): Observable<FeatureCollection<Geometry, HotSummerDaysProperties>> {
+        return this.#http.get<FeatureCollection<Geometry, HotSummerDaysProperties>>(`/api/data/climate/hot-summer-days`);
+    }
+
+    public getIcingDaysData(): Observable<FeatureCollection<Geometry, IcingDaysProperties>> {
+        return this.#http.get<FeatureCollection<Geometry, IcingDaysProperties>>(`/api/data/climate/icing-days`);
     }
 }

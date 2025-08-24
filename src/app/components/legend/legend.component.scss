@@ -1,16 +1,54 @@
+$gradient-height: 12rem;
+
 :host {
     position: absolute;
     right: calc(100% + 0.5rem);
 
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-
-    width: 16rem;
     padding: 1rem;
+    border-radius: 0.25rem;
 
     color: var(--mat-sys-on-surface);
 
     background-color: var(--mat-sys-surface-container-lowest);
     box-shadow: var(--mat-sys-level2);
+}
+
+.epc-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 16rem;
+}
+
+.gradient-legend {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+
+    .gradient-bar {
+        width: 2rem;
+        height: $gradient-height;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .labels {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        height: $gradient-height;
+
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--mat-sys-on-surface);
+
+        .high {
+            margin-top: 0;
+        }
+
+        .low {
+            margin-bottom: 0;
+        }
+    }
 }

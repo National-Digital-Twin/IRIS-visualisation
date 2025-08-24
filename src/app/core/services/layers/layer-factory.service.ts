@@ -1,17 +1,20 @@
 import { Injectable, inject } from '@angular/core';
 import { ClimateDataService } from '@core/services/climate-data.service';
+import { ScriptLoaderService } from '@core/services/script-loader.service';
 import { AbstractBaseLayer } from './base-layer.abstract';
 import { BaseLayer } from './base-layer.interface';
 import { DemoLayer } from './demo-layer';
-import { WindDrivenRainLayer } from './wind-driven-rain.layer';
+import { HotSummerDaysLayer } from './hot-summer-days.layer';
+import { IcingDaysLayer } from './icing-days.layer';
+import { WindDrivenRainLayer, WindDrivenRainLayerConfig } from './wind-driven-rain.layer';
 
-@Injectable({
-    providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class LayerFactoryService {
-    private readonly climateDataService = inject(ClimateDataService);
+    readonly #climateDataService = inject(ClimateDataService);
+    readonly #scriptLoader = inject(ScriptLoaderService);
 
     private readonly layers = new Map<string, BaseLayer>();
+    private readonly activeWindDrivenRainLayers = new Set<string>();
 
     constructor() {
         AbstractBaseLayer.setLayerFactory(this);
@@ -19,30 +22,8 @@ export class LayerFactoryService {
     }
 
     private initializeLayers(): void {
-        this.initializeWindDrivenRainLayers();
         this.initializeDemoLayers();
-    }
-
-    private initializeWindDrivenRainLayers(): void {
-        const windDirections: Array<{
-            type: 'twoDegree0' | 'twoDegree90' | 'twoDegree180' | 'twoDegree270' | 'fourDegree0' | 'fourDegree90' | 'fourDegree180' | 'fourDegree270';
-            scenario: string;
-            dataProperty: keyof import('@core/services/climate-data.service').WindDrivenRainProperties;
-        }> = [
-            { type: 'twoDegree0', scenario: '2°C - North', dataProperty: 'wdr20_0' },
-            { type: 'twoDegree90', scenario: '2°C - East', dataProperty: 'wdr20_90' },
-            { type: 'twoDegree180', scenario: '2°C - South', dataProperty: 'wdr20_180' },
-            { type: 'twoDegree270', scenario: '2°C - West', dataProperty: 'wdr20_270' },
-            { type: 'fourDegree0', scenario: '4°C - North', dataProperty: 'wdr40_0' },
-            { type: 'fourDegree90', scenario: '4°C - East', dataProperty: 'wdr40_90' },
-            { type: 'fourDegree180', scenario: '4°C - South', dataProperty: 'wdr40_180' },
-            { type: 'fourDegree270', scenario: '4°C - West', dataProperty: 'wdr40_270' },
-        ];
-
-        windDirections.forEach(({ type, scenario, dataProperty }) => {
-            const layer = new WindDrivenRainLayer({ type, warmingScenario: scenario, dataProperty }, this.climateDataService);
-            this.layers.set(`wind-driven-rain-${type}-layer`, layer);
-        });
+        this.initializeClimateLayers();
     }
 
     private initializeDemoLayers(): void {
@@ -51,14 +32,28 @@ export class LayerFactoryService {
             { id: 'epc-counties-layer', color: '#8BC34A', outlineColor: '#558B2F' },
             { id: 'epc-districts-layer', color: '#CDDC39', outlineColor: '#9E9D24' },
             { id: 'epc-wards-layer', color: '#FFEB3B', outlineColor: '#F57F17' },
-            { id: 'icing-days-layer', color: '#2196F3', outlineColor: '#1565C0' },
-            { id: 'hot-summer-days-layer', color: '#FF5722', outlineColor: '#D84315' },
         ];
 
         demoLayerConfigs.forEach(({ id, color, outlineColor }) => {
             const layer = new DemoLayer({ id, color, outlineColor });
             this.layers.set(id, layer);
         });
+    }
+
+    private initializeClimateLayers(): void {
+        const twoDegreeConfig = { type: 'twoDegree', warmingScenario: '2°C warming' } as WindDrivenRainLayerConfig;
+        const twoDegreeRainLayer = new WindDrivenRainLayer(twoDegreeConfig, this.#climateDataService, this.#scriptLoader);
+        this.layers.set('wind-driven-rain-twoDegree-layer', twoDegreeRainLayer);
+
+        const fourDegreeConfig = { type: 'fourDegree', warmingScenario: '4°C warming' } as WindDrivenRainLayerConfig;
+        const fourDegreeRainLayer = new WindDrivenRainLayer(fourDegreeConfig, this.#climateDataService, this.#scriptLoader);
+        this.layers.set('wind-driven-rain-fourDegree-layer', fourDegreeRainLayer);
+
+        const hotSummerDaysLayer = new HotSummerDaysLayer(this.#climateDataService, this.#scriptLoader);
+        this.layers.set('hot-summer-days-layer', hotSummerDaysLayer);
+
+        const icingDaysLayer = new IcingDaysLayer(this.#climateDataService, this.#scriptLoader);
+        this.layers.set('icing-days-layer', icingDaysLayer);
     }
 
     public getLayer(layerId: string): BaseLayer | undefined {
@@ -71,5 +66,21 @@ export class LayerFactoryService {
 
     public getVisibleLayers(): BaseLayer[] {
         return this.getAllLayers().filter((layer) => layer.isVisible);
+    }
+
+    public activateWindDrivenRainLayer(layerId: string): void {
+        this.activeWindDrivenRainLayers.add(layerId);
+    }
+
+    public deactivateWindDrivenRainLayer(layerId: string): void {
+        this.activeWindDrivenRainLayers.delete(layerId);
+
+        if (this.activeWindDrivenRainLayers.size === 0) {
+            this.#scriptLoader.unload('popup-wind-driven-rain');
+        }
+    }
+
+    public isWindDrivenRainLayerActive(layerId: string): boolean {
+        return this.activeWindDrivenRainLayers.has(layerId);
     }
 }

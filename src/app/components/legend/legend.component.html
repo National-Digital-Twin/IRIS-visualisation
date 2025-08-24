@@ -1,6 +1,23 @@
-<h3>EPC legend</h3>
-@for (item of epcItems; track item.rating) {
-    <c477-label [epcRating]="item.rating" [sapPoints]="item.sapPoints" />
+@let legend = currentLegend();
+
+@if (legend.type === 'epc' && legend.items) {
+    <div class="epc-legend">
+        <h3>{{ legend.title }}</h3>
+
+        @for (item of legend.items; track item.rating) {
+            <c477-label [epcRating]="item.rating" [sapPoints]="item.sapPoints" />
+        }
+    </div>
+}
+
+@if (legend.type !== 'epc' && legend.gradient) {
+    <div class="gradient-legend">
+        <div class="gradient-bar" [style.background]="getGradientStyle()"></div>
+        <div class="labels">
+            <span class="high">{{ legend.gradient.labels[0] }}</span>
+            <span class="low">{{ legend.gradient.labels[1] }}</span>
+        </div>
+    </div>
 }
 
 <!-- SPDX-License-Identifier: Apache-2.0

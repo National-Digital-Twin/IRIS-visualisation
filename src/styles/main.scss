@@ -77,6 +77,10 @@ body {
         );
     }
 
+    .mapboxgl-popup {
+        @include mapbox.climate-data-popup;
+    }
+
     .mapboxgl-popup-content {
         @include mapbox.popup;
     }

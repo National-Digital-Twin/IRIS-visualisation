@@ -62,3 +62,212 @@
         }
     }
 }
+
+@mixin climate-data-popup {
+    .mapboxgl-popup-content {
+        width: 26rem;
+        padding: 0;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+        button {
+            cursor: pointer;
+
+            margin: 0;
+            padding: 0;
+            border: none;
+
+            font-size: var(--mat-sys-label-large-size);
+            font-weight: var(--mat-sys-label-large-weight);
+
+            background-color: transparent;
+
+            &.mapboxgl-popup-close-button {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                width: 2rem;
+                height: 2rem;
+                margin: 0.5rem;
+                border-radius: 9999px;
+
+                font-size: 1.75rem;
+                font-weight: 200;
+            }
+
+            &.scenario-button {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                padding: 0.5rem 1rem;
+                border: 1px solid var(--mat-sys-outline);
+                border-radius: 0.5rem;
+
+                .check {
+                    position: relative;
+
+                    display: none;
+
+                    width: 1rem;
+                    height: 1rem;
+                    margin-right: 0.5rem;
+
+                    &::after {
+                        content: '';
+
+                        position: absolute;
+                        top: -4px;
+                        right: 0;
+                        bottom: 0;
+                        left: 0;
+                        transform: rotate(-45deg);
+
+                        box-sizing: content-box;
+                        width: 14px;
+                        height: 6px;
+                        margin: auto;
+                        border-bottom: 2px solid currentColor;
+                        border-left: 2px solid currentColor;
+                    }
+                }
+
+                &.checked {
+                    border-color: transparent;
+                    color: var(--mat-sys-on-primary);
+                    background-color: var(--mat-sys-primary);
+
+                    .check {
+                        display: block;
+                    }
+                }
+            }
+
+            &.close-button {
+                padding: 0.25rem 0.5rem;
+                border-radius: 0.5rem;
+                color: var(--mat-sys-primary);
+            }
+
+            &:hover {
+                background-color: var(--mat-sys-surface-container-high);
+            }
+        }
+
+        .climate-data-popup {
+            position: relative;
+
+            min-width: 24rem;
+            max-width: 32rem;
+
+            font-family: var(--mat-sys-body-medium-font);
+            color: var(--mat-sys-on-surface);
+
+            .popup-header {
+                display: grid;
+                grid-auto-columns: auto;
+                grid-auto-flow: column;
+                grid-template-columns: max-content;
+
+                padding: 1rem 1rem 0;
+
+                h3 {
+                    font-size: 1.25rem;
+                    font-weight: var(--mat-sys-label-large-weight);
+                }
+            }
+
+            .scenario-toggle {
+                display: flex;
+                gap: 1rem;
+                align-items: center;
+                padding: 1rem 1rem 0;
+            }
+
+            .info-link {
+                text-decoration: underline;
+                text-decoration-color: var(--mat-sys-outline);
+                text-decoration-style: dotted;
+                text-decoration-thickness: 2px;
+                text-underline-offset: 2px;
+
+                &:hover {
+                    cursor: pointer;
+                    text-decoration-color: var(--mat-sys-on-surface);
+                }
+            }
+
+            .data-table {
+                margin: 0 1rem;
+
+                dl {
+                    overflow: hidden;
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 0;
+
+                    border-radius: 0.5rem;
+
+                    background-color: var(--mat-sys-surface-container-low);
+
+                    dt,
+                    dd {
+                        margin: 0;
+                        padding: 0.5rem;
+                    }
+
+                    dt:nth-child(4n + 1),
+                    dd:nth-child(4n + 2) {
+                        background-color: var(--mat-sys-surface-container);
+                    }
+
+                    dt:nth-child(1),
+                    dd:nth-child(2) {
+                        font-weight: var(--mat-sys-label-large-weight);
+                        background-color: var(--mat-sys-surface-container-high);
+                    }
+                }
+            }
+
+            .info-tooltip-container {
+                position: relative;
+
+                .info-tooltip {
+                    position: absolute;
+                    z-index: 1000;
+                    left: 2.5rem;
+                    transform: translateY(calc(-50% - 0.75rem));
+
+                    width: 18rem;
+                    padding: 1rem;
+                    border-radius: 0.5rem;
+
+                    background-color: var(--mat-sys-surface-container-low);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+                    .info-tooltip-header {
+                        font-weight: var(--mat-sys-label-large-weight);
+                    }
+                }
+
+                .info-button {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    width: 1.5rem;
+                    height: 1.5rem;
+                    border: 2px solid var(--mat-sys-outline);
+                    border-radius: 9999px;
+
+                    color: var(--mat-sys-on-surface);
+
+                    &:hover {
+                        background-color: var(--mat-sys-surface-container-high);
+                    }
+                }
+            }
+        }
+    }
+}

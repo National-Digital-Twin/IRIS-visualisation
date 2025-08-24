@@ -1,12 +1,24 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, effect, inject, input, InputSignal, OnDestroy, output, OutputEmitterRef } from '@angular/core';
+import {
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    effect,
+    inject,
+    input,
+    InputSignal,
+    OnDestroy,
+    output,
+    OutputEmitterRef,
+} from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipModule } from '@angular/material/tooltip';
-import { LegendComponent } from '@components/legend/legend.component';
+import { LegendComponent, LayerState } from '@components/legend/legend.component';
 import { MapLayerConfig } from '@core/models/map-layer-config.model';
 import { MinimapData } from '@core/models/minimap-data.model';
 import { URLStateModel } from '@core/models/url-state.model';
@@ -15,6 +27,7 @@ import { FilterableBuildingService } from '@core/services/filterable-building.se
 import { LayerFactoryService } from '@core/services/layers/layer-factory.service';
 import { MAP_SERVICE, MapDraw } from '@core/services/map.token';
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
+import { UiStateService } from '@core/services/ui-state.service';
 import { UtilService } from '@core/services/utils.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
@@ -39,14 +52,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     readonly #dataService = inject(DataService);
     readonly #filterableBuildingService = inject(FilterableBuildingService);
     readonly #layerFactory = inject(LayerFactoryService);
+    readonly #uiStateService = inject(UiStateService);
 
     public bearing: number = 0;
     public drawActive: boolean = false;
-    public showLegend: boolean = false;
     public twoDimensions: boolean = false;
 
     public layersMenuOpen: boolean = false;
-    public layerStates = {
+    public layerStates: LayerState = {
         epc: {
             regions: false,
             counties: false,
@@ -54,18 +67,18 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             wards: false,
         },
         windDrivenRain: {
-            twoDegree0: false,
-            twoDegree90: false,
-            twoDegree180: false,
-            twoDegree270: false,
-            fourDegree0: false,
-            fourDegree90: false,
-            fourDegree180: false,
-            fourDegree270: false,
+            twoDegree: false,
+            fourDegree: false,
         },
         icingDays: false,
         hotSummerDays: false,
     };
+
+    public showLegend = computed(() => this.#uiStateService.showLegend());
+
+    public toggleLegend(): void {
+        this.#uiStateService.toggleLegend();
+    }
 
     public get activeLayersCount(): number {
         return this.#layerFactory.getVisibleLayers().length;
@@ -306,9 +319,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         }
     }
 
-    public toggleWindDrivenRainLayer(
-        type: 'twoDegree0' | 'twoDegree90' | 'twoDegree180' | 'twoDegree270' | 'fourDegree0' | 'fourDegree90' | 'fourDegree180' | 'fourDegree270',
-    ): void {
+    public toggleWindDrivenRainLayer(type: 'twoDegree' | 'fourDegree'): void {
         const layerId = `wind-driven-rain-${type}-layer`;
         const layer = this.#layerFactory.getLayer(layerId);
 
