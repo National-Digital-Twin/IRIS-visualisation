@@ -5,6 +5,10 @@ import { FeatureCollection, GeoJsonProperties, Geometry } from 'geojson';
 import { LayerSpecification, MapMouseEvent } from 'mapbox-gl';
 import { BaseLayer } from './base-layer.interface';
 
+interface LayerFactory {
+    getAllLayers(): BaseLayer[];
+}
+
 @Injectable()
 export abstract class AbstractBaseLayer implements BaseLayer {
     protected readonly mapService = inject(MAP_SERVICE);
@@ -13,10 +17,10 @@ export abstract class AbstractBaseLayer implements BaseLayer {
     public abstract readonly id: string;
     public isVisible: boolean = false;
 
-    private static layerFactory: any = null;
+    private static layerFactory: LayerFactory | null = null;
     private boundClickHandler?: (event: MapMouseEvent) => void;
 
-    public static setLayerFactory(factory: any): void {
+    public static setLayerFactory(factory: LayerFactory): void {
         AbstractBaseLayer.layerFactory = factory;
     }
 
