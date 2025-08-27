@@ -10,9 +10,9 @@ import { AbstractClimateLayer } from './climate-layer.abstract';
 export class HotSummerDaysLayer extends AbstractClimateLayer<HotSummerDaysProperties> {
     constructor(
         private readonly climateDataService: ClimateDataService,
-        private readonly scriptLoader: ScriptLoaderService,
+        scriptLoader: ScriptLoaderService,
     ) {
-        super();
+        super(scriptLoader);
     }
 
     public get id(): string {
@@ -42,11 +42,6 @@ export class HotSummerDaysLayer extends AbstractClimateLayer<HotSummerDaysProper
             console.error(`[HotSummerDaysLayer] Error in getSourceData:`, error);
             return this.createEmptyFeatureCollection();
         }
-    }
-
-    protected override async addLayerToMap(): Promise<void> {
-        await this.scriptLoader.load('popup-common', 'assets/js/popup-common.js');
-        await super.addLayerToMap();
     }
 
     public override onLayerClick = (event: MapMouseEvent): void => {
