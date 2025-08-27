@@ -5,7 +5,7 @@ import { Injectable, WritableSignal, inject, signal } from '@angular/core';
 export class ScriptLoaderService {
     public scripts: WritableSignal<Record<string, boolean>> = signal<Record<string, boolean>>({});
 
-    private document: Document = inject(DOCUMENT);
+    private readonly document: Document = inject(DOCUMENT);
 
     public load(id: string, src: string): Promise<void> {
         return new Promise((resolve, reject) => {

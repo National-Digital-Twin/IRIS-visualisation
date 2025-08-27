@@ -1,13 +1,10 @@
 window.togglePopoutInfo = function () {
     const tooltip = document.getElementById('popout-info');
 
-    switch (tooltip.style.display) {
-        case 'none':
-            tooltip.style.display = 'block';
-            break;
-        default:
-            tooltip.style.display = 'none';
-            break;
+    if (tooltip.style.display === 'none') {
+        tooltip.style.display = 'block';
+    } else {
+        tooltip.style.display = 'none';
     }
 };
 

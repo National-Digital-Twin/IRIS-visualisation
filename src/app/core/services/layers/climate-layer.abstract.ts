@@ -2,17 +2,15 @@ import { Injectable } from '@angular/core';
 import { LayerColors } from '@core/config/layer-colors.config';
 import { FeatureCollection, Geometry } from 'geojson';
 import { LayerSpecification } from 'mapbox-gl';
-import { AbstractBaseLayer } from './base-layer.abstract';
 import { ScriptLoaderService } from '../script-loader.service';
+import { AbstractBaseLayer } from './base-layer.abstract';
 
 @Injectable()
 export abstract class AbstractClimateLayer<ClimateProperties> extends AbstractBaseLayer {
     protected data?: FeatureCollection<Geometry, ClimateProperties>;
     protected maxValues?: { min: number; max: number };
 
-    constructor(
-        private readonly scriptLoader: ScriptLoaderService,
-    ) {
+    constructor(private readonly scriptLoader: ScriptLoaderService) {
         super();
     }
 
@@ -75,7 +73,7 @@ export abstract class AbstractClimateLayer<ClimateProperties> extends AbstractBa
             },
         };
     }
-    
+
     protected override async addLayerToMap(): Promise<void> {
         await this.scriptLoader.load('popup-common', 'assets/js/popup-common.js');
         await super.addLayerToMap();

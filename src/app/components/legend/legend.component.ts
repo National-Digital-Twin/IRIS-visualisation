@@ -52,7 +52,7 @@ export class LegendComponent {
     public currentLegend = computed(() => {
         const layerState = this.layerState();
         if (!layerState) {
-            return this.getDefaultLegend();
+            return this.getEpcLegend();
         }
 
         if (layerState.windDrivenRain.twoDegree || layerState.windDrivenRain.fourDegree) {
@@ -71,7 +71,7 @@ export class LegendComponent {
             return this.getEpcLegend();
         }
 
-        return this.getDefaultLegend();
+        return this.getEpcLegend();
     });
 
     public getGradientStyle = computed(() => {
@@ -95,14 +95,6 @@ export class LegendComponent {
 
         return `linear-gradient(to bottom, ${colorStops})`;
     });
-
-    private getDefaultLegend(): LegendConfig {
-        return {
-            type: 'epc',
-            title: 'EPC legend',
-            items: this.epcItems,
-        };
-    }
 
     private getEpcLegend(): LegendConfig {
         return {
