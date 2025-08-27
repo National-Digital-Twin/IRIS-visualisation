@@ -5,12 +5,9 @@ import * as mapboxgl from 'mapbox-gl';
 import { LayerSpecification, MapMouseEvent } from 'mapbox-gl';
 import { firstValueFrom } from 'rxjs';
 import { ScriptLoaderService } from '../script-loader.service';
-import { AbstractBaseLayer } from './base-layer.abstract';
+import { AbstractClimateLayer } from './climate-layer.abstract';
 
-export class HotSummerDaysLayer extends AbstractBaseLayer {
-    private data?: FeatureCollection<Geometry, HotSummerDaysProperties>;
-    private maxValues?: { min: number; max: number };
-
+export class HotSummerDaysLayer extends AbstractClimateLayer<HotSummerDaysProperties> {
     constructor(
         private readonly climateDataService: ClimateDataService,
         private readonly scriptLoader: ScriptLoaderService,
@@ -25,23 +22,9 @@ export class HotSummerDaysLayer extends AbstractBaseLayer {
     public getLayerConfig(): LayerSpecification {
         if (this.maxValues) {
             const { min, max } = this.maxValues;
-            return this.createLayerConfig(min, max);
+            return this.createLayerConfig(min, max, LAYER_COLORS.hotSummerDays);
         }
-        return this.createLayerConfig(0, 10);
-    }
-
-    private createLayerConfig(min: number, max: number): LayerSpecification {
-        const colors = LAYER_COLORS.hotSummerDays;
-        return {
-            id: this.id,
-            type: 'fill',
-            source: `${this.id}-source`,
-            paint: {
-                'fill-color': ['interpolate', ['linear'], ['get', 'value'], min, colors.low, max, colors.high],
-                'fill-opacity': colors.opacity,
-                'fill-outline-color': colors.outline,
-            },
-        };
+        return this.createLayerConfig(0, 10, LAYER_COLORS.hotSummerDays);
     }
 
     public async getSourceData(): Promise<FeatureCollection<Geometry, HotSummerDaysProperties>> {
@@ -54,44 +37,11 @@ export class HotSummerDaysLayer extends AbstractBaseLayer {
                     return this.createEmptyFeatureCollection();
                 }
             }
-
-            const transformedFeatures = this.data.features.map((feature) => {
-                const dataValue = feature.properties?.hsd_30_median;
-
-                return {
-                    ...feature,
-                    properties: {
-                        ...feature.properties,
-                        value: dataValue || 0,
-                    },
-                };
-            });
-
-            this.calculateMaxValues();
-
-            return {
-                type: 'FeatureCollection',
-                features: transformedFeatures,
-            };
+            return this.createFeatureCollectionFromData('hsd_30_median');
         } catch (error) {
             console.error(`[HotSummerDaysLayer] Error in getSourceData:`, error);
             return this.createEmptyFeatureCollection();
         }
-    }
-
-    private calculateMaxValues(): void {
-        if (!this.data) return;
-
-        let minValue = Infinity;
-        let maxValue = -Infinity;
-
-        this.data.features.forEach((feature) => {
-            const value = feature.properties?.hsd_30_median || 0;
-            if (value < minValue) minValue = value;
-            if (value > maxValue) maxValue = value;
-        });
-
-        this.maxValues = { min: minValue, max: maxValue };
     }
 
     protected override async addLayerToMap(): Promise<void> {
@@ -151,11 +101,4 @@ export class HotSummerDaysLayer extends AbstractBaseLayer {
             new mapboxgl.Popup().setLngLat(event.lngLat).setHTML(popupContent).addTo(this.mapService.mapInstance);
         }
     };
-
-    private createEmptyFeatureCollection(): FeatureCollection<Geometry, HotSummerDaysProperties> {
-        return {
-            type: 'FeatureCollection',
-            features: [],
-        };
-    }
 }
