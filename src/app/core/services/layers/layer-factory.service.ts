@@ -49,10 +49,10 @@ export class LayerFactoryService {
         const fourDegreeRainLayer = new WindDrivenRainLayer(fourDegreeConfig, this.#climateDataService, this.#scriptLoader);
         this.layers.set('wind-driven-rain-fourDegree-layer', fourDegreeRainLayer);
 
-        const hotSummerDaysLayer = new HotSummerDaysLayer(this.#climateDataService, this.#scriptLoader);
+        const hotSummerDaysLayer = new HotSummerDaysLayer(this.#climateDataService);
         this.layers.set('hot-summer-days-layer', hotSummerDaysLayer);
 
-        const icingDaysLayer = new IcingDaysLayer(this.#climateDataService, this.#scriptLoader);
+        const icingDaysLayer = new IcingDaysLayer(this.#climateDataService);
         this.layers.set('icing-days-layer', icingDaysLayer);
     }
 

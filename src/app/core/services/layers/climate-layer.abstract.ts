@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { LayerColors } from '@core/config/layer-colors.config';
 import { FeatureCollection, Geometry } from 'geojson';
 import { LayerSpecification } from 'mapbox-gl';
@@ -9,10 +9,7 @@ import { AbstractBaseLayer } from './base-layer.abstract';
 export abstract class AbstractClimateLayer<ClimateProperties> extends AbstractBaseLayer {
     protected data?: FeatureCollection<Geometry, ClimateProperties>;
     protected maxValues?: { min: number; max: number };
-
-    constructor(private readonly scriptLoader: ScriptLoaderService) {
-        super();
-    }
+    protected scriptLoader = inject(ScriptLoaderService);
 
     protected createFeatureCollectionFromData(valueKey: string): FeatureCollection<Geometry, ClimateProperties> {
         if (this.data) {

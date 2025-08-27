@@ -4,15 +4,13 @@ import { FeatureCollection, Geometry } from 'geojson';
 import * as mapboxgl from 'mapbox-gl';
 import { LayerSpecification, MapMouseEvent } from 'mapbox-gl';
 import { firstValueFrom } from 'rxjs';
-import { ScriptLoaderService } from '../script-loader.service';
 import { AbstractClimateLayer } from './climate-layer.abstract';
 
 export class HotSummerDaysLayer extends AbstractClimateLayer<HotSummerDaysProperties> {
     constructor(
         private readonly climateDataService: ClimateDataService,
-        scriptLoader: ScriptLoaderService,
     ) {
-        super(scriptLoader);
+        super();
     }
 
     public get id(): string {
