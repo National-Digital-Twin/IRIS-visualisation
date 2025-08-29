@@ -24,6 +24,19 @@ export type BuildingModel = {
     longitude?: string;
     latitude?: string;
     FuelType?: string;
+    // OS NGD Buildings attributes
+    RoofMaterial?: string;
+    SolarPanelPresence?: string;
+    RoofShape?: string;
+    RoofAspectAreaNorth?: string;
+    RoofAspectAreaNortheast?: string;
+    RoofAspectAreaEast?: string;
+    RoofAspectAreaSoutheast?: string;
+    RoofAspectAreaSouth?: string;
+    RoofAspectAreaSouthwest?: string;
+    RoofAspectAreaWest?: string;
+    RoofAspectAreaNorthwest?: string;
+    RoofAspectAreaIndeterminable?: string;
 };
 
 export interface BuildingMap {

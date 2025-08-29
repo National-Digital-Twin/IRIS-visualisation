@@ -510,6 +510,19 @@ export class DataService {
             WallInsulation: this.getPropertyValue(response, 'wall_insulation'),
             WindowGlazing: this.getPropertyValue(response, 'window_glazing'),
             FuelType: this.getPropertyValue(response, 'fueltype'),
+            // OS NGD Buildings attributes
+            RoofMaterial: this.getPropertyValue(response, 'roof_material'),
+            SolarPanelPresence: this.getPropertyValue(response, 'solar_panel_presence'),
+            RoofShape: this.getPropertyValue(response, 'roof_shape'),
+            RoofAspectAreaNorth: this.getPropertyValue(response, 'roof_aspect_area_north'),
+            RoofAspectAreaNortheast: this.getPropertyValue(response, 'roof_aspect_area_northeast'),
+            RoofAspectAreaEast: this.getPropertyValue(response, 'roof_aspect_area_east'),
+            RoofAspectAreaSoutheast: this.getPropertyValue(response, 'roof_aspect_area_southeast'),
+            RoofAspectAreaSouth: this.getPropertyValue(response, 'roof_aspect_area_south'),
+            RoofAspectAreaSouthwest: this.getPropertyValue(response, 'roof_aspect_area_southwest'),
+            RoofAspectAreaWest: this.getPropertyValue(response, 'roof_aspect_area_west'),
+            RoofAspectAreaNorthwest: this.getPropertyValue(response, 'roof_aspect_area_northwest'),
+            RoofAspectAreaIndeterminable: this.getPropertyValue(response, 'roof_aspect_area_indeterminable'),
         };
 
         // Cache the detailed data for future use

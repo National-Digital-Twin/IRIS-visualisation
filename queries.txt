@@ -1,0 +1,179 @@
+from rdflib import Graph, Namespace, RDF, RDFS, Literal, XSD
+
+def test_queries(osid, uprn):
+
+  # Namespaces
+  BUILD = Namespace("http://ies.data.gov.uk/ontology/ies-building1#")
+  DATA  = Namespace("http://ndtp.co.uk/data#")
+  IES   = Namespace("http://informationexchangestandard.org/ont/ies#")
+  QUDT  = Namespace("http://qudt.org/schema/qudt/")
+  UNIT  = Namespace("http://qudt.org/vocab/unit/")
+  QK    = Namespace("http://qudt.org/vocab/quantitykind/")
+
+  g = Graph()
+  # 1) Load the ontology (optional for pure matching, useful for sanity and future reasoning)
+  g.parse("ies-building1.ttl", format="turtle")
+
+  # 2) Load your data TTL (replace with your actual file path)
+  g.parse(f"output_{osid}.ttl", format="turtle")
+
+  uprn = f'{uprn}'
+
+  # 3) (Optional) Declare your two extension classes if not yet in the ontology file
+  #    This is not required for queries to work if you only match them as classes in data,
+  #    but it's good hygiene.
+  for cls, parent in [
+      (BUILD.NoSolarPanels, BUILD.BuildingState),
+      (BUILD.AreaIndeterminableRoofSectionSum, BUILD.ClassOfRoofSection)
+  ]:
+      g.add((cls, RDF.type, RDFS.Class))
+      g.add((cls, RDFS.subClassOf, parent))
+
+  # --------- QUERIES (UPRN 10093295670) ----------
+  prefixes = """
+  PREFIX building:  <http://ies.data.gov.uk/ontology/ies-building1#>
+  PREFIX data:      <http://ndtp.co.uk/data#>
+  PREFIX ies:       <http://informationexchangestandard.org/ont/ies#>
+  PREFIX qudt:      <http://qudt.org/schema/qudt/>
+  PREFIX unit:      <http://qudt.org/vocab/unit/>
+  PREFIX quantitykind: <http://qudt.org/vocab/quantitykind/>
+  PREFIX xsd:       <http://www.w3.org/2001/XMLSchema#>
+  """
+
+  # 1) Roof material (keeps your custom predicate)
+  q_material = prefixes + f"""
+  SELECT ?building ?roof ?material
+  WHERE {{
+    data:StructureUnit_{uprn} ies:isPartOf ?building .
+    ?roof ies:isPartOf ?building .
+    ?roofState a building:RoofState ;
+              ies:isStateOf ?roof ;
+              building:isMadeOf ?material .
+  }}
+  """
+
+  # 2) Solar panel presence (your extension class)
+  q_solar = prefixes + f"""
+  SELECT ?building ?solarStateClass
+  WHERE {{
+    data:StructureUnit_{uprn} ies:isPartOf ?building .
+    ?state ies:isStateOf ?building ;
+          a ?solarStateClass .
+    VALUES ?solarStateClass {{ building:NoSolarPanels building:HasSolarPanels building:UnknownSolarPanelPresence }}
+  }}
+  """
+
+  # 3) Aspect area (East example; swap the class to query another direction)
+  q_aspect_east = prefixes + f"""
+  SELECT ?building ?m2
+  WHERE {{
+    data:StructureUnit_{uprn} ies:isPartOf ?building .
+    ?roof ies:isPartOf ?building .
+    ?roofState a building:RoofState ; ies:isStateOf ?roof .
+    ?aspect a building:EastFacingRoofSectionSum ;
+            ies:isPartOf ?roofState ;
+            building:hasCombinedSurfaceArea [
+              building:hasQuantity [
+                qudt:hasQuantityKind quantitykind:Area ;
+                qudt:unit unit:M2 ;
+                qudt:value ?m2
+              ]
+            ] .
+  }}
+  """
+
+  # 4) Roof shape (use ontology’s PitchedRoofShape, FlatRoofShape, MixedRoofShape, UnknownRoofShape)
+  q_shape = prefixes + f"""
+  SELECT DISTINCT ?building ?shape
+  WHERE {{
+    data:StructureUnit_{uprn} ies:isPartOf ?building .
+    ?shapeState ies:isStateOf ?building ;
+                a building:RoofState ;
+                a ?shape .
+    VALUES ?shape {{
+      building:PitchedRoofShape
+      building:FlatRoofShape
+      building:MixedRoofShape
+      building:UnknownRoofShape
+    }}
+  }}
+  """
+
+  def run(q, title):
+      print(f"\n--- {title} ---")
+      for row in g.query(q):
+          print(tuple(row))
+
+  run(q_material, "Roof material")
+  run(q_solar, "Solar presence")
+  run(q_aspect_east, "East-facing area (m²)")
+  run(q_shape, "Roof shape")
+
+
+  test_queries('00066680-6a52-45cb-a39b-d8304ca16554', '10093295670')
+--- Roof material ---
+(rdflib.term.URIRef('http://ndtp.co.uk/data#Building_00066680-6a52-45cb-a39b-d8304ca16554'), rdflib.term.URIRef('http://ndtp.co.uk/data#BuildingRoof_00066680-6a52-45cb-a39b-d8304ca16554'), rdflib.term.URIRef('http://ies.data.gov.uk/ontology/ies-building1#TileOrStoneOrSlate'))
+
+--- Solar presence ---
+(rdflib.term.URIRef('http://ndtp.co.uk/data#Building_00066680-6a52-45cb-a39b-d8304ca16554'), rdflib.term.URIRef('http://ies.data.gov.uk/ontology/ies-building1#NoSolarPanels'))
+
+--- East-facing area (m²) ---
+(rdflib.term.URIRef('http://ndtp.co.uk/data#Building_00066680-6a52-45cb-a39b-d8304ca16554'), rdflib.term.Literal('25', datatype=rdflib.term.URIRef('http://www.w3.org/2001/XMLSchema#integer')))
+
+--- Roof shape ---
+(rdflib.term.URIRef('http://ndtp.co.uk/data#Building_00066680-6a52-45cb-a39b-d8304ca16554'), rdflib.term.URIRef('http://ies.data.gov.uk/ontology/ies-building1#PitchedRoofShape'))
+test_queries('00069e3f-4537-428e-ab58-a7783deb6486', '10094365947')
+--- Roof material ---
+(rdflib.term.URIRef('http://ndtp.co.uk/data#Building_00069e3f-4537-428e-ab58-a7783deb6486'), rdflib.term.URIRef('http://ndtp.co.uk/data#BuildingRoof_00069e3f-4537-428e-ab58-a7783deb6486'), rdflib.term.URIRef('http://ies.data.gov.uk/ontology/ies-building1#UnknownRoofMaterial'))
+
+--- Solar presence ---
+(rdflib.term.URIRef('http://ndtp.co.uk/data#Building_00069e3f-4537-428e-ab58-a7783deb6486'), rdflib.term.URIRef('http://ies.data.gov.uk/ontology/ies-building1#UnknownSolarPanelPresence'))
+
+--- East-facing area (m²) ---
+
+--- Roof shape ---
+(rdflib.term.URIRef('http://ndtp.co.uk/data#Building_00069e3f-4537-428e-ab58-a7783deb6486'), rdflib.term.URIRef('http://ies.data.gov.uk/ontology/ies-building1#UnknownRoofShape'))
+test_queries('0006db3a-be00-46ad-a397-0487bd3abd41', '')
+--- Roof material ---
+
+--- Solar presence ---
+
+--- East-facing area (m²) ---
+
+--- Roof shape ---
+test_queries('00074e05-742f-4e9c-964c-85cba6a6206a', '10090842797')
+--- Roof material ---
+(rdflib.term.URIRef('http://ndtp.co.uk/data#Building_00074e05-742f-4e9c-964c-85cba6a6206a'), rdflib.term.URIRef('http://ndtp.co.uk/data#BuildingRoof_00074e05-742f-4e9c-964c-85cba6a6206a'), rdflib.term.URIRef('http://ies.data.gov.uk/ontology/ies-building1#TileOrStoneOrSlate'))
+
+--- Solar presence ---
+(rdflib.term.URIRef('http://ndtp.co.uk/data#Building_00074e05-742f-4e9c-964c-85cba6a6206a'), rdflib.term.URIRef('http://ies.data.gov.uk/ontology/ies-building1#NoSolarPanels'))
+
+--- East-facing area (m²) ---
+(rdflib.term.URIRef('http://ndtp.co.uk/data#Building_00074e05-742f-4e9c-964c-85cba6a6206a'), rdflib.term.Literal('0', datatype=rdflib.term.URIRef('http://www.w3.org/2001/XMLSchema#integer')))
+
+--- Roof shape ---
+(rdflib.term.URIRef('http://ndtp.co.uk/data#Building_00074e05-742f-4e9c-964c-85cba6a6206a'), rdflib.term.URIRef('http://ies.data.gov.uk/ontology/ies-building1#PitchedRoofShape'))
+test_queries('0007ac4d-10a3-4453-9c9b-2b4e6b7b8c64', '43010375')
+--- Roof material ---
+(rdflib.term.URIRef('http://ndtp.co.uk/data#Building_0007ac4d-10a3-4453-9c9b-2b4e6b7b8c64'), rdflib.term.URIRef('http://ndtp.co.uk/data#BuildingRoof_0007ac4d-10a3-4453-9c9b-2b4e6b7b8c64'), rdflib.term.URIRef('http://ies.data.gov.uk/ontology/ies-building1#TileOrStoneOrSlate'))
+
+--- Solar presence ---
+(rdflib.term.URIRef('http://ndtp.co.uk/data#Building_0007ac4d-10a3-4453-9c9b-2b4e6b7b8c64'), rdflib.term.URIRef('http://ies.data.gov.uk/ontology/ies-building1#HasSolarPanels'))
+
+--- East-facing area (m²) ---
+(rdflib.term.URIRef('http://ndtp.co.uk/data#Building_0007ac4d-10a3-4453-9c9b-2b4e6b7b8c64'), rdflib.term.Literal('0', datatype=rdflib.term.URIRef('http://www.w3.org/2001/XMLSchema#integer')))
+
+--- Roof shape ---
+(rdflib.term.URIRef('http://ndtp.co.uk/data#Building_0007ac4d-10a3-4453-9c9b-2b4e6b7b8c64'), rdflib.term.URIRef('http://ies.data.gov.uk/ontology/ies-building1#PitchedRoofShape'))
+test_queries('0007ccdb-aa65-4c39-b044-294ae0689a4f', '100100262355')
+--- Roof material ---
+(rdflib.term.URIRef('http://ndtp.co.uk/data#Building_0007ccdb-aa65-4c39-b044-294ae0689a4f'), rdflib.term.URIRef('http://ndtp.co.uk/data#BuildingRoof_0007ccdb-aa65-4c39-b044-294ae0689a4f'), rdflib.term.URIRef('http://ies.data.gov.uk/ontology/ies-building1#WaterproofMembraneOrConcrete'))
+
+--- Solar presence ---
+(rdflib.term.URIRef('http://ndtp.co.uk/data#Building_0007ccdb-aa65-4c39-b044-294ae0689a4f'), rdflib.term.URIRef('http://ies.data.gov.uk/ontology/ies-building1#NoSolarPanels'))
+
+--- East-facing area (m²) ---
+(rdflib.term.URIRef('http://ndtp.co.uk/data#Building_0007ccdb-aa65-4c39-b044-294ae0689a4f'), rdflib.term.Literal('0', datatype=rdflib.term.URIRef('http://www.w3.org/2001/XMLSchema#integer')))
+
+--- Roof shape ---
+(rdflib.term.URIRef('http://ndtp.co.uk/data#Building_0007ccdb-aa65-4c39-b044-294ae0689a4f'), rdflib.term.URIRef('http://ies.data.gov.uk/ontology/ies-building1#PitchedRoofShape'))
