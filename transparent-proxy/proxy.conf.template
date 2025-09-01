@@ -4,7 +4,8 @@ server {
     listen 8080 default_server;
     listen [::]:8080 default_server;
 
-    resolver kube-dns.kube-system.svc.cluster.local valid=30s;
+    # resolver kube-dns.kube-system.svc.cluster.local valid=30s;
+    resolver 8.8.8.8 valid=30s;
 
     # Proxy config
     proxy_cache_valid any 1d;
@@ -72,7 +73,8 @@ server {
         proxy_pass https://api.mapbox.com/$requested_path$access_token_qs;
     }
 
-    location /mapbox-events/ {
+    # Mapbox events (telemetry)
+    location /transparent-proxy/mapbox-events/ {
         set $delimeter "?";
 
         if ($is_args) {
