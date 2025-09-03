@@ -111,6 +111,24 @@
                 }
             </dd>
 
+            <dt>Roof material:</dt>
+            <dd>
+                @if (building.RoofMaterial && roofMaterial[building!.RoofMaterial!]) {
+                    {{ roofMaterial[building!.RoofMaterial!] }}
+                } @else {
+                    No data
+                }
+            </dd>
+
+            <dt>Roof shape:</dt>
+            <dd>
+                @if (building.RoofShape && roofShape[building!.RoofShape!]) {
+                    {{ roofShape[building!.RoofShape!] }}
+                } @else {
+                    No data
+                }
+            </dd>
+
             <dt>Roof insulation location:</dt>
             <dd>
                 @if (building.RoofInsulationLocation && roofInsulation[building!.RoofInsulationLocation!]) {
@@ -124,6 +142,33 @@
             <dd>
                 @if (building.RoofInsulationThickness && building!.RoofInsulationThickness!) {
                     {{ roofInsulationThickness[building!.RoofInsulationThickness!] }}
+                } @else {
+                    No data
+                }
+            </dd>
+
+            <dt>Solar panels:</dt>
+            <dd>
+                @if (building.SolarPanelPresence && solarPanelPresence[building!.SolarPanelPresence!]) {
+                    {{ solarPanelPresence[building!.SolarPanelPresence!] }}
+                } @else {
+                    No data
+                }
+            </dd>
+
+            <dt>Roof aspect areas (m²):</dt>
+            <dd>
+                @if (formatRoofAspectAreas(building)) {
+                    {{ formatRoofAspectAreas(building) }}
+                } @else {
+                    No data
+                }
+            </dd>
+
+            <dt>Roof area indeterminable (m²):</dt>
+            <dd>
+                @if (building.RoofAspectAreaIndeterminable) {
+                    {{ building.RoofAspectAreaIndeterminable }} m²
                 } @else {
                     No data
                 }
@@ -155,50 +200,11 @@
                     No data
                 }
             </dd>
+
             <dt>Main fuel type:</dt>
             <dd>
                 @if (building.FuelType && fuelType[building!.FuelType!]) {
                     {{ fuelType[building!.FuelType!] }}
-                } @else {
-                    No data
-                }
-            </dd>
-            <dt>Roof material:</dt>
-            <dd>
-                @if (building.RoofMaterial && roofMaterial[building!.RoofMaterial!]) {
-                    {{ roofMaterial[building!.RoofMaterial!] }}
-                } @else {
-                    No data
-                }
-            </dd>
-            <dt>Roof shape:</dt>
-            <dd>
-                @if (building.RoofShape && roofShape[building!.RoofShape!]) {
-                    {{ roofShape[building!.RoofShape!] }}
-                } @else {
-                    No data
-                }
-            </dd>
-            <dt>Solar panels:</dt>
-            <dd>
-                @if (building.SolarPanelPresence && solarPanelPresence[building!.SolarPanelPresence!]) {
-                    {{ solarPanelPresence[building!.SolarPanelPresence!] }}
-                } @else {
-                    No data
-                }
-            </dd>
-            <dt>Roof aspect areas (m²):</dt>
-            <dd>
-                @if (formatRoofAspectAreas(building)) {
-                    {{ formatRoofAspectAreas(building) }}
-                } @else {
-                    No data
-                }
-            </dd>
-            <dt>Roof area indeterminable (m²):</dt>
-            <dd>
-                @if (building.RoofAspectAreaIndeterminable) {
-                    {{ building.RoofAspectAreaIndeterminable }} m²
                 } @else {
                     No data
                 }
