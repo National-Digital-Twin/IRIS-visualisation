@@ -9,7 +9,6 @@ import { DataService } from './data.service';
 
 const runtimeConfig = {
     cache: { epc: '', sap: '', nonEpc: '' },
-    contextLayers: [],
 };
 
 describe('DataService', () => {

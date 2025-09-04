@@ -7,9 +7,7 @@ import { firstValueFrom } from 'rxjs';
 import { AbstractClimateLayer } from './climate-layer.abstract';
 
 export class IcingDaysLayer extends AbstractClimateLayer<IcingDaysProperties> {
-    constructor(
-        private readonly climateDataService: ClimateDataService,
-    ) {
+    constructor(private readonly climateDataService: ClimateDataService) {
         super();
     }
 

@@ -4,15 +4,12 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { EPCRating, FloorConstruction, RoofConstruction, WallConstruction, WindowGlazing } from '@core/enums';
 import { InvalidateFlagReason } from '@core/enums/invalidate-flag-reason';
 import { BuildingMap, BuildingModel, BuildingParts } from '@core/models/building.model';
-import { MapLayerConfig } from '@core/models/map-layer-config.model';
 import { MinimalBuildingData, MinimalBuildingMap } from '@core/models/minimal-building-data.model';
 import { BACKEND_API_ENDPOINT } from '@core/tokens/backend-endpoint.token';
-import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { EPCBuildingResponseModel } from '@core/types/building-response';
 import { FlagHistory } from '@core/types/flag-history';
 import { FlagMap, FlagResponse } from '@core/types/flag-response';
-import { FeatureCollection, GeoJsonProperties, Geometry } from 'geojson';
-import { EMPTY, Observable, catchError, first, forkJoin, map, of, switchMap, tap } from 'rxjs';
+import { EMPTY, Observable, catchError, first, map, of, switchMap, tap } from 'rxjs';
 
 type Loading<T> = T | 'loading';
 
@@ -30,7 +27,6 @@ export type Building = {
 export class DataService {
     readonly #http: HttpClient = inject(HttpClient);
     readonly #backendApiEndpoint = inject(BACKEND_API_ENDPOINT);
-    readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
 
     public uiReady = signal<boolean>(true);
 
@@ -39,7 +35,6 @@ export class DataService {
 
     public activeFlag = signal<Loading<FlagHistory> | undefined>(undefined);
     public buildingsSelection = signal<BuildingModel[][] | undefined>(undefined);
-    public contextData$ = this.loadContextData();
     public flagHistory = signal<Loading<FlagHistory[]>>([]);
 
     public loading = computed(() => {
@@ -211,17 +206,6 @@ export class DataService {
      */
     public setSelectedBuildings(buildings?: BuildingModel[][]): void {
         this.buildingsSelection.set(buildings);
-    }
-
-    /**
-     * Loads all spatial context data
-     * @returns FeatureCollection[] Array of geojson
-     */
-    private loadContextData(): Observable<FeatureCollection[]> {
-        const requests = this.#runtimeConfig.contextLayers.map((mapLayerConfig: MapLayerConfig) =>
-            this.#http.get<FeatureCollection>(`assets/data/${mapLayerConfig.filename}`),
-        );
-        return forkJoin(requests).pipe(map((data: FeatureCollection[]) => data));
     }
 
     /**
@@ -740,37 +724,6 @@ export class DataService {
             }
         });
         return flagMap;
-    }
-
-    // Private cache for ward EPC data
-    private _wardEPCDataCache: any = null;
-
-    /**
-     * Fetch ward-level EPC data from API
-     * @returns Observable of ward data with EPC information
-     */
-    public fetchWardEPCData(): Observable<FeatureCollection<Geometry, GeoJsonProperties>> {
-        if (this._wardEPCDataCache !== null) {
-            return of(this._wardEPCDataCache);
-        }
-
-        return this.#http
-            .get<FeatureCollection<Geometry, GeoJsonProperties>>('/api/epc-statistics/wards', {
-                withCredentials: true,
-            })
-            .pipe(
-                tap((data) => {
-                    this._wardEPCDataCache = data;
-                }),
-                catchError((error) => {
-                    console.error('Error fetching ward EPC data:', error);
-                    const emptyCollection: FeatureCollection<Geometry, GeoJsonProperties> = {
-                        type: 'FeatureCollection',
-                        features: [],
-                    };
-                    return of(emptyCollection);
-                }),
-            );
     }
 }
 

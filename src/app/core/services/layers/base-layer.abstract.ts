@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { MAP_SERVICE } from '@core/services/map.token';
 import { UiStateService } from '@core/services/ui-state.service';
+import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { FeatureCollection, GeoJsonProperties, Geometry } from 'geojson';
 import { LayerSpecification, MapMouseEvent } from 'mapbox-gl';
 import { BaseLayer } from './base-layer.interface';
@@ -12,6 +13,7 @@ interface LayerFactory {
 @Injectable()
 export abstract class AbstractBaseLayer implements BaseLayer {
     protected readonly mapService = inject(MAP_SERVICE);
+    protected readonly runtimeConfig = inject(RUNTIME_CONFIGURATION);
     protected readonly uiStateService = inject(UiStateService);
 
     public abstract readonly id: string;

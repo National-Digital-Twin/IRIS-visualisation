@@ -5,10 +5,10 @@ import { LAYER_COLORS } from '@core/config/layer-colors.config';
 
 export interface LayerState {
     epc: {
-        regions: boolean;
-        counties: boolean;
-        districts: boolean;
-        wards: boolean;
+        region: boolean;
+        county: boolean;
+        district: boolean;
+        ward: boolean;
     };
     windDrivenRain: {
         twoDegree: boolean;
@@ -67,7 +67,7 @@ export class LegendComponent {
             return this.getIcingDaysLegend();
         }
 
-        if (layerState.epc.regions || layerState.epc.counties || layerState.epc.districts || layerState.epc.wards) {
+        if (layerState.epc.region || layerState.epc.county || layerState.epc.district || layerState.epc.ward) {
             return this.getEpcLegend();
         }
 

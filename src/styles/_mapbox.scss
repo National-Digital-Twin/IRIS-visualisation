@@ -10,10 +10,11 @@
     }
 
     .popup {
-        width: 25rem;
+        width: 26rem;
+        padding: 1rem 1rem;
 
         .histogram {
-            padding: 1.25rem 0 0;
+            padding: 1.5rem 0 0;
         }
 
         .chart {
@@ -45,13 +46,14 @@
 
         .labels {
             display: flex;
-            width: 25rem;
 
             span {
                 flex: 1;
+
                 font-size: var(--mat-sys-label-small-size);
                 font-weight: var(--mat-sys-body-small-weight);
                 text-align: center;
+                text-wrap: nowrap;
             }
         }
 
@@ -59,6 +61,7 @@
             justify-self: center;
             font-size: var(--mat-sys-label-small-size);
             font-weight: var(--mat-sys-body-small-weight);
+            text-wrap: nowrap;
         }
     }
 }

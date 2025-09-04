@@ -64,16 +64,16 @@
                         <span>EPC ratings</span>
                     </button>
                     <mat-menu #epcSubmenu="matMenu" class="layers-submenu" [overlapTrigger]="false" xPosition="before">
-                        <button mat-menu-item (click)="toggleEpcLayer('regions')" [class.active]="layerStates.epc.regions">
+                        <button mat-menu-item (click)="toggleEpcLayer('region')" [class.active]="layerStates.epc.region">
                             <span>Regions</span>
                         </button>
-                        <button mat-menu-item (click)="toggleEpcLayer('counties')" [class.active]="layerStates.epc.counties">
+                        <button mat-menu-item (click)="toggleEpcLayer('county')" [class.active]="layerStates.epc.county">
                             <span>Counties</span>
                         </button>
-                        <button mat-menu-item (click)="toggleEpcLayer('districts')" [class.active]="layerStates.epc.districts">
+                        <button mat-menu-item (click)="toggleEpcLayer('district')" [class.active]="layerStates.epc.district">
                             <span>Districts</span>
                         </button>
-                        <button mat-menu-item (click)="toggleEpcLayer('wards')" [class.active]="layerStates.epc.wards">
+                        <button mat-menu-item (click)="toggleEpcLayer('ward')" [class.active]="layerStates.epc.ward">
                             <span>Wards</span>
                         </button>
                     </mat-menu>

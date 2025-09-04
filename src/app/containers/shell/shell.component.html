@@ -127,7 +127,6 @@
             }
             <div class="map-container">
                 <c477-map
-                    [contextData]="(contextData$ | async) || []"
                     [spatialFilterEnabled]="spatialFilterEnabled()"
                     [mapConfig]="mapConfig"
                     (setRouteParams)="setRouteMapParams($event)"

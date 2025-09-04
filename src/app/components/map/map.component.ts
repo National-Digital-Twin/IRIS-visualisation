@@ -1,25 +1,12 @@
 import { CommonModule } from '@angular/common';
-import {
-    AfterViewInit,
-    ChangeDetectionStrategy,
-    Component,
-    computed,
-    effect,
-    inject,
-    input,
-    InputSignal,
-    OnDestroy,
-    output,
-    OutputEmitterRef,
-} from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, computed, inject, input, InputSignal, OnDestroy, output, OutputEmitterRef } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipModule } from '@angular/material/tooltip';
-import { LegendComponent, LayerState } from '@components/legend/legend.component';
-import { MapLayerConfig } from '@core/models/map-layer-config.model';
+import { LayerState, LegendComponent } from '@components/legend/legend.component';
 import { MinimapData } from '@core/models/minimap-data.model';
 import { URLStateModel } from '@core/models/url-state.model';
 import { DataService } from '@core/services/data.service';
@@ -31,9 +18,9 @@ import { UiStateService } from '@core/services/ui-state.service';
 import { UtilService } from '@core/services/utils.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
-import { FeatureCollection, GeoJsonProperties, Geometry, Polygon } from 'geojson';
+import { Polygon } from 'geojson';
 import * as mapboxgl from 'mapbox-gl';
-import { AnyLayer, FillLayerSpecification, GeoJSONFeature, MapMouseEvent, Popup, SourceSpecification } from 'mapbox-gl';
+import { MapMouseEvent } from 'mapbox-gl';
 import { map, skip, take } from 'rxjs';
 
 @Component({
@@ -61,10 +48,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     public layersMenuOpen: boolean = false;
     public layerStates: LayerState = {
         epc: {
-            regions: false,
-            counties: false,
-            districts: false,
-            wards: false,
+            region: false,
+            county: false,
+            district: false,
+            ward: false,
         },
         windDrivenRain: {
             twoDegree: false,
@@ -85,11 +72,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }
 
     private drawControl?: MapDraw;
-    private readonly wardPopup = new Popup();
 
     public mapConfig: InputSignal<URLStateModel> = input.required();
     public spatialFilterEnabled: InputSignal<boolean> = input(false);
-    public contextData: InputSignal<FeatureCollection<Geometry, GeoJsonProperties>[]> = input.required();
     public filtersExist: InputSignal<boolean> = input.required();
 
     public resetMapView: OutputEmitterRef<null> = output();
@@ -106,7 +91,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     public downloadAddresses: OutputEmitterRef<null> = output();
 
     public readonly theme$ = toObservable(this.#settings.get(SETTINGS.Theme)).pipe(takeUntilDestroyed());
-    private readonly colorBlindMode$ = toObservable(this.#settings.get(SETTINGS.ColourBlindMode)).pipe(takeUntilDestroyed());
 
     /** on map loaded, setup layers, controls etc */
     constructor() {
@@ -120,22 +104,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             )
             .subscribe();
 
-        /** update context layer colors when color blind mode changes */
-        this.colorBlindMode$.subscribe({
-            next: () => {
-                this.wardPopup.remove();
-                this.updateLayerPaint();
-            },
-        });
-
-        effect(() => {
-            const contextData = this.contextData();
-
-            if (contextData.length) {
-                this.addContextLayers(contextData);
-                this.addControls();
-            }
-        });
+        this.#mapService.mapLoaded$
+            .pipe(
+                take(1),
+                map(() => this.addControls()),
+                takeUntilDestroyed(),
+            )
+            .subscribe();
     }
 
     get mapInstance(): mapboxgl.Map {
@@ -213,32 +188,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             this.loadBuildingsForCurrentViewport();
         });
 
-        /** wards layer click */
-        this.#mapService.mapInstance.on('click', 'wards', (e: MapMouseEvent) => {
-            /** check if the active draw layer is being clicked */
-            const features: GeoJSONFeature[] = this.#mapService.mapInstance
-                .queryRenderedFeatures(e.point)
-                .filter((feature: GeoJSONFeature) => feature.source === 'mapbox-gl-draw-hot');
-            /** display popup if active draw layer is not being clicked */
-            if (features.length === 0) {
-                if (this.drawControl?.getMode() !== 'draw_polygon') {
-                    this.wardsLayerClick(e);
-                }
-            }
-        });
-
-        this.#mapService.mapInstance.on('mouseenter', 'wards', () => {
-            if (this.drawControl?.getMode() !== 'draw_polygon') {
-                this.#mapService.mapInstance.getCanvas().style.cursor = 'pointer';
-            }
-        });
-
-        this.#mapService.mapInstance.on('mouseleave', 'wards', () => {
-            if (this.drawControl?.getMode() !== 'draw_polygon') {
-                this.#mapService.mapInstance.getCanvas().style.cursor = '';
-            }
-        });
-
         /** update the minimap as the map moves */
         this.#mapService.mapInstance.on('move', () => {
             this.updateMinimap();
@@ -247,24 +196,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         /** close popup if open and zoom is > 15 and remove selection*/
         this.#mapService.mapInstance.on('zoomend', () => {
             const zoom = this.#mapService.mapInstance.getZoom();
-            if (zoom >= 15 && this.wardPopup.isOpen()) {
-                this.wardPopup.remove();
-                this.#mapService.filterMapLayer({
-                    layerId: 'wards-selected',
-                    expression: ['==', 'WD23NM', ``],
-                });
-            }
 
             if (zoom < 16) {
                 this.#dataService.clearBuildingsCache();
             }
-        });
-
-        this.wardPopup.on('close', () => {
-            this.#mapService.filterMapLayer({
-                layerId: 'wards-selected',
-                expression: ['==', 'WD23NM', ``],
-            });
         });
     }
 
@@ -303,7 +238,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.tilt2D.emit(this.twoDimensions);
     }
 
-    public toggleEpcLayer(type: 'regions' | 'counties' | 'districts' | 'wards'): void {
+    public toggleEpcLayer(type: 'region' | 'county' | 'district' | 'ward'): void {
         const layerId = `epc-${type}-layer`;
         const layer = this.#layerFactory.getLayer(layerId);
 
@@ -368,23 +303,41 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }
 
     private hideAllLayers(): void {
-        Object.keys(this.layerStates.epc).forEach((type) => {
-            this.layerStates.epc[type as keyof typeof this.layerStates.epc] = false;
-        });
+        this.hideLayerGroup(this.layerStates.epc, 'epc', '-layer');
+        this.hideLayerGroup(this.layerStates.windDrivenRain, 'wind-driven-rain', '-layer');
 
-        Object.keys(this.layerStates.windDrivenRain).forEach((type) => {
-            this.layerStates.windDrivenRain[type as keyof typeof this.layerStates.windDrivenRain] = false;
-        });
+        this.hideSingleLayer(
+            'icing-days-layer',
+            () => this.layerStates.icingDays,
+            (value) => (this.layerStates.icingDays = value),
+        );
 
-        this.layerStates.icingDays = false;
-        this.layerStates.hotSummerDays = false;
+        this.hideSingleLayer(
+            'hot-summer-days-layer',
+            () => this.layerStates.hotSummerDays,
+            (value) => (this.layerStates.hotSummerDays = value),
+        );
+    }
 
-        const allLayers = this.#layerFactory.getAllLayers();
-        allLayers.forEach((layer) => {
-            if (layer.isVisible) {
+    private hideLayerGroup<T extends Record<string, boolean>>(layerGroup: T, prefix: string, suffix: string): void {
+        Object.keys(layerGroup).forEach((type) => {
+            const layerId = `${prefix}-${type}${suffix}`;
+            const layer = this.#layerFactory.getLayer(layerId);
+            if (layer && layerGroup[type as keyof T]) {
                 layer.hide();
             }
+            (layerGroup as any)[type] = false;
         });
+    }
+
+    private hideSingleLayer(layerId: string, getState: () => boolean, setState: (value: boolean) => void): void {
+        if (getState()) {
+            const layer = this.#layerFactory.getLayer(layerId);
+            if (layer) {
+                layer.hide();
+            }
+            setState(false);
+        }
     }
 
     private deleteSearchArea(): void {
@@ -413,7 +366,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     private updateMinimap(): void {
         this.bearing = this.#mapService.mapInstance.getBearing();
         this.setMinimapData.emit({
-            position: this.#mapService.mapInstance.getFreeCameraOptions().position!.toLngLat(),
+            position: this.#mapService.mapInstance.getCenter(),
             bearing: this.#mapService.mapInstance.getBearing(),
         });
     }
@@ -436,111 +389,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             zoom,
         };
         this.setRouteParams.emit(mapConfig);
-    }
-
-    private wardsLayerClick(e: MapMouseEvent): void {
-        if (e.features?.length) {
-            /** highlight selected ward */
-            this.#mapService.filterMapLayer({
-                layerId: 'wards-selected',
-                expression: ['==', 'WD23NM', `${e.features[0].properties!.WD23NM}`],
-            });
-
-            const properties = e.features[0].properties as Record<string, number>;
-
-            // Create an array of EPC ratings with their counts
-            const epcRatings = [
-                { rating: 'A', count: properties.a_rating || 0 },
-                { rating: 'B', count: properties.b_rating || 0 },
-                { rating: 'C', count: properties.c_rating || 0 },
-                { rating: 'D', count: properties.d_rating || 0 },
-                { rating: 'E', count: properties.e_rating || 0 },
-                { rating: 'F', count: properties.f_rating || 0 },
-                { rating: 'G', count: properties.g_rating || 0 },
-                { rating: 'No Rating', count: properties.no_rating || 0 },
-            ].filter((item) => item.count > 0);
-
-            // Sort by rating
-            epcRatings.sort((a, b) => a.rating.localeCompare(b.rating));
-
-            const histogram = this.#utilsService.createHistogram(epcRatings);
-
-            const popupContent = `
-                <div class="popup">
-                    <h3>${e.features[0].properties!.WD23NM}</h3>
-                    ${histogram}
-                    <p class="footnote">* Mix of domestic and commercial buildings. Excluded from ward visualisation.</p>
-                </div>
-            `;
-
-            this.wardPopup.setLngLat(e.lngLat).setMaxWidth('none').setHTML(popupContent).addTo(this.#mapService.mapInstance);
-        }
-    }
-
-    /**
-     * Add context layers to map
-     */
-    private addContextLayers(contextData: FeatureCollection<Geometry, GeoJsonProperties>[]): void {
-        this.#runtimeConfig.contextLayers.map((config: MapLayerConfig) => {
-            const data = contextData.find(
-                /**
-                 * find matching source data, ignore 'selected' part
-                 * of layer id
-                 */
-                // eslint-disable-next-line
-                // @ts-ignore
-                (d: unknown) => d.name === config.id.split('-')[0],
-            );
-            const geojsonSource: SourceSpecification = {
-                type: 'geojson',
-                data,
-            };
-            this.#mapService.addMapSource(config.id, geojsonSource);
-
-            const paint = this.getWardLayerPaint();
-
-            const newConfig = {
-                ...config,
-                paint: {
-                    ...paint,
-                    ...config.paint,
-                },
-            } as AnyLayer;
-            this.#mapService.addMapLayer(newConfig);
-        });
-    }
-
-    /**
-     * update context layer paint when color blind mode changes
-     */
-    private updateLayerPaint(): void {
-        if (!this.#mapService.mapInstance) return;
-        this.#runtimeConfig.contextLayers.map((config: MapLayerConfig) => {
-            const lyr = this.#mapService.mapInstance.getLayer(config.id);
-            if (lyr && config.type !== 'line') {
-                const paint = this.getWardLayerPaint();
-                this.#mapService.mapInstance.setPaintProperty(lyr.id, 'fill-color', paint['fill-color']);
-            }
-        });
-    }
-
-    private getWardLayerPaint(): NonNullable<FillLayerSpecification['paint']> {
-        const EPCRatings = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'none'];
-        const defaultColor = this.#runtimeConfig.epcColours['default'];
-        const colors: string[] = [];
-
-        EPCRatings.forEach((rating: string) => {
-            colors.push(rating);
-            const color = this.#utilsService.getEPCColour(rating);
-            colors.push(color);
-        });
-        colors.push(defaultColor);
-
-        const paint: NonNullable<FillLayerSpecification['paint']> = {
-            'fill-color': ['match', ['get', 'aggEPC'], ...colors],
-        };
-
-        return paint;
     }
 
     /**
