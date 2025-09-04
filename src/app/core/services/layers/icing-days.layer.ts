@@ -7,9 +7,7 @@ import { firstValueFrom } from 'rxjs';
 import { AbstractClimateLayer } from './climate-layer.abstract';
 
 export class IcingDaysLayer extends AbstractClimateLayer<IcingDaysProperties> {
-    constructor(
-        private readonly climateDataService: ClimateDataService,
-    ) {
+    constructor(private readonly climateDataService: ClimateDataService) {
         super();
     }
 
@@ -55,9 +53,13 @@ export class IcingDaysLayer extends AbstractClimateLayer<IcingDaysProperties> {
             const popupContent = `
                 <div class="climate-data-popup">
                     <div class="popup-header">
-                        <h3>Annual count of <span class="info-link" onclick="togglePopoutInfo()">icing days</span></h3>
+                        <h3>Annual count of icing days</h3>
 
                         <div class="info-tooltip-container">
+                            <button class="info-button" onclick="togglePopoutInfo()">
+                                <span class="info-icon">i</span>
+                            </button>
+
                             <div id="popout-info" class="info-tooltip" style="display: none;">
                                 <div class="info-tooltip-header">Icing days</div>
                                 <p>An icing day is a day where the maximum temperature is below 0&deg;C.</p>
@@ -66,7 +68,7 @@ export class IcingDaysLayer extends AbstractClimateLayer<IcingDaysProperties> {
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="data-table">
                         <dl>
                             <dt>Icing days</dt>

@@ -169,6 +169,8 @@
                 grid-auto-columns: auto;
                 grid-auto-flow: column;
                 grid-template-columns: max-content;
+                gap: 1rem;
+                align-items: center;
 
                 padding: 1rem 1rem 0;
 
@@ -183,19 +185,6 @@
                 gap: 1rem;
                 align-items: center;
                 padding: 1rem 1rem 0;
-            }
-
-            .info-link {
-                text-decoration: underline;
-                text-decoration-color: var(--mat-sys-outline);
-                text-decoration-style: dotted;
-                text-decoration-thickness: 2px;
-                text-underline-offset: 2px;
-
-                &:hover {
-                    cursor: pointer;
-                    text-decoration-color: var(--mat-sys-on-surface);
-                }
             }
 
             .data-table {
@@ -236,7 +225,7 @@
                 .info-tooltip {
                     position: absolute;
                     z-index: 1000;
-                    left: 2.5rem;
+                    left: 3rem;
                     transform: translateY(calc(-50% - 0.75rem));
 
                     width: 18rem;

@@ -7,9 +7,7 @@ import { firstValueFrom } from 'rxjs';
 import { AbstractClimateLayer } from './climate-layer.abstract';
 
 export class HotSummerDaysLayer extends AbstractClimateLayer<HotSummerDaysProperties> {
-    constructor(
-        private readonly climateDataService: ClimateDataService,
-    ) {
+    constructor(private readonly climateDataService: ClimateDataService) {
         super();
     }
 
@@ -55,6 +53,10 @@ export class HotSummerDaysLayer extends AbstractClimateLayer<HotSummerDaysProper
                         <h3>Hot summer days (30&deg;C+)</h3>
 
                         <div class="info-tooltip-container">
+                            <button class="info-button" onclick="togglePopoutInfo()">
+                                <span class="info-icon">i</span>
+                            </button>
+
                             <div id="popout-info" class="info-tooltip" style="display: none;">
                                 <div class="info-tooltip-header">Hot summer day projections</div>
                                 <p>Shows the annual count of hot summer days for the 2001-2020 baseline and different global warming projections.</p>
@@ -63,10 +65,10 @@ export class HotSummerDaysLayer extends AbstractClimateLayer<HotSummerDaysProper
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="data-table">
                         <dl>
-                            <dt class="info-link" onclick="togglePopoutInfo()">Projections</dt>
+                            <dt>Projections</dt>
                             <dd>Annual count (days)</dd>
                             
                             <dt>2001-2020</dt>
