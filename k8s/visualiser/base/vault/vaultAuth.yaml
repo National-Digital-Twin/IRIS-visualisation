@@ -1,0 +1,12 @@
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultAuth
+metadata:
+  name: iris-visualiser-vault-auth
+spec:
+  method: kubernetes
+  mount: kubernetes
+  kubernetes:
+    role: iris-visualiser-role
+    serviceAccount: iris-visualiser-sa
+    audiences:
+      - vault
