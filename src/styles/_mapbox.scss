@@ -10,10 +10,11 @@
     }
 
     .popup {
-        width: 25rem;
+        width: 26rem;
+        padding: 1rem 1rem;
 
         .histogram {
-            padding: 1.25rem 0 0;
+            padding: 1.5rem 0 0;
         }
 
         .chart {
@@ -45,13 +46,14 @@
 
         .labels {
             display: flex;
-            width: 25rem;
 
             span {
                 flex: 1;
+
                 font-size: var(--mat-sys-label-small-size);
                 font-weight: var(--mat-sys-body-small-weight);
                 text-align: center;
+                text-wrap: nowrap;
             }
         }
 
@@ -59,6 +61,7 @@
             justify-self: center;
             font-size: var(--mat-sys-label-small-size);
             font-weight: var(--mat-sys-body-small-weight);
+            text-wrap: nowrap;
         }
     }
 }
@@ -169,6 +172,8 @@
                 grid-auto-columns: auto;
                 grid-auto-flow: column;
                 grid-template-columns: max-content;
+                gap: 1rem;
+                align-items: center;
 
                 padding: 1rem 1rem 0;
 
@@ -183,19 +188,6 @@
                 gap: 1rem;
                 align-items: center;
                 padding: 1rem 1rem 0;
-            }
-
-            .info-link {
-                text-decoration: underline;
-                text-decoration-color: var(--mat-sys-outline);
-                text-decoration-style: dotted;
-                text-decoration-thickness: 2px;
-                text-underline-offset: 2px;
-
-                &:hover {
-                    cursor: pointer;
-                    text-decoration-color: var(--mat-sys-on-surface);
-                }
             }
 
             .data-table {
@@ -236,7 +228,7 @@
                 .info-tooltip {
                     position: absolute;
                     z-index: 1000;
-                    left: 2.5rem;
+                    left: 3rem;
                     transform: translateY(calc(-50% - 0.75rem));
 
                     width: 18rem;

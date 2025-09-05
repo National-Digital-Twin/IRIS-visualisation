@@ -153,17 +153,6 @@ export class WindDrivenRainLayer extends AbstractBaseLayer {
                 <div class="climate-data-popup">
                     <div class="popup-header">
                         <h3>Wind driven rain</h3>
-                    </div>
-                    
-                    <div class="scenario-toggle">
-                        <button class="scenario-button ${!isTwoDegree ? 'checked' : ''}" onclick="toggleWindDrivenRainScenario(this, 'wdr40_', ${JSON.stringify(properties).replace(/"/g, '&quot;')})">
-                            <div class="check"></div>
-                            <span>4&deg;C warming</span>
-                        </button>
-                        <button class="scenario-button ${isTwoDegree ? 'checked' : ''}" onclick="toggleWindDrivenRainScenario(this, 'wdr20_', ${JSON.stringify(properties).replace(/"/g, '&quot;')})">
-                            <div class="check"></div>
-                            <span>2&deg;C warming</span>
-                        </button>
 
                         <div class="info-tooltip-container">
                             <button class="info-button" onclick="togglePopoutInfo()">
@@ -176,6 +165,17 @@ export class WindDrivenRainLayer extends AbstractBaseLayer {
                                 <button class="close-button" onclick="hidePopoutInfo()">Close</button>
                             </div>
                         </div>
+                    </div>
+                    
+                    <div class="scenario-toggle">
+                        <button class="scenario-button ${!isTwoDegree ? 'checked' : ''}" onclick="toggleWindDrivenRainScenario(this, 'wdr40_', ${JSON.stringify(properties).replace(/"/g, '&quot;')})">
+                            <div class="check"></div>
+                            <span>4&deg;C warming</span>
+                        </button>
+                        <button class="scenario-button ${isTwoDegree ? 'checked' : ''}" onclick="toggleWindDrivenRainScenario(this, 'wdr20_', ${JSON.stringify(properties).replace(/"/g, '&quot;')})">
+                            <div class="check"></div>
+                            <span>2&deg;C warming</span>
+                        </button>
                     </div>
                     
                     <div class="data-table">

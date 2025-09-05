@@ -40,7 +40,7 @@ export class MinimapComponent implements OnInit {
             const minimapData = this.minimapData();
 
             if (map && minimapData) {
-                map.flyTo({ center: minimapData.position, zoom: this.#runtimeConfig.minimap.zoom });
+                map.panTo({ lng: minimapData.position.lng, lat: minimapData.position.lat }, { animate: false });
             }
 
             this.setArrowPosition();
