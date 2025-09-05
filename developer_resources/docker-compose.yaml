@@ -27,22 +27,37 @@ services:
             - --config
             - /fuseki/config/config.ttl
         image: iris/secure-agent-graph
+        build:
+            context: .
+            dockerfile: Dockerfile
         depends_on:
             - kafka
         ports:
             - 3030:3030
+    postgres:
+        image: postgis/postgis:latest
+        container_name: postgis # you may encounter an error if you already run this via the API
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: iris
+        ports:
+        - "5432:5432"
     transparent-proxy:
         container_name: iris-transparent-proxy
         image: iris-transparent-proxy
+        build:
+            context: ../transparent-proxy
+            dockerfile: ../transparent-proxy/Dockerfile
         ports:
-            - 5013:80
+            - 5013:8080
         env_file:
             - './.env'
     api:
         container_name: iris-api
         image: iris-api
         ports:
-            - 3010:5021
+            - 3010:3010
         env_file:
             - './.env'
         extra_hosts:
