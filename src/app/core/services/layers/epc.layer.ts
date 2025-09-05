@@ -6,10 +6,9 @@ import { EPCDataService, EPCType, EPCWardsProperties } from '../epc-data.service
 import { AbstractBaseLayer } from './base-layer.abstract';
 
 export class EPCLayer extends AbstractBaseLayer {
-    private epcType: EPCType = 'ward';
+    private epcType: EPCType = 'county';
     private data?: FeatureCollection<Geometry, EPCWardsProperties>;
     private currentPopup?: mapboxgl.Popup;
-    private selectedWardName?: string;
 
     constructor(private readonly epcDataService: EPCDataService) {
         super();
@@ -136,8 +135,6 @@ export class EPCLayer extends AbstractBaseLayer {
     }
 
     private highlightWard(map: mapboxgl.Map, wardName: string): void {
-        this.selectedWardName = wardName;
-
         map.setPaintProperty(this.id, 'fill-opacity', ['case', ['==', ['get', 'name'], wardName], 0.9, 0.6]);
 
         const outlineLayerId = `${this.id}-outline`;
@@ -160,8 +157,6 @@ export class EPCLayer extends AbstractBaseLayer {
     }
 
     private clearHighlighting(map: mapboxgl.Map): void {
-        this.selectedWardName = undefined;
-
         map.setPaintProperty(this.id, 'fill-opacity', 0.75);
 
         const outlineLayerId = `${this.id}-outline`;

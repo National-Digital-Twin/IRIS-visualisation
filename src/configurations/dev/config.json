@@ -21,9 +21,9 @@
             "light": "https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Light.json",
             "dark": "https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Dark.json"
         },
-        "zoom": 15.05,
+        "zoom": 6,
         "pitch": 58,
-        "center": [-1.29512, 50.69523],
+        "center": [-2.6, 54],
         "bearing": 0
     },
     "epcColours": {

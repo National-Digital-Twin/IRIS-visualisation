@@ -8,16 +8,21 @@ const osAPIKey = process.env.OS_API_KEY;
 
 const posthogAPIKey = process.env.POSTHOG_KEY;
 
+const maptilerAPIKey = process.env.MAPTILER_API_KEY;
+
 const targetPath = `./src/environments/environment.ts`;
 
 const envConfigFile = `export const environment = {
-    production: ${production},
+        maptiler: {
+            apiKey: '${maptilerAPIKey},
+        },
         os: {
             apiKey: '${osAPIKey}',
         },
         posthog: {
             apiKey: '${posthogAPIKey}',
         },
+        production: ${production},
     };
 `;
 

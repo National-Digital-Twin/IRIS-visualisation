@@ -1,4 +1,7 @@
 export const environment = {
+    maptiler: {
+        apiKey: 'xxx',
+    },
     production: true,
     posthog: {
         apiKey: 'phc_XXXXXXXXXXXXXXXXXXXXXXXXXXXXX',

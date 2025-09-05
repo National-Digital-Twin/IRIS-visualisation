@@ -17,6 +17,7 @@ import { SETTINGS, SettingsService } from '@core/services/settings.service';
 import { UiStateService } from '@core/services/ui-state.service';
 import { UtilService } from '@core/services/utils.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
+import { environment } from '@environment';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { Polygon } from 'geojson';
 import * as mapboxgl from 'mapbox-gl';
@@ -120,7 +121,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     public ngAfterViewInit(): void {
         if (this.#runtimeConfig.map.style) {
             const theme = this.#settings.get(SETTINGS.Theme);
-            const style = this.#runtimeConfig.map.style[theme()];
+            const configStyle = this.#runtimeConfig.map.style[theme()];
+            const style = configStyle.includes('maptiler') ? `${configStyle}?key=${environment.maptiler.apiKey}` : configStyle;
             const { bearing, zoom, pitch, center } = this.mapConfig();
             const config: URLStateModel = { bearing, center, pitch, style, zoom };
             this.#mapService.setup(config);

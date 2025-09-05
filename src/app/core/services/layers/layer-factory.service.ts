@@ -5,7 +5,7 @@ import { ScriptLoaderService } from '@core/services/script-loader.service';
 import { AbstractBaseLayer } from './base-layer.abstract';
 import { BaseLayer } from './base-layer.interface';
 import { DemoLayer } from './demo-layer';
-import { EPCLayer } from './epc-wards.layer';
+import { EPCLayer } from './epc.layer';
 import { HotSummerDaysLayer } from './hot-summer-days.layer';
 import { IcingDaysLayer } from './icing-days.layer';
 import { WindDrivenRainLayer, WindDrivenRainLayerConfig } from './wind-driven-rain.layer';
@@ -18,11 +18,9 @@ export class LayerFactoryService {
 
     private readonly layers = new Map<string, BaseLayer>();
     private readonly activeWindDrivenRainLayers = new Set<string>();
-    private readonly epcLayer: EPCLayer;
 
     constructor() {
         AbstractBaseLayer.setLayerFactory(this);
-        this.epcLayer = new EPCLayer(this.#epcDataService);
         this.initializeLayers();
     }
 
@@ -66,7 +64,7 @@ export class LayerFactoryService {
 
         epcTypes.forEach((type) => {
             const layerId = `epc-${type}-layer`;
-            const proxyLayer = new Proxy(this.epcLayer, {
+            const proxyLayer = new Proxy(new EPCLayer(this.#epcDataService), {
                 get(target, prop): any {
                     if (prop === 'id') {
                         return layerId;
