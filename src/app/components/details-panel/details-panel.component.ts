@@ -133,18 +133,21 @@ export class DetailsPanelComponent implements OnInit {
     public formatRoofAspectAreas(building?: BuildingModel): string {
         if (!building) return '';
         const entries: string[] = [];
-        const add = (label: string, value?: string): void => {
-            if (value) entries.push(`${label}: ${value} m²`);
+        const add = (dir: string, value?: string): void => {
+            if (!value) return;
+            const n = Number(value);
+            if (!Number.isNaN(n) && n === 0) return; // skip zeros
+            entries.push(`${value} m² ${dir}`);
         };
-        add('N', building.RoofAspectAreaNorth);
-        add('NE', building.RoofAspectAreaNortheast);
-        add('E', building.RoofAspectAreaEast);
-        add('SE', building.RoofAspectAreaSoutheast);
-        add('S', building.RoofAspectAreaSouth);
-        add('SW', building.RoofAspectAreaSouthwest);
-        add('W', building.RoofAspectAreaWest);
-        add('NW', building.RoofAspectAreaNorthwest);
-        return entries.join(' · ');
+        add('North', building.RoofAspectAreaNorth);
+        add('North East', building.RoofAspectAreaNortheast);
+        add('East', building.RoofAspectAreaEast);
+        add('South East', building.RoofAspectAreaSoutheast);
+        add('South', building.RoofAspectAreaSouth);
+        add('South West', building.RoofAspectAreaSouthwest);
+        add('West', building.RoofAspectAreaWest);
+        add('North West', building.RoofAspectAreaNorthwest);
+        return entries.join(', ');
     }
 }
 
