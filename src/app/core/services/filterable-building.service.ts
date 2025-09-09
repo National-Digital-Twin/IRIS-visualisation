@@ -18,6 +18,16 @@ export type FilterableBuilding = {
     wall_construction?: string;
     wall_insulation?: string;
     window_glazing?: string;
+    roof_material?: string;
+    has_roof_solar_panels: boolean;
+    roof_aspect_area_facing_north?: number;
+    roof_aspect_area_facing_north_east?: number;
+    roof_aspect_area_facing_east?: number;
+    roof_aspect_area_facing_south_east?: number;
+    roof_aspect_area_facing_south?: number;
+    roof_aspect_area_facing_south_west?: number;
+    roof_aspect_area_facing_west?: number;
+    roof_aspect_area_facing_north_west?: number;
 };
 
 @Injectable({ providedIn: 'root' })
@@ -75,6 +85,16 @@ export class FilterableBuildingService {
             WallInsulation: filterableBuilding.wall_insulation,
             WindowGlazing: filterableBuilding.window_glazing,
             Flagged: false,
+            RoofMaterial: filterableBuilding.roof_material,
+            HasRoofSolarPanels: filterableBuilding.has_roof_solar_panels,
+            RoofAspectAreaFacingNorth: filterableBuilding.roof_aspect_area_facing_north,
+            RoofAspectAreaFacingNorthEast: filterableBuilding.roof_aspect_area_facing_north_east,
+            RoofAspectAreaFacingEast: filterableBuilding.roof_aspect_area_facing_east,
+            RoofAspectAreaFacingSouthEast: filterableBuilding.roof_aspect_area_facing_south_east,
+            RoofAspectAreaFacingSouth: filterableBuilding.roof_aspect_area_facing_south,
+            RoofAspectAreaFacingSouthWest: filterableBuilding.roof_aspect_area_facing_south_west,
+            RoofAspectAreaFacingWest: filterableBuilding.roof_aspect_area_facing_west,
+            RoofAspectAreaFacingNorthWest: filterableBuilding.roof_aspect_area_facing_north_west,
         };
         return buildingModel;
     }

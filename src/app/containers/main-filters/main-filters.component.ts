@@ -163,6 +163,9 @@ export class MainFiltersComponent {
                     YearOfAssessment: [],
                     EPCExpiry: [],
                     FuelType: [],
+                    RoofMaterial: [],
+                    RoofHasSolarPanels: [],
+                    RoofAspectAreaDirection: [],
                 });
             }
         });

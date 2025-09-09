@@ -1,4 +1,5 @@
 import { Injectable, NgZone, inject, signal } from '@angular/core';
+import { RoofAspectAreaDirectionField } from '@core/enums/roof-aspect-area-direction';
 import { FilterProps } from '@core/models/advanced-filters.model';
 import { BuildingMap, BuildingModel } from '@core/models/building.model';
 import { FilterableBuildingModel } from '@core/models/filterable-building.model';
@@ -32,6 +33,7 @@ export class UtilService {
     readonly #settings = inject(SettingsService);
     readonly #spatialQueryService = inject(SpatialQueryService);
     readonly #zone = inject(NgZone);
+    readonly #roofAspectAreaDirectionFieldMap: Record<string, string> = RoofAspectAreaDirectionField;
 
     private readonly colourBlindMode = this.#settings.get(SETTINGS.ColourBlindMode);
 
@@ -387,7 +389,6 @@ export class UtilService {
                         }
                     } else if (key === 'StructureUnitType' || key === 'EPC') {
                         const matchedBuildingModel = buildingsArray.find((building) => building.UPRN === filterableBuildingModel.UPRN);
-                        console.log(`List of filters are: ${removeQuotes}`);
                         return (
                             matchedBuildingModel &&
                             removeQuotes?.includes(
@@ -397,10 +398,26 @@ export class UtilService {
                             )
                         );
                     } else {
-                        return removeQuotes?.includes(
+                        let mappedKeys: string[] | undefined = removeQuotes;
+
+                        if (key === 'RoofAspectAreaDirection') {
+                            return removeQuotes
+                                ?.map((r) => filterableBuildingModel[this.#roofAspectAreaDirectionFieldMap[r] as keyof FilterableBuildingModel])
+                                .every((f) => !!f);
+                        }
+
+                        if (key === 'HasRoofSolarPanels') {
+                            mappedKeys = removeQuotes?.map((f) => {
+                                if (f === 'HasSolarPanels') return 'true';
+                                else if (f === 'HasNoSolarPanels') return 'false';
+                                return '';
+                            });
+                        }
+
+                        return mappedKeys?.includes(
                             // eslint-disable-next-line
                             // @ts-ignore
-                            filterableBuildingModel[key as keyof FilterableBuildingModel],
+                            filterableBuildingModel[key as keyof FilterableBuildingModel]?.toString(),
                         );
                     }
                 }),

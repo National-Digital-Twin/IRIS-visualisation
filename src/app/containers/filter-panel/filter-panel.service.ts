@@ -19,6 +19,9 @@ export const filterKeys = [
     'roof_construction',
     'roof_insulation_location',
     'roof_insulation_thickness',
+    'roof_material',
+    'has_roof_solar_panels',
+    'roof_aspect_area_direction',
 ] as const;
 
 export const filterNames = [
@@ -37,6 +40,9 @@ export const filterNames = [
     'RoofInsulationThickness',
     'Flagged',
     'StructureUnitType',
+    'RoofMaterial',
+    'HasRoofSolarPanels',
+    'RoofAspectAreaDirection',
 ] as const;
 
 export type PanelName = (typeof panelNames)[number];
@@ -66,7 +72,18 @@ export class FilterPanelService {
         { title: 'Glazing', keys: ['window_glazing'], filters: [] },
         { title: 'Wall', keys: ['wall_construction', 'wall_insulation'], filters: [] },
         { title: 'Floor', keys: ['floor_construction', 'floor_insulation'], filters: [] },
-        { title: 'Roof', keys: ['roof_construction', 'roof_insulation_location', 'roof_insulation_thickness'], filters: [] },
+        {
+            title: 'Roof',
+            keys: [
+                'roof_material',
+                'has_roof_solar_panels',
+                'roof_construction',
+                'roof_insulation_location',
+                'roof_insulation_thickness',
+                'roof_aspect_area_direction',
+            ],
+            filters: [],
+        },
     ];
 
     public static readonly FILTERS: FilterMeta[] = [
@@ -83,6 +100,9 @@ export class FilterPanelService {
         { key: 'roof_construction', name: 'RoofConstruction', label: 'Roof Construction', values: [], selected: [] },
         { key: 'roof_insulation_location', name: 'RoofInsulationLocation', label: 'Roof Insulation Location', values: [], selected: [] },
         { key: 'roof_insulation_thickness', name: 'RoofInsulationThickness', label: 'Roof Insulation Thickness', values: [], selected: [] },
+        { key: 'roof_material', name: 'RoofMaterial', label: 'Roof Material', values: [], selected: [] },
+        { key: 'has_roof_solar_panels', name: 'HasRoofSolarPanels', label: 'Solar Panels', values: [], selected: [] },
+        { key: 'roof_aspect_area_direction', name: 'RoofAspectAreaDirection', label: 'Aspect', values: [], selected: [] },
     ];
 
     public retrieveFilterPanels(boundingBox: BoundingBox, selection?: Record<string, string[]>): Observable<FilterPanel[]> {
@@ -95,7 +115,11 @@ export class FilterPanelService {
         return this.#http.get<Record<string, string[]>>('/api/filter-summary', { params }).pipe(
             map((filterData) => {
                 const filters = FilterPanelService.FILTERS;
-                return filters.map((filter) => ({ ...filter, values: filterData[filter.key], selected: selection ? selection[filter.name] : [] }));
+                return filters.map((filter) => ({
+                    ...filter,
+                    values: filterData[filter.key],
+                    selected: selection ? selection[filter.name] : [],
+                }));
             }),
             map((mappedFilters) => {
                 const panels = FilterPanelService.PANELS;

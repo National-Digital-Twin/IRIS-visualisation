@@ -14,4 +14,14 @@ export type FilterableBuildingModel = {
     WallInsulation?: string;
     WindowGlazing?: string;
     Flagged: boolean;
+    RoofMaterial?: string;
+    HasRoofSolarPanels?: boolean;
+    RoofAspectAreaFacingNorth?: number;
+    RoofAspectAreaFacingNorthEast?: number;
+    RoofAspectAreaFacingEast?: number;
+    RoofAspectAreaFacingSouthEast?: number;
+    RoofAspectAreaFacingSouth?: number;
+    RoofAspectAreaFacingSouthWest?: number;
+    RoofAspectAreaFacingWest?: number;
+    RoofAspectAreaFacingNorthWest?: number;
 };

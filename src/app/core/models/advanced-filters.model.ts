@@ -47,6 +47,9 @@ export interface AdvancedFiltersFormModel {
     YearOfAssessment: YearOfAssessment[] | null;
     EPCExpiry: EPCExpiry[] | null;
     FuelType: string[] | null;
+    RoofMaterial: string[] | null;
+    RoofHasSolarPanels: string[] | null;
+    RoofAspectAreaDirection: string[] | null;
 }
 
 export interface MultiButtonFilterOption {
@@ -73,6 +76,10 @@ export interface FilterProps {
     WallInsulation?: string[];
     YearOfAssessment?: string[];
     EPCExpiry?: string[];
+    FuelType?: string[];
+    RoofMaterial?: string[];
+    RoofHasSolarPanels?: string[];
+    RoofAspectAreaDirection?: string[];
 }
 
 export type FilterKeys =
@@ -89,7 +96,11 @@ export type FilterKeys =
     | 'RoofInsulationThickness'
     | 'WallConstruction'
     | 'WallInsulation'
-    | 'YearOfAssessment';
+    | 'YearOfAssessment'
+    | 'FuelType'
+    | 'RoofMaterial'
+    | 'RoofHasSolarPanels'
+    | 'RoofAspectAreaDirection';
 
 // SPDX-License-Identifier: Apache-2.0
 // © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
