@@ -75,4 +75,35 @@ export abstract class AbstractClimateLayer<ClimateProperties> extends AbstractBa
         await this.scriptLoader.load('popup-common', 'assets/js/popup-common.js');
         await super.addLayerToMap();
     }
+
+    protected highlightPolygon(map: mapboxgl.Map, id: any, field: string): void {
+        map.setPaintProperty(this.id, 'fill-opacity', ['case', ['==', ['get', field], id], 0.9, 0.6]);
+
+        const outlineLayerId = `${this.id}-outline`;
+
+        if (map.getLayer(outlineLayerId)) {
+            map.removeLayer(outlineLayerId);
+        }
+
+        map.addLayer({
+            id: outlineLayerId,
+            type: 'line',
+            source: `${this.id}-source`,
+            paint: {
+                'line-color': '#6666aa',
+                'line-width': 3,
+                'line-opacity': 0.75,
+            },
+            filter: ['==', ['get', field], id],
+        });
+    }
+
+    protected clearHighlighting(map: mapboxgl.Map): void {
+        map.setPaintProperty(this.id, 'fill-opacity', 0.75);
+
+        const outlineLayerId = `${this.id}-outline`;
+        if (map.getLayer(outlineLayerId)) {
+            map.removeLayer(outlineLayerId);
+        }
+    }
 }

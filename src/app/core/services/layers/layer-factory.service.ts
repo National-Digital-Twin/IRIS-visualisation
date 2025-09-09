@@ -45,11 +45,11 @@ export class LayerFactoryService {
 
     private initializeClimateLayers(): void {
         const twoDegreeConfig = { type: 'twoDegree', warmingScenario: '2°C warming' } as WindDrivenRainLayerConfig;
-        const twoDegreeRainLayer = new WindDrivenRainLayer(twoDegreeConfig, this.#climateDataService, this.#scriptLoader);
+        const twoDegreeRainLayer = new WindDrivenRainLayer(twoDegreeConfig, this.#climateDataService);
         this.layers.set('wind-driven-rain-twoDegree-layer', twoDegreeRainLayer);
 
         const fourDegreeConfig = { type: 'fourDegree', warmingScenario: '4°C warming' } as WindDrivenRainLayerConfig;
-        const fourDegreeRainLayer = new WindDrivenRainLayer(fourDegreeConfig, this.#climateDataService, this.#scriptLoader);
+        const fourDegreeRainLayer = new WindDrivenRainLayer(fourDegreeConfig, this.#climateDataService);
         this.layers.set('wind-driven-rain-fourDegree-layer', fourDegreeRainLayer);
 
         const hotSummerDaysLayer = new HotSummerDaysLayer(this.#climateDataService);

@@ -306,16 +306,22 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
     private hideAllLayers(): void {
         this.hideLayerGroup(this.layerStates.epc, 'epc', '-layer');
+        this.hideLayerGroup(this.layerStates.epc, 'epc', '-layer-outline');
         this.hideLayerGroup(this.layerStates.windDrivenRain, 'wind-driven-rain', '-layer');
+        this.hideLayerGroup(this.layerStates.windDrivenRain, 'wind-driven-rain', '-layer-outline');
 
-        this.hideSingleLayer(
-            'icing-days-layer',
+        const icingDaysLayer = 'icing-days-layer';
+        this.hideSingleLayerWithOutline(
+            icingDaysLayer,
+            `${icingDaysLayer}-outline`,
             () => this.layerStates.icingDays,
             (value) => (this.layerStates.icingDays = value),
         );
 
-        this.hideSingleLayer(
-            'hot-summer-days-layer',
+        const hotSummerDaysLayer = 'hot-summer-days-layer';
+        this.hideSingleLayerWithOutline(
+            hotSummerDaysLayer,
+            `${hotSummerDaysLayer}-outline`,
             () => this.layerStates.hotSummerDays,
             (value) => (this.layerStates.hotSummerDays = value),
         );
@@ -324,19 +330,29 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     private hideLayerGroup<T extends Record<string, boolean>>(layerGroup: T, prefix: string, suffix: string): void {
         Object.keys(layerGroup).forEach((type) => {
             const layerId = `${prefix}-${type}${suffix}`;
-            const layer = this.#layerFactory.getLayer(layerId);
-            if (layer && layerGroup[type as keyof T]) {
-                layer.hide();
+            const layerFactoryLayer = this.#layerFactory.getLayer(layerId);
+            const layerEnabled = layerGroup[type as keyof T];
+            if (layerFactoryLayer && layerEnabled) {
+                layerFactoryLayer.hide();
             }
+            const mapLayer = this.mapInstance.getLayer(layerId);
+            if (mapLayer) {
+                this.mapInstance.removeLayer(layerId);
+            }
+
             (layerGroup as any)[type] = false;
         });
     }
 
-    private hideSingleLayer(layerId: string, getState: () => boolean, setState: (value: boolean) => void): void {
+    private hideSingleLayerWithOutline(layerId: string, outlineLayerId: string, getState: () => boolean, setState: (value: boolean) => void): void {
         if (getState()) {
             const layer = this.#layerFactory.getLayer(layerId);
             if (layer) {
                 layer.hide();
+            }
+            const outlineLayer = this.mapInstance.getLayer(outlineLayerId);
+            if (outlineLayer) {
+                this.mapInstance.removeLayer(outlineLayerId);
             }
             setState(false);
         }

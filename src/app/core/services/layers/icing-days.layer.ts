@@ -78,7 +78,12 @@ export class IcingDaysLayer extends AbstractClimateLayer<IcingDaysProperties> {
                 </div>
             `;
 
-            new mapboxgl.Popup().setLngLat(event.lngLat).setHTML(popupContent).addTo(this.mapService.mapInstance);
+            const popup = new mapboxgl.Popup().setLngLat(event.lngLat).setHTML(popupContent).addTo(this.mapService.mapInstance);
+            popup.on('close', () => {
+                this.clearHighlighting(event.target);
+            });
+
+            this.highlightPolygon(event.target, properties.objectid, 'objectid');
         }
     };
 }

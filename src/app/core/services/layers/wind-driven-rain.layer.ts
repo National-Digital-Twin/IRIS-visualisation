@@ -4,25 +4,21 @@ import * as mapboxgl from 'mapbox-gl';
 import { LayerSpecification, MapMouseEvent } from 'mapbox-gl';
 import { firstValueFrom } from 'rxjs';
 import { ClimateDataService, WindDrivenRainProperties } from '../climate-data.service';
-import { ScriptLoaderService } from '../script-loader.service';
-import { AbstractBaseLayer } from './base-layer.abstract';
+import { AbstractClimateLayer } from './climate-layer.abstract';
 
 export interface WindDrivenRainLayerConfig {
     type: 'twoDegree' | 'fourDegree';
     warmingScenario: string;
 }
 
-export class WindDrivenRainLayer extends AbstractBaseLayer {
+export class WindDrivenRainLayer extends AbstractClimateLayer<WindDrivenRainProperties> {
     private readonly config: WindDrivenRainLayerConfig;
-    private data?: FeatureCollection<Geometry, WindDrivenRainProperties>;
-    private maxValues?: { min: number; max: number };
 
     private static globalMaxValues?: { min: number; max: number };
 
     constructor(
         config: WindDrivenRainLayerConfig,
         private readonly climateDataService: ClimateDataService,
-        private readonly scriptLoader: ScriptLoaderService,
     ) {
         super();
         this.config = config;
@@ -35,29 +31,15 @@ export class WindDrivenRainLayer extends AbstractBaseLayer {
     public getLayerConfig(): LayerSpecification {
         if (WindDrivenRainLayer.globalMaxValues) {
             const { min, max } = WindDrivenRainLayer.globalMaxValues;
-            return this.createLayerConfig(min, max);
+            return this.createLayerConfig(min, max, LAYER_COLORS.windDrivenRain);
         }
 
         if (this.maxValues) {
             const { min, max } = this.maxValues;
-            return this.createLayerConfig(min, max);
+            return this.createLayerConfig(min, max, LAYER_COLORS.windDrivenRain);
         }
 
-        return this.createLayerConfig(0, 1000);
-    }
-
-    private createLayerConfig(min: number, max: number): LayerSpecification {
-        const colors = LAYER_COLORS.windDrivenRain;
-        return {
-            id: this.id,
-            type: 'fill',
-            source: `${this.id}-source`,
-            paint: {
-                'fill-color': ['interpolate', ['linear'], ['get', 'value'], min, colors.low, max, colors.high],
-                'fill-opacity': colors.opacity,
-                'fill-outline-color': colors.outline,
-            },
-        };
+        return this.createLayerConfig(0, 1000, LAYER_COLORS.windDrivenRain);
     }
 
     public async getSourceData(): Promise<FeatureCollection<Geometry, WindDrivenRainProperties>> {
@@ -109,7 +91,7 @@ export class WindDrivenRainLayer extends AbstractBaseLayer {
         return maxValue;
     }
 
-    private calculateMaxValues(): void {
+    protected override calculateMaxValues(): void {
         if (!this.data) return;
 
         let minValue = Infinity;
@@ -204,14 +186,11 @@ export class WindDrivenRainLayer extends AbstractBaseLayer {
                 </div>
             `;
 
-            new mapboxgl.Popup().setLngLat(event.lngLat).setHTML(popupContent).addTo(this.mapService.mapInstance);
+            const popup = new mapboxgl.Popup().setLngLat(event.lngLat).setHTML(popupContent).addTo(this.mapService.mapInstance);
+            popup.on('close', () => {
+                this.clearHighlighting(event.target);
+            });
+            this.highlightPolygon(event.target, properties.shape, 'shape');
         }
     };
-
-    private createEmptyFeatureCollection(): FeatureCollection<Geometry, WindDrivenRainProperties> {
-        return {
-            type: 'FeatureCollection',
-            features: [],
-        };
-    }
 }

@@ -54,14 +54,17 @@ export class MapBoxService implements MapService<mapboxgl.Map> {
 
     public addMapSource(name: string, source: SourceSpecification): mapboxgl.Map {
         return this.#zone.runOutsideAngular(() => {
-            const createdSource = this.mapInstance.addSource(name, source);
+            if (!this.mapInstance.getSource(name)) {
+                const createdSource = this.mapInstance.addSource(name, source);
 
-            if (source.type === 'raster-dem') {
-                // add the DEM source as a terrain layer
-                createdSource.setTerrain({ source: name });
+                if (source.type === 'raster-dem') {
+                    // add the DEM source as a terrain layer
+                    createdSource.setTerrain({ source: name });
+                }
+
+                return createdSource;
             }
-
-            return createdSource;
+            return this.mapInstance;
         });
     }
 
