@@ -29,6 +29,7 @@
                 flex-direction: column;
                 justify-content: flex-end;
 
+                max-width: 40px;
                 margin: 0 4px;
 
                 .rating {
@@ -36,6 +37,7 @@
                     font-size: var(--mat-sys-label-large-size);
                     font-weight: var(--mat-sys-label-large-weight);
                 }
+
                 .line {
                     flex: 1;
                     margin-right: 1px;

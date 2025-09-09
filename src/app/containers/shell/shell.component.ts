@@ -454,6 +454,9 @@ export class ShellComponent {
                 Flagged: [],
                 EPCExpiry: [],
                 FuelType: [],
+                RoofMaterial: [],
+                HasRoofSolarPanels: [],
+                RoofAspectAreaDirection: [],
             });
             this.navigate(params);
             /** delete spatial filter if it exists */
