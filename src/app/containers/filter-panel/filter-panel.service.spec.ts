@@ -19,6 +19,9 @@ const filterData = {
     roof_construction: ['Tiles', 'Straw'],
     roof_insulation_location: ['Frame', 'Ceiling'],
     roof_insulation_thickness: ['10mm', '20mm', '30mm', '40mm', '50mm'],
+    roof_material: ['Mixed', 'Unknown'],
+    has_roof_solar_panels: ['HasSolarPanels'],
+    roof_aspect_area_direction: ['North', 'NorthEast', 'SouthWest'],
 };
 
 describe('DataService', () => {
