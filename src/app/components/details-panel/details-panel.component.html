@@ -168,7 +168,7 @@
             <dt>Roof area indeterminable (m²):</dt>
             <dd>
                 @if (building.RoofAspectAreaIndeterminable) {
-                    {{ building.RoofAspectAreaIndeterminable }} m²
+                    {{ formatRoofAreaIndeterminable(building) }} m²
                 } @else {
                     No data
                 }
