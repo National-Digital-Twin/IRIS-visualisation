@@ -136,8 +136,6 @@ export class MapBoxService implements MapService<mapboxgl.Map> {
                     url = transformUrlForProxy(host, url, 'os', 'key');
                 } else if (url.indexOf('api.mapbox.com') > -1) {
                     url = transformUrlForProxy(host, url, 'mapbox-api', 'access_token');
-                } else if (url.indexOf('maptiler') > -1) {
-                    url = transformUrlForProxy(host, url, 'maptiler', 'key');
                 } else if (url.indexOf('events.mapbox.com') > -1) {
                     url = transformUrlForProxy(host, url, 'mapbox-events', 'access_token');
                 }
