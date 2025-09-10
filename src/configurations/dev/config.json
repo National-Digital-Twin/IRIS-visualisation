@@ -18,7 +18,7 @@
     },
     "map": {
         "style": {
-            "light": "https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Light.json",
+            "light": "https://api.maptiler.com/maps/basic-v2/style.json",
             "dark": "https://raw.githubusercontent.com/OrdnanceSurvey/OS-Vector-Tile-API-Stylesheets/master/OS_VTS_3857_Dark.json"
         },
         "zoom": 6,

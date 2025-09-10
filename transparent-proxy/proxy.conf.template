@@ -55,6 +55,24 @@ server {
         proxy_pass https://api.os.uk/$requested_path?$args$api_key_qs;
     }
 
+    # Maptiler
+    location /transparent-proxy/maptiler/ {
+        set $delimeter "?";
+
+        if ($is_args) {
+            set $delimeter "&";
+        }
+
+        set $access_token_qs ${delimeter}key=$MAPTILER_API_KEY;
+
+        if ($request_uri ~ ^/transparent-proxy/maptiler/(.*)) {
+            set $requested_path $1;
+        }
+        proxy_ssl_server_name on;
+        proxy_ssl_name "api.maptiler.com";
+        proxy_pass https://api.maptiler.com/$requested_path$access_token_qs;
+    }
+
     # Mapbox
     location /transparent-proxy/mapbox-api/ {
         set $delimeter "?";
