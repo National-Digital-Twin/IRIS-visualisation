@@ -157,12 +157,13 @@ export class DetailsPanelComponent implements OnInit {
     }
 
     public formatRoofAreaIndeterminable(building?: BuildingModel): string {
-        if (!building || !building.RoofAspectAreaIndeterminable) return '';
-        const n = Number(building.RoofAspectAreaIndeterminable);
+        const val = building?.RoofAspectAreaIndeterminable;
+        if (!val) return '';
+        const n = Number(val);
         if (!Number.isNaN(n)) {
             return String(Math.round(n));
         }
-        return building.RoofAspectAreaIndeterminable;
+        return val;
     }
 }
 
