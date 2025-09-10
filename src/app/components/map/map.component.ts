@@ -247,6 +247,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         if (layer) {
             if (this.layerStates.epc[type]) {
                 layer.hide();
+                this.hideOutlineLayer(`${layerId}-outline`);
                 this.layerStates.epc[type] = false;
             } else {
                 this.hideAllLayers();
@@ -263,6 +264,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         if (layer) {
             if (this.layerStates.windDrivenRain[type]) {
                 layer.hide();
+                this.hideOutlineLayer(`${layerId}-outline`);
                 this.layerStates.windDrivenRain[type] = false;
             } else {
                 this.hideAllLayers();
@@ -279,6 +281,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         if (layer) {
             if (this.layerStates.icingDays) {
                 layer.hide();
+                this.hideOutlineLayer(`${layerId}-outline`);
                 this.layerStates.icingDays = false;
             } else {
                 this.hideAllLayers();
@@ -295,6 +298,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         if (layer) {
             if (this.layerStates.hotSummerDays) {
                 layer.hide();
+                this.hideOutlineLayer(`${layerId}-outline`);
                 this.layerStates.hotSummerDays = false;
             } else {
                 this.hideAllLayers();
@@ -350,11 +354,15 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             if (layer) {
                 layer.hide();
             }
-            const outlineLayer = this.mapInstance.getLayer(outlineLayerId);
-            if (outlineLayer) {
-                this.mapInstance.removeLayer(outlineLayerId);
-            }
+            this.hideOutlineLayer(outlineLayerId);
             setState(false);
+        }
+    }
+
+    private hideOutlineLayer(layerId: string): void {
+        const outlineLayer = this.mapInstance.getLayer(layerId);
+        if (outlineLayer) {
+            this.mapInstance.removeLayer(layerId);
         }
     }
 
