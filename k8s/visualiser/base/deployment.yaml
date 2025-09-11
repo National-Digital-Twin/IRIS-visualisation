@@ -19,8 +19,6 @@ spec:
         - envFrom:
                - configMapRef:
                    name: iris-visualiser-configs
-               - secretRef:
-                   name: iris-visualiser-secrets
           livenessProbe:
             exec:
               command:
