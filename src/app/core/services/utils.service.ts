@@ -409,7 +409,7 @@ export class UtilService {
                         if (key === 'HasRoofSolarPanels') {
                             mappedKeys = removeQuotes?.map((f) => {
                                 if (f === 'HasSolarPanels') return 'true';
-                                else if (f === 'HasNoSolarPanels') return 'false';
+                                else if (f === 'NoSolarPanels') return 'false';
                                 return '';
                             });
                         }
