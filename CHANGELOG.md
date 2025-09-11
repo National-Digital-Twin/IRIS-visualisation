@@ -14,9 +14,31 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
  ---
 
-## Unreleased
+## [0.93.0] - 2025-09-11
 
-- Added os roof data to the advanced filters
+### Features
+
+- [DPAV-1684]: Added OS roof data to advanced filters
+- [DPAV-1594]: OS NGD buildings PostGIS fallback
+- [DPAV-1455]: Facilitated other EPC layers
+- [DPAV-1291]: UI and proxy changes for OS NGD buildings data
+- [DPAV-1456]: Added nationwide ward layer
+- [DPAV-1663]: Updated tooltip location on popouts
+- [DPAV-1291]: Added climate data layers
+- [DPAV-1493]: Added wind-driven rain and other placeholder layers
+- [DPAV-1452]: Toggling of future layers
+
+### Bugfixes
+
+- [DPAV-1684]: Fixed clear filters and EPC chart styling
+- [DPAV-1487]: Removed outline when deselecting a layer
+- [DPAV-1488]: Fixed highlighting for selected polygons
+
+### Other
+
+- [OSPO]: Move to unprivileged NGINX containers
+- Added additional resources for local development
+- Reverted visualiser secret
 
 ## [0.92.1] - 2025-07-22
 
