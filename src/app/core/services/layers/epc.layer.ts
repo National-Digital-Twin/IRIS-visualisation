@@ -177,11 +177,15 @@ export class EPCLayer extends AbstractBaseLayer {
             { rating: 'none', count: properties.epc_null || 0 },
         ];
 
+        const numberPropertiesWithEpc =
+            properties.epc_a + properties.epc_b + properties.epc_c + properties.epc_d + properties.epc_e + properties.epc_f + properties.epc_g;
+        const percentageCompleteness = (numberPropertiesWithEpc / (numberPropertiesWithEpc + properties.epc_null)) * 100;
+
         const histogram = this.createHistogram(epcRatings);
 
         return `
             <div class="popup">
-                <h3>${properties.name}</h3>
+                <h3>${properties.name} (${Math.ceil(percentageCompleteness)}% with EPCs)</h3>
                 ${histogram}
                 <p class="footnote">* Mix of domestic and commercial buildings. Excluded from ${this.epcType} visualisation.</p>
             </div>
