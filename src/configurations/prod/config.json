@@ -4,15 +4,6 @@
     "addressSearch": {
         "maxResults": 100
     },
-    "cache": {
-        "epc": "/assets/data/epc-data.json",
-        "sap": "/assets/data/SAP-data.json",
-        "nonEpc": "/assets/data/non-epc-data.json"
-    },
-    "companyLogo": {
-        "light": "assets/NDTP-HM-02-highres.png",
-        "dark": "assets/NDTP-HM-04-highres.png"
-    },
     "minimap": {
         "zoom": 8
     },

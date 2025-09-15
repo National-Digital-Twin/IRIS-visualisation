@@ -15,11 +15,6 @@ export interface RuntimeConfigurationModel {
     addressSearch: {
         maxResults: number;
     };
-    cache: {
-        epc: string;
-        sap: string;
-        nonEpc: string;
-    };
     /* Mapbox minimap config */
     minimap: {
         zoom: number;
@@ -32,8 +27,6 @@ export interface RuntimeConfigurationModel {
     epcColours: Record<string, string>;
     /** EPC Colours - Colour Deficient*/
     epcColoursCD: Record<string, string>;
-    /* Company logo */
-    companyLogo: Record<Theme, string>;
     /* Map context layers */
 }
 

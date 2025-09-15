@@ -50,65 +50,67 @@
                 <img class="icon" src="assets/icons/legend-toggle.svg" alt="Legend" />
             </button>
             @if (showLegend()) {
-                <c477-legend [layerState]="layerStates" />
+                <c477-legend [layerState]="legendLayerState()" />
             }
         </div>
-        <div class="control-group">
-            <button mat-mini-fab class="control" [matMenuTriggerFor]="layersMenu" matTooltip="Layers" [class.active]="activeLayersCount > 0">
-                <mat-icon>layers</mat-icon>
-            </button>
-            <mat-menu #layersMenu="matMenu" class="layers-menu" xPosition="before" [overlapTrigger]="false">
-                <div>
-                    <button mat-menu-item [matMenuTriggerFor]="epcSubmenu">
-                        <mat-icon>bar_chart</mat-icon>
-                        <span>EPC ratings</span>
-                    </button>
-                    <mat-menu #epcSubmenu="matMenu" class="layers-submenu" [overlapTrigger]="false" xPosition="before">
-                        <button mat-menu-item (click)="toggleEpcLayer('region')" [class.active]="layerStates.epc.region">
-                            <span>Regions</span>
+        @if (showLayersAndControls()) {
+            <div class="control-group">
+                <button mat-mini-fab class="control" [matMenuTriggerFor]="layersMenu" matTooltip="Layers" [class.active]="activeLayersCount > 0">
+                    <mat-icon>layers</mat-icon>
+                </button>
+                <mat-menu #layersMenu="matMenu" class="layers-menu" xPosition="before" [overlapTrigger]="false">
+                    <div>
+                        <button mat-menu-item [matMenuTriggerFor]="epcSubmenu">
+                            <mat-icon>bar_chart</mat-icon>
+                            <span>EPC ratings</span>
                         </button>
-                        <button mat-menu-item (click)="toggleEpcLayer('county')" [class.active]="layerStates.epc.county">
-                            <span>Counties</span>
-                        </button>
-                        <button mat-menu-item (click)="toggleEpcLayer('district')" [class.active]="layerStates.epc.district">
-                            <span>Districts</span>
-                        </button>
-                        <button mat-menu-item (click)="toggleEpcLayer('ward')" [class.active]="layerStates.epc.ward">
-                            <span>Wards</span>
-                        </button>
-                    </mat-menu>
-                </div>
+                        <mat-menu #epcSubmenu="matMenu" class="layers-submenu" [overlapTrigger]="false" xPosition="before">
+                            <button mat-menu-item (click)="toggleEpcLayer('region')" [class.active]="layerStates.epc.region">
+                                <span>Regions</span>
+                            </button>
+                            <button mat-menu-item (click)="toggleEpcLayer('county')" [class.active]="layerStates.epc.county">
+                                <span>Counties</span>
+                            </button>
+                            <button mat-menu-item (click)="toggleEpcLayer('district')" [class.active]="layerStates.epc.district">
+                                <span>Districts</span>
+                            </button>
+                            <button mat-menu-item (click)="toggleEpcLayer('ward')" [class.active]="layerStates.epc.ward">
+                                <span>Wards</span>
+                            </button>
+                        </mat-menu>
+                    </div>
 
-                <div>
-                    <button mat-menu-item [matMenuTriggerFor]="windRainSubmenu">
-                        <mat-icon>air</mat-icon>
-                        <span>Wind-driven rain</span>
-                    </button>
-                    <mat-menu #windRainSubmenu="matMenu" class="layers-submenu" [overlapTrigger]="false" xPosition="before">
-                        <button mat-menu-item (click)="toggleWindDrivenRainLayer('twoDegree')" [class.active]="layerStates.windDrivenRain.twoDegree">
-                            <span>2°C warming</span>
+                    <div>
+                        <button mat-menu-item [matMenuTriggerFor]="windRainSubmenu">
+                            <mat-icon>air</mat-icon>
+                            <span>Wind-driven rain</span>
                         </button>
-                        <button mat-menu-item (click)="toggleWindDrivenRainLayer('fourDegree')" [class.active]="layerStates.windDrivenRain.fourDegree">
-                            <span>4°C warming</span>
+                        <mat-menu #windRainSubmenu="matMenu" class="layers-submenu" [overlapTrigger]="false" xPosition="before">
+                            <button mat-menu-item (click)="toggleWindDrivenRainLayer('twoDegree')" [class.active]="layerStates.windDrivenRain.twoDegree">
+                                <span>2°C warming</span>
+                            </button>
+                            <button mat-menu-item (click)="toggleWindDrivenRainLayer('fourDegree')" [class.active]="layerStates.windDrivenRain.fourDegree">
+                                <span>4°C warming</span>
+                            </button>
+                        </mat-menu>
+                    </div>
+
+                    <div>
+                        <button mat-menu-item (click)="toggleIcingDaysLayer()" [class.active]="layerStates.icingDays">
+                            <mat-icon>ac_unit</mat-icon>
+                            <span>Icing days</span>
                         </button>
-                    </mat-menu>
-                </div>
+                    </div>
 
-                <div>
-                    <button mat-menu-item (click)="toggleIcingDaysLayer()" [class.active]="layerStates.icingDays">
-                        <mat-icon>ac_unit</mat-icon>
-                        <span>Icing days</span>
-                    </button>
-                </div>
-
-                <div>
-                    <button mat-menu-item (click)="toggleHotSummerDaysLayer()" [class.active]="layerStates.hotSummerDays">
-                        <mat-icon>thermostat</mat-icon>
-                        <span>Hot summer days (30°C+)</span>
-                    </button>
-                </div>
-            </mat-menu>
-        </div>
+                    <div>
+                        <button mat-menu-item (click)="toggleHotSummerDaysLayer()" [class.active]="layerStates.hotSummerDays">
+                            <mat-icon>thermostat</mat-icon>
+                            <span>Hot summer days (30°C+)</span>
+                        </button>
+                    </div>
+                </mat-menu>
+            </div>
+        }
     </div>
     <div class="map-controls bottom">
         <div class="control-group">

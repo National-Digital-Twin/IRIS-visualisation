@@ -47,22 +47,35 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     public twoDimensions: boolean = false;
 
     public layersMenuOpen: boolean = false;
-    public layerStates: LayerState = {
-        epc: {
-            region: false,
-            county: false,
-            district: false,
-            ward: false,
-        },
-        windDrivenRain: {
-            twoDegree: false,
-            fourDegree: false,
-        },
-        icingDays: false,
-        hotSummerDays: false,
-    };
+    public layerStates: LayerState = this.getDefaultLayerState();
 
     public showLegend = computed(() => this.#uiStateService.showLegend());
+    public showLayersAndControls = computed(() => this.#uiStateService.showLayersAndControls());
+
+    public legendLayerState = computed(() => {
+        if (this.showLayersAndControls()) {
+            return this.layerStates;
+        }
+
+        return this.getDefaultLayerState();
+    });
+
+    private getDefaultLayerState(): LayerState {
+        return {
+            epc: {
+                region: false,
+                county: false,
+                district: false,
+                ward: false,
+            },
+            windDrivenRain: {
+                twoDegree: false,
+                fourDegree: false,
+            },
+            icingDays: false,
+            hotSummerDays: false,
+        };
+    }
 
     public toggleLegend(): void {
         this.#uiStateService.toggleLegend();
@@ -188,6 +201,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.#mapService.mapInstance.once('idle', () => {
             // Load buildings for the initial viewport
             this.loadBuildingsForCurrentViewport();
+
+            // Set initial layer controls and layer visibility based on initial zoom level
+            const initialZoom = this.#mapService.mapInstance.getZoom();
+            this.#uiStateService.setLayersAndControlsVisibility(initialZoom < 16);
+            this.updateLayersVisibility();
         });
 
         /** update the minimap as the map moves */
@@ -202,6 +220,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             if (zoom < 16) {
                 this.#dataService.clearBuildingsCache();
             }
+            this.#uiStateService.setLayersAndControlsVisibility(zoom < 16);
+            this.updateLayersVisibility();
         });
     }
 
@@ -254,6 +274,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                 layer.show();
                 this.layerStates.epc[type] = true;
             }
+            this.updateLayersVisibility();
         }
     }
 
@@ -271,6 +292,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                 layer.show();
                 this.layerStates.windDrivenRain[type] = true;
             }
+            this.updateLayersVisibility();
         }
     }
 
@@ -288,6 +310,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                 layer.show();
                 this.layerStates.icingDays = true;
             }
+            this.updateLayersVisibility();
         }
     }
 
@@ -305,6 +328,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                 layer.show();
                 this.layerStates.hotSummerDays = true;
             }
+            this.updateLayersVisibility();
         }
     }
 
@@ -452,6 +476,19 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                 });
             }
         }
+    }
+
+    private updateLayersVisibility(): void {
+        const shouldShowLayers = this.showLayersAndControls();
+        const visibleLayers = this.#layerFactory.getVisibleLayers();
+
+        visibleLayers.forEach((layer) => {
+            if (shouldShowLayers) {
+                this.#mapService.mapInstance.setLayoutProperty(layer.id, 'visibility', 'visible');
+            } else {
+                this.#mapService.mapInstance.setLayoutProperty(layer.id, 'visibility', 'none');
+            }
+        });
     }
 }
 
