@@ -4,6 +4,7 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
@@ -28,6 +29,7 @@ import { RoofShape } from '@core/enums/roof-shape';
 import { SolarPanelPresence } from '@core/enums/solar-panel-presence';
 import { BuildingModel } from '@core/models/building.model';
 import { DownloadDataWarningData, DownloadDataWarningResponse } from '@core/models/download-data-warning.model';
+import { ClimateWarningService } from '@core/services/climate-warning.service';
 import { DataService } from '@core/services/data.service';
 import { UtilService } from '@core/services/utils.service';
 import { EMPTY, switchMap } from 'rxjs';
@@ -41,6 +43,7 @@ import { EMPTY, switchMap } from 'rxjs';
         NgTemplateOutlet,
         MatButtonModule,
         MatDividerModule,
+        MatExpansionModule,
         MatIconModule,
         MatProgressBarModule,
         MatTabsModule,
@@ -52,6 +55,7 @@ import { EMPTY, switchMap } from 'rxjs';
     styleUrl: './details-panel.component.scss',
 })
 export class DetailsPanelComponent implements OnInit {
+    readonly #climateWarningService = inject(ClimateWarningService);
     readonly #dataService = inject(DataService);
     readonly #dialog = inject(MatDialog);
     readonly #utilService = inject(UtilService);
@@ -68,6 +72,9 @@ export class DetailsPanelComponent implements OnInit {
     public builtForm: Record<string, string> = BuiltForm;
     public buildingDetails = this.#dataService.selectedBuilding;
     public buildingSelection = this.#dataService.buildingsSelection;
+    public climateWarnings$ = toObservable(this.buildingDetails).pipe(
+        switchMap((building) => (building ? this.#climateWarningService.getClimateWarnings(building) : EMPTY)),
+    );
     public flagHistory$ = toObservable(this.#dataService.flagHistory);
     public floor: Record<string, string> = FloorConstruction;
     public floorInsulation: Record<string, string> = FloorInsulation;

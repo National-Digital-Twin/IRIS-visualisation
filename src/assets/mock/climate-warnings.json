@@ -1,0 +1,85 @@
+{
+    "warnings": [
+        {
+            "id": "wind_rain_4c",
+            "title": "Wind-driven rain - 4°C warming",
+            "summary": "Within an area of high wind-driven rain",
+            "data": {
+                "type": "table",
+                "headers": ["Wall orientation", "Wind-driven rain index (mm/year)"],
+                "values": [
+                    [ "North", 118.002 ],
+                    [ "North east", 129.919 ],
+                    [ "East", 136.962 ],
+                    [ "South east", 260.594 ],
+                    [ "South", 729.127 ],
+                    [ "South west", 1049.05 ],
+                    [ "West", 837.846 ],
+                    [ "North west", 323.919 ]
+                ]
+            }
+        },
+        {
+            "id": "wind_rain_2c",
+            "title": "Wind-driven rain - 2°C warming",
+            "summary": "Near an area of high wind-driven rain",
+            "data": {
+                "type": "table",
+                "headers": ["Wall orientation", "Wind-driven rain index (mm/year)"],
+                "values": [
+                    [ "North", 95.5 ],
+                    [ "North east", 105.2 ],
+                    [ "East", 110.8 ],
+                    [ "South east", 210.3 ],
+                    [ "South", 590.1 ],
+                    [ "South west", 848.7 ],
+                    [ "West", 677.2 ],
+                    [ "North west", 261.8 ]
+                ]
+            }
+        },
+        {
+            "id": "icing_days",
+            "title": "Icing days",
+            "summary": "Within an area of many icing days",
+            "data": {
+                "type": "list",
+                "values": [
+                    { "label": "Average days per year", "value": "45 days" },
+                    { "label": "Projected increase", "value": "12 days" },
+                    { "label": "Risk level", "value": "High" }
+                ]
+            }
+        },
+        {
+            "id": "hot_summer_days",
+            "title": "Hot summer days",
+            "summary": "Within an area of many hot summer days",
+            "data": {
+                "type": "list",
+                "values": [
+                    { "label": "Average days per year", "value": "28 days" },
+                    { "label": "Projected increase", "value": "15 days" },
+                    { "label": "Temperature threshold", "value": "25°C" },
+                    { "label": "Risk level", "value": "High" }
+                ]
+            }
+        },
+        {
+            "id": "sunlight_hours",
+            "title": "Hours of sunlight",
+            "summary": "Near an area of low sunlight hours",
+            "data": {
+                "type": "list",
+                "values": [
+                    { "label": "Average hours per day", "value": "4.2 hours" },
+                    { "label": "Winter", "value": "2.1 hours" },
+                    { "label": "Spring", "value": "5.8 hours" },
+                    { "label": "Summer", "value": "7.2 hours" },
+                    { "label": "Autumn", "value": "3.5 hours" },
+                    { "label": "Risk level", "value": "Medium" }
+                ]
+            }
+        }
+    ]
+}

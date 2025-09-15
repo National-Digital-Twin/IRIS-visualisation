@@ -34,6 +34,10 @@
                         @let flagHistory = flagHistory$ | async;
                         <ng-container [ngTemplateOutlet]="flagging" [ngTemplateOutletContext]="{ activeFlag: activeFlag, flagHistory: flagHistory }" />
                     </mat-tab>
+                    <mat-tab label="Warning">
+                        @let climateWarnings = climateWarnings$ | async;
+                        <ng-container [ngTemplateOutlet]="warning" [ngTemplateOutletContext]="{ climateWarnings: climateWarnings }" />
+                    </mat-tab>
                 </mat-tab-group>
             </div>
 
@@ -265,6 +269,87 @@
             }
         } @else {
             <p class="no-flag">There are no flags for this dwelling</p>
+        }
+    </div>
+</ng-template>
+
+<ng-template let-climateWarnings="climateWarnings" #warning>
+    <div class="warning">
+        @if (climateWarnings) {
+            <p class="disclaimer">
+                <em>Based on forecasted data, use at your own discretion.</em>
+            </p>
+
+            <mat-accordion>
+                @for (warning of climateWarnings.warnings; track warning.id) {
+                    <mat-expansion-panel>
+                        <mat-expansion-panel-header>
+                            <div class="panel-content">
+                                <mat-panel-title>
+                                    {{ warning.title }}
+                                </mat-panel-title>
+                                <mat-panel-description>
+                                    {{ warning.summary }}
+                                </mat-panel-description>
+                            </div>
+                        </mat-expansion-panel-header>
+
+                        @if (warning.data) {
+                            @switch (warning.data.type) {
+                                @case ('table') {
+                                    <div class="data-table">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    @for (header of warning.data.headers; track header) {
+                                                        <th>{{ header }}</th>
+                                                    }
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @for (row of warning.data.values; track $index) {
+                                                    <tr>
+                                                        @for (value of row; track $index) {
+                                                            <td>{{ value }}</td>
+                                                        }
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
+                                @case ('list') {
+                                    <div class="data-list">
+                                        <dl>
+                                            @for (item of warning.data.values; track item.label) {
+                                                <dt>{{ item.label }}:</dt>
+                                                <dd>{{ item.value }}</dd>
+                                            }
+                                        </dl>
+                                    </div>
+                                }
+                            }
+                        }
+                    </mat-expansion-panel>
+                }
+                <mat-expansion-panel>
+                    <mat-expansion-panel-header>
+                        <div class="panel-content">
+                            <mat-panel-title>Guidance</mat-panel-title>
+                        </div>
+                    </mat-expansion-panel-header>
+                    <div class="guidance-content">
+                        <p>To visually see the areas of each weather type, click the 'layers' button on the right-hand side</p>
+                        <mat-icon class="layers-icon">layers</mat-icon>
+                        <p>
+                            A property is 'within' an area if it falls inside a square that experiences extreme weather. A property is 'near' an area if any of
+                            the 8 surrounding squares experience extreme weather.
+                        </p>
+                    </div>
+                </mat-expansion-panel>
+            </mat-accordion>
+        } @else {
+            <mat-progress-bar mode="indeterminate" />
         }
     </div>
 </ng-template>
