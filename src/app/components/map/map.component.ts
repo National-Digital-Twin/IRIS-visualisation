@@ -1,5 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, Component, computed, inject, input, InputSignal, OnDestroy, output, OutputEmitterRef } from '@angular/core';
+import {
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    ElementRef,
+    HostListener,
+    inject,
+    input,
+    InputSignal,
+    OnDestroy,
+    output,
+    OutputEmitterRef,
+} from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
@@ -41,6 +54,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     readonly #filterableBuildingService = inject(FilterableBuildingService);
     readonly #layerFactory = inject(LayerFactoryService);
     readonly #uiStateService = inject(UiStateService);
+    readonly #elementRef = inject(ElementRef);
 
     public bearing: number = 0;
     public drawActive: boolean = false;
@@ -489,6 +503,19 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                 this.#mapService.mapInstance.setLayoutProperty(layer.id, 'visibility', 'none');
             }
         });
+    }
+
+    @HostListener('document:click', ['$event'])
+    public onDocumentClick(event: Event): void {
+        if (this.#uiStateService.showLegend()) {
+            const target = event.target as HTMLElement;
+            const legendElement = this.#elementRef.nativeElement.querySelector('c477-legend');
+            const legendButton = this.#elementRef.nativeElement.querySelector('button[matTooltip="Legend"]');
+
+            if (legendElement && !legendElement.contains(target) && !legendButton?.contains(target)) {
+                this.#uiStateService.toggleLegend();
+            }
+        }
     }
 }
 
