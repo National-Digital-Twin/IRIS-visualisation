@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
     ChangeDetectionStrategy,
+    ChangeDetectorRef,
     Component,
     computed,
     ElementRef,
@@ -46,15 +47,16 @@ import { map, skip, take } from 'rxjs';
     providers: [{ provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: { position: 'before' } }],
 })
 export class MapComponent implements AfterViewInit, OnDestroy {
-    readonly #settings = inject(SettingsService);
-    readonly #mapService = inject(MAP_SERVICE);
-    readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
-    readonly #utilsService = inject(UtilService);
+    readonly #changeDetectorRef = inject(ChangeDetectorRef);
     readonly #dataService = inject(DataService);
+    readonly #elementRef = inject(ElementRef);
     readonly #filterableBuildingService = inject(FilterableBuildingService);
     readonly #layerFactory = inject(LayerFactoryService);
+    readonly #mapService = inject(MAP_SERVICE);
+    readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
+    readonly #settings = inject(SettingsService);
     readonly #uiStateService = inject(UiStateService);
-    readonly #elementRef = inject(ElementRef);
+    readonly #utilsService = inject(UtilService);
 
     public bearing: number = 0;
     public drawActive: boolean = false;
@@ -216,10 +218,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             // Load buildings for the initial viewport
             this.loadBuildingsForCurrentViewport();
 
-            // Set initial layer controls and layer visibility based on initial zoom level
             const initialZoom = this.#mapService.mapInstance.getZoom();
             this.#uiStateService.setLayersAndControlsVisibility(initialZoom < 16);
             this.updateLayersVisibility();
+
+            this.activateEpcLayer('district');
+            this.#changeDetectorRef.detectChanges();
         });
 
         /** update the minimap as the map moves */
@@ -288,6 +292,18 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                 layer.show();
                 this.layerStates.epc[type] = true;
             }
+            this.updateLayersVisibility();
+        }
+    }
+
+    public activateEpcLayer(type: 'region' | 'county' | 'district' | 'ward'): void {
+        const layerId = `epc-${type}-layer`;
+        const layer = this.#layerFactory.getLayer(layerId);
+
+        if (layer && !this.layerStates.epc[type]) {
+            this.hideAllLayers();
+            layer.show();
+            this.layerStates.epc[type] = true;
             this.updateLayersVisibility();
         }
     }
