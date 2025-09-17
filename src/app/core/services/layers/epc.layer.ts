@@ -1,3 +1,4 @@
+import { NumberPipe } from '@core/pipes/number.pipe';
 import { FeatureCollection, Geometry } from 'geojson';
 import * as mapboxgl from 'mapbox-gl';
 import { FillLayerSpecification, LayerSpecification, MapMouseEvent } from 'mapbox-gl';
@@ -193,6 +194,7 @@ export class EPCLayer extends AbstractBaseLayer {
     }
 
     private createHistogram(epcRatings: Array<{ rating: string; count: number }>): string {
+        const numberPipe = new NumberPipe();
         const maxValue = Math.max(...epcRatings.map((r) => r.count));
         const labels: string[] = [];
         const histogram = epcRatings.map((r) => {
@@ -201,7 +203,7 @@ export class EPCLayer extends AbstractBaseLayer {
             labels.push(label);
             return `
                 <div class="bar" style="height: calc(${height}% + 5px)">
-                    <span class="rating">${r.count}</span>
+                    <span class="rating">${numberPipe.transform(r.count)}</span>
                     <div class="line" style="background: ${this.getEPCColour(r.rating)}"></div>
                 </div>
             `;
