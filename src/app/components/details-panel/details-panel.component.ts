@@ -139,10 +139,10 @@ export class DetailsPanelComponent implements OnInit {
             if (!Number.isNaN(n)) {
                 if (n === 0) return; // skip zeros
                 const rounded = Math.round(n);
-                entries.push(`${rounded} m² ${dir}`);
+                entries.push(`${rounded}m² ${dir}`);
             } else {
                 // Non-numeric value; include as-is
-                entries.push(`${value} m² ${dir}`);
+                entries.push(`${value}m² ${dir}`);
             }
         };
         add('North', building.RoofAspectAreaNorth);
@@ -153,17 +153,8 @@ export class DetailsPanelComponent implements OnInit {
         add('South West', building.RoofAspectAreaSouthwest);
         add('West', building.RoofAspectAreaWest);
         add('North West', building.RoofAspectAreaNorthwest);
+        add('Unknown', building.RoofAspectAreaIndeterminable);
         return entries.join(', ');
-    }
-
-    public formatRoofAreaIndeterminable(building?: BuildingModel): string {
-        const val = building?.RoofAspectAreaIndeterminable;
-        if (!val) return '';
-        const n = Number(val);
-        if (!Number.isNaN(n)) {
-            return String(Math.round(n));
-        }
-        return val;
     }
 }
 
