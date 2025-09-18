@@ -165,15 +165,6 @@
                 }
             </dd>
 
-            <dt>Roof area indeterminable (m²):</dt>
-            <dd>
-                @if (building.RoofAspectAreaIndeterminable) {
-                    {{ formatRoofAreaIndeterminable(building) }} m²
-                } @else {
-                    No data
-                }
-            </dd>
-
             <dt>Wall construction:</dt>
             <dd>
                 @if (building.WallConstruction && wall[building!.WallConstruction!]) {

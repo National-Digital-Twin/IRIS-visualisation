@@ -60,7 +60,8 @@
                 </button>
                 <mat-menu #layersMenu="matMenu" class="layers-menu" xPosition="before" [overlapTrigger]="false">
                     <div>
-                        <button mat-menu-item [matMenuTriggerFor]="epcSubmenu">
+                        @let isEpcActive = layerStates.epc.region || layerStates.epc.county || layerStates.epc.district || layerStates.epc.ward;
+                        <button mat-menu-item [matMenuTriggerFor]="epcSubmenu" [class.active]="isEpcActive">
                             <mat-icon>bar_chart</mat-icon>
                             <span>EPC ratings</span>
                         </button>
@@ -81,7 +82,8 @@
                     </div>
 
                     <div>
-                        <button mat-menu-item [matMenuTriggerFor]="windRainSubmenu">
+                        @let isWindDrivenRainActive = layerStates.windDrivenRain.twoDegree || layerStates.windDrivenRain.fourDegree;
+                        <button mat-menu-item [matMenuTriggerFor]="windRainSubmenu" [class.active]="isWindDrivenRainActive">
                             <mat-icon>air</mat-icon>
                             <span>Wind-driven rain</span>
                         </button>
