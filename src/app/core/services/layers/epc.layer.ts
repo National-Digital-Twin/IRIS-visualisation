@@ -186,9 +186,9 @@ export class EPCLayer extends AbstractBaseLayer {
 
         return `
             <div class="popup">
-                <h3>${properties.name} (${Math.ceil(percentageCompleteness)}% with EPCs)</h3>
+                <h3>${properties.name} EPC ratings (${Math.ceil(percentageCompleteness)}% with EPCs)</h3>
                 ${histogram}
-                <p class="footnote">Domestic dwellings only. </p>
+                <p class="footnote">*Excluded from ${this.epcType} visualisation.</p>
             </div>
         `;
     }
@@ -199,7 +199,7 @@ export class EPCLayer extends AbstractBaseLayer {
         const labels: string[] = [];
         const histogram = epcRatings.map((r) => {
             const height = (r.count / maxValue) * 100;
-            const label = `<span>${r.rating === 'none' ? 'No EPC' : r.rating}</span>`;
+            const label = `<span>${r.rating === 'none' ? 'No EPC*' : r.rating}</span>`;
             labels.push(label);
             return `
                 <div class="bar" style="height: calc(${height}% + 5px)">
