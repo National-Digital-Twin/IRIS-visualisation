@@ -113,6 +113,19 @@
                 </mat-menu>
             </div>
         }
+        <div class="control-group">
+            <button mat-mini-fab class="control" [matMenuTriggerFor]="dashboardsMenu" matTooltip="Dashboard">
+                <mat-icon>bar_chart</mat-icon>
+            </button>
+            <mat-menu #dashboardsMenu="matMenu" xPosition="before" [overlapTrigger]="false" class="layers-menu">
+                <a mat-menu-item routerLink="/dashboards/plotly">
+                    <span>Plotly</span>
+                </a>
+                <a mat-menu-item routerLink="/dashboards/other">
+                    <span>Other</span>
+                </a>
+            </mat-menu>
+        </div>
     </div>
     <div class="map-controls bottom">
         <div class="control-group">

@@ -20,6 +20,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipModule } from '@angular/material/tooltip';
+import { RouterModule } from '@angular/router';
 import { LayerState, LegendComponent } from '@components/legend/legend.component';
 import { MinimapData } from '@core/models/minimap-data.model';
 import { URLStateModel } from '@core/models/url-state.model';
@@ -40,7 +41,7 @@ import { map, skip, take } from 'rxjs';
 
 @Component({
     selector: 'c477-map',
-    imports: [CommonModule, LegendComponent, MatButtonModule, MatDividerModule, MatIconModule, MatMenuModule, MatTooltipModule],
+    imports: [CommonModule, LegendComponent, MatButtonModule, MatDividerModule, MatIconModule, MatMenuModule, MatTooltipModule, RouterModule],
     templateUrl: './map.component.html',
     styleUrl: './map.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,

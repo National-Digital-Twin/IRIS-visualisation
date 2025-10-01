@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { OtherDashboardComponent } from '@containers/other-dashboard/other-dashboard';
+import { PlotlyDashboardComponent } from '@containers/plotly-dashboard/plotly-dashboard';
 import { mapStateGuard } from '@core/guards/map-state.guard';
 import { ShellComponent } from './containers/shell/shell.component';
 
@@ -7,6 +9,14 @@ export const routes: Routes = [
         path: '',
         component: ShellComponent,
         canActivate: [mapStateGuard],
+    },
+    {
+        path: 'dashboards/plotly',
+        component: PlotlyDashboardComponent,
+    },
+    {
+        path: 'dashboards/other',
+        component: OtherDashboardComponent,
     },
 ];
 
