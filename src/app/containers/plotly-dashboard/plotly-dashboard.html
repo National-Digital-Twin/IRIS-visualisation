@@ -1,7 +1,52 @@
+<mat-toolbar class="toolbar-container">
+    <h1 class="logo">
+        <img src="/assets/iris-logo.svg" alt="NDTP Logo" />
+        <span>IRIS</span>
+    </h1>
+</mat-toolbar>
+
 <div class="plotly-dashboard">
-  <h1>Plotly dashboard</h1>
-  <button matButton="filled" (click)='this.handleReturnToMapView()'>
-    <mat-icon>map_search</mat-icon>
-    <span>Return to map view</span>
-  </button>
+    <header class="dashboard-header">
+        <h1>Statistics - Demo</h1>
+        <button mat-raised-button color="primary" (click)="handleReturnToMapView()">
+            <mat-icon>arrow_back</mat-icon>
+            <span>Return to map view</span>
+        </button>
+    </header>
+
+    <div class="dashboard-grid">
+        <section class="widget-card">
+            <div class="widget-header">
+                <div class="widget-title">
+                    Percentage of buildings with
+                    <mat-form-field appearance="outline" class="inline-select">
+                        <mat-select [value]="selectedCharacteristic()" (selectionChange)="onCharacteristicChange($event.value)">
+                            @for (option of characteristicOptions; track option.value) {
+                            <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                    per region
+                </div>
+            </div>
+
+            <div class="chart-wrapper">
+                <plotly-plot [data]="characteristicsData()" [layout]="characteristicsLayout()" [config]="characteristicsConfig"> </plotly-plot>
+            </div>
+        </section>
+
+        <section class="widget-card">
+            <div class="widget-header">
+                <span class="widget-title">Average SAP score over time for selected area</span>
+            </div>
+
+            <div class="chart-wrapper">
+                <plotly-plot [data]="sapTimelineData()" [layout]="sapTimelineLayout()" [config]="sapTimelineConfig"> </plotly-plot>
+            </div>
+        </section>
+    </div>
 </div>
+
+<!-- SPDX-License-Identifier: Apache-2.0
+© Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+and is legally attributed to the Department for Business and Trade (UK) as the governing entity. -->

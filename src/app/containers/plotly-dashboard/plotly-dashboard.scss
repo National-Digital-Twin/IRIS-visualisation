@@ -1,5 +1,154 @@
+.toolbar-container {
+    .logo {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+
+        font-size: var(--mat-sys-headline-small-size);
+        font-weight: var(--mat-sys-title-medium-weight);
+        color: var(--mat-sys-surface-container-highest);
+        letter-spacing: 0.2rem;
+
+        img {
+            width: 1.5rem;
+            height: 1.5rem;
+            margin: 0.25rem;
+        }
+    }
+}
+
 .plotly-dashboard {
-  display: flex;
-  justify-content: space-between;
-  padding: 20px;
+    min-height: calc(100vh - 64px);
+    padding: 1.5rem;
+    background: white;
+}
+
+.dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+
+    h1 {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 400;
+    }
+
+    button {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+
+        mat-icon {
+            width: 20px;
+            height: 20px;
+            font-size: 20px;
+        }
+    }
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+
+    @media (max-width: 1400px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.widget-card {
+    display: flex;
+    flex-direction: column;
+
+    padding: 1.25rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+
+    background: white;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.chart-wrapper {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    width: 100%;
+
+    plotly-plot {
+        width: 100%;
+    }
+}
+
+.widget-header {
+    margin-bottom: 0.75rem;
+
+    .widget-title {
+        font-size: 0.875rem;
+        font-weight: 400;
+        line-height: 1.5;
+    }
+
+    .inline-select {
+        display: inline-block !important;
+
+        width: auto;
+        min-width: auto;
+        margin: 0 4px;
+
+        vertical-align: middle;
+
+        ::ng-deep .mat-mdc-form-field-wrapper {
+            display: inline-block;
+            margin: 0;
+            padding: 0;
+        }
+
+        ::ng-deep .mat-mdc-text-field-wrapper {
+            display: inline-flex;
+            align-items: center;
+
+            height: 22px;
+            padding: 0;
+            border: 1px solid #dddddd;
+            border-radius: 12px;
+
+            background: white;
+        }
+
+        ::ng-deep .mat-mdc-form-field-infix {
+            width: auto;
+            min-height: 22px;
+            padding: 2px 6px;
+            border: none;
+        }
+
+        ::ng-deep .mat-mdc-select {
+            display: inline-block;
+            font-size: 0.875rem;
+            font-weight: 400;
+        }
+
+        ::ng-deep .mat-mdc-select-trigger {
+            display: inline-flex;
+            align-items: center;
+            height: 22px;
+        }
+
+        ::ng-deep .mat-mdc-select-value {
+            line-height: 22px;
+        }
+
+        ::ng-deep .mat-mdc-select-arrow-wrapper,
+        ::ng-deep .mat-mdc-select-arrow,
+        ::ng-deep .mdc-notched-outline,
+        ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+            display: none;
+        }
+    }
 }
