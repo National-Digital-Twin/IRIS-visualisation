@@ -72,6 +72,10 @@
 
     background: white;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+
+    &.double-height {
+        grid-row: span 2;
+    }
 }
 
 .chart-wrapper {
@@ -150,5 +154,59 @@
         ::ng-deep .mat-mdc-form-field-subscript-wrapper {
             display: none;
         }
+
+        &.inline-select ::ng-deep .mat-mdc-select-value-text {
+            color: #333333;
+        }
+    }
+}
+
+::ng-deep .mat-mdc-select-panel {
+    min-width: 250px;
+}
+
+.overall-epc-container {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+
+    .donut-section {
+        flex: 0 0 auto;
+        height: 280px;
+    }
+
+    .bar-section {
+        flex: 1;
+        min-height: 320px;
+    }
+
+    plotly-plot {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.chart-skeleton {
+    width: 100%;
+    height: 250px;
+    border-radius: 4px;
+
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+
+    animation: loading 1.5s infinite;
+
+    &.double-skeleton {
+        height: 100%;
+        min-height: 520px;
+    }
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
     }
 }

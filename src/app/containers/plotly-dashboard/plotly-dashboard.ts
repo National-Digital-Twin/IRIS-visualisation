@@ -6,11 +6,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
-import { PlotlyDashboardMockService } from '@core/services/plotly-dashboard-mock.service';
+import { DashboardService } from '@core/services/dashboard.service';
 import { PlotlyModule } from 'angular-plotly.js';
 import { Polygon } from 'geojson';
-import type { Data, Layout, Config } from 'plotly.js-dist-min';
+import type { Config } from 'plotly.js-dist-min';
 import { Subscription } from 'rxjs';
+import { ChartBuilderService, DashboardCharts } from './chart-builder.service';
 
 @Component({
     selector: 'app-plotly-dashboard',
@@ -20,32 +21,47 @@ import { Subscription } from 'rxjs';
 })
 export class PlotlyDashboardComponent implements OnInit, OnDestroy {
     readonly #router = inject(Router);
-    readonly #service = inject(PlotlyDashboardMockService);
+    readonly #service = inject(DashboardService);
+    readonly #chartBuilder = inject(ChartBuilderService);
     readonly #subscriptions = new Subscription();
 
-    selectedCharacteristic = signal('double glazing');
-    characteristicsData = signal<Data[]>([]);
-    characteristicsLayout = signal<Partial<Layout>>({});
-    characteristicsConfig: Partial<Config> = {
-        responsive: true,
-        displayModeBar: true,
-        displaylogo: false,
-    };
+    readonly allRegions = [
+        'East Midlands',
+        'East of England',
+        'London',
+        'North East',
+        'North West',
+        'Scotland',
+        'South East',
+        'South West',
+        'Wales',
+        'West Midlands',
+        'Yorkshire and The Humber',
+    ];
 
-    sapTimelineData = signal<Data[]>([]);
-    sapTimelineLayout = signal<Partial<Layout>>({});
-    sapTimelineConfig: Partial<Config> = {
-        responsive: true,
-        displayModeBar: true,
-        displaylogo: false,
-    };
-
-    characteristicOptions = [
+    readonly characteristicOptions = [
         { value: 'double glazing', label: 'Double Glazing' },
         { value: 'triple glazing', label: 'Triple Glazing' },
         { value: 'cavity wall', label: 'Cavity Wall' },
         { value: 'solar panels', label: 'Solar Panels' },
     ];
+
+    readonly chartConfigs: Record<string, Partial<Config>> = {
+        default: { responsive: true, displayModeBar: false, displaylogo: false },
+        withToolbar: { responsive: true, displayModeBar: true, displaylogo: false },
+    };
+
+    charts = signal<DashboardCharts>({
+        epcRegion: { data: [], layout: {}, loading: true, metadata: { selectedRegions: [] } },
+        overallEPCDonut: { data: [], layout: {}, loading: true, metadata: { total: 0 } },
+        overallEPCBar: { data: [], layout: {}, loading: true, metadata: { total: 0 } },
+        characteristics: { data: [], layout: {}, loading: true, metadata: { selectedCharacteristic: '', selectedRegions: [] } },
+        sapTimeline: { data: [], layout: {}, loading: true },
+    });
+
+    selectedCharacteristic = signal('double glazing');
+    selectedRegions = signal<string[]>(['East Midlands', 'North East', 'West Midlands', 'North West']);
+    selectedEPCRegions = signal<string[]>(['North West', 'North East', 'West Midlands', 'East Midlands']);
 
     selectedArea: GeoJSON.Feature<Polygon> = {
         type: 'Feature',
@@ -59,6 +75,8 @@ export class PlotlyDashboardComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.loadCharacteristicsData();
         this.loadSapTimelineData();
+        this.loadEPCRegionData();
+        this.loadOverallEPCData();
     }
 
     ngOnDestroy(): void {
@@ -74,97 +92,75 @@ export class PlotlyDashboardComponent implements OnInit, OnDestroy {
         this.loadCharacteristicsData();
     }
 
+    onCharacteristicsRegionChange(regions: string[]): void {
+        this.selectedRegions.set(regions);
+        this.loadCharacteristicsData();
+    }
+
+    onEPCRegionChange(regions: string[]): void {
+        this.selectedEPCRegions.set(regions);
+        this.loadEPCRegionData();
+    }
+
     private loadCharacteristicsData(): void {
+        this.updateChartState('characteristics', { loading: true });
+
         const sub = this.#service.getBuildingCharacteristics(this.selectedCharacteristic()).subscribe((response) => {
-            const sortedRegions = [...response.regions].sort((a, b) => a.region_name.localeCompare(b.region_name));
-            const regionsWithPercentages = sortedRegions.map((r) => ({
-                ...r,
-                percentage: (r.count / r.total) * 100,
-            }));
+            const chartData = this.#chartBuilder.buildCharacteristicsChart(this.selectedCharacteristic(), response.regions, this.selectedRegions());
 
-            const data: Data[] = [
-                {
-                    type: 'bar',
-                    x: regionsWithPercentages.map((r) => r.region_name),
-                    y: regionsWithPercentages.map((r) => r.percentage),
-                    marker: { color: '#5729CE' },
-                    text: regionsWithPercentages.map((r) => `${Math.round(r.percentage)}%`),
-                    textposition: 'auto',
-                    textfont: { color: 'white', size: 16, family: 'Roboto, sans-serif' },
-                    hovertemplate: '<b>%{x}</b><br>%{y:.1f}%<br>(%{customdata})<extra></extra>',
-                    customdata: regionsWithPercentages.map((r) => `${r.count.toLocaleString()} of ${r.total.toLocaleString()} buildings`),
-                },
-            ];
+            this.updateChartState('characteristics', { ...chartData, loading: false });
+        });
 
-            const maxPercentage = Math.max(...regionsWithPercentages.map((r) => r.percentage));
-            const layout: Partial<Layout> = {
-                margin: { l: 40, r: 20, t: 20, b: 80 },
-                xaxis: {
-                    title: { text: '' },
-                    tickangle: 0,
-                    tickfont: { size: 11, color: '#333' },
-                    automargin: true,
-                },
-                yaxis: {
-                    title: { text: '' },
-                    range: [0, maxPercentage * 1.15],
-                    visible: false,
-                },
-                font: { family: 'Roboto, sans-serif' },
-                height: 250,
-                plot_bgcolor: 'white',
-                paper_bgcolor: 'white',
-                showlegend: false,
-            };
+        this.#subscriptions.add(sub);
+    }
 
-            this.characteristicsData.set(data);
-            this.characteristicsLayout.set(layout);
+    private loadEPCRegionData(): void {
+        this.updateChartState('epcRegion', { loading: true });
+
+        const sub = this.#service.getEPCByRegion().subscribe((regionData) => {
+            const chartData = this.#chartBuilder.buildEPCRegionChart(regionData, this.selectedEPCRegions());
+
+            this.updateChartState('epcRegion', { ...chartData, loading: false });
+        });
+
+        this.#subscriptions.add(sub);
+    }
+
+    private loadOverallEPCData(): void {
+        this.updateChartState('overallEPCDonut', { loading: true });
+        this.updateChartState('overallEPCBar', { loading: true });
+
+        const sub = this.#service.getOverallEPC().subscribe((response) => {
+            const donutData = this.#chartBuilder.buildOverallEPCDonut(response);
+            const barData = this.#chartBuilder.buildOverallEPCBar(response);
+
+            this.updateChartState('overallEPCDonut', { ...donutData, loading: false });
+            this.updateChartState('overallEPCBar', { ...barData, loading: false });
         });
 
         this.#subscriptions.add(sub);
     }
 
     private loadSapTimelineData(): void {
+        this.updateChartState('sapTimeline', { loading: true });
+
         const sub = this.#service.getSAPTimeline(this.selectedArea).subscribe((response) => {
-            const data: Data[] = [
-                {
-                    type: 'scatter',
-                    mode: 'lines',
-                    x: response.timeline.map((t) => t.year),
-                    y: response.timeline.map((t) => t.avg_sap_score),
-                    line: { color: '#000000', width: 2 },
-                    hovertemplate: '<b>%{x}</b><br>SAP Score: %{y:.1f}<br>Assessments: %{customdata}<extra></extra>',
-                    customdata: response.timeline.map((t) => t.assessment_count.toLocaleString()),
-                },
-            ];
+            const chartData = this.#chartBuilder.buildSAPTimeline(response.timeline);
 
-            const layout: Partial<Layout> = {
-                margin: { l: 50, r: 15, t: 10, b: 40 },
-                xaxis: {
-                    title: { text: '' },
-                    tickmode: 'linear',
-                    dtick: 5,
-                    showgrid: false,
-                    tickfont: { size: 9 },
-                },
-                yaxis: {
-                    title: { text: 'SAP score', font: { size: 10 } },
-                    range: [50, 100],
-                    showgrid: true,
-                    gridcolor: '#e0e0e0',
-                    tickfont: { size: 9 },
-                },
-                font: { family: 'Roboto, sans-serif', size: 10 },
-                height: 250,
-                plot_bgcolor: 'white',
-                paper_bgcolor: 'white',
-            };
-
-            this.sapTimelineData.set(data);
-            this.sapTimelineLayout.set(layout);
+            this.updateChartState('sapTimeline', { ...chartData, loading: false });
         });
 
         this.#subscriptions.add(sub);
+    }
+
+    private updateChartState<K extends keyof DashboardCharts>(chartKey: K, updates: Partial<DashboardCharts[K]>): void {
+        this.charts.update((current) => ({
+            ...current,
+            [chartKey]: {
+                ...current[chartKey],
+                ...updates,
+            },
+        }));
     }
 }
 

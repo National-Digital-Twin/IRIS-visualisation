@@ -7,7 +7,7 @@
 
 <div class="plotly-dashboard">
     <header class="dashboard-header">
-        <h1>Statistics - Demo</h1>
+        <h1>Statistics - Chart Demo</h1>
         <button mat-raised-button color="primary" (click)="handleReturnToMapView()">
             <mat-icon>arrow_back</mat-icon>
             <span>Return to map view</span>
@@ -15,6 +15,52 @@
     </header>
 
     <div class="dashboard-grid">
+        <section class="widget-card double-height">
+            <div class="widget-header">
+                <span class="widget-title">Overall EPC</span>
+            </div>
+
+            @if (charts().overallEPCDonut.loading || charts().overallEPCBar.loading) {
+            <div class="chart-skeleton double-skeleton"></div>
+            } @else {
+            <div class="overall-epc-container">
+                <div class="donut-section">
+                    <plotly-plot [data]="charts().overallEPCDonut.data" [layout]="charts().overallEPCDonut.layout" [config]="chartConfigs.default"> </plotly-plot>
+                </div>
+                <div class="bar-section">
+                    <plotly-plot [data]="charts().overallEPCBar.data" [layout]="charts().overallEPCBar.layout" [config]="chartConfigs.default"> </plotly-plot>
+                </div>
+            </div>
+            }
+        </section>
+
+        <section class="widget-card">
+            <div class="widget-header">
+                <div class="widget-title">
+                    EPC ratings by
+                    <mat-form-field appearance="outline" class="inline-select">
+                        <mat-select multiple [value]="selectedEPCRegions()" (selectionChange)="onEPCRegionChange($event.value)">
+                            <mat-select-trigger>region</mat-select-trigger>
+                            @for (region of allRegions; track region) {
+                                <mat-option [value]="region"
+                                            [disabled]="selectedEPCRegions().length === 1 && selectedEPCRegions().includes(region)">
+                                    {{ region }}
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
+
+            <div class="chart-wrapper">
+                @if (charts().epcRegion.loading) {
+                <div class="chart-skeleton"></div>
+                } @else {
+                <plotly-plot [data]="charts().epcRegion.data" [layout]="charts().epcRegion.layout" [config]="chartConfigs.default"> </plotly-plot>
+                }
+            </div>
+        </section>
+
         <section class="widget-card">
             <div class="widget-header">
                 <div class="widget-title">
@@ -22,16 +68,31 @@
                     <mat-form-field appearance="outline" class="inline-select">
                         <mat-select [value]="selectedCharacteristic()" (selectionChange)="onCharacteristicChange($event.value)">
                             @for (option of characteristicOptions; track option.value) {
-                            <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                                <mat-option [value]="option.value">{{ option.label }}</mat-option>
                             }
                         </mat-select>
                     </mat-form-field>
-                    per region
+                    per
+                    <mat-form-field appearance="outline" class="inline-select">
+                        <mat-select multiple [value]="selectedRegions()" (selectionChange)="onCharacteristicsRegionChange($event.value)">
+                            <mat-select-trigger>region</mat-select-trigger>
+                            @for (region of allRegions; track region) {
+                                <mat-option [value]="region"
+                                            [disabled]="selectedRegions().length === 1 && selectedRegions().includes(region)">
+                                    {{ region }}
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
                 </div>
             </div>
 
             <div class="chart-wrapper">
-                <plotly-plot [data]="characteristicsData()" [layout]="characteristicsLayout()" [config]="characteristicsConfig"> </plotly-plot>
+                @if (charts().characteristics.loading) {
+                <div class="chart-skeleton"></div>
+                } @else {
+                <plotly-plot [data]="charts().characteristics.data" [layout]="charts().characteristics.layout" [config]="chartConfigs.default"> </plotly-plot>
+                }
             </div>
         </section>
 
@@ -41,7 +102,11 @@
             </div>
 
             <div class="chart-wrapper">
-                <plotly-plot [data]="sapTimelineData()" [layout]="sapTimelineLayout()" [config]="sapTimelineConfig"> </plotly-plot>
+                @if (charts().sapTimeline.loading) {
+                <div class="chart-skeleton"></div>
+                } @else {
+                <plotly-plot [data]="charts().sapTimeline.data" [layout]="charts().sapTimeline.layout" [config]="chartConfigs.withToolbar"> </plotly-plot>
+                }
             </div>
         </section>
     </div>
