@@ -12,7 +12,26 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
  - **Pre-release versions** – Use suffixes such as `-alpha`, `-beta`, `-rc.1` (e.g., `2.1.0-beta.1`).
  - **Build metadata** – If needed, use `+build` (e.g., `2.1.0+20250314`).
 
- ---
+---
+
+## [0.93.1] - 2025-10-03
+
+### Features
+
+- [DPAV-1728]: Display EPC completeness percentages alongside area names in analytics popups
+- [DPAV-1730]: Activate the district EPC layer by default on initial map load
+- [DPAV-1732]: Simplify large number formatting across analytics charts and popups
+- [DPAV-1737]: Highlight parent items in the layer menu when any child layer is active
+
+### Bugfixes
+
+- [DPAV-1727]: Prevent EPC analytics layers appearing alongside 3D buildings
+- [DPAV-1729]: Ensure only one map control can be open at a time
+
+### Other
+
+- [DPAV-1760]: Refined roof aspect area labels in the detailed building view, including the indeterminable value
+- [DPAV-1731]: Removed commercial building data from EPC analytics
 
 ## [0.93.0] - 2025-09-11
 
