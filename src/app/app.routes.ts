@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
-import { OtherDashboardComponent } from '@containers/other-dashboard/other-dashboard';
 import { PlotlyDashboardComponent } from '@containers/plotly-dashboard/plotly-dashboard';
 import { mapStateGuard } from '@core/guards/map-state.guard';
 import { ShellComponent } from './containers/shell/shell.component';
+import { SupersetComponent } from '@containers/superset-dashboard/superset-dashboard';
 
 export const routes: Routes = [
     {
@@ -15,8 +15,8 @@ export const routes: Routes = [
         component: PlotlyDashboardComponent,
     },
     {
-        path: 'dashboards/other',
-        component: OtherDashboardComponent,
+        path: 'dashboards/superset',
+        component: SupersetComponent,
     },
 ];
 

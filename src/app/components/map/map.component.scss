@@ -43,6 +43,11 @@
             background-color: var(--mat-sys-surface-container-lowest);
             box-shadow: none;
 
+            @media screen and (max-width: '1280px') {
+                width: 2rem;
+                height: 2rem;
+            }
+
             &.text {
                 font-size: var(--mat-sys-title-large-size);
             }
@@ -58,6 +63,7 @@
                     border-bottom-right-radius: 0;
                     border-bottom-left-radius: 0;
                 }
+
                 &:last-child {
                     border-top-left-radius: 0;
                     border-top-right-radius: 0;

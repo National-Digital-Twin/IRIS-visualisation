@@ -34,6 +34,7 @@
         "@angular/platform-browser-dynamic": "20.2.4",
         "@angular/router": "20.2.4",
         "@mapbox/mapbox-gl-draw": "1.5.0",
+        "@superset-ui/embedded-sdk": "^0.2.0",
         "@turf/bbox": "7.2.0",
         "@turf/boolean-within": "7.2.0",
         "@turf/helpers": "7.2.0",
