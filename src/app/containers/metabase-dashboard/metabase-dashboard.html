@@ -1,0 +1,15 @@
+<div class="metabase-dashboard">
+  <div class="dashboard-header">
+    <h1>Metabase dashboard</h1>
+    <button matButton="filled" (click)="this.handleReturnToMapView();">
+      <mat-icon>map_search</mat-icon>
+      <span>Return to map view</span>
+    </button>
+  </div>
+  <div id="metabase-embedded-dashboard">
+    @if (embeddedDashboardUrl) {
+    <iframe [src]="embeddedDashboardUrl" style="width: 100%; height: 1000px;">
+    </iframe>
+    }
+  </div>
+</div>

@@ -3,6 +3,7 @@ import { PlotlyDashboardComponent } from '@containers/plotly-dashboard/plotly-da
 import { mapStateGuard } from '@core/guards/map-state.guard';
 import { ShellComponent } from './containers/shell/shell.component';
 import { SupersetComponent } from '@containers/superset-dashboard/superset-dashboard';
+import { MetabaseDashboardComponent } from '@containers/metabase-dashboard/metabase-dashboard';
 
 export const routes: Routes = [
     {
@@ -17,6 +18,10 @@ export const routes: Routes = [
     {
         path: 'dashboards/superset',
         component: SupersetComponent,
+    },
+    {
+        path: 'dashboards/metabase',
+        component: MetabaseDashboardComponent,
     },
 ];
 
