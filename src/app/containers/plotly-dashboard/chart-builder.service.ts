@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { EPCRegionData, OverallEPCResponse, RegionCharacteristicData, TimelineDataPoint } from '@core/services/dashboard.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import type { Data, Layout } from 'plotly.js-dist-min';
-export interface ChartState<T = any> {
+export interface ChartState<T = unknown> {
     data: Data[];
     layout: Partial<Layout>;
     loading: boolean;
@@ -43,7 +43,11 @@ export class ChartBuilderService {
         return this.#config.epcColours;
     }
 
-    buildCharacteristicsChart(characteristic: string, regions: RegionCharacteristicData[], selectedRegions: string[]): Partial<ChartState> {
+    public buildCharacteristicsChart(
+        characteristic: string,
+        regions: RegionCharacteristicData[],
+        selectedRegions: string[],
+    ): Partial<ChartState<CharacteristicsMetadata>> {
         const filteredRegions = regions.filter((r) => selectedRegions.includes(r.region_name));
         const sortedRegions = [...filteredRegions].sort((a, b) => a.region_name.localeCompare(b.region_name));
         const regionsWithPercentages = sortedRegions.map((r) => ({
@@ -95,7 +99,7 @@ export class ChartBuilderService {
         };
     }
 
-    buildEPCRegionChart(regionData: EPCRegionData[], selectedRegions: string[]): Partial<ChartState> {
+    public buildEPCRegionChart(regionData: EPCRegionData[], selectedRegions: string[]): Partial<ChartState<EPCRegionMetadata>> {
         const filteredData = regionData.filter((r) => selectedRegions.includes(r.region_name));
         const sortedData = [...filteredData].sort((a, b) => a.region_name.localeCompare(b.region_name));
 
@@ -154,15 +158,18 @@ export class ChartBuilderService {
         };
     }
 
-    buildOverallEPCDonut(response: OverallEPCResponse): Partial<ChartState> {
+    public buildOverallEPCDonut(response: OverallEPCResponse, hiddenRatings: Record<string, boolean> = {}): Partial<ChartState<OverallEPCMetadata>> {
+        const visibleTotal = response.ratings.filter((r) => !hiddenRatings[r.rating]).reduce((sum, r) => sum + r.count, 0);
+
         const data: Data[] = [
             {
                 type: 'pie',
-                values: response.ratings.map((r) => r.count),
+                values: response.ratings.map((r) => (hiddenRatings[r.rating] ? 0 : r.count)),
                 labels: response.ratings.map((r) => r.rating),
-                hole: 0.75,
+                hole: 0.9,
                 marker: {
                     colors: response.ratings.map((r) => this.epcColors[r.rating]),
+                    line: { color: 'white', width: 2 },
                 },
                 textinfo: 'none',
                 hovertemplate: '<b>%{label}</b><br>%{value:,}<br>%{percent}<extra></extra>',
@@ -179,7 +186,7 @@ export class ChartBuilderService {
             font: { family: 'Roboto, sans-serif' },
             annotations: [
                 {
-                    text: `<b>${response.total.toLocaleString()}</b><br><span style="font-size: 14px;">EPC ratings</span>`,
+                    text: `<b>${visibleTotal.toLocaleString()}</b><br><span style="font-size: 14px;">EPC ratings</span>`,
                     x: 0.5,
                     y: 0.5,
                     xref: 'paper',
@@ -197,7 +204,7 @@ export class ChartBuilderService {
         };
     }
 
-    buildOverallEPCBar(response: OverallEPCResponse): Partial<ChartState> {
+    public buildOverallEPCBar(response: OverallEPCResponse, hiddenRatings: Record<string, boolean> = {}): Partial<ChartState<OverallEPCMetadata>> {
         const sortedRatings = [...response.ratings].sort((a, b) => a.rating.localeCompare(b.rating));
 
         const backgroundBars: Data = {
@@ -217,7 +224,7 @@ export class ChartBuilderService {
             y: sortedRatings.map((r) => r.rating),
             orientation: 'h',
             marker: {
-                color: sortedRatings.map((r) => this.epcColors[r.rating]),
+                color: sortedRatings.map((r) => (hiddenRatings[r.rating] ? '#D3D3D3' : this.epcColors[r.rating])),
             },
             customdata: sortedRatings.map((r) => ((r.count / response.total) * 100).toFixed(1)),
             hovertemplate: '<b>%{y}</b><br>%{x:,} (%{customdata}%)<extra></extra>',
@@ -240,7 +247,7 @@ export class ChartBuilderService {
                     xanchor: 'left',
                     yanchor: 'bottom',
                     yshift: 14,
-                    font: { size: 11, color: '#333', family: 'Roboto, sans-serif' },
+                    font: { size: 11, color: hiddenRatings[rating.rating] ? '#999' : '#333', family: 'Roboto, sans-serif' },
                 },
                 {
                     x: response.total,
@@ -252,7 +259,7 @@ export class ChartBuilderService {
                     xanchor: 'right',
                     yanchor: 'bottom',
                     yshift: 14,
-                    font: { size: 11, color: '#333', family: 'Roboto, sans-serif' },
+                    font: { size: 11, color: hiddenRatings[rating.rating] ? '#999' : '#333', family: 'Roboto, sans-serif' },
                 },
             ])
             .flat();
@@ -283,7 +290,7 @@ export class ChartBuilderService {
             plot_bgcolor: 'white',
             font: { family: 'Roboto, sans-serif' },
             showlegend: false,
-            annotations: annotations as any,
+            annotations: annotations as Partial<Layout>['annotations'],
         };
 
         return {
@@ -293,7 +300,7 @@ export class ChartBuilderService {
         };
     }
 
-    buildSAPTimeline(timeline: TimelineDataPoint[]): Partial<ChartState> {
+    public buildSAPTimeline(timeline: TimelineDataPoint[]): Partial<ChartState> {
         const data: Data[] = [
             {
                 type: 'scatter',

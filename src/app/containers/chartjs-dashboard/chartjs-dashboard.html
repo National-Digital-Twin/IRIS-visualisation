@@ -5,9 +5,9 @@
     </h1>
 </mat-toolbar>
 
-<div class="plotly-dashboard">
+<div class="chartjs-dashboard">
     <header class="dashboard-header">
-        <h1>Statistics - Plotly.js Demo</h1>
+        <h1>Statistics - Chart.js Demo</h1>
         <button mat-raised-button color="primary" (click)="handleReturnToMapView()">
             <mat-icon>arrow_back</mat-icon>
             <span>Return to map view</span>
@@ -25,10 +25,10 @@
             } @else {
             <div class="overall-epc-container">
                 <div class="donut-section">
-                    <plotly-plot [data]="charts().overallEPCDonut.data" [layout]="charts().overallEPCDonut.layout" [config]="chartConfigs.default"> </plotly-plot>
+                    <canvas baseChart #donutChart [type]="charts().overallEPCDonut.config.type" [data]="charts().overallEPCDonut.config.data" [options]="charts().overallEPCDonut.config.options" [plugins]="charts().overallEPCDonut.config.plugins || []"> </canvas>
                 </div>
                 <div class="bar-section">
-                    <plotly-plot #barPlot [data]="charts().overallEPCBar.data" [layout]="charts().overallEPCBar.layout" [config]="chartConfigs.default" [useResizeHandler]="true" (initialized)="onBarChartInitialized()"></plotly-plot>
+                    <canvas baseChart #barChart [type]="charts().overallEPCBar.config.type" [data]="charts().overallEPCBar.config.data" [options]="charts().overallEPCBar.config.options" [plugins]="charts().overallEPCBar.config.plugins || []"> </canvas>
                 </div>
             </div>
             }
@@ -56,7 +56,7 @@
                 @if (charts().epcRegion.loading) {
                 <div class="chart-skeleton"></div>
                 } @else {
-                <plotly-plot [data]="charts().epcRegion.data" [layout]="charts().epcRegion.layout" [config]="chartConfigs.default"> </plotly-plot>
+                <canvas baseChart [type]="charts().epcRegion.config.type" [data]="charts().epcRegion.config.data" [options]="charts().epcRegion.config.options"> </canvas>
                 }
             </div>
         </section>
@@ -91,7 +91,7 @@
                 @if (charts().characteristics.loading) {
                 <div class="chart-skeleton"></div>
                 } @else {
-                <plotly-plot [data]="charts().characteristics.data" [layout]="charts().characteristics.layout" [config]="chartConfigs.default"> </plotly-plot>
+                <canvas baseChart [type]="charts().characteristics.config.type" [data]="charts().characteristics.config.data" [options]="charts().characteristics.config.options" [plugins]="charts().characteristics.config.plugins || []"> </canvas>
                 }
             </div>
         </section>
@@ -105,7 +105,7 @@
                 @if (charts().sapTimeline.loading) {
                 <div class="chart-skeleton"></div>
                 } @else {
-                <plotly-plot [data]="charts().sapTimeline.data" [layout]="charts().sapTimeline.layout" [config]="chartConfigs.withToolbar"> </plotly-plot>
+                <canvas baseChart [type]="charts().sapTimeline.config.type" [data]="charts().sapTimeline.config.data" [options]="charts().sapTimeline.config.options"> </canvas>
                 }
             </div>
         </section>

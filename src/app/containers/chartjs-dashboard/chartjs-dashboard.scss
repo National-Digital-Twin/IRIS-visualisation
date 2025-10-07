@@ -17,7 +17,7 @@
     }
 }
 
-.plotly-dashboard {
+.chartjs-dashboard {
     min-height: calc(100vh - 64px);
     padding: 1.5rem;
     background: white;
@@ -86,10 +86,6 @@
     align-items: center;
 
     width: 100%;
-
-    plotly-plot {
-        width: 100%;
-    }
 }
 
 .widget-header {
@@ -183,10 +179,7 @@
         position: relative;
         flex: 1;
         min-height: 320px;
-    }
-
-    plotly-plot {
-        width: 100%;
+        padding-top: 1rem;
     }
 }
 

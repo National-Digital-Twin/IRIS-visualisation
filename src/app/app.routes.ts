@@ -1,9 +1,10 @@
 import { Routes } from '@angular/router';
+import { ChartJSDashboardComponent } from '@containers/chartjs-dashboard/chartjs-dashboard';
+import { MetabaseDashboardComponent } from '@containers/metabase-dashboard/metabase-dashboard';
 import { PlotlyDashboardComponent } from '@containers/plotly-dashboard/plotly-dashboard';
+import { SupersetComponent } from '@containers/superset-dashboard/superset-dashboard';
 import { mapStateGuard } from '@core/guards/map-state.guard';
 import { ShellComponent } from './containers/shell/shell.component';
-import { SupersetComponent } from '@containers/superset-dashboard/superset-dashboard';
-import { MetabaseDashboardComponent } from '@containers/metabase-dashboard/metabase-dashboard';
 
 export const routes: Routes = [
     {
@@ -14,6 +15,10 @@ export const routes: Routes = [
     {
         path: 'dashboards/plotly',
         component: PlotlyDashboardComponent,
+    },
+    {
+        path: 'dashboards/chartjs',
+        component: ChartJSDashboardComponent,
     },
     {
         path: 'dashboards/superset',

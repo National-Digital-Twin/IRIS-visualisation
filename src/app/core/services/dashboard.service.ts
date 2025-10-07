@@ -1,5 +1,4 @@
 import { Injectable, inject } from '@angular/core';
-import { Polygon } from 'geojson';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { EPCDataService } from './epc-data.service';
@@ -64,7 +63,7 @@ export class DashboardService {
         'Yorkshire and the Humber English Region': 'Yorkshire and The Humber',
     };
 
-    getBuildingCharacteristics(characteristic: string): Observable<BuildingCharacteristicsResponse> {
+    public getBuildingCharacteristics(characteristic: string): Observable<BuildingCharacteristicsResponse> {
         const dataSets: Record<string, RegionCharacteristicData[]> = {
             'double glazing': [
                 { region_name: 'East Midlands', count: 28000, total: 72000 },
@@ -126,7 +125,7 @@ export class DashboardService {
         });
     }
 
-    getSAPTimeline(_area: GeoJSON.Feature<Polygon>): Observable<SAPTimelineResponse> {
+    public getSAPTimeline(): Observable<SAPTimelineResponse> {
         return of({
             timeline: [
                 { year: 2010, avg_sap_score: 58.3, assessment_count: 125000 },
@@ -149,7 +148,7 @@ export class DashboardService {
         });
     }
 
-    getEPCByRegion(): Observable<EPCRegionData[]> {
+    public getEPCByRegion(): Observable<EPCRegionData[]> {
         return this.#epcService.getEPCData('region').pipe(
             map((featureCollection) =>
                 featureCollection.features.map((feature) => ({
@@ -167,7 +166,7 @@ export class DashboardService {
         );
     }
 
-    getOverallEPC(): Observable<OverallEPCResponse> {
+    public getOverallEPC(): Observable<OverallEPCResponse> {
         return this.#epcService.getEPCData('region').pipe(
             map((featureCollection) => {
                 const totals = featureCollection.features.reduce(

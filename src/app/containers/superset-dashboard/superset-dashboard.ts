@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject } from '@angular/core';
+import { Component, ElementRef, inject, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
@@ -10,7 +10,7 @@ import { SupersetDashboardService } from './superset-dashboard-service';
     templateUrl: './superset-dashboard.html',
     styleUrl: './superset-dashboard.scss',
 })
-export class SupersetComponent {
+export class SupersetComponent implements OnInit {
     readonly #router = inject(Router);
     readonly #supersetDashboardService = inject(SupersetDashboardService);
     readonly #elementRef = inject(ElementRef);

@@ -6,30 +6,52 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
-import { DashboardService, OverallEPCResponse } from '@core/services/dashboard.service';
-import { PlotlyModule, PlotlyComponent } from 'angular-plotly.js';
+import { DashboardService } from '@core/services/dashboard.service';
 import { Polygon } from 'geojson';
-import type { Config } from 'plotly.js-dist-min';
-import * as Plotly from 'plotly.js-dist-min';
+import { BaseChartDirective } from 'ng2-charts';
 import { Subscription } from 'rxjs';
 import { ChartBuilderService, DashboardCharts } from './chart-builder.service';
 
 @Component({
-    selector: 'c477-plotly-dashboard',
-    imports: [CommonModule, RouterModule, MatButtonModule, MatIconModule, MatSelectModule, MatFormFieldModule, MatToolbarModule, PlotlyModule],
-    templateUrl: './plotly-dashboard.html',
-    styleUrl: './plotly-dashboard.scss',
+    selector: 'c477-chartjs-dashboard',
+    imports: [CommonModule, RouterModule, MatButtonModule, MatIconModule, MatSelectModule, MatFormFieldModule, MatToolbarModule, BaseChartDirective],
+    templateUrl: './chartjs-dashboard.html',
+    styleUrl: './chartjs-dashboard.scss',
 })
-export class PlotlyDashboardComponent implements OnInit, OnDestroy {
+export class ChartJSDashboardComponent implements OnInit, OnDestroy {
     readonly #router = inject(Router);
     readonly #service = inject(DashboardService);
     readonly #chartBuilder = inject(ChartBuilderService);
     readonly #subscriptions = new Subscription();
 
-    @ViewChild('barPlot') public barPlot?: PlotlyComponent;
+    @ViewChild('donutChart', { read: BaseChartDirective }) public donutChart?: BaseChartDirective;
+    @ViewChild('barChart', { read: BaseChartDirective }) public barChart?: BaseChartDirective;
 
-    public hiddenRatings: Record<string, boolean> = {};
-    public overallEPCResponse?: OverallEPCResponse;
+    public syncCharts = (rating: string, isHidden: boolean): void => {
+        const chartInstance = (
+            this.donutChart as BaseChartDirective & {
+                chart?: {
+                    data: { labels?: string[] };
+                    getDataVisibility: (index: number) => boolean;
+                    toggleDataVisibility: (index: number) => void;
+                    update: () => void;
+                };
+            }
+        )?.chart;
+
+        if (chartInstance) {
+            const donutIndex = chartInstance.data.labels?.findIndex((label: string) => label === rating) ?? -1;
+
+            if (donutIndex !== -1) {
+                const currentlyVisible = chartInstance.getDataVisibility(donutIndex);
+
+                if ((isHidden && currentlyVisible) || (!isHidden && !currentlyVisible)) {
+                    chartInstance.toggleDataVisibility(donutIndex);
+                    chartInstance.update();
+                }
+            }
+        }
+    };
 
     public readonly allRegions = [
         'East Midlands',
@@ -52,17 +74,16 @@ export class PlotlyDashboardComponent implements OnInit, OnDestroy {
         { value: 'solar panels', label: 'Solar Panels' },
     ];
 
-    public readonly chartConfigs: Record<string, Partial<Config>> = {
-        default: { responsive: true, displayModeBar: false, displaylogo: false },
-        withToolbar: { responsive: true, displayModeBar: true, displaylogo: false },
-    };
-
     public charts = signal<DashboardCharts>({
-        epcRegion: { data: [], layout: {}, loading: true, metadata: { selectedRegions: [] } },
-        overallEPCDonut: { data: [], layout: {}, loading: true, metadata: { total: 0 } },
-        overallEPCBar: { data: [], layout: {}, loading: true, metadata: { total: 0 } },
-        characteristics: { data: [], layout: {}, loading: true, metadata: { selectedCharacteristic: '', selectedRegions: [] } },
-        sapTimeline: { data: [], layout: {}, loading: true },
+        epcRegion: { config: { type: 'bar', data: { labels: [], datasets: [] } }, loading: true, metadata: { selectedRegions: [] } },
+        overallEPCDonut: { config: { type: 'doughnut', data: { labels: [], datasets: [] } }, loading: true, metadata: { total: 0 } },
+        overallEPCBar: { config: { type: 'bar', data: { labels: [], datasets: [] } }, loading: true, metadata: { total: 0 } },
+        characteristics: {
+            config: { type: 'bar', data: { labels: [], datasets: [] } },
+            loading: true,
+            metadata: { selectedCharacteristic: '', selectedRegions: [] },
+        },
+        sapTimeline: { config: { type: 'line', data: { labels: [], datasets: [] } }, loading: true },
     });
 
     public selectedCharacteristic = signal('double glazing');
@@ -83,14 +104,6 @@ export class PlotlyDashboardComponent implements OnInit, OnDestroy {
         this.loadSapTimelineData();
         this.loadEPCRegionData();
         this.loadOverallEPCData();
-    }
-
-    public onBarChartInitialized(): void {
-        if (this.barPlot?.plotlyInstance) {
-            this.barPlot.plotlyInstance.on('plotly_click', (data: Plotly.PlotMouseEvent) => {
-                this.onBarChartClick(data);
-            });
-        }
     }
 
     public ngOnDestroy(): void {
@@ -114,23 +127,6 @@ export class PlotlyDashboardComponent implements OnInit, OnDestroy {
     public onEPCRegionChange(regions: string[]): void {
         this.selectedEPCRegions.set(regions);
         this.loadEPCRegionData();
-    }
-
-    public onBarChartClick(event: Plotly.PlotMouseEvent): void {
-        if (!event?.points?.length || !this.overallEPCResponse) {
-            return;
-        }
-
-        const pointIndex = event.points[0].pointIndex;
-        const clickedRating = this.overallEPCResponse.ratings[pointIndex].rating;
-
-        this.hiddenRatings[clickedRating] = !this.hiddenRatings[clickedRating];
-
-        const donutData = this.#chartBuilder.buildOverallEPCDonut(this.overallEPCResponse, this.hiddenRatings);
-        const barData = this.#chartBuilder.buildOverallEPCBar(this.overallEPCResponse, this.hiddenRatings);
-
-        this.updateChartState('overallEPCDonut', { ...donutData, loading: false });
-        this.updateChartState('overallEPCBar', { ...barData, loading: false });
     }
 
     private loadCharacteristicsData(): void {
@@ -162,12 +158,13 @@ export class PlotlyDashboardComponent implements OnInit, OnDestroy {
         this.updateChartState('overallEPCBar', { loading: true });
 
         const sub = this.#service.getOverallEPC().subscribe((response) => {
-            this.overallEPCResponse = response;
             const donutData = this.#chartBuilder.buildOverallEPCDonut(response);
-            const barData = this.#chartBuilder.buildOverallEPCBar(response);
-
             this.updateChartState('overallEPCDonut', { ...donutData, loading: false });
-            this.updateChartState('overallEPCBar', { ...barData, loading: false });
+
+            setTimeout(() => {
+                const barData = this.#chartBuilder.buildOverallEPCBar(response, this.syncCharts);
+                this.updateChartState('overallEPCBar', { ...barData, loading: false });
+            }, 0);
         });
 
         this.#subscriptions.add(sub);

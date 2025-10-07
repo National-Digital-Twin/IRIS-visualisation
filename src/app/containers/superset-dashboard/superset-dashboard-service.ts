@@ -1,6 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { inject } from '@angular/core';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { embedDashboard } from '@superset-ui/embedded-sdk';
 import { catchError, Observable, switchMap, throwError } from 'rxjs';
 
