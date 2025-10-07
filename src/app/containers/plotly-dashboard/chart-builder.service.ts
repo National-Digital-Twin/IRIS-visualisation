@@ -50,28 +50,23 @@ export class ChartBuilderService {
     ): Partial<ChartState<CharacteristicsMetadata>> {
         const filteredRegions = regions.filter((r) => selectedRegions.includes(r.region_name));
         const sortedRegions = [...filteredRegions].sort((a, b) => a.region_name.localeCompare(b.region_name));
-        const regionsWithPercentages = sortedRegions.map((r) => ({
-            ...r,
-            percentage: (r.count / r.total) * 100,
-        }));
 
         const data: Data[] = [
             {
                 type: 'bar',
-                x: regionsWithPercentages.map((r) => r.region_name),
-                y: regionsWithPercentages.map((r) => r.percentage),
+                x: sortedRegions.map((r) => r.region_name),
+                y: sortedRegions.map((r) => r.percentage),
                 marker: { color: '#5729CE' },
-                text: regionsWithPercentages.map((r) => `${Math.round(r.percentage)}%`),
+                text: sortedRegions.map((r) => `${Math.round(r.percentage)}%`),
                 textposition: 'auto',
                 textfont: { color: 'white', size: 14, family: 'Roboto, sans-serif' },
-                hovertemplate: '<b>%{x}</b><br>%{y:.1f}%<br>(%{customdata})<extra></extra>',
+                hovertemplate: '<b>%{x}</b><br>%{y:.1f}% of buildings have ' + characteristic + '<extra></extra>',
                 hoverlabel: COMMON_HOVER_STYLE,
-                customdata: regionsWithPercentages.map((r) => `${r.count.toLocaleString()} of ${r.total.toLocaleString()} buildings`),
                 width: 0.5,
             },
         ];
 
-        const maxPercentage = Math.max(...regionsWithPercentages.map((r) => r.percentage));
+        const maxPercentage = Math.max(...sortedRegions.map((r) => r.percentage));
         const layout: Partial<Layout> = {
             margin: { l: 40, r: 20, t: 20, b: 80 },
             xaxis: {
@@ -301,15 +296,18 @@ export class ChartBuilderService {
     }
 
     public buildSAPTimeline(timeline: TimelineDataPoint[]): Partial<ChartState> {
+        const startIndex = Math.floor(timeline.length * 0.8);
+        const startDate = timeline[startIndex]?.date || new Date();
+        const endDate = timeline[timeline.length - 1]?.date || new Date();
+
         const data: Data[] = [
             {
                 type: 'scatter',
                 mode: 'lines',
-                x: timeline.map((t) => t.year),
+                x: timeline.map((t) => t.date.toISOString().split('T')[0]),
                 y: timeline.map((t) => t.avg_sap_score),
-                line: { color: '#000000', width: 2 },
-                hovertemplate: '<b>%{x}</b><br>SAP Score: %{y:.1f}<br>Assessments: %{customdata}<extra></extra>',
-                customdata: timeline.map((t) => t.assessment_count.toLocaleString()),
+                line: { color: '#000000', width: 1 },
+                hovertemplate: '<b>%{x}</b><br>SAP Score: %{y:.1f}<extra></extra>',
             },
         ];
 
@@ -317,10 +315,11 @@ export class ChartBuilderService {
             margin: { l: 50, r: 15, t: 10, b: 40 },
             xaxis: {
                 title: { text: '' },
-                tickmode: 'linear',
-                dtick: 5,
+                type: 'date',
                 showgrid: false,
                 tickfont: { size: 9 },
+                range: [startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]],
+                rangeslider: { visible: true },
             },
             yaxis: {
                 title: { text: 'SAP score', font: { size: 10 } },
@@ -330,7 +329,7 @@ export class ChartBuilderService {
                 tickfont: { size: 9 },
             },
             font: { family: 'Roboto, sans-serif', size: 10 },
-            height: 250,
+            height: 300,
             plot_bgcolor: 'white',
             paper_bgcolor: 'white',
         };

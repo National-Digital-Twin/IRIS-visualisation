@@ -56,18 +56,14 @@ export class ChartBuilderService {
     ): Partial<ChartState<CharacteristicsMetadata>> {
         const filteredRegions = regions.filter((r) => selectedRegions.includes(r.region_name));
         const sortedRegions = [...filteredRegions].sort((a, b) => a.region_name.localeCompare(b.region_name));
-        const regionsWithPercentages = sortedRegions.map((r) => ({
-            ...r,
-            percentage: (r.count / r.total) * 100,
-        }));
 
         const config: ChartConfiguration = {
             type: 'bar',
             data: {
-                labels: regionsWithPercentages.map((r) => r.region_name),
+                labels: sortedRegions.map((r) => r.region_name),
                 datasets: [
                     {
-                        data: regionsWithPercentages.map((r) => r.percentage),
+                        data: sortedRegions.map((r) => r.percentage),
                         backgroundColor: '#5729CE',
                         barThickness: 'flex',
                         maxBarThickness: 60,
@@ -89,9 +85,7 @@ export class ChartBuilderService {
                         bodyFont: { family: 'Roboto, sans-serif' },
                         callbacks: {
                             label: (context) => {
-                                const index = context.dataIndex;
-                                const region = regionsWithPercentages[index];
-                                return [`${context.parsed.y.toFixed(1)}%`, `(${region.count.toLocaleString()} of ${region.total.toLocaleString()} buildings)`];
+                                return `${context.parsed.y.toFixed(1)}% of buildings have ${characteristic}`;
                             },
                         },
                     },
@@ -110,7 +104,7 @@ export class ChartBuilderService {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: Math.max(...regionsWithPercentages.map((r) => r.percentage)) * 1.15,
+                        max: Math.max(...sortedRegions.map((r) => r.percentage)) * 1.15,
                         display: false,
                     },
                     x: {
@@ -269,9 +263,7 @@ export class ChartBuilderService {
                         const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
 
                         const currentHiddenRatings = (chart as any).hiddenRatings || hiddenRatings;
-                        const visibleTotal = response.ratings
-                            .filter((r) => !currentHiddenRatings[r.rating])
-                            .reduce((sum, r) => sum + r.count, 0);
+                        const visibleTotal = response.ratings.filter((r) => !currentHiddenRatings[r.rating]).reduce((sum, r) => sum + r.count, 0);
 
                         ctx.save();
                         ctx.font = 'bold 28px Roboto, sans-serif';
@@ -326,12 +318,7 @@ export class ChartBuilderService {
                 onClick: (event: ChartEvent, activeElements, chart: Chart) => {
                     if (!onRatingClick) return;
 
-                    const elements = chart.getElementsAtEventForMode(
-                        event.native as Event,
-                        'y',
-                        { intersect: false },
-                        false
-                    );
+                    const elements = chart.getElementsAtEventForMode(event.native as Event, 'y', { intersect: false }, false);
 
                     if (elements.length > 0) {
                         const index = elements[0].index;
@@ -434,16 +421,19 @@ export class ChartBuilderService {
     }
 
     public buildSAPTimeline(timeline: TimelineDataPoint[]): Partial<ChartState> {
+        const totalDataPoints = timeline.length;
+        const startIndex = Math.floor(totalDataPoints * 0.8);
+
         const config: ChartConfiguration = {
             type: 'line',
             data: {
-                labels: timeline.map((t) => t.year),
+                labels: timeline.map((t) => t.date.toLocaleDateString('en-GB')),
                 datasets: [
                     {
                         data: timeline.map((t) => t.avg_sap_score),
                         borderColor: '#000000',
                         backgroundColor: '#000000',
-                        borderWidth: 2,
+                        borderWidth: 1,
                         pointRadius: 0,
                         pointHoverRadius: 4,
                     },
@@ -471,7 +461,7 @@ export class ChartBuilderService {
                             label: (context) => {
                                 const index = context.dataIndex;
                                 const point = timeline[index];
-                                return [`SAP Score: ${point.avg_sap_score.toFixed(1)}`, `Assessments: ${point.assessment_count.toLocaleString()}`];
+                                return [`SAP Score: ${point.avg_sap_score.toFixed(1)}`];
                             },
                         },
                     },
@@ -490,7 +480,7 @@ export class ChartBuilderService {
                             mode: 'x',
                         },
                         limits: {
-                            x: { min: 'original', max: 'original' },
+                            x: { min: 0, max: totalDataPoints - 1 },
                         },
                     },
                 },
@@ -511,6 +501,8 @@ export class ChartBuilderService {
                         },
                     },
                     x: {
+                        min: startIndex,
+                        max: totalDataPoints - 1,
                         ticks: {
                             font: { size: 9 },
                             autoSkip: true,

@@ -1,12 +1,11 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { EPCDataService } from './epc-data.service';
 
 export interface RegionCharacteristicData {
     region_name: string;
-    count: number;
-    total: number;
+    percentage: number;
 }
 
 export interface BuildingCharacteristicsResponse {
@@ -15,9 +14,8 @@ export interface BuildingCharacteristicsResponse {
 }
 
 export interface TimelineDataPoint {
-    year: number;
+    date: Date;
     avg_sap_score: number;
-    assessment_count: number;
 }
 
 export interface SAPTimelineResponse {
@@ -46,9 +44,48 @@ export interface OverallEPCResponse {
     ratings: EPCRatingTotal[];
 }
 
+interface BackendBuildingAttributesResponse {
+    region_name: string;
+    percentage_roof_solar_panels: number;
+    percentage_double_glazing: number;
+    percentage_single_glazing: number;
+    percentage_solid_floor: number;
+    percentage_roof_insulation_thickness_150mm: number;
+    percentage_roof_insulation_thickness_200mm: number;
+    percentage_roof_insulation_thickness_250mm: number;
+    percentage_pitched_roof: number;
+    percentage_cavity_wall: number;
+}
+
+interface BackendSAPTimelineResponse {
+    lodgement_date: string;
+    avg_sap_score: number;
+}
+
+interface BackendEPCRegionData {
+    region_name: string;
+    epc_a: number;
+    epc_b: number;
+    epc_c: number;
+    epc_d: number;
+    epc_e: number;
+    epc_f: number;
+    epc_g: number;
+}
+
+interface BackendEPCRatings {
+    epc_a: number;
+    epc_b: number;
+    epc_c: number;
+    epc_d: number;
+    epc_e: number;
+    epc_f: number;
+    epc_g: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
-    readonly #epcService = inject(EPCDataService);
+    readonly #http = inject(HttpClient);
 
     private readonly REGION_NAME_MAP: Record<string, string> = {
         'Eastern English Region': 'East of England',
@@ -58,142 +95,90 @@ export class DashboardService {
         'North West English Region': 'North West',
         'South East English Region': 'South East',
         'South West English Region': 'South West',
-        'Wales': 'Wales',
         'West Midlands English Region': 'West Midlands',
-        'Yorkshire and the Humber English Region': 'Yorkshire and The Humber',
+        'Yorkshire and the Humber English Region': 'Yorkshire & Humber',
+        'Mid and West Wales PER': 'Mid and West Wales',
+        'North Wales PER': 'North Wales',
+        'South Wales Central PER': 'South Wales Central',
+        'South Wales East PER': 'South Wales East',
+        'South Wales West PER': 'South Wales West',
     };
 
     public getBuildingCharacteristics(characteristic: string): Observable<BuildingCharacteristicsResponse> {
-        const dataSets: Record<string, RegionCharacteristicData[]> = {
-            'double glazing': [
-                { region_name: 'East Midlands', count: 28000, total: 72000 },
-                { region_name: 'East of England', count: 42000, total: 98000 },
-                { region_name: 'London', count: 38000, total: 125000 },
-                { region_name: 'North East', count: 18500, total: 47500 },
-                { region_name: 'North West', count: 15000, total: 150000 },
-                { region_name: 'Scotland', count: 35000, total: 92000 },
-                { region_name: 'South East', count: 51000, total: 145000 },
-                { region_name: 'South West', count: 38000, total: 88000 },
-                { region_name: 'Wales', count: 22000, total: 56000 },
-                { region_name: 'West Midlands', count: 32000, total: 80000 },
-                { region_name: 'Yorkshire and The Humber', count: 41000, total: 115000 },
-            ],
-            'triple glazing': [
-                { region_name: 'East Midlands', count: 5500, total: 72000 },
-                { region_name: 'East of England', count: 8200, total: 98000 },
-                { region_name: 'London', count: 6500, total: 125000 },
-                { region_name: 'North East', count: 5200, total: 47500 },
-                { region_name: 'North West', count: 10000, total: 150000 },
-                { region_name: 'Scotland', count: 12000, total: 92000 },
-                { region_name: 'South East', count: 9800, total: 145000 },
-                { region_name: 'South West', count: 6200, total: 88000 },
-                { region_name: 'Wales', count: 4500, total: 56000 },
-                { region_name: 'West Midlands', count: 7000, total: 80000 },
-                { region_name: 'Yorkshire and The Humber', count: 8500, total: 115000 },
-            ],
-            'cavity wall': [
-                { region_name: 'East Midlands', count: 50000, total: 72000 },
-                { region_name: 'East of England', count: 68000, total: 98000 },
-                { region_name: 'London', count: 72000, total: 125000 },
-                { region_name: 'North East', count: 28000, total: 47500 },
-                { region_name: 'North West', count: 92000, total: 150000 },
-                { region_name: 'Scotland', count: 58000, total: 92000 },
-                { region_name: 'South East', count: 95000, total: 145000 },
-                { region_name: 'South West', count: 61000, total: 88000 },
-                { region_name: 'Wales', count: 38000, total: 56000 },
-                { region_name: 'West Midlands', count: 54000, total: 80000 },
-                { region_name: 'Yorkshire and The Humber', count: 78000, total: 115000 },
-            ],
-            'solar panels': [
-                { region_name: 'East Midlands', count: 8000, total: 72000 },
-                { region_name: 'East of England', count: 12500, total: 98000 },
-                { region_name: 'London', count: 7200, total: 125000 },
-                { region_name: 'North East', count: 3800, total: 47500 },
-                { region_name: 'North West', count: 13000, total: 150000 },
-                { region_name: 'Scotland', count: 6500, total: 92000 },
-                { region_name: 'South East', count: 18000, total: 145000 },
-                { region_name: 'South West', count: 11500, total: 88000 },
-                { region_name: 'Wales', count: 4200, total: 56000 },
-                { region_name: 'West Midlands', count: 9000, total: 80000 },
-                { region_name: 'Yorkshire and The Humber', count: 10500, total: 115000 },
-            ],
+        const characteristicFieldMap: Record<string, string> = {
+            'solar panels': 'percentage_roof_solar_panels',
+            'double glazing': 'percentage_double_glazing',
+            'single glazing': 'percentage_single_glazing',
+            'cavity wall': 'percentage_cavity_wall',
+            'pitched roof': 'percentage_pitched_roof',
+            'solid floor': 'percentage_solid_floor',
+            'roof insulation 150mm': 'percentage_roof_insulation_thickness_150mm',
+            'roof insulation 200mm': 'percentage_roof_insulation_thickness_200mm',
+            'roof insulation 250mm': 'percentage_roof_insulation_thickness_250mm',
         };
 
-        return of({
-            characteristic,
-            regions: dataSets[characteristic.toLowerCase()] ?? [],
-        });
+        const fieldName = characteristicFieldMap[characteristic.toLowerCase()];
+
+        if (!fieldName) {
+            return of({ characteristic, regions: [] });
+        }
+
+        return this.#http.get<BackendBuildingAttributesResponse[]>('/api/dashboard/building-attributes-percentage', { withCredentials: true }).pipe(
+            map((results) => ({
+                characteristic,
+                regions: results.map((data) => ({
+                    region_name: this.REGION_NAME_MAP[data.region_name] || data.region_name,
+                    percentage: (data[fieldName as keyof BackendBuildingAttributesResponse] as number) || 0,
+                })),
+            })),
+        );
     }
 
     public getSAPTimeline(): Observable<SAPTimelineResponse> {
-        return of({
-            timeline: [
-                { year: 2010, avg_sap_score: 58.3, assessment_count: 125000 },
-                { year: 2011, avg_sap_score: 60.1, assessment_count: 130000 },
-                { year: 2012, avg_sap_score: 62.5, assessment_count: 135000 },
-                { year: 2013, avg_sap_score: 64.8, assessment_count: 140000 },
-                { year: 2014, avg_sap_score: 66.2, assessment_count: 145000 },
-                { year: 2015, avg_sap_score: 68.5, assessment_count: 150000 },
-                { year: 2016, avg_sap_score: 69.8, assessment_count: 155000 },
-                { year: 2017, avg_sap_score: 71.2, assessment_count: 160000 },
-                { year: 2018, avg_sap_score: 72.8, assessment_count: 165000 },
-                { year: 2019, avg_sap_score: 73.9, assessment_count: 170000 },
-                { year: 2020, avg_sap_score: 75.2, assessment_count: 175000 },
-                { year: 2021, avg_sap_score: 76.8, assessment_count: 180000 },
-                { year: 2022, avg_sap_score: 78.1, assessment_count: 185000 },
-                { year: 2023, avg_sap_score: 79.5, assessment_count: 190000 },
-                { year: 2024, avg_sap_score: 81.2, assessment_count: 195000 },
-                { year: 2025, avg_sap_score: 82.5, assessment_count: 200000 },
-            ],
-        });
+        return this.#http.get<BackendSAPTimelineResponse[]>('/api/dashboard/sap-score-overtime', { withCredentials: true }).pipe(
+            map((results) => ({
+                timeline: results.map((data) => ({
+                    date: new Date(data.lodgement_date),
+                    avg_sap_score: data.avg_sap_score,
+                })),
+            })),
+        );
     }
 
     public getEPCByRegion(): Observable<EPCRegionData[]> {
-        return this.#epcService.getEPCData('region').pipe(
-            map((featureCollection) =>
-                featureCollection.features.map((feature) => ({
-                    region_name: this.REGION_NAME_MAP[feature.properties.name] || feature.properties.name,
-                    epc_a: feature.properties.epc_a,
-                    epc_b: feature.properties.epc_b,
-                    epc_c: feature.properties.epc_c,
-                    epc_d: feature.properties.epc_d,
-                    epc_e: feature.properties.epc_e,
-                    epc_f: feature.properties.epc_f,
-                    epc_g: feature.properties.epc_g,
-                    total: feature.properties.total,
+        return this.#http.get<BackendEPCRegionData[]>('/api/dashboard/epc-ratings-per-region', { withCredentials: true }).pipe(
+            map((results) =>
+                results.map((data) => ({
+                    region_name: this.REGION_NAME_MAP[data.region_name] || data.region_name,
+                    epc_a: data.epc_a,
+                    epc_b: data.epc_b,
+                    epc_c: data.epc_c,
+                    epc_d: data.epc_d,
+                    epc_e: data.epc_e,
+                    epc_f: data.epc_f,
+                    epc_g: data.epc_g,
+                    total: data.epc_a + data.epc_b + data.epc_c + data.epc_d + data.epc_e + data.epc_f + data.epc_g,
                 })),
             ),
         );
     }
 
     public getOverallEPC(): Observable<OverallEPCResponse> {
-        return this.#epcService.getEPCData('region').pipe(
-            map((featureCollection) => {
-                const totals = featureCollection.features.reduce(
-                    (acc, feature) => ({
-                        a: acc.a + feature.properties.epc_a,
-                        b: acc.b + feature.properties.epc_b,
-                        c: acc.c + feature.properties.epc_c,
-                        d: acc.d + feature.properties.epc_d,
-                        e: acc.e + feature.properties.epc_e,
-                        f: acc.f + feature.properties.epc_f,
-                        g: acc.g + feature.properties.epc_g,
-                    }),
-                    { a: 0, b: 0, c: 0, d: 0, e: 0, f: 0, g: 0 },
-                );
-
-                const total = totals.a + totals.b + totals.c + totals.d + totals.e + totals.f + totals.g;
+        return this.#http.get<BackendEPCRatings[]>('/api/dashboard/epc-ratings', { withCredentials: true }).pipe(
+            map((results) => {
+                const data = results[0];
+                const total = data.epc_a + data.epc_b + data.epc_c + data.epc_d + data.epc_e + data.epc_f + data.epc_g;
 
                 return {
                     total,
                     ratings: [
-                        { rating: 'A', count: totals.a },
-                        { rating: 'B', count: totals.b },
-                        { rating: 'C', count: totals.c },
-                        { rating: 'D', count: totals.d },
-                        { rating: 'E', count: totals.e },
-                        { rating: 'F', count: totals.f },
-                        { rating: 'G', count: totals.g },
+                        { rating: 'A', count: data.epc_a },
+                        { rating: 'B', count: data.epc_b },
+                        { rating: 'C', count: data.epc_c },
+                        { rating: 'D', count: data.epc_d },
+                        { rating: 'E', count: data.epc_e },
+                        { rating: 'F', count: data.epc_f },
+                        { rating: 'G', count: data.epc_g },
                     ],
                 };
             }),

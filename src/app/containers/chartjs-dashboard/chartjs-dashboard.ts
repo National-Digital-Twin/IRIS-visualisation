@@ -33,21 +33,29 @@ export class ChartJSDashboardComponent implements OnInit, OnDestroy {
         'East Midlands',
         'East of England',
         'London',
+        'Mid and West Wales',
         'North East',
+        'North Wales',
         'North West',
-        'Scotland',
         'South East',
+        'South Wales Central',
+        'South Wales East',
+        'South Wales West',
         'South West',
-        'Wales',
         'West Midlands',
-        'Yorkshire and The Humber',
+        'Yorkshire & Humber',
     ];
 
     public readonly characteristicOptions = [
         { value: 'double glazing', label: 'Double Glazing' },
-        { value: 'triple glazing', label: 'Triple Glazing' },
+        { value: 'single glazing', label: 'Single Glazing' },
         { value: 'cavity wall', label: 'Cavity Wall' },
         { value: 'solar panels', label: 'Solar Panels' },
+        { value: 'pitched roof', label: 'Pitched Roof' },
+        { value: 'solid floor', label: 'Solid Floor' },
+        { value: 'roof insulation 150mm', label: 'Roof Insulation 150mm' },
+        { value: 'roof insulation 200mm', label: 'Roof Insulation 200mm' },
+        { value: 'roof insulation 250mm', label: 'Roof Insulation 250mm' },
     ];
 
     public charts = signal<DashboardCharts>({
