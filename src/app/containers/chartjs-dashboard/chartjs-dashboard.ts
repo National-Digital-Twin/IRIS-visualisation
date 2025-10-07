@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
-import { DashboardService } from '@core/services/dashboard.service';
+import { DashboardService, OverallEPCResponse } from '@core/services/dashboard.service';
 import { Polygon } from 'geojson';
 import { BaseChartDirective } from 'ng2-charts';
 import { Subscription } from 'rxjs';
@@ -27,31 +27,7 @@ export class ChartJSDashboardComponent implements OnInit, OnDestroy {
     @ViewChild('donutChart', { read: BaseChartDirective }) public donutChart?: BaseChartDirective;
     @ViewChild('barChart', { read: BaseChartDirective }) public barChart?: BaseChartDirective;
 
-    public syncCharts = (rating: string, isHidden: boolean): void => {
-        const chartInstance = (
-            this.donutChart as BaseChartDirective & {
-                chart?: {
-                    data: { labels?: string[] };
-                    getDataVisibility: (index: number) => boolean;
-                    toggleDataVisibility: (index: number) => void;
-                    update: () => void;
-                };
-            }
-        )?.chart;
-
-        if (chartInstance) {
-            const donutIndex = chartInstance.data.labels?.findIndex((label: string) => label === rating) ?? -1;
-
-            if (donutIndex !== -1) {
-                const currentlyVisible = chartInstance.getDataVisibility(donutIndex);
-
-                if ((isHidden && currentlyVisible) || (!isHidden && !currentlyVisible)) {
-                    chartInstance.toggleDataVisibility(donutIndex);
-                    chartInstance.update();
-                }
-            }
-        }
-    };
+    public hiddenRatings = signal<Record<string, boolean>>({});
 
     public readonly allRegions = [
         'East Midlands',
@@ -153,16 +129,35 @@ export class ChartJSDashboardComponent implements OnInit, OnDestroy {
         this.#subscriptions.add(sub);
     }
 
+    public onBarChartClick(rating: string): void {
+        this.hiddenRatings.update((current) => ({
+            ...current,
+            [rating]: !current[rating],
+        }));
+
+        // Update charts directly without triggering full re-render
+        const response = this.charts().overallEPCBar.metadata as OverallEPCResponse;
+        if (response && this.donutChart?.chart && this.barChart?.chart) {
+            this.donutChart.chart.data.datasets[0].data = response.ratings.map((r) => (this.hiddenRatings()[r.rating] ? 0 : r.count));
+
+            (this.donutChart.chart as any).hiddenRatings = this.hiddenRatings();
+            (this.barChart.chart as any).hiddenRatings = this.hiddenRatings();
+
+            this.donutChart.chart.update();
+            this.barChart.chart.update('none'); // Update bar chart without animation (just color changes)
+        }
+    }
+
     private loadOverallEPCData(): void {
         this.updateChartState('overallEPCDonut', { loading: true });
         this.updateChartState('overallEPCBar', { loading: true });
 
         const sub = this.#service.getOverallEPC().subscribe((response) => {
-            const donutData = this.#chartBuilder.buildOverallEPCDonut(response);
+            const donutData = this.#chartBuilder.buildOverallEPCDonut(response, this.hiddenRatings());
             this.updateChartState('overallEPCDonut', { ...donutData, loading: false });
 
             setTimeout(() => {
-                const barData = this.#chartBuilder.buildOverallEPCBar(response, this.syncCharts);
+                const barData = this.#chartBuilder.buildOverallEPCBar(response, this.hiddenRatings(), (rating) => this.onBarChartClick(rating));
                 this.updateChartState('overallEPCBar', { ...barData, loading: false });
             }, 0);
         });

@@ -2,10 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { EPCRegionData, OverallEPCResponse, RegionCharacteristicData, TimelineDataPoint } from '@core/services/dashboard.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { Chart, ChartConfiguration, ChartEvent, Element } from 'chart.js';
-
-interface ExtendedChartOptions {
-    hiddenRatings?: Record<string, boolean>;
-}
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 interface BarElement extends Element {
     x: number;
@@ -98,6 +95,17 @@ export class ChartBuilderService {
                             },
                         },
                     },
+                    datalabels: {
+                        display: true,
+                        color: 'white',
+                        font: {
+                            size: 14,
+                            family: 'Roboto, sans-serif',
+                        },
+                        anchor: 'center',
+                        align: 'center',
+                        formatter: (value: number) => `${Math.round(value)}%`,
+                    },
                 },
                 scales: {
                     y: {
@@ -116,29 +124,7 @@ export class ChartBuilderService {
                     },
                 },
             },
-            plugins: [
-                {
-                    id: 'customDataLabels',
-                    // TODO: doesn't work well when animating
-                    afterDatasetsDraw: (chart): void => {
-                        const ctx = chart.ctx;
-                        chart.data.datasets.forEach((dataset, i) => {
-                            const meta = chart.getDatasetMeta(i);
-                            meta.data.forEach((element, index) => {
-                                const bar = element as BarElement;
-                                const data = dataset.data[index] as number;
-                                const barHeight = bar.height || 0;
-                                const labelY = bar.y + Math.min(15, barHeight / 2);
-                                ctx.fillStyle = 'white';
-                                ctx.font = '14px Roboto, sans-serif';
-                                ctx.textAlign = 'center';
-                                ctx.textBaseline = 'middle';
-                                ctx.fillText(`${Math.round(data)}%`, bar.x, labelY);
-                            });
-                        });
-                    },
-                },
-            ],
+            plugins: [ChartDataLabels],
         };
 
         return {
@@ -176,6 +162,10 @@ export class ChartBuilderService {
                         reverse: false,
                         labels: {
                             font: { family: 'Roboto, sans-serif' },
+                            usePointStyle: true,
+                            pointStyle: 'rect',
+                            boxWidth: 12,
+                            boxHeight: 12,
                         },
                     },
                     tooltip: {
@@ -230,14 +220,14 @@ export class ChartBuilderService {
         };
     }
 
-    public buildOverallEPCDonut(response: OverallEPCResponse): Partial<ChartState<OverallEPCMetadata>> {
+    public buildOverallEPCDonut(response: OverallEPCResponse, hiddenRatings: Record<string, boolean> = {}): Partial<ChartState<OverallEPCMetadata>> {
         const config: ChartConfiguration<'doughnut'> = {
             type: 'doughnut',
             data: {
                 labels: response.ratings.map((r) => r.rating),
                 datasets: [
                     {
-                        data: response.ratings.map((r) => r.count),
+                        data: response.ratings.map((r) => (hiddenRatings[r.rating] ? 0 : r.count)),
                         backgroundColor: response.ratings.map((r) => this.epcColors[r.rating]),
                         borderWidth: 0,
                     },
@@ -278,12 +268,10 @@ export class ChartBuilderService {
                         const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
                         const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
 
-                        let visibleTotal = 0;
-                        chart.data.datasets[0].data.forEach((value, index) => {
-                            if (chart.getDataVisibility(index)) {
-                                visibleTotal += value as number;
-                            }
-                        });
+                        const currentHiddenRatings = (chart as any).hiddenRatings || hiddenRatings;
+                        const visibleTotal = response.ratings
+                            .filter((r) => !currentHiddenRatings[r.rating])
+                            .reduce((sum, r) => sum + r.count, 0);
 
                         ctx.save();
                         ctx.font = 'bold 28px Roboto, sans-serif';
@@ -302,13 +290,14 @@ export class ChartBuilderService {
 
         return {
             config,
-            metadata: { total: response.total },
+            metadata: response,
         };
     }
 
     public buildOverallEPCBar(
         response: OverallEPCResponse,
-        syncFunction?: (rating: string, isHidden: boolean) => void,
+        hiddenRatings: Record<string, boolean> = {},
+        onRatingClick?: (rating: string) => void,
     ): Partial<ChartState<OverallEPCMetadata>> {
         const sortedRatings = [...response.ratings].sort((a, b) => a.rating.localeCompare(b.rating));
 
@@ -335,41 +324,19 @@ export class ChartBuilderService {
                     },
                 },
                 onClick: (event: ChartEvent, activeElements, chart: Chart) => {
-                    const clickEvent = event.native as MouseEvent | undefined;
-                    if (!clickEvent) return;
+                    if (!onRatingClick) return;
 
-                    const rect = chart.canvas.getBoundingClientRect();
-                    const x = clickEvent.clientX - rect.left;
-                    const y = clickEvent.clientY - rect.top;
-                    const meta = chart.getDatasetMeta(0);
+                    const elements = chart.getElementsAtEventForMode(
+                        event.native as Event,
+                        'y',
+                        { intersect: false },
+                        false
+                    );
 
-                    let clickedIndex = -1;
-                    meta.data.forEach((element, index: number) => {
-                        const bar = element as BarElement;
-                        const barTop = bar.y - bar.height / 2 - 20;
-                        const barBottom = bar.y + bar.height / 2;
-                        const barLeft = chart.chartArea.left;
-                        const barRight = chart.chartArea.right;
-
-                        if (y >= barTop && y <= barBottom && x >= barLeft && x <= barRight) {
-                            clickedIndex = index;
-                        }
-                    });
-
-                    if (clickedIndex !== -1) {
-                        const rating = sortedRatings[clickedIndex].rating;
-                        const options = chart.config.options as ExtendedChartOptions;
-
-                        if (!options.hiddenRatings) {
-                            options.hiddenRatings = {};
-                        }
-                        options.hiddenRatings[rating] = !options.hiddenRatings[rating];
-
-                        chart.update();
-
-                        if (syncFunction) {
-                            syncFunction(rating, options.hiddenRatings[rating]);
-                        }
+                    if (elements.length > 0) {
+                        const index = elements[0].index;
+                        const rating = sortedRatings[index].rating;
+                        onRatingClick(rating);
                     }
                 },
                 plugins: {
@@ -406,14 +373,13 @@ export class ChartBuilderService {
                 {
                     id: 'grayOutHiddenBars',
                     beforeDatasetsDraw: (chart: Chart): void => {
-                        const options = chart.config.options as ExtendedChartOptions;
-                        const hiddenRatings = options.hiddenRatings || {};
                         const meta = chart.getDatasetMeta(0);
+                        const currentHiddenRatings = (chart as any).hiddenRatings || hiddenRatings;
 
                         meta.data.forEach((element, index: number) => {
                             const bar = element as BarElement;
                             const rating = sortedRatings[index].rating;
-                            bar.options.backgroundColor = hiddenRatings[rating] ? '#D3D3D3' : this.epcColors[rating];
+                            bar.options.backgroundColor = currentHiddenRatings[rating] ? '#D3D3D3' : this.epcColors[rating];
                         });
                     },
                 },
@@ -440,14 +406,13 @@ export class ChartBuilderService {
                     afterDatasetsDraw: (chart: Chart): void => {
                         const ctx = chart.ctx;
                         const meta = chart.getDatasetMeta(0);
-                        const options = chart.config.options as ExtendedChartOptions;
-                        const hiddenRatings = options.hiddenRatings || {};
+                        const currentHiddenRatings = (chart as any).hiddenRatings || hiddenRatings;
 
                         sortedRatings.forEach((rating, index) => {
                             const bar = meta.data[index] as BarElement;
                             const labelY = bar.y - bar.height / 2 - 3;
 
-                            ctx.fillStyle = hiddenRatings[rating.rating] ? '#999' : '#333';
+                            ctx.fillStyle = currentHiddenRatings[rating.rating] ? '#999' : '#333';
                             ctx.font = '11px Roboto, sans-serif';
                             ctx.textBaseline = 'bottom';
 
@@ -464,7 +429,7 @@ export class ChartBuilderService {
 
         return {
             config,
-            metadata: { total: response.total },
+            metadata: response,
         };
     }
 
@@ -508,6 +473,24 @@ export class ChartBuilderService {
                                 const point = timeline[index];
                                 return [`SAP Score: ${point.avg_sap_score.toFixed(1)}`, `Assessments: ${point.assessment_count.toLocaleString()}`];
                             },
+                        },
+                    },
+                    zoom: {
+                        zoom: {
+                            wheel: {
+                                enabled: true,
+                            },
+                            pinch: {
+                                enabled: true,
+                            },
+                            mode: 'x',
+                        },
+                        pan: {
+                            enabled: true,
+                            mode: 'x',
+                        },
+                        limits: {
+                            x: { min: 'original', max: 'original' },
                         },
                     },
                 },

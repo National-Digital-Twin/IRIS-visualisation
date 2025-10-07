@@ -21,6 +21,14 @@
     min-height: calc(100vh - 64px);
     padding: 1.5rem;
     background: white;
+
+    @media (max-width: 900px) {
+        padding: 1rem;
+    }
+
+    @media (max-width: 500px) {
+        padding: 0.75rem;
+    }
 }
 
 .dashboard-header {
@@ -28,6 +36,7 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 1.5rem;
+    gap: 1rem;
 
     h1 {
         margin: 0;
@@ -46,27 +55,42 @@
             font-size: 20px;
         }
     }
+
+    @media (max-width: 600px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+
+        button {
+            width: 100%;
+            justify-content: center;
+        }
+    }
 }
 
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1rem;
+    max-width: 1400px;
 
-    @media (max-width: 1400px) {
-        grid-template-columns: repeat(2, 1fr);
+    @media (max-width: 900px) {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 600px) {
         grid-template-columns: 1fr;
+        gap: 0.75rem;
     }
 }
 
 .widget-card {
     display: flex;
     flex-direction: column;
+    min-width: 0; // Allow cards to shrink below content size
+    height: fit-content; // Don't stretch to fill grid row
 
-    padding: 1.25rem;
+    padding: 1rem;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
 
@@ -75,6 +99,22 @@
 
     &.double-height {
         grid-row: span 2;
+        height: auto; // Allow double-height to fill space
+
+        @media (max-width: 900px) {
+            grid-row: span 1;
+            height: fit-content;
+        }
+    }
+
+    // Ensure single-height cards don't stretch
+    &:not(.double-height) {
+        max-height: 350px;
+        align-self: start; // Stick to top of grid cell
+    }
+
+    @media (max-width: 600px) {
+        padding: 0.875rem;
     }
 }
 
@@ -82,10 +122,22 @@
     position: relative;
 
     display: flex;
-    flex: 1;
+    flex: 1 1 auto;
     align-items: center;
 
     width: 100%;
+    min-width: 0; // Allow wrapper to shrink
+    min-height: 200px; // Minimum chart height
+    max-height: 280px; // Maximum chart height
+
+    canvas {
+        max-width: 100%;
+        height: auto !important;
+    }
+
+    .widget-card.double-height & {
+        max-height: none; // No max height in double-height cards
+    }
 }
 
 .widget-header {
@@ -95,6 +147,10 @@
         font-size: 0.875rem;
         font-weight: 400;
         line-height: 1.5;
+
+        @media (max-width: 600px) {
+            font-size: 0.813rem;
+        }
     }
 
     .inline-select {
@@ -168,24 +224,33 @@
     display: flex;
     flex: 1;
     flex-direction: column;
+    min-height: 0;
 
     .donut-section {
         position: relative;
         flex: 0 0 auto;
-        height: 280px;
+        height: 220px;
+
+        @media (max-width: 600px) {
+            height: 200px;
+        }
     }
 
     .bar-section {
         position: relative;
         flex: 1;
-        min-height: 320px;
-        padding-top: 1rem;
+        min-height: 280px;
+        padding-top: 0.75rem;
+
+        @media (max-width: 600px) {
+            min-height: 240px;
+        }
     }
 }
 
 .chart-skeleton {
     width: 100%;
-    height: 250px;
+    height: 200px;
     border-radius: 4px;
 
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
@@ -195,7 +260,7 @@
 
     &.double-skeleton {
         height: 100%;
-        min-height: 520px;
+        min-height: 480px;
     }
 }
 

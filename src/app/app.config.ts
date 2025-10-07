@@ -4,9 +4,13 @@ import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { MapBoxService } from '@core/services/map.service';
 import { MAP_SERVICE } from '@core/services/map.token';
 import { PlotlyModule } from 'angular-plotly.js';
+import { Chart } from 'chart.js';
+import zoomPlugin from 'chartjs-plugin-zoom';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import * as PlotlyJS from 'plotly.js-dist-min';
 import { routes } from './app.routes';
+
+Chart.register(zoomPlugin);
 
 export const appConfig: ApplicationConfig = {
     providers: [
