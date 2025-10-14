@@ -28,7 +28,7 @@ import { Router } from '@angular/router';
     styleUrls: ['./privacy-notice.css'],
 })
 export class PrivacyNoticeComponent {
-    @Output() private back = new EventEmitter<void>();
+    @Output() private readonly back = new EventEmitter<void>();
     readonly #router = inject(Router);
 
     constructor() {}
