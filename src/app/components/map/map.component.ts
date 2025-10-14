@@ -19,6 +19,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipModule } from '@angular/material/tooltip';
 import { LayerState, LegendComponent } from '@components/legend/legend.component';
 import { MinimapData } from '@core/models/minimap-data.model';
@@ -40,7 +41,7 @@ import { map, skip, take } from 'rxjs';
 
 @Component({
     selector: 'c477-map',
-    imports: [CommonModule, LegendComponent, MatButtonModule, MatDividerModule, MatIconModule, MatMenuModule, MatTooltipModule],
+    imports: [CommonModule, LegendComponent, MatButtonModule, MatDividerModule, MatIconModule, MatMenuModule, MatSlideToggleModule, MatTooltipModule],
     templateUrl: './map.component.html',
     styleUrl: './map.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -61,6 +62,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     public bearing: number = 0;
     public drawActive: boolean = false;
     public twoDimensions: boolean = false;
+    public currentPitch: number = 58;
+    public terrainEnabled: boolean = false;
 
     public layersMenuOpen: boolean = false;
     public layerStates: LayerState = this.getDefaultLayerState();
@@ -222,6 +225,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             this.#uiStateService.setLayersAndControlsVisibility(initialZoom < 16);
             this.updateLayersVisibility();
 
+            this.currentPitch = Math.round(this.#mapService.mapInstance.getPitch());
+
             this.activateEpcLayer('district');
             this.#changeDetectorRef.detectChanges();
         });
@@ -229,6 +234,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         /** update the minimap as the map moves */
         this.#mapService.mapInstance.on('move', () => {
             this.updateMinimap();
+        });
+
+        /** Sync pitch slider when pitch changes from mouse/trackpad */
+        this.#mapService.mapInstance.on('pitch', () => {
+            const pitch = this.#mapService.mapInstance.getPitch();
+            this.currentPitch = Math.round(pitch);
         });
 
         /** close popup if open and zoom is > 15 and remove selection*/
@@ -276,6 +287,23 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     public changeDimensions(): void {
         this.twoDimensions = !this.twoDimensions;
         this.tilt2D.emit(this.twoDimensions);
+    }
+
+    public onPitchChange(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        const pitch = Number(input.value);
+        this.currentPitch = pitch;
+        this.#mapService.mapInstance.easeTo({ pitch, duration: 100 });
+    }
+
+    public toggleTerrain(): void {
+        this.terrainEnabled = !this.terrainEnabled;
+
+        if (this.terrainEnabled) {
+            this.#mapService.mapInstance.setTerrain({ source: 'mapbox-dem' });
+        } else {
+            this.#mapService.mapInstance.setTerrain(null);
+        }
     }
 
     public toggleEpcLayer(type: 'region' | 'county' | 'district' | 'ward'): void {

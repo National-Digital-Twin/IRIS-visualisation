@@ -114,6 +114,45 @@
             </div>
         }
     </div>
+    <div style="position: absolute; z-index: 100; bottom: 0; left: 0; margin: 1rem; margin-bottom: 3.5rem">
+        <div
+            style="
+                display: flex;
+                gap: 0.5rem;
+                align-items: center;
+                padding: 0.75rem;
+                background-color: var(--mat-sys-surface-container-lowest);
+                border-radius: var(--border-radius);
+                box-shadow: var(--mat-sys-level2);
+            "
+        >
+            <div style="display: flex; flex-direction: column; gap: 0.25rem">
+                <label style="font-size: 13px">Pitch: {{ currentPitch }}°</label>
+                <input
+                    type="range"
+                    min="0"
+                    max="85"
+                    [value]="currentPitch"
+                    (input)="onPitchChange($event)"
+                    matTooltip="Adjust camera tilt angle"
+                    style="
+                        width: 120px;
+                        height: 4px;
+                        -webkit-appearance: none;
+                        appearance: none;
+                        background: var(--mat-sys-outline-variant);
+                        outline: none;
+                        border-radius: 2px;
+                        cursor: pointer;
+                    "
+                />
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem">
+                <label style="font-size: 13px">Terrain</label>
+                <mat-slide-toggle [checked]="terrainEnabled" (change)="toggleTerrain()" matTooltip="Toggle 3D terrain (DEM)"></mat-slide-toggle>
+            </div>
+        </div>
+    </div>
     <div class="map-controls bottom">
         <div class="control-group">
             <button mat-mini-fab class="control" (click)="toggleMinimap.emit(null)" matTooltip="Minimap">
