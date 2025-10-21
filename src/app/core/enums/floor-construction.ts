@@ -1,9 +1,9 @@
 export enum FloorConstruction {
-    Solid = 'Solid Floor',
+    SolidFloor = 'Solid Floor',
     Suspended = 'Suspended',
-    OtherPremisesBelow = 'Other Premises Below Floor',
-    AnotherDwellingBelow = 'Another Dwelling Below Floor',
-    Other = 'Other', //replaces PartOfBuilding
+    OtherPremisesBelowFloor = 'Other Premises Below Floor',
+    AnotherDwellingBelowFloor = 'Another Dwelling Below Floor',
+    Floor = 'Other', //replaces PartOfBuilding
     NoData = 'No Data',
 }
 

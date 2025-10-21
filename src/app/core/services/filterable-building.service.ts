@@ -111,7 +111,7 @@ export class FilterableBuildingService {
     private parseBuiltForm(builtForm: string | undefined): string | undefined {
         if (builtForm) {
             const parsedBuiltForm = BuiltForm[builtForm as keyof typeof BuiltForm];
-            return parsedBuiltForm.replaceAll(' ', '');
+            return parsedBuiltForm?.replaceAll(' ', '');
         }
 
         return undefined;
