@@ -14,13 +14,15 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
 ---
 
-## [0.93.2] - 2025-10-08
+## [0.94.2] - 2025-10-23
 
-### Features
+### Bugfixes
 
-- [DPAV-1818]: Display EPC completeness percentages alongside area names in analytics popups
+- Fixed data mapping for floor construction.
+- Fixed advanced filters issue with built form.
 
-## [0.93.1] - 2025-10-03
+
+## [0.94.1] - 2025-10-14
 
 ### Features
 
@@ -28,21 +30,6 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 - [DPAV-1730]: Activate the district EPC layer by default on initial map load
 - [DPAV-1732]: Simplify large number formatting across analytics charts and popups
 - [DPAV-1737]: Highlight parent items in the layer menu when any child layer is active
-
-### Bugfixes
-
-- [DPAV-1727]: Prevent EPC analytics layers appearing alongside 3D buildings
-- [DPAV-1729]: Ensure only one map control can be open at a time
-
-### Other
-
-- [DPAV-1760]: Refined roof aspect area labels in the detailed building view, including the indeterminable value
-- [DPAV-1731]: Removed commercial building data from EPC analytics
-
-## [0.93.0] - 2025-09-11
-
-### Features
-
 - [DPAV-1684]: Added OS roof data to advanced filters
 - [DPAV-1594]: OS NGD buildings PostGIS fallback
 - [DPAV-1455]: Facilitated other EPC layers
@@ -52,18 +39,29 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 - [DPAV-1291]: Added climate data layers
 - [DPAV-1493]: Added wind-driven rain and other placeholder layers
 - [DPAV-1452]: Toggling of future layers
+- [DPAV-1818]: Display EPC completeness percentages alongside area names in analytics popups
 
 ### Bugfixes
 
+- [DPAV-1727]: Prevent EPC analytics layers appearing alongside 3D buildings
+- [DPAV-1729]: Ensure only one map control can be open at a time
 - [DPAV-1684]: Fixed clear filters and EPC chart styling
 - [DPAV-1487]: Removed outline when deselecting a layer
 - [DPAV-1488]: Fixed highlighting for selected polygons
 
 ### Other
 
+- [DPAV-1760]: Refined roof aspect area labels in the detailed building view, including the indeterminable value
+- [DPAV-1731]: Removed commercial building data from EPC analytics
 - [OSPO]: Move to unprivileged NGINX containers
 - Added additional resources for local development
 - Reverted visualiser secret
+
+## [0.93.5] - 2025-10-14
+
+### Features
+
+- [DPAV-1818]: IRIS Privacy notice
 
 ## [0.92.1] - 2025-07-22
 
