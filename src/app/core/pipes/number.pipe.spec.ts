@@ -86,9 +86,21 @@ describe('NumberPipe', () => {
     describe('Numbers 1,000,000 and above', () => {
         it('should convert to millions with m suffix', () => {
             expect(pipe.transform(531525)).toBe('532k');
+            expect(pipe.transform(531525, 1)).toBe('531.5k');
+            expect(pipe.transform(531525, 2)).toBe('531.52k');
+            expect(pipe.transform(531526, 2)).toBe('531.53k');
+            expect(pipe.transform(561525, 1)).toBe('561.5k');
             expect(pipe.transform(1000000)).toBe('1m');
+            expect(pipe.transform(1100000, 2)).toBe('1.1m');
+            expect(pipe.transform(4999999, 1)).toBe('5m');
+            expect(pipe.transform(1550000, 1)).toBe('1.6m');
+            expect(pipe.transform(1550001, 1)).toBe('1.6m');
+            expect(pipe.transform(1550001, 2)).toBe('1.55m');
+            expect(pipe.transform(1499999, 1)).toBe('1.5m');
             expect(pipe.transform(2561562)).toBe('3m');
+            expect(pipe.transform(2561562, 1)).toBe('2.6m');
             expect(pipe.transform(63313441)).toBe('63m');
+            expect(pipe.transform(63313441, 5)).toBe('63.31344m');
         });
 
         it('should handle negative numbers in millions range', () => {
@@ -103,7 +115,7 @@ describe('NumberPipe', () => {
         });
 
         it('should apply decimal places for millions when specified', () => {
-            expect(pipe.transform(1000000, 2)).toBe('1.00m');
+            expect(pipe.transform(1000000, 2)).toBe('1m');
             expect(pipe.transform(63313441, 1)).toBe('63.3m');
             expect(pipe.transform(2561562, 2)).toBe('2.56m');
         });
@@ -126,6 +138,9 @@ describe('NumberPipe', () => {
             expect(pipe.transform(356.0)).toBe('356');
             expect(pipe.transform(10174.0)).toBe('10k');
             expect(pipe.transform(1000000.0)).toBe('1m');
+            expect(pipe.transform(356.0, 1)).toBe('356');
+            expect(pipe.transform(10174.0, 1)).toBe('10.2k');
+            expect(pipe.transform(1000000.0, 1)).toBe('1m');
         });
     });
 
@@ -140,12 +155,12 @@ describe('NumberPipe', () => {
             expect(pipe.transform(1234.567, 1)).toBe('1234.6');
             expect(pipe.transform(9999.999, 3)).toBe('9999.999');
             expect(pipe.transform(10174, 2)).toBe('10.17k');
-            expect(pipe.transform(1000000, 2)).toBe('1.00m');
+            expect(pipe.transform(1000000, 2)).toBe('1m');
         });
 
         it('should apply decimal places to all ranges when specified', () => {
             expect(pipe.transform(10174, 2)).toBe('10.17k');
-            expect(pipe.transform(1000000, 3)).toBe('1.000m');
+            expect(pipe.transform(1000000, 3)).toBe('1m');
         });
 
         it('should handle zero decimal places explicitly', () => {

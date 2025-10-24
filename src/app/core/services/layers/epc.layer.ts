@@ -203,7 +203,7 @@ export class EPCLayer extends AbstractBaseLayer {
             labels.push(label);
             return `
                 <div class="bar" style="height: calc(${height}% + 5px)">
-                    <span class="rating">${numberPipe.transform(r.count)}</span>
+                    <span class="rating">${numberPipe.transform(r.count, 1)}</span>
                     <div class="line" style="background: ${this.getEPCColour(r.rating)}"></div>
                 </div>
             `;
