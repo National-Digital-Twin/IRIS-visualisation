@@ -14,6 +14,13 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
 ---
 
+
+## [0.94.4] - 2025-10-24
+
+### Bugfixes
+
+- [DPAV-1967]: Fixed aggressive rounding of epc layer histogram values
+
 ## [0.94.2] - 2025-10-23
 
 ### Bugfixes
