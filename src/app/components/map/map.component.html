@@ -67,15 +67,19 @@
                         </button>
                         <mat-menu #epcSubmenu="matMenu" class="layers-submenu" [overlapTrigger]="false" xPosition="before">
                             <button mat-menu-item (click)="toggleEpcLayer('region')" [class.active]="layerStates.epc.region">
+                                <mat-icon svgIcon="epc_1"></mat-icon>
                                 <span>Regions</span>
                             </button>
                             <button mat-menu-item (click)="toggleEpcLayer('county')" [class.active]="layerStates.epc.county">
+                                <mat-icon svgIcon="epc_2"></mat-icon>
                                 <span>Counties</span>
                             </button>
                             <button mat-menu-item (click)="toggleEpcLayer('district')" [class.active]="layerStates.epc.district">
+                                <mat-icon svgIcon="epc_3"></mat-icon>
                                 <span>Districts</span>
                             </button>
                             <button mat-menu-item (click)="toggleEpcLayer('ward')" [class.active]="layerStates.epc.ward">
+                                <mat-icon svgIcon="epc_4"></mat-icon>
                                 <span>Wards</span>
                             </button>
                         </mat-menu>
@@ -89,9 +93,11 @@
                         </button>
                         <mat-menu #windRainSubmenu="matMenu" class="layers-submenu" [overlapTrigger]="false" xPosition="before">
                             <button mat-menu-item (click)="toggleWindDrivenRainLayer('twoDegree')" [class.active]="layerStates.windDrivenRain.twoDegree">
+                                <mat-icon svgIcon="wdr_2"></mat-icon>
                                 <span>2°C warming</span>
                             </button>
                             <button mat-menu-item (click)="toggleWindDrivenRainLayer('fourDegree')" [class.active]="layerStates.windDrivenRain.fourDegree">
+                                <mat-icon svgIcon="wdr_4"></mat-icon>
                                 <span>4°C warming</span>
                             </button>
                         </mat-menu>

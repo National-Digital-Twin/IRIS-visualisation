@@ -17,9 +17,16 @@ export class AppComponent implements OnInit {
     public ngOnInit(): void {
         this.#posthogService.initialize();
         this.#matIconReg.setDefaultFontSetClass('material-symbols-outlined');
-        this.#matIconReg.addSvgIcon('accessibility_custom', this.#domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/accessibility.svg'));
-        this.#matIconReg.addSvgIcon('account_circle_clicked', this.#domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/account_circle_clicked.svg'));
-        this.#matIconReg.addSvgIcon('polyline', this.#domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/polyline.svg'));
+        this.#matIconReg
+            .addSvgIcon('accessibility_custom', this.#domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/accessibility.svg'))
+            .addSvgIcon('account_circle_clicked', this.#domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/account_circle_clicked.svg'))
+            .addSvgIcon('polyline', this.#domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/polyline.svg'))
+            .addSvgIcon('epc_1', this.#domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/epc_1.svg'))
+            .addSvgIcon('epc_2', this.#domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/epc_2.svg'))
+            .addSvgIcon('epc_3', this.#domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/epc_3.svg'))
+            .addSvgIcon('epc_4', this.#domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/epc_4.svg'))
+            .addSvgIcon('wdr_2', this.#domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/wdr_2.svg'))
+            .addSvgIcon('wdr_4', this.#domSanitizer.bypassSecurityTrustResourceUrl('../assets/icons/wdr_4.svg'));
     }
 }
 
