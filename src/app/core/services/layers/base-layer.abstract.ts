@@ -44,11 +44,11 @@ export abstract class AbstractBaseLayer implements BaseLayer {
             this.closeLegend();
 
             const allLayers = AbstractBaseLayer.layerFactory.getAllLayers();
-            allLayers.forEach((layer: BaseLayer) => {
+            for (const layer of allLayers) {
                 if (layer.id !== this.id && layer.isVisible) {
                     layer.hide();
                 }
-            });
+            }
         }
     }
 
@@ -78,6 +78,12 @@ export abstract class AbstractBaseLayer implements BaseLayer {
                     }
 
                     this.boundClickHandler = this.onLayerClick.bind(this);
+                    this.boundClickHandler = (event: MapMouseEvent): void => {
+                        if (this.mapService.isDrawing() || !this.onLayerClick) {
+                            return;
+                        }
+                        this.onLayerClick(event);
+                    };
                     this.mapService.mapInstance.on('click', layerConfig.id, this.boundClickHandler);
                 }
             }
@@ -105,7 +111,9 @@ export abstract class AbstractBaseLayer implements BaseLayer {
 
     private closeAllPopups(): void {
         const popups = document.querySelectorAll('.mapboxgl-popup');
-        popups.forEach((popup) => popup.remove());
+        for (const popup of Array.from(popups)) {
+            popup.remove();
+        }
     }
 
     private closeLegend(): void {

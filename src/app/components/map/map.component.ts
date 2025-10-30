@@ -28,6 +28,7 @@ import { FilterableBuildingService } from '@core/services/filterable-building.se
 import { LayerFactoryService } from '@core/services/layers/layer-factory.service';
 import { MAP_SERVICE, MapDraw } from '@core/services/map.token';
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
+import { SpatialQueryService } from '@core/services/spatial-query.service';
 import { UiStateService } from '@core/services/ui-state.service';
 import { UtilService } from '@core/services/utils.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
@@ -55,6 +56,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     readonly #mapService = inject(MAP_SERVICE);
     readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
     readonly #settings = inject(SettingsService);
+    readonly #spatialQueryService = inject(SpatialQueryService);
     readonly #uiStateService = inject(UiStateService);
     readonly #utilsService = inject(UtilService);
 
@@ -179,6 +181,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         /** Spatial search events */
         this.#mapService.mapInstance.on('draw.create', this.onDrawCreate.bind(this));
         this.#mapService.mapInstance.on('draw.update', this.onDrawUpdate.bind(this));
+        this.#mapService.mapInstance.on('draw.modechange', this.onDrawModeChange.bind(this));
 
         /** Select building event */
         this.#mapService.mapInstance.on(
@@ -249,6 +252,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     private addControls(): void {
         /** add draw control to map instance */
         this.drawControl = this.#mapService.addDrawControl();
+
+        const existingPolygon = this.#spatialQueryService.spatialFilterGeom();
+        if (existingPolygon) {
+            this.drawControl.add(existingPolygon);
+        }
     }
 
     public setDrawMode(mode: string): void {
@@ -256,6 +264,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             case 'polygon': {
                 this.deleteSearchArea();
                 this.drawActive = true;
+                this.#mapService.startDrawing();
                 this.updateMode('draw_polygon');
                 break;
             }
@@ -386,7 +395,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }
 
     private hideLayerGroup<T extends Record<string, boolean>>(layerGroup: T, prefix: string, suffix: string): void {
-        Object.keys(layerGroup).forEach((type) => {
+        const keys = Object.keys(layerGroup);
+        for (const type of keys) {
             const layerId = `${prefix}-${type}${suffix}`;
             const layerFactoryLayer = this.#layerFactory.getLayer(layerId);
             const layerEnabled = layerGroup[type as keyof T];
@@ -399,7 +409,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             }
 
             (layerGroup[type as keyof T] as boolean) = false;
-        });
+        }
     }
 
     private hideSingleLayerWithOutline(layerId: string, outlineLayerId: string, getState: () => boolean, setState: (value: boolean) => void): void {
@@ -420,8 +430,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         }
     }
 
-    private deleteSearchArea(): void {
+    public deleteSearchArea(): void {
         this.drawActive = false;
+        this.#mapService.stopDrawing();
         this.drawControl?.deleteAll();
         this.deleteSpatialFilter.emit(null);
     }
@@ -432,6 +443,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
      */
     private onDrawCreate(e: MapboxDraw.DrawCreateEvent): void {
         this.drawActive = false;
+        this.#mapService.stopDrawing();
         this.setSearchArea.emit(e.features[0] as GeoJSON.Feature<Polygon>);
     }
 
@@ -443,6 +455,19 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.setSearchArea.emit(e.features[0] as GeoJSON.Feature<Polygon>);
     }
 
+    /**
+     * Handle draw mode changes (including cancellation with ESC)
+     * @param e Mapbox draw mode change event
+     */
+    private onDrawModeChange(e: { mode: string }): void {
+        // If we exit draw_polygon mode without creating a feature, it means the user cancelled (ESC)
+        if (e.mode === 'simple_select' && this.drawActive) {
+            this.drawActive = false;
+            this.#mapService.stopDrawing();
+            this.#changeDetectorRef.detectChanges();
+        }
+    }
+
     private updateMinimap(): void {
         this.bearing = this.#mapService.mapInstance.getBearing();
         this.setMinimapData.emit({
@@ -452,7 +477,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }
 
     private setSelectedTOID(e: MapMouseEvent): void {
-        if (e.features && this.drawControl?.getMode() !== 'draw_polygon') {
+        if (e.features && !this.#mapService.isDrawing()) {
             this.setSelectedBuildingTOID.emit(e.features![0].properties!.TOID);
         }
     }
@@ -512,13 +537,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         const shouldShowLayers = this.showLayersAndControls();
         const visibleLayers = this.#layerFactory.getVisibleLayers();
 
-        visibleLayers.forEach((layer) => {
+        for (const layer of visibleLayers) {
             if (shouldShowLayers) {
                 this.#mapService.mapInstance.setLayoutProperty(layer.id, 'visibility', 'visible');
             } else {
                 this.#mapService.mapInstance.setLayoutProperty(layer.id, 'visibility', 'none');
             }
-        });
+        }
     }
 
     @HostListener('document:click', ['$event'])
