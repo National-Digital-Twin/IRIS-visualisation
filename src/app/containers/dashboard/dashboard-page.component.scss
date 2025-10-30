@@ -95,17 +95,32 @@
         margin-bottom: 0.75rem;
 
         .widget-title {
+            overflow: visible;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.125rem;
+            align-items: center;
+
+            min-width: 0;
+
             font-size: 0.875rem;
             font-weight: 400;
             line-height: 1.5;
+
+            span {
+                flex-shrink: 0;
+                white-space: nowrap;
+            }
         }
 
         .inline-select {
-            display: inline-block !important;
+            display: inline-flex;
+            flex-shrink: 0;
+            align-items: center;
 
             width: auto;
             min-width: auto;
-            margin: 0 4px;
+            margin: 0 2px;
 
             vertical-align: middle;
 

@@ -1,6 +1,6 @@
 <div class="widget-header">
     <div class="widget-title">
-        Percentage of buildings with
+        <span>Percentage of buildings with</span>
         <mat-form-field appearance="outline" class="inline-select">
             <mat-select [value]="selectedCharacteristic()" (selectionChange)="selectedCharacteristic.set($event.value)">
                 @for (option of characteristicOptions; track option.value) {
@@ -8,7 +8,7 @@
                 }
             </mat-select>
         </mat-form-field>
-        per
+        <span>per</span>
         <c477-region-selector
             [selectedRegions]="selectedRegions()"
             [availableRegions]="availableRegions()"

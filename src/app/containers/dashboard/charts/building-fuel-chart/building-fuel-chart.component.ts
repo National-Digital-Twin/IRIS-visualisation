@@ -119,7 +119,7 @@ export class BuildingFuelChartComponent extends BaseChartComponent {
         ];
 
         const layout: Layout = {
-            margin: { l: 10, r: 10, t: 0, b: 0 },
+            margin: { l: 0, r: 0, t: 0, b: 0 },
             font: this.chartService.commonFont,
             colorway: this.chartService.colorway,
             height: 250,
