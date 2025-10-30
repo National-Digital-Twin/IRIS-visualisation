@@ -14,6 +14,11 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
 ---
 
+## [0.94.5] - 2025-10-30
+
+### Bugfixes
+
+- [DPAV-1912]: Fixed draw polygon bug where cursor would appear as a hand at times and not as a crosshair.
 
 ## [0.94.4] - 2025-10-24
 

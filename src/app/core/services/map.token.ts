@@ -1,6 +1,6 @@
 import { InjectionToken, WritableSignal } from '@angular/core';
 import { URLStateModel } from '@core/models/url-state.model';
-import { Feature } from 'geojson';
+import { Feature, FeatureCollection, Geometry } from 'geojson';
 import mapboxgl from 'mapbox-gl';
 import { Observable } from 'rxjs';
 
@@ -17,6 +17,7 @@ export type MapDraw = {
     getMode: () => string;
     changeMode: (mode: string) => void;
     deleteAll: () => void;
+    add: (geojson: Feature | FeatureCollection | Geometry) => string[];
 };
 
 export type MapLatLng = {
@@ -31,6 +32,10 @@ export interface MapService<T> {
     currentMapBounds: WritableSignal<MapBounds | undefined>;
 
     setup: (config: URLStateModel) => void;
+
+    startDrawing: () => void;
+    stopDrawing: () => void;
+    isDrawing: () => boolean;
 
     addMapSource(name: string, source: unknown): T;
 

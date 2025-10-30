@@ -29,9 +29,11 @@ export class MapBoxService implements MapService<mapboxgl.Map> {
 
     public currentMapBounds = signal<LngLatBounds | undefined>(undefined);
 
-    private readonly mapLoaded = new AsyncSubject<boolean>();
+    private mapLoaded: AsyncSubject<boolean>;
+    private _isDrawing: boolean = false;
 
     constructor() {
+        this.mapLoaded = new AsyncSubject<boolean>();
         this.mapLoaded$ = this.mapLoaded.asObservable();
     }
 
@@ -169,9 +171,10 @@ export class MapBoxService implements MapService<mapboxgl.Map> {
     }
 
     public destroyMap(): void {
-        if (this.mapInstance) {
-            this.mapInstance.remove();
-        }
+        this.mapInstance?.remove();
+        this.drawControl = undefined;
+        this.mapLoaded = new AsyncSubject<boolean>();
+        this.mapLoaded$ = this.mapLoaded.asObservable();
     }
 
     private hookEvents(): void {
@@ -209,6 +212,24 @@ export class MapBoxService implements MapService<mapboxgl.Map> {
             minLng: bounds.getWest(),
             maxLng: bounds.getEast(),
         };
+    }
+
+    public startDrawing(): void {
+        this._isDrawing = true;
+    }
+
+    public stopDrawing(): void {
+        if (this._isDrawing) {
+            // delay to avoid immediate click event when drawing is completed
+            // don't create a timeout if we're not drawing though as this causes a race condition
+            setTimeout(() => {
+                this._isDrawing = false;
+            }, 0);
+        }
+    }
+
+    public isDrawing(): boolean {
+        return this._isDrawing;
     }
 
     public addDrawControl(): MapboxDraw {
