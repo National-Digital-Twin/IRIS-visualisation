@@ -208,9 +208,8 @@ export class DashboardService {
         });
     }
 
-    public getBuildingsAffectedByExtremeWeather(polygon?: GeoJSON.Polygon): Observable<BackendBuildingsAffectedByExtremeWeatherResponse[]> {
+    public getBuildingsAffectedByExtremeWeather(): Observable<BackendBuildingsAffectedByExtremeWeatherResponse[]> {
         return this.#http.get<BackendBuildingsAffectedByExtremeWeatherResponse[]>(`${this.#endpointRoot}/buildings-affected-by-extreme-weather`, {
-            params: this.getParamsWithPolygon(polygon),
             withCredentials: true,
         });
     }

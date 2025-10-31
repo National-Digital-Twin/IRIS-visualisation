@@ -3,7 +3,6 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BackendBuildingsAffectedByExtremeWeatherResponse, DashboardService } from '@core/services/dashboard.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
-import { Polygon } from 'geojson';
 import { Data, PlotData } from 'plotly.js-dist-min';
 import { of } from 'rxjs';
 import { getPlotlyModuleProviders } from '../plotly.mock';
@@ -57,34 +56,8 @@ describe('ExtremeWeatherChartComponent', () => {
 
             fixture.detectChanges();
 
-            expect(dashboardService.getBuildingsAffectedByExtremeWeather).toHaveBeenCalledWith(undefined);
+            expect(dashboardService.getBuildingsAffectedByExtremeWeather).toHaveBeenCalled();
             expect(component.loading()).toBe(false);
-        });
-
-        it('should pass polygon to service when selectedArea is provided', () => {
-            const mockPolygon: GeoJSON.Feature<Polygon> = {
-                type: 'Feature',
-                geometry: {
-                    type: 'Polygon',
-                    coordinates: [
-                        [
-                            [0, 0],
-                            [1, 0],
-                            [1, 1],
-                            [0, 1],
-                            [0, 0],
-                        ],
-                    ],
-                },
-                properties: {},
-            };
-
-            jest.spyOn(dashboardService, 'getBuildingsAffectedByExtremeWeather').mockReturnValue(of(mockApiResponse));
-
-            fixture.componentRef.setInput('selectedArea', mockPolygon);
-            fixture.detectChanges();
-
-            expect(dashboardService.getBuildingsAffectedByExtremeWeather).toHaveBeenCalledWith(mockPolygon.geometry);
         });
     });
 

@@ -41,9 +41,11 @@
             </section>
         }
 
-        <section class="widget-card">
-            <c477-extreme-weather-chart [selectedArea]="selectedArea()"></c477-extreme-weather-chart>
-        </section>
+        @if (dashboardType() === 'national') {
+            <section class="widget-card">
+                <c477-extreme-weather-chart [selectedArea]="selectedArea()"></c477-extreme-weather-chart>
+            </section>
+        }
     </div>
 </div>
 

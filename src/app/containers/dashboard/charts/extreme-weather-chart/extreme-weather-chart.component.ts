@@ -39,10 +39,7 @@ export class ExtremeWeatherChartComponent extends BaseChartComponent {
     protected override loadData(): void {
         this.loading.set(true);
 
-        const polygon = this.selectedArea?.geometry;
-        const sub = this.dashboardService
-            .getBuildingsAffectedByExtremeWeather(polygon)
-            .subscribe((data) => this.buildingsAffectedByExtremeWeatherData.set(data));
+        const sub = this.dashboardService.getBuildingsAffectedByExtremeWeather().subscribe((data) => this.buildingsAffectedByExtremeWeatherData.set(data));
 
         this.subscriptions.add(sub);
     }
