@@ -84,9 +84,7 @@ export class CharacteristicsChartComponent extends BaseChartComponent {
 
             const regions = apiResponse.map((r) => r.region_name);
             this.availableRegions.set(regions);
-
-            // Just show the first 4 regions to avoid too many bars
-            this.selectedRegions.set(regions.slice(0, Math.min(4, regions.length)));
+            this.selectedRegions.set(regions);
         });
 
         this.subscriptions.add(sub);
@@ -107,7 +105,6 @@ export class CharacteristicsChartComponent extends BaseChartComponent {
                 textfont: { color: 'white', size: 14, family: 'Roboto, sans-serif' },
                 hovertemplate: '<b>%{x}</b><br>%{y:.1f}% of buildings have ' + characteristic + '<extra></extra>',
                 hoverlabel: this.chartService.commonHoverStyle,
-                width: 0.5,
             },
         ];
 

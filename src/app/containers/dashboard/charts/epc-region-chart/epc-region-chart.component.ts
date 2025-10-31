@@ -49,9 +49,7 @@ export class EpcRegionChartComponent extends BaseChartComponent {
 
             const regions = regionData.map((r) => r.region_name);
             this.availableRegions.set(regions);
-
-            // Just show the first 4 regions to avoid too many bars
-            this.selectedRegions.set(regions.slice(0, Math.min(4, regions.length)));
+            this.selectedRegions.set(regions);
         });
 
         this.subscriptions.add(sub);
@@ -61,18 +59,26 @@ export class EpcRegionChartComponent extends BaseChartComponent {
         const filteredData = regionData.filter((r) => selectedRegions.includes(r.region_name));
         const sortedData = this.chartService.sortRegionsAlphabetically(filteredData);
 
-        const ratings = ['G', 'F', 'E', 'D', 'C', 'B', 'A'];
+        const ratings = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
         const regionNames = sortedData.map((r) => r.region_name);
-        const data: Data[] = ratings.map((rating) => ({
-            type: 'bar',
-            name: rating,
-            x: regionNames.map((r) => r.replaceAll(' ', '<br>')),
-            y: sortedData.map((r) => r[`epc_${rating.toLowerCase()}` as keyof EPCRegionData] || 0),
-            marker: { color: this.chartService.epcColors[rating] },
-            hoverlabel: this.chartService.commonHoverStyle,
-            hovertemplate: '<b>%{x}</b><br>%{y:,}<extra></extra>',
-            width: 0.5,
-        }));
+
+        const data: Data[] = ratings.map((rating) => {
+            const values = sortedData.map((r) => r[`epc_${rating.toLowerCase()}` as keyof EPCRegionData] || 0);
+            const percentages = sortedData.map((r) => {
+                const ratingCount = (r[`epc_${rating.toLowerCase()}` as keyof EPCRegionData] as number) || 0;
+                return ((ratingCount / r.total) * 100).toFixed(1);
+            });
+            return {
+                type: 'bar',
+                name: rating,
+                x: regionNames.map((r) => r.replaceAll(' ', '<br>')),
+                y: values,
+                customdata: percentages,
+                marker: { color: this.chartService.epcColors[rating] },
+                hoverlabel: this.chartService.commonHoverStyle,
+                hovertemplate: '<b>%{fullData.name}</b><br>%{y:,}<br>%{customdata}%<extra></extra>',
+            };
+        });
 
         const maxTotal = Math.max(
             ...sortedData.map((r) => ratings.reduce((acc, curr) => acc + ((r[`epc_${curr.toLowerCase()}` as keyof EPCRegionData] as number) || 0), 0)),
@@ -80,10 +86,10 @@ export class EpcRegionChartComponent extends BaseChartComponent {
 
         const layout: Partial<Layout> = {
             barmode: 'stack',
-            margin: { l: 20, r: 40, t: 20, b: 80 },
+            margin: { l: 20, r: 60, t: 20, b: 80 },
             xaxis: {
                 title: { text: '' },
-                tickangle: 'auto',
+                tickangle: 45,
                 tickfont: { size: 11, color: '#333' },
                 automargin: true,
             },
@@ -94,9 +100,10 @@ export class EpcRegionChartComponent extends BaseChartComponent {
                 showgrid: true,
                 gridcolor: '#e0e0e0',
                 side: 'right',
+                automargin: true,
             },
             font: this.chartService.commonFont,
-            height: 250,
+            height: 300,
             plot_bgcolor: 'white',
             paper_bgcolor: 'white',
             showlegend: true,
@@ -105,6 +112,7 @@ export class EpcRegionChartComponent extends BaseChartComponent {
                 x: 0.5,
                 y: -0.5,
                 xanchor: 'center',
+                traceorder: 'normal',
             },
         };
 

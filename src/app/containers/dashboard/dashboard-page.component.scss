@@ -62,12 +62,10 @@
 
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: auto;
+    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
     gap: 1rem;
-
-    @media (max-width: 1400px) {
-        grid-template-columns: repeat(2, 1fr);
-    }
+    align-items: start;
 
     @media (max-width: 768px) {
         grid-template-columns: 1fr;
@@ -87,6 +85,7 @@
 
     &.double-height {
         grid-row: span 2;
+        align-self: stretch;
     }
 }
 

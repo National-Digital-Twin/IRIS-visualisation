@@ -8,21 +8,14 @@
     .donut-section {
         position: relative;
         flex: 0 0 auto;
-        height: 280px;
     }
 
     .bar-section {
         position: relative;
         flex: 1;
-        min-height: 320px;
     }
 
     plotly-plot {
         width: 100%;
     }
-}
-
-.chart-skeleton.double-skeleton {
-    height: 100%;
-    min-height: 520px;
 }
