@@ -105,15 +105,10 @@ export class ExtremeWeatherChartComponent extends BaseChartComponent {
                 marker: { color: '#3670b3' },
                 hoverlabel: this.chartService.commonHoverStyle,
                 hovertemplate: '<b>%{x}</b><br>%{y:,}<extra></extra>',
-                width: 0.5,
             },
         ];
 
-        const maxValue =
-            buildingsAffectedByExtremeWeatherData
-                .map((data) => data.number_of_buildings)
-                .sort()
-                .at(-1) || 0;
+        const maxValue = Math.max(...buildingsAffectedByExtremeWeatherData.map((data) => data.number_of_buildings));
 
         const layout: Partial<Layout> = {
             margin: { l: 20, r: 40, t: 20, b: 80 },
