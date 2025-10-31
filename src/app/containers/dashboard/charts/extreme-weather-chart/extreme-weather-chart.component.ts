@@ -81,7 +81,7 @@ export class ExtremeWeatherChartComponent extends BaseChartComponent {
             case 'WDR + HSD':
                 return 'WDR +<br>HSD';
             case 'WDR + icing days':
-                return 'WRD +<br>icing<br>days';
+                return 'WDR +<br>icing<br>days';
             case 'HSD + icing days':
                 return 'HSD +<br>icing<br>days';
             case 'WDR + HSD + icing days':
