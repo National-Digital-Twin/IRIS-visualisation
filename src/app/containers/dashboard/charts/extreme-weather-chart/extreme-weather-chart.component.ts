@@ -1,0 +1,147 @@
+import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, effect, signal } from '@angular/core';
+import { Data } from '@angular/router';
+import { BackendBuildingsAffectedByExtremeWeatherResponse } from '@core/services/dashboard.service';
+import { PlotlyModule } from 'angular-plotly.js';
+import { Layout } from 'plotly.js-dist-min';
+import { BaseChartComponent } from '../base-chart.component';
+
+@Component({
+    selector: 'c477-extreme-weather-chart',
+    imports: [CommonModule, PlotlyModule],
+    templateUrl: './extreme-weather-chart.component.html',
+    styleUrl: './extreme-weather-chart.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ExtremeWeatherChartComponent extends BaseChartComponent {
+    public chartData = signal<Data[]>([]);
+    public chartLayout = signal<Partial<Layout>>({});
+    public loading = signal(true);
+
+    public readonly buildingsAffectedByExtremeWeatherData = signal<BackendBuildingsAffectedByExtremeWeatherResponse[] | null>(null);
+
+    constructor() {
+        super();
+        effect(() => {
+            const buildingsAffectedByExtremeWeatherData = this.buildingsAffectedByExtremeWeatherData();
+
+            if (!buildingsAffectedByExtremeWeatherData) {
+                return;
+            }
+
+            const built = this.buildChart(buildingsAffectedByExtremeWeatherData);
+            this.chartData.set(built.data);
+            this.chartLayout.set(built.layout);
+            this.loading.set(false);
+        });
+    }
+
+    protected override loadData(): void {
+        this.loading.set(true);
+
+        const polygon = this.selectedArea?.geometry;
+        const sub = this.dashboardService
+            .getBuildingsAffectedByExtremeWeather(polygon)
+            .subscribe((data) => this.buildingsAffectedByExtremeWeatherData.set(data));
+
+        this.subscriptions.add(sub);
+    }
+
+    private filterBuildingsAffectedByExtremeWeatherData(
+        extremeWeatherInstance: string,
+        buildingsAffectedByExtremeWeatherData: BackendBuildingsAffectedByExtremeWeatherResponse[],
+    ): BackendBuildingsAffectedByExtremeWeatherResponse | undefined {
+        switch (extremeWeatherInstance) {
+            case 'WDR':
+                return buildingsAffectedByExtremeWeatherData.find((data) => data.affected_by_wdr && !data.affected_by_hsds && !data.affected_by_icing_days);
+            case 'HSD':
+                return buildingsAffectedByExtremeWeatherData.find((data) => !data.affected_by_wdr && data.affected_by_hsds && !data.affected_by_icing_days);
+            case 'Icing days':
+                return buildingsAffectedByExtremeWeatherData.find((data) => !data.affected_by_wdr && !data.affected_by_hsds && data.affected_by_icing_days);
+            case 'WDR + HSD':
+                return buildingsAffectedByExtremeWeatherData.find((data) => data.affected_by_wdr && data.affected_by_hsds && !data.affected_by_icing_days);
+            case 'WDR + icing days':
+                return buildingsAffectedByExtremeWeatherData.find((data) => data.affected_by_wdr && !data.affected_by_hsds && data.affected_by_icing_days);
+            case 'HSD + icing days':
+                return buildingsAffectedByExtremeWeatherData.find((data) => !data.affected_by_wdr && data.affected_by_hsds && data.affected_by_icing_days);
+            case 'WDR + HSD + icing days':
+                return buildingsAffectedByExtremeWeatherData.find((data) => data.affected_by_wdr && data.affected_by_hsds && data.affected_by_icing_days);
+            default:
+                return undefined;
+        }
+    }
+
+    private formatExtremeWeatherInstance(extremeWeatherInstance: string): string {
+        switch (extremeWeatherInstance) {
+            case 'WDR':
+            case 'HSD':
+                return extremeWeatherInstance;
+            case 'Icing days':
+                return 'Icing<br>days';
+            case 'WDR + HSD':
+                return 'WDR +<br>HSD';
+            case 'WDR + icing days':
+                return 'WRD +<br>icing<br>days';
+            case 'HSD + icing days':
+                return 'HSD +<br>icing<br>days';
+            case 'WDR + HSD + icing days':
+                return 'WDR,<br>HSD +<br>icing<br>days';
+            default:
+                return '';
+        }
+    }
+
+    private buildChart(buildingsAffectedByExtremeWeatherData: BackendBuildingsAffectedByExtremeWeatherResponse[]): { data: Data[]; layout: Partial<Layout> } {
+        const extremeWeatherInstances = ['WDR', 'HSD', 'Icing days', 'WDR + HSD', 'WDR + icing days', 'HSD + icing days', 'WDR + HSD + icing days'];
+        const data: Data[] = [
+            {
+                type: 'bar',
+                x: extremeWeatherInstances.map((extremeWeatherInstance) => this.formatExtremeWeatherInstance(extremeWeatherInstance)),
+                y: extremeWeatherInstances.map(
+                    (extremeWeatherInstance) =>
+                        this.filterBuildingsAffectedByExtremeWeatherData(extremeWeatherInstance, buildingsAffectedByExtremeWeatherData)?.number_of_buildings ||
+                        0,
+                ),
+                marker: { color: '#3670b3' },
+                hoverlabel: this.chartService.commonHoverStyle,
+                hovertemplate: '<b>%{x}</b><br>%{y:,}<extra></extra>',
+                width: 0.5,
+            },
+        ];
+
+        const maxValue =
+            buildingsAffectedByExtremeWeatherData
+                .map((data) => data.number_of_buildings)
+                .sort()
+                .at(-1) || 0;
+
+        const layout: Partial<Layout> = {
+            margin: { l: 20, r: 40, t: 20, b: 80 },
+            xaxis: {
+                title: { text: '' },
+                tickangle: 'auto',
+                tickfont: { size: 11, color: '#333' },
+                automargin: true,
+            },
+            yaxis: {
+                title: { text: '' },
+                range: [0, maxValue],
+                tickformat: '5s',
+                showgrid: true,
+                gridcolor: '#e0e0e0',
+                side: 'right',
+            },
+            font: this.chartService.commonFont,
+            height: 250,
+            plot_bgcolor: 'white',
+            paper_bgcolor: 'white',
+            showlegend: false,
+        };
+
+        return { data, layout };
+    }
+}
+
+// SPDX-License-Identifier: Apache-2.0
+// © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+// and is legally attdibuted to the Department for Business and Trade (UK) as the governing entity.

@@ -9,6 +9,7 @@ import { DashboardType } from './chart.service';
 import { BuildingFuelChartComponent } from './charts/building-fuel-chart/building-fuel-chart.component';
 import { CharacteristicsChartComponent } from './charts/characteristics-chart/characteristics-chart.component';
 import { EpcRegionChartComponent } from './charts/epc-region-chart/epc-region-chart.component';
+import { ExtremeWeatherChartComponent } from './charts/extreme-weather-chart/extreme-weather-chart.component';
 import { OverallEpcChartComponent } from './charts/overall-epc-chart/overall-epc-chart.component';
 import { SapTimelineChartComponent } from './charts/sap-timeline-chart/sap-timeline-chart.component';
 
@@ -25,6 +26,7 @@ import { SapTimelineChartComponent } from './charts/sap-timeline-chart/sap-timel
         CharacteristicsChartComponent,
         SapTimelineChartComponent,
         BuildingFuelChartComponent,
+        ExtremeWeatherChartComponent,
     ],
     templateUrl: './dashboard-page.component.html',
     styleUrl: './dashboard-page.component.scss',
