@@ -1,0 +1,12 @@
+<div class="widget-header">
+    <div class="widget-title">
+        <span>Expired vs in date EPCs</span>
+    </div>
+</div>
+<div class="chart-wrapper">
+    @if (loading()) {
+        <div class="chart-skeleton"></div>
+    } @else {
+        <plotly-plot [data]="chartData()" [layout]="chartLayout()" [config]="chartConfig"></plotly-plot>
+    }
+</div>

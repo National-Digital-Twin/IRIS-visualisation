@@ -75,6 +75,31 @@ export interface BackendBuildingsAffectedByExtremeWeatherResponse {
     affected_by_wdr?: boolean;
 }
 
+export interface BackendNumberOfInDateAndExpiredEpcsResponse {
+    number_of_expired_10y: number;
+    number_of_expired_9y: number;
+    number_of_expired_8y: number;
+    number_of_expired_7y: number;
+    number_of_expired_6y: number;
+    number_of_expired_5y: number;
+    number_of_expired_4y: number;
+    number_of_expired_3y: number;
+    number_of_expired_2y: number;
+    number_of_expired_1y: number;
+    number_of_expired_now: number;
+    number_of_active_10y: number;
+    number_of_active_9y: number;
+    number_of_active_8y: number;
+    number_of_active_7y: number;
+    number_of_active_6y: number;
+    number_of_active_5y: number;
+    number_of_active_4y: number;
+    number_of_active_3y: number;
+    number_of_active_2y: number;
+    number_of_active_1y: number;
+    number_of_active_now: number;
+}
+
 interface BackendEPCRegionData {
     region_name: string;
     epc_a: number;
@@ -212,6 +237,10 @@ export class DashboardService {
         return this.#http.get<BackendBuildingsAffectedByExtremeWeatherResponse[]>(`${this.#endpointRoot}/buildings-affected-by-extreme-weather`, {
             withCredentials: true,
         });
+    }
+
+    public getNumberOfInDateAndExpiredEpcs(): Observable<BackendNumberOfInDateAndExpiredEpcsResponse> {
+        return this.#http.get<BackendNumberOfInDateAndExpiredEpcsResponse>(`${this.#endpointRoot}/no-of-in-date-and-expired-epcs`, { withCredentials: true });
     }
 }
 

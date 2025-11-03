@@ -10,6 +10,7 @@ import { BuildingFuelChartComponent } from './charts/building-fuel-chart/buildin
 import { CharacteristicsChartComponent } from './charts/characteristics-chart/characteristics-chart.component';
 import { EpcRegionChartComponent } from './charts/epc-region-chart/epc-region-chart.component';
 import { ExtremeWeatherChartComponent } from './charts/extreme-weather-chart/extreme-weather-chart.component';
+import { InDateVsExpiredEpcsComponent } from './charts/in-date-vs-expired-epcs-chart/in-date-vs-expired-epcs-chart.component';
 import { OverallEpcChartComponent } from './charts/overall-epc-chart/overall-epc-chart.component';
 import { SapTimelineChartComponent } from './charts/sap-timeline-chart/sap-timeline-chart.component';
 
@@ -27,6 +28,7 @@ import { SapTimelineChartComponent } from './charts/sap-timeline-chart/sap-timel
         SapTimelineChartComponent,
         BuildingFuelChartComponent,
         ExtremeWeatherChartComponent,
+        InDateVsExpiredEpcsComponent,
     ],
     templateUrl: './dashboard-page.component.html',
     styleUrl: './dashboard-page.component.scss',

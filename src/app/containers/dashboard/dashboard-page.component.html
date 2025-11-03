@@ -46,6 +46,12 @@
                 <c477-extreme-weather-chart [selectedArea]="selectedArea()"></c477-extreme-weather-chart>
             </section>
         }
+
+        @if (dashboardType() === 'national') {
+            <section class="widget-card">
+                <c477-in-date-vs-expired-epcs-chart [selectedArea]="selectedArea()"></c477-in-date-vs-expired-epcs-chart>
+            </section>
+        }
     </div>
 </div>
 
