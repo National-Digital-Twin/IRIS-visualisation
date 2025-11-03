@@ -17,7 +17,7 @@ export class InDateVsExpiredEpcsComponent extends BaseChartComponent {
     public chartLayout = signal<Partial<Layout>>({});
     public loading = signal<boolean>(true);
 
-    public numberOfInDateAndExpiredEpcs = signal<BackendNumberOfInDateAndExpiredEpcsResponse | null>(null);
+    public numberOfInDateAndExpiredEpcs = signal<BackendNumberOfInDateAndExpiredEpcsResponse[] | null>(null);
 
     constructor() {
         super();
@@ -43,22 +43,8 @@ export class InDateVsExpiredEpcsComponent extends BaseChartComponent {
         this.subscriptions.add(sub);
     }
 
-    private getNumberInDate(year: number): keyof BackendNumberOfInDateAndExpiredEpcsResponse {
-        const currentYear = new Date().getFullYear();
-        return (year === currentYear ? 'number_of_active_now' : `number_of_active_${currentYear - year}y`) as keyof BackendNumberOfInDateAndExpiredEpcsResponse;
-    }
-
-    private getNumberExpired(year: number): keyof BackendNumberOfInDateAndExpiredEpcsResponse {
-        const currentYear = new Date().getFullYear();
-        return (
-            year === currentYear ? 'number_of_expired_now' : `number_of_expired_${currentYear - year}y`
-        ) as keyof BackendNumberOfInDateAndExpiredEpcsResponse;
-    }
-
-    private buildChart(numberOfInDateAndExpiredEpcs: BackendNumberOfInDateAndExpiredEpcsResponse): { data: Data[]; layout: Partial<Layout> } {
-        const years: number[] = Array.from(Array(11).keys())
-            .reverse()
-            .map((element) => new Date().getFullYear() - element);
+    private buildChart(numberOfInDateAndExpiredEpcs: BackendNumberOfInDateAndExpiredEpcsResponse[]): { data: Data[]; layout: Partial<Layout> } {
+        const years = numberOfInDateAndExpiredEpcs.map((element) => element.year);
 
         const data: Data[] = [
             {
@@ -66,7 +52,7 @@ export class InDateVsExpiredEpcsComponent extends BaseChartComponent {
                 name: 'In date',
                 mode: 'lines',
                 x: years,
-                y: years.map((year) => numberOfInDateAndExpiredEpcs[this.getNumberInDate(year)]),
+                y: numberOfInDateAndExpiredEpcs.map((element) => element.active),
                 line: { color: '#3670b3', width: 2 },
                 hovertemplate: '<b>%{x}</b><br>%{y:,}<extra></extra>',
             },
@@ -75,7 +61,7 @@ export class InDateVsExpiredEpcsComponent extends BaseChartComponent {
                 name: 'Expired',
                 mode: 'lines',
                 x: years,
-                y: years.map((year) => numberOfInDateAndExpiredEpcs[this.getNumberExpired(year)]),
+                y: numberOfInDateAndExpiredEpcs.map((element) => element.expired),
                 line: { color: '#002244', width: 2 },
                 hovertemplate: '<b>%{x}</b><br>%{y:,}<extra></extra>',
             },
@@ -113,3 +99,7 @@ export class InDateVsExpiredEpcsComponent extends BaseChartComponent {
         return { data, layout };
     }
 }
+
+// SPDX-License-Identifier: Apache-2.0
+// © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+// and is legally attdibuted to the Department for Business and Trade (UK) as the governing entity.
