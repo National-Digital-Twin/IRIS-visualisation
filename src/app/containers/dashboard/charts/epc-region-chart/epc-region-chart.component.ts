@@ -89,14 +89,15 @@ export class EpcRegionChartComponent extends BaseChartComponent {
             margin: { l: 20, r: 60, t: 20, b: 80 },
             xaxis: {
                 title: { text: '' },
-                tickangle: 45,
-                tickfont: { size: 11, color: '#333' },
+                tickangle: 'auto',
+                tickfont: { size: 11, color: '#999' },
                 automargin: true,
             },
             yaxis: {
                 title: { text: '' },
                 range: [0, maxTotal * 1.1],
                 tickformat: '.2s',
+                tickfont: { size: 11, color: '#999' },
                 showgrid: true,
                 gridcolor: '#e0e0e0',
                 side: 'right',
