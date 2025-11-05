@@ -36,10 +36,21 @@
     .legendpoints path {
         --circle-r6: path('M 6 0 A 6 6 0 1 1 -6 0 A 6 6 0 1 1 6 0 Z');
 
+        transform: translateX(1.8rem);
         d: var(--circle-r6);
     }
-}
 
+    .legendlines path {
+        --circle: path('M 2.5 0 A 2.5 2.5 0 1 1 -2.5 0 A 2.5 2.5 0 1 1 2.5 0 Z');
+
+        transform: translateX(1.8rem);
+
+        d: var(--circle);
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 5 !important;
+    }
+}
 
 // SPDX-License-Identifier: Apache-2.0
 // © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme

@@ -15,7 +15,8 @@ export interface BuildingCharacteristicsResponse {
 
 export interface TimelineAvgSAPDataPoint {
     date: Date;
-    avg_sap_rating: number;
+    national_avg_sap_rating: number;
+    filtered_avg_sap_rating: number | null;
 }
 
 export interface SAPTimelineResponse {
@@ -64,8 +65,9 @@ export interface BackendFuelTypesByBuildingTypeResponse {
 }
 
 interface BackendSAPTimelineResponse {
-    lodgement_date: string;
-    avg_sap_rating: number;
+    date: string;
+    national_avg_sap_rating: number;
+    filtered_avg_sap_rating: number | null;
 }
 
 export interface BackendBuildingsAffectedByExtremeWeatherResponse {
@@ -148,7 +150,7 @@ export class DashboardService {
             );
     }
 
-    public getSAPTimeline(polygon: GeoJSON.Polygon): Observable<SAPTimelineResponse> {
+    public getSAPTimeline(polygon?: GeoJSON.Polygon): Observable<SAPTimelineResponse> {
         return this.#http
             .get<
                 BackendSAPTimelineResponse[]
@@ -156,8 +158,9 @@ export class DashboardService {
             .pipe(
                 map((results) => ({
                     timeline: results.map((data) => ({
-                        date: new Date(data.lodgement_date),
-                        avg_sap_rating: data.avg_sap_rating,
+                        date: new Date(data.date),
+                        national_avg_sap_rating: data.national_avg_sap_rating,
+                        filtered_avg_sap_rating: data.filtered_avg_sap_rating,
                     })),
                 })),
             );

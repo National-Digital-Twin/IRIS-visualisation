@@ -67,10 +67,8 @@ export class InDateVsExpiredEpcsComponent extends BaseChartComponent {
             },
         ];
 
-        const maxValue = Math.max(...Object.values(this.numberOfInDateAndExpiredEpcs));
-
         const layout: Partial<Layout> = {
-            margin: { l: 20, r: 40, t: 20, b: 80 },
+            margin: { l: 20, r: 40, t: 20, b: 40 },
             xaxis: {
                 title: { text: '' },
                 type: 'date',
@@ -79,14 +77,18 @@ export class InDateVsExpiredEpcsComponent extends BaseChartComponent {
                 tickformat: '%Y',
                 automargin: true,
                 showgrid: false,
+                tickfont: { size: 11, color: '#999' },
+                linewidth: 0,
             },
             yaxis: {
                 title: { text: '' },
-                range: [0, maxValue],
                 tickformat: '5s',
                 showgrid: true,
                 gridcolor: '#e0e0e0',
                 side: 'right',
+                zerolinecolor: '#e0e0e0',
+                tickfont: { size: 11, color: '#999' },
+                linewidth: 0,
             },
             font: this.chartService.commonFont,
             height: 250,
