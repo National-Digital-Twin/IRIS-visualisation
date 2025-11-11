@@ -1,9 +1,9 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { AreaFilter } from '@core/models/area-filter.model';
 import { DashboardService, TimelineAvgSAPDataPoint, SAPTimelineResponse } from '@core/services/dashboard.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
-import { Polygon } from 'geojson';
 import type { PlotData } from 'plotly.js-dist-min';
 import { of } from 'rxjs';
 import { ChartService } from '../../chart.service';
@@ -81,10 +81,10 @@ describe('SapTimelineChartComponent', () => {
             expect(component.chartData().length).toBeGreaterThan(0);
         });
 
-        it('should pass polygon to service when selectedArea is provided', () => {
-            const mockPolygon: GeoJSON.Feature<Polygon> = {
-                type: 'Feature',
-                geometry: {
+        it('should pass areaFilter to service when areaFilter is provided', () => {
+            const mockAreaFilter: AreaFilter = {
+                mode: 'polygon',
+                polygon: {
                     type: 'Polygon',
                     coordinates: [
                         [
@@ -96,16 +96,15 @@ describe('SapTimelineChartComponent', () => {
                         ],
                     ],
                 },
-                properties: {},
             };
 
             const mockResponse: SAPTimelineResponse = { timeline: mockTimelineWithFiltered };
             jest.spyOn(dashboardService, 'getSAPTimeline').mockReturnValue(of(mockResponse));
 
-            fixture.componentRef.setInput('selectedArea', mockPolygon);
+            fixture.componentRef.setInput('areaFilter', mockAreaFilter);
             fixture.detectChanges();
 
-            expect(dashboardService.getSAPTimeline).toHaveBeenCalledWith(mockPolygon.geometry);
+            expect(dashboardService.getSAPTimeline).toHaveBeenCalledWith(mockAreaFilter);
         });
 
         it('should handle empty timeline response', () => {

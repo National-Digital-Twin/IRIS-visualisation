@@ -43,8 +43,7 @@ export class EpcRegionChartComponent extends BaseChartComponent {
     protected loadData(): void {
         this.loading.set(true);
 
-        const polygon = this.selectedArea?.geometry;
-        const sub = this.dashboardService.getEPCByRegion(polygon).subscribe((regionData) => {
+        const sub = this.dashboardService.getEPCByRegion(this.areaFilter).subscribe((regionData) => {
             this.epcRegionData.set(regionData);
 
             const regions = regionData.map((r) => r.region_name);

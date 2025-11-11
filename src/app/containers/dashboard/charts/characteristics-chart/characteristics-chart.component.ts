@@ -78,8 +78,7 @@ export class CharacteristicsChartComponent extends BaseChartComponent {
     protected loadData(): void {
         this.loading.set(true);
 
-        const polygon = this.selectedArea?.geometry;
-        const sub = this.dashboardService.getAllBuildingAttributesPerRegion(polygon).subscribe((apiResponse) => {
+        const sub = this.dashboardService.getAllBuildingAttributesPerRegion(this.areaFilter).subscribe((apiResponse) => {
             this.buildingAttributesByRegion.set(apiResponse);
 
             const regions = apiResponse.map((r) => r.region_name);

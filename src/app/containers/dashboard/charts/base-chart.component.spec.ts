@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { AreaFilter } from '@core/models/area-filter.model';
 import { DashboardService } from '@core/services/dashboard.service';
-import { Polygon } from 'geojson';
 import { Subject } from 'rxjs';
 import { ChartService } from '../chart.service';
 import { BaseChartComponent } from './base-chart.component';
@@ -49,10 +49,10 @@ describe('BaseChartComponent', () => {
         expect(component.loadDataCallCount).toBe(1);
     });
 
-    it('should call loadData when selectedArea changes', () => {
-        const mockPolygon: GeoJSON.Feature<Polygon> = {
-            type: 'Feature',
-            geometry: {
+    it('should call loadData when areaFilter changes', () => {
+        const mockAreaFilter: AreaFilter = {
+            mode: 'polygon',
+            polygon: {
                 type: 'Polygon',
                 coordinates: [
                     [
@@ -64,20 +64,19 @@ describe('BaseChartComponent', () => {
                     ],
                 ],
             },
-            properties: {},
         };
 
         fixture.detectChanges();
         expect(component.loadDataCallCount).toBe(1);
 
-        component.selectedArea = undefined;
+        component.areaFilter = undefined;
         fixture.detectChanges();
         expect(component.loadDataCallCount).toBe(1);
 
-        component.selectedArea = mockPolygon;
+        component.areaFilter = mockAreaFilter;
         component.ngOnChanges({
-            selectedArea: {
-                currentValue: mockPolygon,
+            areaFilter: {
+                currentValue: mockAreaFilter,
                 previousValue: undefined,
                 firstChange: false,
                 isFirstChange: () => false,
@@ -88,9 +87,9 @@ describe('BaseChartComponent', () => {
     });
 
     it('should not call loadData on first change', () => {
-        const mockPolygon: GeoJSON.Feature<Polygon> = {
-            type: 'Feature',
-            geometry: {
+        const mockAreaFilter: AreaFilter = {
+            mode: 'polygon',
+            polygon: {
                 type: 'Polygon',
                 coordinates: [
                     [
@@ -102,10 +101,9 @@ describe('BaseChartComponent', () => {
                     ],
                 ],
             },
-            properties: {},
         };
 
-        fixture.componentRef.setInput('selectedArea', mockPolygon);
+        fixture.componentRef.setInput('areaFilter', mockAreaFilter);
         fixture.detectChanges();
         expect(component.loadDataCallCount).toBe(1);
     });

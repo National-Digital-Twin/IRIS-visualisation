@@ -6,10 +6,11 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatRadioChange, MatRadioModule } from '@angular/material/radio';
-import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Params, Router } from '@angular/router';
+import { AreaFilterPanelComponent } from '@components/area-filter-panel/area-filter-panel.component';
 import { DashboardAreaSelectionDialogComponent } from '@components/dashboard-area-selection-dialog/dashboard-area-selection-dialog.component';
 import { DetailsPanelComponent } from '@components/details-panel/details-panel.component';
 import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
@@ -22,6 +23,7 @@ import { RemoveFlagModalComponent, RemoveFlagModalData, RemoveFlagModalResult } 
 import { MainFiltersComponent } from '@containers/main-filters/main-filters.component';
 import { ResultsPanelComponent } from '@containers/results-panel/results-panel.component';
 import { AdvancedFiltersFormModel, FilterKeys, FilterProps } from '@core/models/advanced-filters.model';
+import { AreaSelectionDialogResult } from '@core/models/area-filter.model';
 import { BuildingModel } from '@core/models/building.model';
 import { DownloadDataWarningData, DownloadDataWarningResponse } from '@core/models/download-data-warning.model';
 import { MinimapData } from '@core/models/minimap-data.model';
@@ -57,6 +59,7 @@ import { EMPTY, filter, forkJoin, map, switchMap, take } from 'rxjs';
         MatMenuModule,
         MatDividerModule,
         PrivacyNoticeComponent,
+        AreaFilterPanelComponent,
     ],
     templateUrl: './shell.component.html',
     styleUrl: './shell.component.scss',
@@ -78,6 +81,7 @@ export class ShellComponent {
     readonly #signoutService = inject(SignoutService);
     readonly #zone = inject(NgZone);
 
+    public areaFilterSidenav = viewChild<MatSidenav>('areaFilterSidenav');
     public mapComponent = viewChild<MapComponent>(MapComponent);
     public filterProps: FilterProps = {};
     public mapConfig!: URLStateModel;
@@ -501,13 +505,15 @@ export class ShellComponent {
     }
 
     public handleNavigateToAreaDashboard(polygon: GeoJSON.Feature<Polygon>): void {
+        const state = {
+            areaFilter: {
+                mode: 'polygon',
+                polygon: polygon.geometry,
+            },
+        };
         // If spatial filter already exists, navigate directly
         if (this.spatialFilterEnabled()) {
-            this.#zone.run(() => {
-                this.#router.navigate(['/dashboards/area'], {
-                    state: { selectedArea: polygon },
-                });
-            });
+            this.#zone.run(() => this.#router.navigate(['/dashboards/area'], { state }));
             return;
         }
 
@@ -516,15 +522,29 @@ export class ShellComponent {
             .afterClosed()
             .subscribe((response) => {
                 if (response === 'yes') {
-                    this.#zone.run(() => {
-                        this.#router.navigate(['/dashboards/area'], {
-                            state: { selectedArea: polygon },
-                        });
-                    });
+                    this.#zone.run(() => this.#router.navigate(['/dashboards/area'], { state }));
                 } else {
                     this.mapComponent()?.deleteSearchArea();
                 }
             });
+    }
+
+    public handleOpenAreaFilterDialog(): void {
+        this.areaFilterSidenav()?.open();
+    }
+
+    public handleAreaFilterConfirm(result: AreaSelectionDialogResult): void {
+        this.#zone.run(() => {
+            this.#router.navigate(['/dashboards/area'], {
+                state: {
+                    areaFilter: {
+                        mode: 'named-areas',
+                        level: result.level,
+                        names: result.names,
+                    },
+                },
+            });
+        });
     }
 }
 

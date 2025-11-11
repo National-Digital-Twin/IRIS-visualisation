@@ -20,8 +20,7 @@ export class SapTimelineChartComponent extends BaseChartComponent {
     protected loadData(): void {
         this.loading.set(true);
 
-        const polygon = this.selectedArea?.geometry;
-        const sub = this.dashboardService.getSAPTimeline(polygon).subscribe((response) => {
+        const sub = this.dashboardService.getSAPTimeline(this.areaFilter).subscribe((response) => {
             const { data, layout } = this.buildChart(response.timeline);
 
             this.chartData.set(data);

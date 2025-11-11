@@ -124,6 +124,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     public toggleMinimap: OutputEmitterRef<null> = output();
     public downloadAddresses: OutputEmitterRef<null> = output();
     public navigateToAreaDashboard: OutputEmitterRef<GeoJSON.Feature<Polygon>> = output();
+    public openAreaFilterDialog: OutputEmitterRef<null> = output();
 
     public readonly theme$ = toObservable(this.#settings.get(SETTINGS.Theme)).pipe(takeUntilDestroyed());
 

@@ -37,7 +37,6 @@
 
 .dashboard-header {
     display: flex;
-    align-items: center;
     justify-content: space-between;
     margin-bottom: 1.5rem;
 
@@ -45,6 +44,15 @@
         margin: 0;
         font-size: 1.125rem;
         font-weight: 400;
+    }
+
+    .area-filter-info {
+        font-size: 0.85rem;
+        color: var(--mat-sys-on-surface-variant);
+
+        strong {
+            font-weight: 500;
+        }
     }
 
     button {

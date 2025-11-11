@@ -1,0 +1,88 @@
+<div class="panel-header">
+    <button mat-icon-button class="close-button" (click)="onCancel()">
+        <mat-icon>close</mat-icon>
+    </button>
+</div>
+
+<div class="panel-content">
+    <mat-form-field appearance="outline" class="area-type-dropdown">
+        <mat-select
+            placeholder="Choose area type"
+            [value]="areaLevel()"
+            (selectionChange)="areaLevel.set($any($event).value); onAreaLevelChange()"
+            [disabled]="hasAreaLevelSelected()"
+        >
+            <mat-option value="region">Regions</mat-option>
+            <mat-option value="county">Counties</mat-option>
+            <mat-option value="district">Districts</mat-option>
+            <mat-option value="ward">Wards</mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    @if (hasAreaLevelSelected()) {
+        <div class="selection-info">
+            <span>*You can select a maximum of {{ maxSelections() }} {{ areaLevel() }}s</span>
+        </div>
+
+        @if (selectionCount() > 0) {
+            <div class="selected-chips">
+                <span class="selected-label">Selected:</span>
+                <mat-chip-set>
+                    @for (area of selectedAreasArray(); track area) {
+                        <mat-chip [removable]="true" (removed)="removeSelectedArea(area)">
+                            {{ area }}
+                            <mat-icon matChipRemove>cancel</mat-icon>
+                        </mat-chip>
+                    }
+                </mat-chip-set>
+            </div>
+        }
+
+        <mat-divider></mat-divider>
+
+        <mat-form-field appearance="outline" class="search-field">
+            <mat-icon matPrefix>search</mat-icon>
+            <input matInput [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" [placeholder]="'Search for a ' + areaLevel() + '...'" />
+        </mat-form-field>
+
+        @if (loading()) {
+            <div class="loading">
+                <mat-spinner diameter="40"></mat-spinner>
+                <span>Loading {{ areaLevel() }}s...</span>
+            </div>
+        }
+
+        @if (!loading()) {
+            @if (allAreas().length === 0 || filteredAreas().length === 0) {
+                <div class="no-results">No results found</div>
+            } @else {
+                <cdk-virtual-scroll-viewport itemSize="48" class="checkbox-list">
+                    <mat-checkbox
+                        *cdkVirtualFor="let area of filteredAreas()"
+                        class="checkbox-item"
+                        [checked]="selectedAreas().has(area)"
+                        [disabled]="!selectedAreas().has(area) && isAtLimit()"
+                        (change)="onSelectionChange(area, $any($event).checked)"
+                    >
+                        {{ area }}
+                    </mat-checkbox>
+                </cdk-virtual-scroll-viewport>
+            }
+        }
+    }
+</div>
+
+<div class="panel-actions">
+    <button mat-flat-button class="cancel-button" (click)="onCancel()">
+        <mat-icon>cancel</mat-icon>
+        CANCEL
+    </button>
+    <button mat-flat-button class="confirm-button" [disabled]="selectionCount() === 0" (click)="onConfirm()">
+        <mat-icon>check_circle</mat-icon>
+        CONFIRM
+    </button>
+</div>
+
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme -->
+<!-- and is legally attributed to the Department for Business and Trade (UK) as the governing entity. -->

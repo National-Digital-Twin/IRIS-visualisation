@@ -1,0 +1,150 @@
+@use '@angular/material' as mat;
+
+:host {
+	display: flex;
+	flex-direction: column;
+
+	width: 350px;
+	height: 100%;
+	border-radius: 0;
+
+	background: var(--mat-sys-surface-container-lowest);
+}
+
+.panel-header {
+	display: flex;
+	justify-content: flex-end;
+	padding: 8px;
+
+	.close-button {
+		color: var(--mat-sys-on-surface-variant);
+	}
+}
+
+.panel-content {
+	overflow-y: auto;
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 0;
+
+	padding: 24px;
+	padding-top: 0;
+}
+
+.selection-info {
+	margin-top: -18px;
+	font-size: 12px;
+	color: var(--mat-sys-on-surface-variant);
+}
+
+.selected-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+
+	margin-bottom: 16px;
+
+	mat-chip-set {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		font-weight: 300;
+	}
+}
+
+mat-divider {
+	margin-bottom: 16px;
+}
+
+.search-field {
+	width: 100%;
+	margin-bottom: 8px;
+
+	::ng-deep {
+		.mat-mdc-form-field-flex {
+			border-radius: 50px !important;
+		}
+
+		.mat-mdc-text-field-wrapper {
+			border-radius: 50px !important;
+		}
+
+		.mdc-notched-outline__leading {
+			width: 28px !important;
+			border-radius: 50px 0 0 50px !important;
+		}
+
+		.mdc-notched-outline__trailing {
+			border-radius: 0 50px 50px 0 !important;
+		}
+	}
+}
+
+.loading {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	align-items: center;
+	justify-content: center;
+
+	padding: 32px;
+
+	span {
+		color: var(--mat-sys-on-surface-variant);
+	}
+}
+
+.checkbox-list {
+	flex: 1;
+
+	min-height: 300px;
+	padding: 0;
+	border: 1px solid var(--mat-sys-outline-variant);
+	border-radius: 4px;
+
+	.checkbox-item {
+		display: flex;
+		align-items: center;
+
+		height: 48px;
+		margin: 0;
+		padding: 0 16px;
+		border-bottom: 1px solid var(--mat-sys-outline-variant);
+
+		::ng-deep .mdc-form-field {
+			width: 100%;
+		}
+
+		&:hover {
+			background-color: var(--mat-sys-surface-container-low);
+		}
+	}
+}
+
+.no-results {
+	padding: 32px;
+	font-style: italic;
+	color: #999999;
+	text-align: center;
+}
+
+.panel-actions {
+	display: flex;
+	gap: 12px;
+	padding: 16px 24px;
+
+	button {
+		flex: 1;
+		mat-icon {
+			width: 18px;
+			height: 18px;
+			font-size: 18px;
+		}
+	}
+}
+
+// SPDX-License-Identifier: Apache-2.0
+// © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+// and is legally attributed to the Department for Business and Trade (UK) as the governing entity.

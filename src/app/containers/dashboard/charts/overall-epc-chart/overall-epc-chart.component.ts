@@ -57,8 +57,7 @@ export class OverallEpcChartComponent extends BaseChartComponent {
     protected loadData(): void {
         this.loading.set(true);
 
-        const polygon = this.selectedArea?.geometry;
-        const sub = this.dashboardService.getOverallEPC(polygon).subscribe((response) => {
+        const sub = this.dashboardService.getOverallEPC(this.areaFilter).subscribe((response) => {
             this.#overallEPCResponse = response;
             const { data: donutData, layout: donutLayout } = this.buildDonutChart(response);
             const { data: barData, layout: barLayout } = this.buildBarChart(response);
@@ -91,6 +90,8 @@ export class OverallEpcChartComponent extends BaseChartComponent {
                 textinfo: 'none',
                 hovertemplate: '<b>%{label}</b><br>%{value:,}<br>%{percent}<extra></extra>',
                 hoverlabel: this.chartService.commonHoverStyle,
+                sort: false,
+                direction: 'clockwise',
             },
         ];
 
@@ -165,7 +166,7 @@ export class OverallEpcChartComponent extends BaseChartComponent {
                 y: rating.rating,
                 xref: 'x',
                 yref: 'y',
-                text: rating.count.toLocaleString(),
+                text: ((rating.count / response.total) * 100).toFixed(1) + '%',
                 showarrow: false,
                 xanchor: 'right',
                 yanchor: 'bottom',

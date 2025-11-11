@@ -81,8 +81,7 @@ export class BuildingFuelChartComponent extends BaseChartComponent {
     protected loadData(): void {
         this.loading.set(true);
 
-        const polygon = this.selectedArea?.geometry;
-        const sub = this.dashboardService.getFuelTypesByBuildingType(polygon).subscribe((apiResponse) => {
+        const sub = this.dashboardService.getFuelTypesByBuildingType(this.areaFilter).subscribe((apiResponse) => {
             this.fuelTypesByBuildingType.set(apiResponse);
 
             const buildingTypes = [...new Set(apiResponse.map((r) => r.building_type))].sort((a, b) => a.localeCompare(b));

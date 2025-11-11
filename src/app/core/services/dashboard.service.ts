@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { AreaFilter } from '../models/area-filter.model';
 
 export interface RegionCharacteristicData {
     region_name: string;
@@ -126,20 +127,22 @@ export class DashboardService {
         'South Wales West PER': 'South Wales West',
     };
 
-    private getParamsWithPolygon(polygon?: GeoJSON.Polygon): Record<string, string> {
-        const params: Record<string, string> = {};
-        if (polygon) {
-            params.polygon = JSON.stringify(polygon);
+    private getParamsWithFilter(filter?: AreaFilter): Record<string, string | string[]> {
+        switch (filter?.mode) {
+            case 'polygon':
+                return { polygon: JSON.stringify(filter.polygon) };
+            case 'named-areas':
+                return { area_level: filter.level, area_names: filter.names };
+            default:
+                return {};
         }
-
-        return params;
     }
 
-    public getAllBuildingAttributesPerRegion(polygon?: GeoJSON.Polygon): Observable<BackendBuildingAttributesResponse[]> {
+    public getAllBuildingAttributesPerRegion(filter?: AreaFilter): Observable<BackendBuildingAttributesResponse[]> {
         return this.#http
             .get<
                 BackendBuildingAttributesResponse[]
-            >(`${this.#endpointRoot}/building-attributes-percentage-per-region`, { params: this.getParamsWithPolygon(polygon), withCredentials: true })
+            >(`${this.#endpointRoot}/building-attributes-percentage-per-region`, { params: this.getParamsWithFilter(filter), withCredentials: true })
             .pipe(
                 map((results) =>
                     results.map((data) => ({
@@ -150,11 +153,9 @@ export class DashboardService {
             );
     }
 
-    public getSAPTimeline(polygon?: GeoJSON.Polygon): Observable<SAPTimelineResponse> {
+    public getSAPTimeline(filter?: AreaFilter): Observable<SAPTimelineResponse> {
         return this.#http
-            .get<
-                BackendSAPTimelineResponse[]
-            >(`${this.#endpointRoot}/sap-rating-overtime`, { params: this.getParamsWithPolygon(polygon), withCredentials: true })
+            .get<BackendSAPTimelineResponse[]>(`${this.#endpointRoot}/sap-rating-overtime`, { params: this.getParamsWithFilter(filter), withCredentials: true })
             .pipe(
                 map((results) => ({
                     timeline: results.map((data) => ({
@@ -166,9 +167,9 @@ export class DashboardService {
             );
     }
 
-    public getEPCByRegion(polygon?: GeoJSON.Polygon): Observable<EPCRegionData[]> {
+    public getEPCByRegion(filter?: AreaFilter): Observable<EPCRegionData[]> {
         return this.#http
-            .get<BackendEPCRegionData[]>(`${this.#endpointRoot}/epc-ratings-per-region`, { params: this.getParamsWithPolygon(polygon), withCredentials: true })
+            .get<BackendEPCRegionData[]>(`${this.#endpointRoot}/epc-ratings-per-region`, { params: this.getParamsWithFilter(filter), withCredentials: true })
             .pipe(
                 map((results) =>
                     results.map((data) => ({
@@ -186,9 +187,9 @@ export class DashboardService {
             );
     }
 
-    public getOverallEPC(polygon?: GeoJSON.Polygon): Observable<OverallEPCResponse> {
+    public getOverallEPC(filter?: AreaFilter): Observable<OverallEPCResponse> {
         return this.#http
-            .get<BackendEPCRatings[]>(`${this.#endpointRoot}/epc-ratings`, { params: this.getParamsWithPolygon(polygon), withCredentials: true })
+            .get<BackendEPCRatings[]>(`${this.#endpointRoot}/epc-ratings`, { params: this.getParamsWithFilter(filter), withCredentials: true })
             .pipe(
                 map((results) => {
                     const data = results[0];
@@ -210,9 +211,9 @@ export class DashboardService {
             );
     }
 
-    public getFuelTypesByBuildingType(polygon?: GeoJSON.Polygon): Observable<BackendFuelTypesByBuildingTypeResponse[]> {
+    public getFuelTypesByBuildingType(filter?: AreaFilter): Observable<BackendFuelTypesByBuildingTypeResponse[]> {
         return this.#http.get<BackendFuelTypesByBuildingTypeResponse[]>(`${this.#endpointRoot}/fuel-types-by-building-type`, {
-            params: this.getParamsWithPolygon(polygon),
+            params: this.getParamsWithFilter(filter),
             withCredentials: true,
         });
     }

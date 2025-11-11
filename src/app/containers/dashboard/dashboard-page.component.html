@@ -7,7 +7,16 @@
 
 <div class="dashboard">
     <header class="dashboard-header">
-        <h1>Statistics - {{ dashboardType() === 'national' ? 'National' : 'Area defined' }} view</h1>
+        <div>
+            <h1>Statistics - {{ dashboardType() === 'national' ? 'National' : 'Area defined' }} view</h1>
+            @if (areaFilter(); as filter) {
+                @if (filter.mode === 'named-areas') {
+                    <div class="area-filter-info">
+                        <span><strong>Displayed areas</strong>: {{ filter.names.join(', ') }}</span>
+                    </div>
+                }
+            }
+        </div>
         <button mat-raised-button color="primary" (click)="handleReturnToMapView()">
             <mat-icon>arrow_back</mat-icon>
             <span>Return to map view</span>
@@ -16,38 +25,38 @@
 
     <div class="dashboard-grid">
         <section class="widget-card double-height">
-            <c477-overall-epc-chart [selectedArea]="selectedArea()"></c477-overall-epc-chart>
+            <c477-overall-epc-chart [areaFilter]="areaFilter()"></c477-overall-epc-chart>
         </section>
 
         @if (dashboardType() === 'national') {
             <section class="widget-card">
-                <c477-epc-region-chart [selectedArea]="selectedArea()"></c477-epc-region-chart>
+                <c477-epc-region-chart [areaFilter]="areaFilter()"></c477-epc-region-chart>
             </section>
         }
 
         @if (dashboardType() === 'national') {
             <section class="widget-card">
-                <c477-characteristics-chart [selectedArea]="selectedArea()"></c477-characteristics-chart>
+                <c477-characteristics-chart [areaFilter]="areaFilter()"></c477-characteristics-chart>
             </section>
         }
 
         <section class="widget-card">
-            <c477-sap-timeline-chart [selectedArea]="selectedArea()"></c477-sap-timeline-chart>
+            <c477-sap-timeline-chart [areaFilter]="areaFilter()"></c477-sap-timeline-chart>
         </section>
 
         <section class="widget-card">
-            <c477-building-fuel-chart [selectedArea]="selectedArea()"></c477-building-fuel-chart>
+            <c477-building-fuel-chart [areaFilter]="areaFilter()"></c477-building-fuel-chart>
         </section>
 
         @if (dashboardType() === 'national') {
             <section class="widget-card">
-                <c477-extreme-weather-chart [selectedArea]="selectedArea()"></c477-extreme-weather-chart>
+                <c477-extreme-weather-chart [areaFilter]="areaFilter()"></c477-extreme-weather-chart>
             </section>
         }
 
         @if (dashboardType() === 'national') {
             <section class="widget-card">
-                <c477-in-date-vs-expired-epcs-chart [selectedArea]="selectedArea()"></c477-in-date-vs-expired-epcs-chart>
+                <c477-in-date-vs-expired-epcs-chart [areaFilter]="areaFilter()"></c477-in-date-vs-expired-epcs-chart>
             </section>
         }
     </div>

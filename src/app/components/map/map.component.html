@@ -135,6 +135,10 @@
                         <span>Draw area</span>
                     </button>
                 }
+                <button mat-menu-item (click)="openAreaFilterDialog.emit(null)">
+                    <mat-icon>highlight_alt</mat-icon>
+                    <span>Choose areas</span>
+                </button>
                 <a mat-menu-item routerLink="/dashboards/national">
                     <mat-icon>public</mat-icon>
                     <span>National view</span>

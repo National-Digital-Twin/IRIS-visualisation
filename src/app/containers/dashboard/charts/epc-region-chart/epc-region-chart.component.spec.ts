@@ -1,9 +1,9 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { AreaFilter } from '@core/models/area-filter.model';
 import { DashboardService, EPCRegionData } from '@core/services/dashboard.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
-import { Polygon } from 'geojson';
 import type { PlotData } from 'plotly.js-dist-min';
 import { of } from 'rxjs';
 import { getPlotlyModuleProviders } from '../plotly.mock';
@@ -133,10 +133,10 @@ describe('EpcRegionChartComponent', () => {
             expect(component.selectedRegions()).toEqual(['North West', 'London']);
         });
 
-        it('should pass polygon to service when selectedArea is provided', () => {
-            const mockPolygon: GeoJSON.Feature<Polygon> = {
-                type: 'Feature',
-                geometry: {
+        it('should pass areaFilter to service when areaFilter is provided', () => {
+            const mockAreaFilter: AreaFilter = {
+                mode: 'polygon',
+                polygon: {
                     type: 'Polygon',
                     coordinates: [
                         [
@@ -148,15 +148,14 @@ describe('EpcRegionChartComponent', () => {
                         ],
                     ],
                 },
-                properties: {},
             };
 
             jest.spyOn(dashboardService, 'getEPCByRegion').mockReturnValue(of(mockApiResponse));
 
-            fixture.componentRef.setInput('selectedArea', mockPolygon);
+            fixture.componentRef.setInput('areaFilter', mockAreaFilter);
             fixture.detectChanges();
 
-            expect(dashboardService.getEPCByRegion).toHaveBeenCalledWith(mockPolygon.geometry);
+            expect(dashboardService.getEPCByRegion).toHaveBeenCalledWith(mockAreaFilter);
         });
 
         it('should handle empty response', () => {
