@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { AreaFilter } from '@core/models/area-filter.model';
 import { BackendNumberOfInDateAndExpiredEpcsResponse, DashboardService } from '@core/services/dashboard.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { Data, PlotData } from 'plotly.js-dist-min';
@@ -61,6 +62,32 @@ describe('InDateVsExpiredChartComponent', () => {
             fixture.detectChanges();
 
             expect(dashboardService.getNumberOfInDateAndExpiredEpcs).toHaveBeenCalled();
+            expect(component.loading()).toBe(false);
+        });
+
+        it('should pass areaFilter to service when areaFilter is provided', () => {
+            const mockAreaFilter: AreaFilter = {
+                mode: 'polygon',
+                polygon: {
+                    type: 'Polygon',
+                    coordinates: [
+                        [
+                            [0, 0],
+                            [1, 0],
+                            [1, 1],
+                            [0, 1],
+                            [0, 0],
+                        ],
+                    ],
+                },
+            };
+
+            jest.spyOn(dashboardService, 'getNumberOfInDateAndExpiredEpcs').mockReturnValue(of(mockApiResponse));
+
+            fixture.componentRef.setInput('areaFilter', mockAreaFilter);
+            fixture.detectChanges();
+
+            expect(dashboardService.getNumberOfInDateAndExpiredEpcs).toHaveBeenCalledWith(mockAreaFilter);
             expect(component.loading()).toBe(false);
         });
     });

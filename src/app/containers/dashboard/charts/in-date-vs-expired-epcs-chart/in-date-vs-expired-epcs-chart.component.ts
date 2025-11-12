@@ -38,7 +38,7 @@ export class InDateVsExpiredEpcsComponent extends BaseChartComponent {
     protected override loadData(): void {
         this.loading.set(true);
 
-        const sub = this.dashboardService.getNumberOfInDateAndExpiredEpcs().subscribe((data) => this.numberOfInDateAndExpiredEpcs.set(data));
+        const sub = this.dashboardService.getNumberOfInDateAndExpiredEpcs(this.areaFilter).subscribe((data) => this.numberOfInDateAndExpiredEpcs.set(data));
 
         this.subscriptions.add(sub);
     }

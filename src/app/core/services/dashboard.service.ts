@@ -224,8 +224,11 @@ export class DashboardService {
         });
     }
 
-    public getNumberOfInDateAndExpiredEpcs(): Observable<BackendNumberOfInDateAndExpiredEpcsResponse[]> {
-        return this.#http.get<BackendNumberOfInDateAndExpiredEpcsResponse[]>(`${this.#endpointRoot}/no-of-in-date-and-expired-epcs`, { withCredentials: true });
+    public getNumberOfInDateAndExpiredEpcs(filter?: AreaFilter): Observable<BackendNumberOfInDateAndExpiredEpcsResponse[]> {
+        return this.#http.get<BackendNumberOfInDateAndExpiredEpcsResponse[]>(`${this.#endpointRoot}/no-of-in-date-and-expired-epcs`, {
+            params: this.getParamsWithFilter(filter),
+            withCredentials: true,
+        });
     }
 }
 
