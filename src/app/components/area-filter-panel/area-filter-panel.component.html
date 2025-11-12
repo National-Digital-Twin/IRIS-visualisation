@@ -20,8 +20,9 @@
     </mat-form-field>
 
     @if (hasAreaLevelSelected()) {
+        @let pluralLevel = areaLevel() === 'county' ? 'counties' : areaLevel() + 's';
         <div class="selection-info">
-            <span>*You can select a maximum of {{ maxSelections() }} {{ areaLevel() }}s</span>
+            <span>*You can select a maximum of {{ maxSelections() }} {{ pluralLevel }}</span>
         </div>
 
         @if (selectionCount() > 0) {
@@ -48,7 +49,7 @@
         @if (loading()) {
             <div class="loading">
                 <mat-spinner diameter="40"></mat-spinner>
-                <span>Loading {{ areaLevel() }}s...</span>
+                <span>Loading {{ pluralLevel }}...</span>
             </div>
         }
 
