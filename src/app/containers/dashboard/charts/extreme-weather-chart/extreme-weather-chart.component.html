@@ -1,6 +1,6 @@
 <div class="widget-header">
     <div class="widget-title">
-        <span>Number of houses that experience extreme weather</span>
+        <span>Percentage of homes that experience extreme weather</span>
     </div>
 </div>
 <div class="chart-wrapper">
@@ -9,12 +9,6 @@
     } @else {
         <plotly-plot [data]="chartData()" [layout]="chartLayout()" [config]="chartConfig"></plotly-plot>
     }
-</div>
-<div class="widget-footer">
-    <div class="x-axis-key">
-        <span><strong>WDR</strong> = wind-driven rain</span>
-        <span><strong>HSD</strong> = hot summer days</span>
-    </div>
 </div>
 
 <!-- SPDX-License-Identifier: Apache-2.0

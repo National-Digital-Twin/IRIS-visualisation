@@ -24,7 +24,6 @@ export class ExtremeWeatherChartComponent extends BaseChartComponent {
         super();
         effect(() => {
             const buildingsAffectedByExtremeWeatherData = this.buildingsAffectedByExtremeWeatherData();
-
             if (!buildingsAffectedByExtremeWeatherData) {
                 return;
             }
@@ -39,7 +38,9 @@ export class ExtremeWeatherChartComponent extends BaseChartComponent {
     protected override loadData(): void {
         this.loading.set(true);
 
-        const sub = this.dashboardService.getBuildingsAffectedByExtremeWeather().subscribe((data) => this.buildingsAffectedByExtremeWeatherData.set(data));
+        const sub = this.dashboardService
+            .getBuildingsAffectedByExtremeWeather(this.areaFilter)
+            .subscribe((data) => this.buildingsAffectedByExtremeWeatherData.set(data));
 
         this.subscriptions.add(sub);
     }
@@ -90,22 +91,48 @@ export class ExtremeWeatherChartComponent extends BaseChartComponent {
 
     private buildChart(buildingsAffectedByExtremeWeatherData: BackendBuildingsAffectedByExtremeWeatherResponse[]): { data: Data[]; layout: Partial<Layout> } {
         const extremeWeatherInstances = ['WDR', 'HSD', 'Icing days', 'WDR + HSD', 'WDR + icing days', 'HSD + icing days', 'WDR + HSD + icing days'];
-        const data: Data[] = [
-            {
+        const hasFilteredData = !!this.areaFilter;
+
+        const sortedInstances = [...extremeWeatherInstances].sort((a, b) => {
+            const aData = this.filterBuildingsAffectedByExtremeWeatherData(a, buildingsAffectedByExtremeWeatherData);
+            const bData = this.filterBuildingsAffectedByExtremeWeatherData(b, buildingsAffectedByExtremeWeatherData);
+            const aValue = hasFilteredData ? (aData?.filtered_number_of_buildings ?? 0) : (aData?.number_of_buildings ?? 0);
+            const bValue = hasFilteredData ? (bData?.filtered_number_of_buildings ?? 0) : (bData?.number_of_buildings ?? 0);
+            return bValue - aValue; // tallest bar first
+        });
+
+        const traces: Data[] = [];
+        if (hasFilteredData) {
+            const totalFilteredBuildings = buildingsAffectedByExtremeWeatherData.reduce((sum, d) => sum + (d.filtered_number_of_buildings || 0), 0);
+            traces.push({
                 type: 'bar',
-                x: extremeWeatherInstances.map((extremeWeatherInstance) => this.formatExtremeWeatherInstance(extremeWeatherInstance)),
-                y: extremeWeatherInstances.map(
-                    (extremeWeatherInstance) =>
-                        this.filterBuildingsAffectedByExtremeWeatherData(extremeWeatherInstance, buildingsAffectedByExtremeWeatherData)?.number_of_buildings ||
-                        0,
-                ),
+                name: 'Area average',
+                x: sortedInstances.map((extremeWeatherInstance) => this.formatExtremeWeatherInstance(extremeWeatherInstance)),
+                y: sortedInstances.map((extremeWeatherInstance) => {
+                    const data = this.filterBuildingsAffectedByExtremeWeatherData(extremeWeatherInstance, buildingsAffectedByExtremeWeatherData);
+                    const count = data?.filtered_number_of_buildings || 0;
+                    return totalFilteredBuildings > 0 ? (count / totalFilteredBuildings) * 100 : 0;
+                }),
                 marker: { color: '#3670b3' },
                 hoverlabel: this.chartService.commonHoverStyle,
-                hovertemplate: '<b>%{x}</b><br>%{y:,}<extra></extra>',
-            },
-        ];
+                hovertemplate: '%{y:.1f}%<extra></extra>',
+            });
+        }
 
-        const maxValue = Math.max(...buildingsAffectedByExtremeWeatherData.map((data) => data.number_of_buildings));
+        const totalBuildings = buildingsAffectedByExtremeWeatherData.reduce((sum, d) => sum + d.number_of_buildings, 0);
+        traces.push({
+            type: 'bar',
+            name: 'National average',
+            x: sortedInstances.map((extremeWeatherInstance) => this.formatExtremeWeatherInstance(extremeWeatherInstance)),
+            y: sortedInstances.map((extremeWeatherInstance) => {
+                const data = this.filterBuildingsAffectedByExtremeWeatherData(extremeWeatherInstance, buildingsAffectedByExtremeWeatherData);
+                const count = data?.number_of_buildings || 0;
+                return totalBuildings > 0 ? (count / totalBuildings) * 100 : 0;
+            }),
+            marker: { color: hasFilteredData ? '#002244' : '#3670b3' },
+            hoverlabel: this.chartService.commonHoverStyle,
+            hovertemplate: '%{y:.1f}%<extra></extra>',
+        });
 
         const layout: Partial<Layout> = {
             margin: { l: 20, r: 40, t: 20, b: 80 },
@@ -117,8 +144,7 @@ export class ExtremeWeatherChartComponent extends BaseChartComponent {
             },
             yaxis: {
                 title: { text: '' },
-                range: [0, maxValue],
-                tickformat: '5s',
+                ticksuffix: '%',
                 showgrid: false,
                 side: 'right',
                 tickfont: { size: 11, color: '#999' },
@@ -128,10 +154,32 @@ export class ExtremeWeatherChartComponent extends BaseChartComponent {
             height: 250,
             plot_bgcolor: 'white',
             paper_bgcolor: 'white',
-            showlegend: false,
+            showlegend: hasFilteredData,
+            legend: {
+                orientation: 'h',
+                x: 0,
+                y: -0.5,
+                xanchor: 'left',
+                yanchor: 'top',
+            },
+            barmode: hasFilteredData ? 'group' : undefined,
+            annotations: [
+                {
+                    text: '<b>WDR</b> = wind-driven rain<br><b>HSD</b> = hot summer days',
+                    showarrow: false,
+                    xref: 'paper',
+                    yref: 'paper',
+                    x: hasFilteredData ? 1.1 : 0,
+                    y: hasFilteredData ? -0.5 : -0.35,
+                    xanchor: hasFilteredData ? 'right' : 'left',
+                    yanchor: 'top',
+                    font: { size: 11, color: '#333' },
+                    align: 'left',
+                },
+            ],
         };
 
-        return { data, layout };
+        return { data: traces, layout };
     }
 }
 

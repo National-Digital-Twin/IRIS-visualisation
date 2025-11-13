@@ -73,6 +73,7 @@ interface BackendSAPTimelineResponse {
 
 export interface BackendBuildingsAffectedByExtremeWeatherResponse {
     number_of_buildings: number;
+    filtered_number_of_buildings?: number;
     affected_by_icing_days?: boolean;
     affected_by_hsds?: boolean;
     affected_by_wdr?: boolean;
@@ -218,8 +219,9 @@ export class DashboardService {
         });
     }
 
-    public getBuildingsAffectedByExtremeWeather(): Observable<BackendBuildingsAffectedByExtremeWeatherResponse[]> {
+    public getBuildingsAffectedByExtremeWeather(filter?: AreaFilter): Observable<BackendBuildingsAffectedByExtremeWeatherResponse[]> {
         return this.#http.get<BackendBuildingsAffectedByExtremeWeatherResponse[]>(`${this.#endpointRoot}/buildings-affected-by-extreme-weather`, {
+            params: this.getParamsWithFilter(filter),
             withCredentials: true,
         });
     }

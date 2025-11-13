@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { AreaFilter } from '@core/models/area-filter.model';
 import { BackendBuildingsAffectedByExtremeWeatherResponse, DashboardService } from '@core/services/dashboard.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { Data, PlotData } from 'plotly.js-dist-min';
@@ -59,6 +60,32 @@ describe('ExtremeWeatherChartComponent', () => {
             expect(dashboardService.getBuildingsAffectedByExtremeWeather).toHaveBeenCalled();
             expect(component.loading()).toBe(false);
         });
+
+        it('should pass areaFilter to service when areaFilter is provided', () => {
+            const mockAreaFilter: AreaFilter = {
+                mode: 'polygon',
+                polygon: {
+                    type: 'Polygon',
+                    coordinates: [
+                        [
+                            [0, 0],
+                            [1, 0],
+                            [1, 1],
+                            [0, 1],
+                            [0, 0],
+                        ],
+                    ],
+                },
+            };
+
+            jest.spyOn(dashboardService, 'getBuildingsAffectedByExtremeWeather').mockReturnValue(of(mockApiResponse));
+
+            fixture.componentRef.setInput('areaFilter', mockAreaFilter);
+            fixture.detectChanges();
+
+            expect(dashboardService.getBuildingsAffectedByExtremeWeather).toHaveBeenCalledWith(mockAreaFilter);
+            expect(component.loading()).toBe(false);
+        });
     });
 
     describe('chart data transformation', () => {
@@ -73,32 +100,36 @@ describe('ExtremeWeatherChartComponent', () => {
             expect(chartData[0].type).toBe('bar');
         });
 
-        it('should format extreme weather instances properly', () => {
+        it('should sort instances by largest value first', () => {
             const chartData: Data[] = component.chartData();
             const plotData: PlotData = chartData[0] as PlotData;
+
             expect(plotData.x).toEqual([
                 'WDR',
                 'HSD',
-                'Icing<br>days',
-                'WDR +<br>HSD',
                 'WDR +<br>icing<br>days',
                 'HSD +<br>icing<br>days',
+                'Icing<br>days',
+                'WDR +<br>HSD',
                 'WDR,<br>HSD +<br>icing<br>days',
             ]);
         });
 
-        it('should map number of buildings correctly', () => {
+        it('should convert building counts to percentages', () => {
             const chartData: Data[] = component.chartData();
             const plotData: PlotData = chartData[0] as PlotData;
 
-            expect(plotData.y).toEqual([429445, 172020, 2146, 1914, 28029, 6367, 177]);
+            const yValues = plotData.y as number[];
+            expect(yValues[0]).toBeCloseTo(67.1, 0); // WDR
+            expect(yValues[1]).toBeCloseTo(26.9, 0); // HSD
+            expect(yValues[2]).toBeCloseTo(4.4, 0); // WDR + icing
         });
 
-        it('should include the number of buildings in the hover template', () => {
+        it('should show percentages in the hover template', () => {
             const chartData: Data[] = component.chartData();
             const plotData: PlotData = chartData[0] as PlotData;
 
-            expect(plotData.hovertemplate).toContain('{y:,}<extra></extra>');
+            expect(plotData.hovertemplate).toBe('%{y:.1f}%<extra></extra>');
         });
     });
 });

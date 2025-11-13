@@ -55,7 +55,7 @@ export class SapTimelineChartComponent extends BaseChartComponent {
                 name: 'Average SAP score',
                 x: filteredYears,
                 y: filteredRatings,
-                line: { color: '#0066CC' },
+                line: { color: '#3670b3' },
                 hovertemplate: '<b>%{x}</b><br>%{y:.1f}<extra></extra>',
             });
         }

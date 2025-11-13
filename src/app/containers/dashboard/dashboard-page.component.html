@@ -48,11 +48,9 @@
             <c477-building-fuel-chart [areaFilter]="areaFilter()"></c477-building-fuel-chart>
         </section>
 
-        @if (dashboardType() === 'national') {
-            <section class="widget-card">
-                <c477-extreme-weather-chart [areaFilter]="areaFilter()"></c477-extreme-weather-chart>
-            </section>
-        }
+        <section class="widget-card">
+            <c477-extreme-weather-chart [areaFilter]="areaFilter()"></c477-extreme-weather-chart>
+        </section>
 
         <section class="widget-card">
             <c477-in-date-vs-expired-epcs-chart [areaFilter]="areaFilter()"></c477-in-date-vs-expired-epcs-chart>
