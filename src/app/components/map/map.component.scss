@@ -79,35 +79,60 @@
     }
 }
 
-.layers-menu {
-    .mat-mdc-menu-panel {
+::ng-deep .layers-menu {
+    &.mat-mdc-menu-panel {
         &.mat-menu-before {
             position: absolute;
             top: 0;
             right: 1rem;
         }
+    }
 
-        .menu-section {
-            border-bottom: 1px solid var(--mat-sys-outline-variant);
+    .menu-section {
+        border-bottom: 1px solid var(--mat-sys-outline-variant);
 
-            &:last-child {
-                border-bottom: none;
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    .mat-mdc-menu-item {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+
+        mat-icon {
+            margin-right: 0;
+        }
+
+        .mat-mdc-menu-item-text {
+            .menu-item-text {
+                display: flex;
+                flex-direction: column;
+                gap: 0;
+                align-items: flex-start;
+
+                line-height: 1.2;
+            }
+
+            .main-text {
+                font-weight: var(--mat-sys-label-large-weight);
+            }
+
+            .info-text {
+                margin-top: 2px;
+
+                font-size: 0.75rem;
+                line-height: 1;
+                color: var(--mat-sys-on-surface-variant);
+
+                opacity: 0.7;
             }
         }
 
-        .mat-mdc-menu-item {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-
-            mat-icon {
-                margin-right: 0;
-            }
-
-            &.active {
-                color: var(--mat-sys-on-primary-container);
-                background-color: var(--mat-sys-primary-container);
-            }
+        &.active {
+            color: var(--mat-sys-on-primary-container);
+            background-color: var(--mat-sys-primary-container);
         }
     }
 }

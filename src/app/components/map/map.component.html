@@ -127,7 +127,10 @@
                 @if (hasSpatialFilter) {
                     <button mat-menu-item (click)="handleDashboardAreaClick()">
                         <mat-icon>map</mat-icon>
-                        <span>Area view</span>
+                        <div class="menu-item-text">
+                            <span class="main-text">Area view</span>
+                            <span class="info-text">For drawn polygon</span>
+                        </div>
                     </button>
                 } @else {
                     <button mat-menu-item (click)="handleDashboardAreaClick()">
