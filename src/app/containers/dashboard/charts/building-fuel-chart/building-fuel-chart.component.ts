@@ -55,10 +55,12 @@ export class BuildingFuelChartComponent extends BaseChartComponent {
             return [];
         }
 
-        return buildingData.map((item) => ({
+        const chartData = buildingData.map((item) => ({
             label: this.getFuelTypeLabel(item.fuel_type),
             value: item.count,
         }));
+
+        return chartData.sort((a, b) => b.value - a.value);
     });
 
     constructor() {
@@ -88,7 +90,8 @@ export class BuildingFuelChartComponent extends BaseChartComponent {
             this.availableBuildingTypes.set(buildingTypes);
 
             if (buildingTypes.length > 0) {
-                this.selectedBuildingType.set(buildingTypes[0]);
+                const defaultType = buildingTypes.includes('House') ? 'House' : buildingTypes[0];
+                this.selectedBuildingType.set(defaultType);
             }
         });
 
@@ -103,30 +106,42 @@ export class BuildingFuelChartComponent extends BaseChartComponent {
     }
 
     private buildChart(data: FuelTypeData[]): { data: Data[]; layout: Partial<Layout> } {
+        const total = data.reduce((sum, d) => sum + d.value, 0);
+        const percentages = data.map((d) => (d.value / total) * 100);
+
         const chartData: Data[] = [
             {
-                type: 'pie',
-                labels: data.map((d) => d.label),
-                values: data.map((d) => d.value),
-                textposition: 'none',
-                hovertemplate: '<b>%{label}</b><br>%{value} buildings<br>%{percent}<extra></extra>',
-                hoverlabel: this.chartService.commonHoverStyle,
+                type: 'bar',
+                orientation: 'h',
+                x: percentages,
+                y: data.map((d) => d.label),
+                customdata: data.map((d) => d.value),
                 marker: {
-                    line: { color: 'white', width: 2 },
+                    color: '#3670B3',
                 },
+                hovertemplate: '<b>%{y}</b><br>%{customdata:,} buildings<br>%{x:.1f}%<extra></extra>',
+                hoverlabel: this.chartService.commonHoverStyle,
             },
         ];
 
         const layout: Layout = {
-            margin: { l: 0, r: 0, t: 0, b: 0 },
+            margin: { l: 20, r: 20, t: 20, b: 20 },
             font: this.chartService.commonFont,
-            colorway: this.chartService.colorway,
-            height: 250,
-            showlegend: true,
-            legend: {
-                orientation: 'h',
-                maxheight: 0.3,
-                font: { size: 10 },
+            height: 300,
+            xaxis: {
+                showgrid: false,
+                showticklabels: true,
+                showline: true,
+                ticksuffix: '%',
+                color: '#999',
+            },
+            yaxis: {
+                showticklabels: true,
+                automargin: true,
+                categoryorder: 'array',
+                categoryarray: data.map((d) => d.label).reverse(),
+                color: '#999',
+                linecolor: '#999',
             },
         };
 

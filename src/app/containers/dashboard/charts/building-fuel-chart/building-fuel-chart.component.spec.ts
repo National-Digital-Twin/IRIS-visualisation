@@ -53,14 +53,14 @@ describe('BuildingFuelChartComponent', () => {
     });
 
     describe('loadData', () => {
-        it('should load fuel types data and set first building type as selected', () => {
+        it('should load fuel types data and set House as default building type', () => {
             jest.spyOn(dashboardService, 'getFuelTypesByBuildingType').mockReturnValue(of(mockApiResponse));
 
             fixture.detectChanges();
 
             expect(dashboardService.getFuelTypesByBuildingType).toHaveBeenCalledWith(undefined);
             expect(component.availableBuildingTypes()).toEqual(['Flat', 'House']);
-            expect(component.selectedBuildingType()).toBe('Flat');
+            expect(component.selectedBuildingType()).toBe('House');
             expect(component.loading()).toBe(false);
         });
 
@@ -107,8 +107,8 @@ describe('BuildingFuelChartComponent', () => {
             fixture.detectChanges();
 
             const chartData = component.chartData();
-            const pieData = chartData[0] as PlotData;
-            expect(pieData.labels).toContain('Natural Gas');
+            const barData = chartData[0] as PlotData;
+            expect(barData.y).toContain('Natural Gas');
         });
 
         it('should format unknown fuel types with spaces in chart labels', () => {
@@ -118,8 +118,8 @@ describe('BuildingFuelChartComponent', () => {
             fixture.detectChanges();
 
             const chartData = component.chartData();
-            const pieData = chartData[0] as PlotData;
-            expect(pieData.labels).toContain('Some Unknown Fuel Type');
+            const barData = chartData[0] as PlotData;
+            expect(barData.y).toContain('Some Unknown Fuel Type');
         });
     });
 
@@ -146,12 +146,13 @@ describe('BuildingFuelChartComponent', () => {
 
             const chartData = component.chartData();
             expect(chartData.length).toBeGreaterThan(0);
-            const pieData = chartData[0] as PlotData;
-            expect(pieData.type).toBe('pie');
-            expect(pieData.labels).toContain('Natural Gas');
-            expect(pieData.labels).toContain('Electricity');
-            expect(pieData.values).toContain(100);
-            expect(pieData.values).toContain(50);
+            const barData = chartData[0] as PlotData;
+            expect(barData.type).toBe('bar');
+            expect(barData.orientation).toBe('h');
+            expect(barData.y).toContain('Natural Gas');
+            expect(barData.y).toContain('Electricity');
+            expect(barData.customdata).toContain(100);
+            expect(barData.customdata).toContain(50);
         });
 
         it('should update chart when switching building types', () => {

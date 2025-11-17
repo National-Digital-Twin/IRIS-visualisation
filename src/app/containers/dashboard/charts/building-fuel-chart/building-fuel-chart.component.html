@@ -1,7 +1,11 @@
 <div class="widget-header">
     <div class="widget-title">
         <mat-form-field appearance="outline" class="inline-select">
-            <mat-select [value]="selectedBuildingType()" (selectionChange)="selectedBuildingType.set($event.value)">
+            <mat-select
+                [value]="selectedBuildingType()"
+                (selectionChange)="selectedBuildingType.set($event.value)"
+                [placeholder]="loading() ? 'Loading...' : ''"
+            >
                 @for (type of availableBuildingTypes(); track type) {
                     <mat-option [value]="type">{{ type }}</mat-option>
                 }
