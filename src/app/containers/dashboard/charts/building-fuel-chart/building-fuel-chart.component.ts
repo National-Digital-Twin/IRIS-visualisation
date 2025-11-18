@@ -42,7 +42,7 @@ export class BuildingFuelChartComponent extends BaseChartComponent {
 
     private readonly fuelTypesByBuildingType = signal<BackendFuelTypesByBuildingTypeResponse[] | null>(null);
 
-    private readonly pieChartData = computed<FuelTypeData[]>(() => {
+    private readonly fuelTypeData = computed<FuelTypeData[]>(() => {
         const apiResponse = this.fuelTypesByBuildingType();
         if (!apiResponse) {
             return [];
@@ -60,15 +60,15 @@ export class BuildingFuelChartComponent extends BaseChartComponent {
             value: item.count,
         }));
 
-        return chartData.sort((a, b) => b.value - a.value);
+        // smallest first, rendered bottom-to-top
+        return chartData.sort((a, b) => a.value - b.value);
     });
 
     constructor() {
         super();
         effect(() => {
-            const data = this.pieChartData();
+            const data = this.fuelTypeData();
             const selectedType = this.selectedBuildingType();
-
             if (!data.length || !selectedType) {
                 return;
             }
@@ -138,8 +138,7 @@ export class BuildingFuelChartComponent extends BaseChartComponent {
             yaxis: {
                 showticklabels: true,
                 automargin: true,
-                categoryorder: 'array',
-                categoryarray: data.map((d) => d.label).reverse(),
+                categoryorder: 'trace',
                 color: '#999',
                 linecolor: '#999',
             },
