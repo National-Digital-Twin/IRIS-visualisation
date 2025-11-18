@@ -169,7 +169,7 @@ export class ExtremeWeatherChartComponent extends BaseChartComponent {
                     showarrow: false,
                     xref: 'paper',
                     yref: 'paper',
-                    x: hasFilteredData ? 1.1 : 0,
+                    x: hasFilteredData ? 1.05 : 0,
                     y: hasFilteredData ? -0.5 : -0.35,
                     xanchor: hasFilteredData ? 'right' : 'left',
                     yanchor: 'top',
