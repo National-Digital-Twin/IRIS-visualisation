@@ -90,7 +90,7 @@ export class CharacteristicsChartComponent extends BaseChartComponent {
 
     private buildChart(characteristic: string, regions: RegionCharacteristicData[], selectedRegions: string[]): { data: Data[]; layout: Partial<Layout> } {
         const filteredRegions = regions.filter((r) => selectedRegions.includes(r.region_name));
-        const sortedRegions = filteredRegions.sort((a, b) => b.percentage - a.percentage);
+        const sortedRegions = filteredRegions.toSorted((a, b) => b.percentage - a.percentage);
 
         const data: Data[] = [
             {
