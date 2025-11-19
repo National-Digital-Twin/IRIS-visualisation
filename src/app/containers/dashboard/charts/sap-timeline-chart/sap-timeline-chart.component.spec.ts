@@ -132,7 +132,8 @@ describe('SapTimelineChartComponent', () => {
     });
 
     describe('chart data transformation', () => {
-        it('should create two traces when filtered ratings exist', () => {
+        it('should create two traces when filtered area applied', () => {
+            fixture.componentRef.setInput('areaFilter', {});
             const mockResponse: SAPTimelineResponse = { timeline: mockTimelineWithFiltered };
             jest.spyOn(dashboardService, 'getSAPTimeline').mockReturnValue(of(mockResponse));
 
@@ -155,7 +156,7 @@ describe('SapTimelineChartComponent', () => {
             expect(nationalTrace.y).toEqual([60, 62, 64]);
         });
 
-        it('should create one trace when no filtered ratings exist', () => {
+        it('should create one trace when no area filter is set', () => {
             const mockResponse: SAPTimelineResponse = { timeline: mockTimelineWithoutFiltered };
             jest.spyOn(dashboardService, 'getSAPTimeline').mockReturnValue(of(mockResponse));
 
@@ -182,7 +183,8 @@ describe('SapTimelineChartComponent', () => {
             expect(trace.x).toEqual([2020, 2021, 2022]);
         });
 
-        it('should create two traces when some filtered ratings exist', () => {
+        it('should create two traces when area filter is set, even with mixed null filtered ratings', () => {
+            fixture.componentRef.setInput('areaFilter', {});
             const mockResponse: SAPTimelineResponse = { timeline: mockTimelineMixed };
             jest.spyOn(dashboardService, 'getSAPTimeline').mockReturnValue(of(mockResponse));
 
@@ -192,8 +194,8 @@ describe('SapTimelineChartComponent', () => {
             expect(chartData.length).toBe(2);
 
             const filteredTrace = chartData[0] as PlotData;
-            expect(filteredTrace.y).toEqual([65, 69]);
-            expect(filteredTrace.x).toEqual([2020, 2022]);
+            expect(filteredTrace.y).toEqual([65, 0, 69]);
+            expect(filteredTrace.x).toEqual([2020, 2021, 2022]);
 
             const nationalTrace = chartData[1] as PlotData;
             expect(nationalTrace.y).toEqual([60, 62, 64]);
@@ -212,6 +214,7 @@ describe('SapTimelineChartComponent', () => {
         });
 
         it('should map data correctly for x and y axes', () => {
+            fixture.componentRef.setInput('areaFilter', {});
             const mockResponse: SAPTimelineResponse = { timeline: mockTimelineWithFiltered };
             jest.spyOn(dashboardService, 'getSAPTimeline').mockReturnValue(of(mockResponse));
 
@@ -227,7 +230,8 @@ describe('SapTimelineChartComponent', () => {
             expect(nationalTrace.y).toEqual([60, 62, 64]);
         });
 
-        it('should name national trace "National average" when filtered ratings exist', () => {
+        it('should name national trace "National average" when area filter provided', () => {
+            fixture.componentRef.setInput('areaFilter', {});
             const mockResponse: SAPTimelineResponse = { timeline: mockTimelineWithFiltered };
             jest.spyOn(dashboardService, 'getSAPTimeline').mockReturnValue(of(mockResponse));
 
@@ -238,7 +242,7 @@ describe('SapTimelineChartComponent', () => {
             expect(nationalTrace.name).toBe('National average');
         });
 
-        it('should name national trace "Average SAP score" when no filtered ratings exist', () => {
+        it('should name national trace "Average SAP score" when no area filter is set', () => {
             const mockResponse: SAPTimelineResponse = { timeline: mockTimelineWithoutFiltered };
             jest.spyOn(dashboardService, 'getSAPTimeline').mockReturnValue(of(mockResponse));
 
@@ -287,6 +291,7 @@ describe('SapTimelineChartComponent', () => {
         });
 
         it('should handle single data point', () => {
+            fixture.componentRef.setInput('areaFilter', {});
             const singlePoint: TimelineAvgSAPDataPoint[] = [{ date: new Date('2020-01-01'), national_avg_sap_rating: 60, filtered_avg_sap_rating: 65 }];
             const mockResponse: SAPTimelineResponse = { timeline: singlePoint };
             jest.spyOn(dashboardService, 'getSAPTimeline').mockReturnValue(of(mockResponse));
@@ -298,19 +303,6 @@ describe('SapTimelineChartComponent', () => {
             const filteredTrace = chartData[0] as PlotData;
             expect(filteredTrace.x).toEqual([2020]);
             expect(filteredTrace.y).toEqual([65]);
-        });
-
-        it('should handle all filtered ratings as null', () => {
-            const mockResponse: SAPTimelineResponse = { timeline: mockTimelineWithoutFiltered };
-            jest.spyOn(dashboardService, 'getSAPTimeline').mockReturnValue(of(mockResponse));
-
-            fixture.detectChanges();
-
-            const chartData = component.chartData();
-            expect(chartData.length).toBe(1);
-            const trace = chartData[0] as PlotData;
-            expect(trace.name).toBe('Average SAP score');
-            expect(trace.y).toEqual([60, 62, 64]);
         });
     });
 });

@@ -23,7 +23,6 @@ export class InDateVsExpiredEpcsComponent extends BaseChartComponent {
         super();
         effect(() => {
             const numberOfInDateAndExpiredEpcs = this.numberOfInDateAndExpiredEpcs();
-
             if (!numberOfInDateAndExpiredEpcs) {
                 return;
             }
@@ -46,11 +45,12 @@ export class InDateVsExpiredEpcsComponent extends BaseChartComponent {
     private buildChart(numberOfInDateAndExpiredEpcs: BackendNumberOfInDateAndExpiredEpcsResponse[]): { data: Data[]; layout: Partial<Layout> } {
         const years = numberOfInDateAndExpiredEpcs.map((element) => element.year);
 
+        const mode = years.length > 1 ? 'lines' : 'markers';
         const data: Data[] = [
             {
                 type: 'scatter',
                 name: 'In date',
-                mode: 'lines',
+                mode,
                 x: years,
                 y: numberOfInDateAndExpiredEpcs.map((element) => element.active),
                 line: { color: '#3670b3', width: 2 },
@@ -59,7 +59,7 @@ export class InDateVsExpiredEpcsComponent extends BaseChartComponent {
             {
                 type: 'scatter',
                 name: 'Expired',
-                mode: 'lines',
+                mode,
                 x: years,
                 y: numberOfInDateAndExpiredEpcs.map((element) => element.expired),
                 line: { color: '#002244', width: 2 },
@@ -67,6 +67,7 @@ export class InDateVsExpiredEpcsComponent extends BaseChartComponent {
             },
         ];
 
+        const maxValue = Math.max(...numberOfInDateAndExpiredEpcs.map((element) => element.active));
         const layout: Partial<Layout> = {
             margin: { l: 20, r: 40, t: 20, b: 40 },
             xaxis: {
@@ -82,7 +83,8 @@ export class InDateVsExpiredEpcsComponent extends BaseChartComponent {
             },
             yaxis: {
                 title: { text: '' },
-                tickformat: '5s',
+                // don't format si for smaller values, its buggy
+                tickformat: maxValue >= 1000 ? 's' : undefined,
                 showgrid: true,
                 gridcolor: '#e0e0e0',
                 side: 'right',

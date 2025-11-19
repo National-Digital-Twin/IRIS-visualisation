@@ -38,15 +38,17 @@ export class SapTimelineChartComponent extends BaseChartComponent {
         const filteredRatings: number[] = [];
         const filteredYears: number[] = [];
 
+        let maxScore = 0;
         for (const t of timeline) {
             nationalRatings.push(t.national_avg_sap_rating);
-            if (t.filtered_avg_sap_rating) {
-                filteredRatings.push(t.filtered_avg_sap_rating);
-                filteredYears.push(t.date.getFullYear());
-            }
             nationalYears.push(t.date.getFullYear());
+
+            filteredRatings.push(t.filtered_avg_sap_rating || 0);
+            filteredYears.push(t.date.getFullYear());
+
+            maxScore = Math.max(maxScore, t.national_avg_sap_rating, t.filtered_avg_sap_rating || 0);
         }
-        const hasFilteredRatings = filteredRatings.length > 0;
+        const hasFilteredRatings = !!this.areaFilter;
 
         if (hasFilteredRatings) {
             traces.push({
@@ -83,6 +85,8 @@ export class SapTimelineChartComponent extends BaseChartComponent {
                 showgrid: false,
                 tickfont: { size: 11, color: '#999' },
                 linecolor: '#999',
+                zeroline: false,
+                range: [0, maxScore * 1.1],
             },
             font: { ...this.chartService.commonFont, size: 10 },
             height: 300,
