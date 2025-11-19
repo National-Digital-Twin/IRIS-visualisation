@@ -74,19 +74,19 @@ export class HotSummerDaysLayer extends AbstractClimateLayer<HotSummerDaysProper
                             <dt>2001-2020</dt>
                             <dd>${properties.hsd_baseline_01_20_median?.toFixed(1) || 'N/A'}</dd>
                             
-                            <dt>≥ 15°C</dt>
+                            <dt>≥ 1.5°C</dt>
                             <dd>${properties.hsd_15_median?.toFixed(1) || 'N/A'}</dd>
                             
-                            <dt>≥ 20°C</dt>
+                            <dt>≥ 2°C</dt>
                             <dd>${properties.hsd_20_median?.toFixed(1) || 'N/A'}</dd>
                             
-                            <dt>≥ 25°C</dt>
+                            <dt>≥ 2.5°C</dt>
                             <dd>${properties.hsd_25_median?.toFixed(1) || 'N/A'}</dd>
                             
-                            <dt>≥ 30°C</dt>
+                            <dt>≥ 3°C</dt>
                             <dd>${properties.hsd_30_median?.toFixed(1) || 'N/A'}</dd>
                             
-                            <dt>≥ 40°C</dt>
+                            <dt>≥ 4°C</dt>
                             <dd>${properties.hsd_40_median?.toFixed(1) || 'N/A'}</dd>
                         </dl>
                     </div>
