@@ -8,11 +8,6 @@ import type { Data, Layout } from 'plotly.js-dist-min';
 import { BaseChartComponent } from '../base-chart.component';
 import { RegionSelectorComponent } from '../shared/region-selector.component';
 
-interface CharacteristicOption {
-    value: keyof BackendBuildingAttributesResponse;
-    label: string;
-}
-
 @Component({
     selector: 'c477-characteristics-chart',
     imports: [CommonModule, PlotlyModule, MatFormFieldModule, MatSelectModule, RegionSelectorComponent],
@@ -21,27 +16,23 @@ interface CharacteristicOption {
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CharacteristicsChartComponent extends BaseChartComponent {
-    public readonly characteristicOptions: CharacteristicOption[] = [
-        { value: 'percentage_double_glazing', label: 'Double Glazing' },
-        { value: 'percentage_single_glazing', label: 'Single Glazing' },
-        { value: 'percentage_cavity_wall', label: 'Cavity Wall' },
-        { value: 'percentage_roof_solar_panels', label: 'Solar Panels' },
-        { value: 'percentage_pitched_roof', label: 'Pitched Roof' },
-        { value: 'percentage_solid_floor', label: 'Solid Floor' },
-        { value: 'percentage_roof_insulation_thickness_150mm', label: 'Roof Insulation 150mm' },
-        { value: 'percentage_roof_insulation_thickness_200mm', label: 'Roof Insulation 200mm' },
-        { value: 'percentage_roof_insulation_thickness_250mm', label: 'Roof Insulation 250mm' },
-    ];
-
     public chartData = signal<Data[]>([]);
     public chartLayout = signal<Partial<Layout>>({});
     public loading = signal(true);
 
-    public selectedCharacteristic = signal<keyof BackendBuildingAttributesResponse>('percentage_double_glazing');
+    public selectedCharacteristic = signal<string>('');
     public availableRegions = signal<string[]>([]);
     public selectedRegions = signal<string[]>([]);
 
     private readonly buildingAttributesByRegion = signal<BackendBuildingAttributesResponse[] | null>(null);
+
+    public readonly characteristicOptions = computed<string[]>(() => {
+        const apiResponse = this.buildingAttributesByRegion();
+        if (!apiResponse || apiResponse.length === 0) {
+            return [];
+        }
+        return apiResponse[0].attributes.map((attr) => attr.label);
+    });
 
     private readonly characteristicData = computed<RegionCharacteristicData[]>(() => {
         const apiResponse = this.buildingAttributesByRegion();
@@ -49,11 +40,14 @@ export class CharacteristicsChartComponent extends BaseChartComponent {
             return [];
         }
 
-        const fieldName = this.selectedCharacteristic();
-        return apiResponse.map((data) => ({
-            region_name: data.region_name,
-            percentage: Number(data[fieldName]) || 0,
-        }));
+        const selectedLabel = this.selectedCharacteristic();
+        return apiResponse.map((region) => {
+            const attribute = region.attributes.find((attr) => attr.label === selectedLabel);
+            return {
+                region_name: region.region_name,
+                percentage: attribute?.value ?? 0,
+            };
+        });
     });
 
     constructor() {
@@ -63,12 +57,11 @@ export class CharacteristicsChartComponent extends BaseChartComponent {
             const characteristic = this.selectedCharacteristic();
             const data = this.characteristicData();
 
-            if (!data.length) {
+            if (!data.length || !characteristic) {
                 return;
             }
 
-            const label = this.characteristicOptions.find((o) => o.value === characteristic)?.label ?? String(characteristic);
-            const built = this.buildChart(label, data, regions);
+            const built = this.buildChart(characteristic, data, regions);
             this.chartData.set(built.data);
             this.chartLayout.set(built.layout);
             this.loading.set(false);
@@ -84,6 +77,12 @@ export class CharacteristicsChartComponent extends BaseChartComponent {
             const regions = apiResponse.map((r) => r.region_name);
             this.availableRegions.set(regions);
             this.selectedRegions.set(regions);
+
+            const attributes = apiResponse[0]?.attributes ?? [];
+            if (attributes.length) {
+                const defaultCharacteristic = attributes.find((attr) => attr.label === 'Solar panels')?.label ?? attributes[0].label;
+                this.selectedCharacteristic.set(defaultCharacteristic);
+            }
         });
 
         this.subscriptions.add(sub);
@@ -91,7 +90,7 @@ export class CharacteristicsChartComponent extends BaseChartComponent {
 
     private buildChart(characteristic: string, regions: RegionCharacteristicData[], selectedRegions: string[]): { data: Data[]; layout: Partial<Layout> } {
         const filteredRegions = regions.filter((r) => selectedRegions.includes(r.region_name));
-        const sortedRegions = this.chartService.sortRegionsAlphabetically(filteredRegions);
+        const sortedRegions = filteredRegions.sort((a, b) => b.percentage - a.percentage);
 
         const data: Data[] = [
             {
@@ -109,7 +108,7 @@ export class CharacteristicsChartComponent extends BaseChartComponent {
 
         const maxPercentage = Math.max(...sortedRegions.map((r) => r.percentage));
         const layout: Partial<Layout> = {
-            margin: { l: 40, r: 20, t: 20, b: 80 },
+            margin: { l: 20, r: 20, t: 20, b: 80 },
             xaxis: {
                 title: { text: '' },
                 tickangle: 'auto',

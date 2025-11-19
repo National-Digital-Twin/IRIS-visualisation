@@ -8,7 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
     imports: [CommonModule, MatFormFieldModule, MatSelectModule],
     template: `
         <mat-form-field appearance="outline" class="inline-select">
-            <mat-select multiple [value]="selectedRegions" (selectionChange)="onSelectionChange($event.value)">
+            <mat-select multiple [value]="selectedRegions" (selectionChange)="onSelectionChange($event.value)" [placeholder]="'region'">
                 <mat-select-trigger>region</mat-select-trigger>
                 @for (region of availableRegions; track region) {
                     <mat-option [value]="region" [disabled]="selectedRegions.length === 1 && selectedRegions.includes(region)">

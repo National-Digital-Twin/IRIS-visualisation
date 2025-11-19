@@ -46,17 +46,14 @@ export interface OverallEPCResponse {
     ratings: EPCRatingTotal[];
 }
 
+export interface BuildingAttributeItem {
+    label: string;
+    value: number;
+}
+
 export interface BackendBuildingAttributesResponse {
     region_name: string;
-    percentage_roof_solar_panels: number;
-    percentage_double_glazing: number;
-    percentage_single_glazing: number;
-    percentage_solid_floor: number;
-    percentage_roof_insulation_thickness_150mm: number;
-    percentage_roof_insulation_thickness_200mm: number;
-    percentage_roof_insulation_thickness_250mm: number;
-    percentage_pitched_roof: number;
-    percentage_cavity_wall: number;
+    attributes: BuildingAttributeItem[];
 }
 
 export interface BackendFuelTypesByBuildingTypeResponse {

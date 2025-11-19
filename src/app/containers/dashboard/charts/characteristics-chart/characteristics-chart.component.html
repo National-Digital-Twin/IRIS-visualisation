@@ -2,9 +2,13 @@
     <div class="widget-title">
         <span>Percentage of buildings with</span>
         <mat-form-field appearance="outline" class="inline-select">
-            <mat-select [value]="selectedCharacteristic()" (selectionChange)="selectedCharacteristic.set($event.value)">
-                @for (option of characteristicOptions; track option.value) {
-                    <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            <mat-select [value]="selectedCharacteristic() || ''" (selectionChange)="selectedCharacteristic.set($event.value)" [disabled]="loading()">
+                @if (loading()) {
+                    <mat-option value="" disabled selected>Loading...</mat-option>
+                } @else {
+                    @for (option of characteristicOptions(); track option) {
+                        <mat-option [value]="option">{{ option }}</mat-option>
+                    }
                 }
             </mat-select>
         </mat-form-field>
