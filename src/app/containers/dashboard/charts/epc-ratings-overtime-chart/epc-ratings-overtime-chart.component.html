@@ -1,0 +1,11 @@
+<div class="widget-header">
+    <span class="widget-title">EPC ratings overtime</span>
+</div>
+
+<div class="chart-wrapper">
+    @if (loading()) {
+        <div class="chart-skeleton"></div>
+    } @else {
+        <plotly-plot [data]="chartData()" [layout]="chartLayout()" [config]="chartConfig"></plotly-plot>
+    }
+</div>

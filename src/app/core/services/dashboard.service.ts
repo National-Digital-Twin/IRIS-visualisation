@@ -4,6 +4,16 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AreaFilter } from '../models/area-filter.model';
 
+interface EPCRatings {
+    epc_a: number;
+    epc_b: number;
+    epc_c: number;
+    epc_d: number;
+    epc_e: number;
+    epc_f: number;
+    epc_g: number;
+}
+
 export interface RegionCharacteristicData {
     region_name: string;
     percentage: number;
@@ -24,15 +34,8 @@ export interface SAPTimelineResponse {
     timeline: TimelineAvgSAPDataPoint[];
 }
 
-export interface EPCRegionData {
+export interface EPCRegionData extends EPCRatings {
     region_name: string;
-    epc_a: number;
-    epc_b: number;
-    epc_c: number;
-    epc_d: number;
-    epc_e: number;
-    epc_f: number;
-    epc_g: number;
     total: number;
 }
 
@@ -82,25 +85,16 @@ export interface BackendNumberOfInDateAndExpiredEpcsResponse {
     active: number;
 }
 
-interface BackendEPCRegionData {
+interface BackendEPCRegionData extends EPCRatings {
     region_name: string;
-    epc_a: number;
-    epc_b: number;
-    epc_c: number;
-    epc_d: number;
-    epc_e: number;
-    epc_f: number;
-    epc_g: number;
 }
 
-interface BackendEPCRatings {
-    epc_a: number;
-    epc_b: number;
-    epc_c: number;
-    epc_d: number;
-    epc_e: number;
-    epc_f: number;
-    epc_g: number;
+interface BackendEpcRatingsOvertimeResponse extends EPCRatings {
+    date: string;
+}
+
+export interface EPCRatingOvertimeDataPoint extends EPCRatings {
+    date: Date;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -165,6 +159,14 @@ export class DashboardService {
             );
     }
 
+    public getEPCRatingsOvertime(filter?: AreaFilter): Observable<EPCRatingOvertimeDataPoint[]> {
+        return this.#http
+            .get<
+                BackendEpcRatingsOvertimeResponse[]
+            >(`${this.#endpointRoot}/epc-ratings-overtime`, { params: this.getParamsWithFilter(filter), withCredentials: true })
+            .pipe(map((results) => results.map((item) => ({ ...item, date: new Date(item.date) }))));
+    }
+
     public getEPCByRegion(filter?: AreaFilter): Observable<EPCRegionData[]> {
         return this.#http
             .get<BackendEPCRegionData[]>(`${this.#endpointRoot}/epc-ratings-per-region`, { params: this.getParamsWithFilter(filter), withCredentials: true })
@@ -186,27 +188,25 @@ export class DashboardService {
     }
 
     public getOverallEPC(filter?: AreaFilter): Observable<OverallEPCResponse> {
-        return this.#http
-            .get<BackendEPCRatings[]>(`${this.#endpointRoot}/epc-ratings`, { params: this.getParamsWithFilter(filter), withCredentials: true })
-            .pipe(
-                map((results) => {
-                    const data = results[0];
-                    const total = data.epc_a + data.epc_b + data.epc_c + data.epc_d + data.epc_e + data.epc_f + data.epc_g;
+        return this.#http.get<EPCRatings[]>(`${this.#endpointRoot}/epc-ratings`, { params: this.getParamsWithFilter(filter), withCredentials: true }).pipe(
+            map((results) => {
+                const data = results[0];
+                const total = data.epc_a + data.epc_b + data.epc_c + data.epc_d + data.epc_e + data.epc_f + data.epc_g;
 
-                    return {
-                        total,
-                        ratings: [
-                            { rating: 'A', count: data.epc_a },
-                            { rating: 'B', count: data.epc_b },
-                            { rating: 'C', count: data.epc_c },
-                            { rating: 'D', count: data.epc_d },
-                            { rating: 'E', count: data.epc_e },
-                            { rating: 'F', count: data.epc_f },
-                            { rating: 'G', count: data.epc_g },
-                        ],
-                    };
-                }),
-            );
+                return {
+                    total,
+                    ratings: [
+                        { rating: 'A', count: data.epc_a },
+                        { rating: 'B', count: data.epc_b },
+                        { rating: 'C', count: data.epc_c },
+                        { rating: 'D', count: data.epc_d },
+                        { rating: 'E', count: data.epc_e },
+                        { rating: 'F', count: data.epc_f },
+                        { rating: 'G', count: data.epc_g },
+                    ],
+                };
+            }),
+        );
     }
 
     public getFuelTypesByBuildingType(filter?: AreaFilter): Observable<BackendFuelTypesByBuildingTypeResponse[]> {

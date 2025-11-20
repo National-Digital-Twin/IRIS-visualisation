@@ -8,6 +8,7 @@ import { AreaFilter } from '../../core/models/area-filter.model';
 import { DashboardType } from './chart.service';
 import { BuildingFuelChartComponent } from './charts/building-fuel-chart/building-fuel-chart.component';
 import { CharacteristicsChartComponent } from './charts/characteristics-chart/characteristics-chart.component';
+import { EpcRatingsOvertimeChartComponent } from './charts/epc-ratings-overtime-chart/epc-ratings-overtime-chart.component';
 import { EpcRegionChartComponent } from './charts/epc-region-chart/epc-region-chart.component';
 import { ExtremeWeatherChartComponent } from './charts/extreme-weather-chart/extreme-weather-chart.component';
 import { InDateVsExpiredEpcsComponent } from './charts/in-date-vs-expired-epcs-chart/in-date-vs-expired-epcs-chart.component';
@@ -26,6 +27,7 @@ import { SapTimelineChartComponent } from './charts/sap-timeline-chart/sap-timel
         EpcRegionChartComponent,
         CharacteristicsChartComponent,
         SapTimelineChartComponent,
+        EpcRatingsOvertimeChartComponent,
         BuildingFuelChartComponent,
         ExtremeWeatherChartComponent,
         InDateVsExpiredEpcsComponent,
