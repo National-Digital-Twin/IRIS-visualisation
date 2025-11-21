@@ -9,13 +9,13 @@ import { BaseChartComponent } from '../base-chart.component';
 import { RegionSelectorComponent } from '../shared/region-selector.component';
 
 @Component({
-    selector: 'c477-epc-region-chart',
+    selector: 'c477-epc-by-area-chart',
     imports: [CommonModule, PlotlyModule, MatFormFieldModule, MatSelectModule, RegionSelectorComponent],
-    templateUrl: './epc-region-chart.component.html',
-    styleUrl: './epc-region-chart.component.scss',
+    templateUrl: './epc-by-area-chart.component.html',
+    styleUrl: './epc-by-area-chart.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EpcRegionChartComponent extends BaseChartComponent {
+export class EpcByAreaChartComponent extends BaseChartComponent {
     public chartData = signal<Data[]>([]);
     public chartLayout = signal<Partial<Layout>>({});
     public loading = signal(true);

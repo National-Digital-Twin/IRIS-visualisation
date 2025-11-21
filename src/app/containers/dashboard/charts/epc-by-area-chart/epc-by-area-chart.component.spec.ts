@@ -7,7 +7,7 @@ import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token'
 import type { PlotData } from 'plotly.js-dist-min';
 import { of } from 'rxjs';
 import { getPlotlyModuleProviders } from '../plotly.mock';
-import { EpcRegionChartComponent } from './epc-region-chart.component';
+import { EpcByAreaChartComponent } from './epc-by-area-chart.component';
 
 const mockRuntimeConfig = {
     epcColours: {
@@ -79,14 +79,14 @@ const mockApiResponse: EPCRegionData[] = [
     },
 ];
 
-describe('EpcRegionChartComponent', () => {
-    let component: EpcRegionChartComponent;
-    let fixture: ComponentFixture<EpcRegionChartComponent>;
+describe('EpcByAreaChartComponent', () => {
+    let component: EpcByAreaChartComponent;
+    let fixture: ComponentFixture<EpcByAreaChartComponent>;
     let dashboardService: DashboardService;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [EpcRegionChartComponent],
+            imports: [EpcByAreaChartComponent],
             providers: [
                 provideHttpClient(),
                 provideHttpClientTesting(),
@@ -95,7 +95,7 @@ describe('EpcRegionChartComponent', () => {
             ],
         }).compileComponents();
 
-        fixture = TestBed.createComponent(EpcRegionChartComponent);
+        fixture = TestBed.createComponent(EpcByAreaChartComponent);
         component = fixture.componentInstance;
         dashboardService = TestBed.inject(DashboardService);
     });
