@@ -1,11 +1,15 @@
 <div class="widget-header">
     <div class="widget-title">
-        <span>EPC ratings by</span>
-        <c477-region-selector
-            [selectedRegions]="selectedRegions()"
-            [availableRegions]="availableRegions()"
-            (selectedRegionsChange)="selectedRegions.set($event)"
-        ></c477-region-selector>
+        <span>{{ chartTitle() }}</span>
+        <c477-area-selector
+            [label]="selectorLabel()"
+            [selectedAreas]="selectedAreas()"
+            [availableAreas]="availableAreas()"
+            (selectedAreasChange)="selectedAreas.set($event)"
+        ></c477-area-selector>
+        @if (titleSuffix()) {
+            <span>{{ titleSuffix() }}</span>
+        }
     </div>
 </div>
 

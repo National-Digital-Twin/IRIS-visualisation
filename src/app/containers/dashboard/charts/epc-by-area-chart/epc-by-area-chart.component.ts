@@ -1,16 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { EPCRegionData } from '@core/services/dashboard.service';
+import { AreaLevel } from '@core/models/area-filter.model';
+import { EPCAreaData } from '@core/services/dashboard.service';
 import { PlotlyModule } from 'angular-plotly.js';
 import type { Data, Layout } from 'plotly.js-dist-min';
 import { BaseChartComponent } from '../base-chart.component';
-import { RegionSelectorComponent } from '../shared/region-selector.component';
+import { AreaSelectorComponent } from '../shared/area-selector.component';
 
 @Component({
     selector: 'c477-epc-by-area-chart',
-    imports: [CommonModule, PlotlyModule, MatFormFieldModule, MatSelectModule, RegionSelectorComponent],
+    imports: [CommonModule, PlotlyModule, MatFormFieldModule, MatSelectModule, AreaSelectorComponent],
     templateUrl: './epc-by-area-chart.component.html',
     styleUrl: './epc-by-area-chart.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,21 +20,74 @@ export class EpcByAreaChartComponent extends BaseChartComponent {
     public chartData = signal<Data[]>([]);
     public chartLayout = signal<Partial<Layout>>({});
     public loading = signal(true);
-    public availableRegions = signal<string[]>([]);
+    public availableAreas = signal<string[]>([]);
+    public selectedAreas = signal<string[]>([]);
+    private readonly epcAreaData = signal<EPCAreaData[] | null>(null);
 
-    public selectedRegions = signal<string[]>([]);
-    private readonly epcRegionData = signal<EPCRegionData[] | null>(null);
+    private readonly groupingConfig = computed(() => {
+        const filter = this.areaFilter;
+
+        if (filter?.mode === 'named-areas') {
+            const isSingleArea = filter.names.length === 1;
+
+            if (isSingleArea) {
+                const nextLevel = this.getNextLevelDown(filter.level);
+                return {
+                    mode: 'single' as const,
+                    groupBy: nextLevel,
+                    filterLevel: filter.level,
+                    filterNames: filter.names,
+                    areaName: filter.names[0],
+                };
+            } else {
+                return {
+                    mode: 'multiple' as const,
+                    groupBy: filter.level,
+                    filterLevel: filter.level,
+                    filterNames: filter.names,
+                };
+            }
+        }
+
+        return {
+            mode: 'national' as const,
+            groupBy: 'region' as AreaLevel,
+            filterLevel: undefined as AreaLevel | undefined,
+            filterNames: undefined as string[] | undefined,
+        };
+    });
+
+    public readonly chartTitle = computed(() => {
+        const config = this.groupingConfig();
+
+        if (config.mode === 'multiple') {
+            return 'Count of EPC ratings by';
+        } else if (config.mode === 'single') {
+            return 'EPC ratings of';
+        }
+
+        return 'EPC ratings by';
+    });
+
+    public readonly titleSuffix = computed(() => {
+        const config = this.groupingConfig();
+        return config.mode === 'single' ? ` in ${config.areaName}` : '';
+    });
+
+    public readonly selectorLabel = computed(() => {
+        return this.groupingConfig().groupBy;
+    });
 
     constructor() {
         super();
         effect(() => {
-            const data = this.epcRegionData();
-            const regions = this.selectedRegions();
-            if (!data || regions.length === 0) {
+            const data = this.epcAreaData();
+            const areas = this.selectedAreas();
+            if (!data || areas.length === 0) {
                 return;
             }
 
-            const built = this.buildChart(data, regions);
+            const built = this.buildChart(data, areas);
             this.chartData.set(built.data);
             this.chartLayout.set(built.layout);
             this.loading.set(false);
@@ -42,35 +96,36 @@ export class EpcByAreaChartComponent extends BaseChartComponent {
 
     protected loadData(): void {
         this.loading.set(true);
+        const config = this.groupingConfig();
 
-        const sub = this.dashboardService.getEPCByRegion(this.areaFilter).subscribe((regionData) => {
-            this.epcRegionData.set(regionData);
+        const sub = this.dashboardService.getEPCByAreaLevel(config.groupBy, config.filterLevel, config.filterNames).subscribe((areaData) => {
+            this.epcAreaData.set(areaData);
 
-            const regions = regionData.map((r) => r.region_name);
-            this.availableRegions.set(regions);
-            this.selectedRegions.set(regions);
+            const areas = areaData.map((r) => r.area_name);
+            this.availableAreas.set(areas);
+            this.selectedAreas.set(areas);
         });
 
         this.subscriptions.add(sub);
     }
 
-    private buildChart(regionData: EPCRegionData[], selectedRegions: string[]): { data: Data[]; layout: Partial<Layout> } {
-        const filteredData = regionData.filter((r) => selectedRegions.includes(r.region_name));
+    private buildChart(areaData: EPCAreaData[], selectedAreas: string[]): { data: Data[]; layout: Partial<Layout> } {
+        const filteredData = areaData.filter((r) => selectedAreas.includes(r.area_name));
         const sortedData = filteredData.toSorted((a, b) => a.total - b.total);
 
         const ratings = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
-        const regionNames = sortedData.map((r) => r.region_name);
+        const areaNames = sortedData.map((r) => r.area_name);
 
         const data: Data[] = ratings.map((rating) => {
-            const values = sortedData.map((r) => r[`epc_${rating.toLowerCase()}` as keyof EPCRegionData] || 0);
+            const values = sortedData.map((r) => r[`epc_${rating.toLowerCase()}` as keyof EPCAreaData] || 0);
             const percentages = sortedData.map((r) => {
-                const ratingCount = (r[`epc_${rating.toLowerCase()}` as keyof EPCRegionData] as number) || 0;
+                const ratingCount = (r[`epc_${rating.toLowerCase()}` as keyof EPCAreaData] as number) || 0;
                 return ((ratingCount / r.total) * 100).toFixed(1);
             });
             return {
                 type: 'bar',
                 name: rating,
-                y: regionNames,
+                y: areaNames,
                 x: values,
                 orientation: 'h',
                 customdata: percentages,
@@ -81,7 +136,7 @@ export class EpcByAreaChartComponent extends BaseChartComponent {
         });
 
         const maxTotal = Math.max(
-            ...sortedData.map((r) => ratings.reduce((acc, curr) => acc + ((r[`epc_${curr.toLowerCase()}` as keyof EPCRegionData] as number) || 0), 0)),
+            ...sortedData.map((r) => ratings.reduce((acc, curr) => acc + ((r[`epc_${curr.toLowerCase()}` as keyof EPCAreaData] as number) || 0), 0)),
         );
 
         const layout: Partial<Layout> = {
@@ -103,7 +158,7 @@ export class EpcByAreaChartComponent extends BaseChartComponent {
                 linecolor: '#e0e0e0',
             },
             font: this.chartService.commonFont,
-            height: 500,
+            height: 400,
             plot_bgcolor: 'white',
             paper_bgcolor: 'white',
             showlegend: true,
@@ -116,6 +171,16 @@ export class EpcByAreaChartComponent extends BaseChartComponent {
         };
 
         return { data, layout };
+    }
+
+    private getNextLevelDown(level: AreaLevel): AreaLevel {
+        const hierarchy: Record<AreaLevel, AreaLevel> = {
+            region: 'county',
+            county: 'district',
+            district: 'ward',
+            ward: 'ward',
+        };
+        return hierarchy[level];
     }
 }
 

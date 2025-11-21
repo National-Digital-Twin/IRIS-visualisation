@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AreaFilter } from '@core/models/area-filter.model';
-import { DashboardService, EPCRegionData } from '@core/services/dashboard.service';
+import { DashboardService, EPCAreaData } from '@core/services/dashboard.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import type { PlotData } from 'plotly.js-dist-min';
 import { of } from 'rxjs';
@@ -21,9 +21,9 @@ const mockRuntimeConfig = {
     },
 };
 
-const mockApiResponse: EPCRegionData[] = [
+const mockRegionData: EPCAreaData[] = [
     {
-        region_name: 'North West',
+        area_name: 'North West',
         epc_a: 100,
         epc_b: 200,
         epc_c: 300,
@@ -34,7 +34,7 @@ const mockApiResponse: EPCRegionData[] = [
         total: 2800,
     },
     {
-        region_name: 'London',
+        area_name: 'London',
         epc_a: 150,
         epc_b: 250,
         epc_c: 350,
@@ -45,7 +45,7 @@ const mockApiResponse: EPCRegionData[] = [
         total: 3150,
     },
     {
-        region_name: 'South East',
+        area_name: 'South East',
         epc_a: 120,
         epc_b: 220,
         epc_c: 320,
@@ -55,27 +55,30 @@ const mockApiResponse: EPCRegionData[] = [
         epc_g: 720,
         total: 2940,
     },
+];
+
+const mockCountyData: EPCAreaData[] = [
     {
-        region_name: 'Yorkshire',
-        epc_a: 80,
-        epc_b: 180,
-        epc_c: 280,
-        epc_d: 380,
-        epc_e: 480,
-        epc_f: 580,
-        epc_g: 680,
-        total: 2660,
+        area_name: 'Greater Manchester',
+        epc_a: 50,
+        epc_b: 100,
+        epc_c: 150,
+        epc_d: 200,
+        epc_e: 250,
+        epc_f: 300,
+        epc_g: 350,
+        total: 1400,
     },
     {
-        region_name: 'East Midlands',
-        epc_a: 90,
-        epc_b: 190,
-        epc_c: 290,
-        epc_d: 390,
-        epc_e: 490,
-        epc_f: 590,
-        epc_g: 690,
-        total: 2730,
+        area_name: 'Lancashire',
+        epc_a: 30,
+        epc_b: 60,
+        epc_c: 90,
+        epc_d: 120,
+        epc_e: 150,
+        epc_f: 180,
+        epc_g: 210,
+        total: 840,
     },
 ];
 
@@ -107,103 +110,166 @@ describe('EpcByAreaChartComponent', () => {
     it('should initialize with loading state', () => {
         expect(component.loading()).toBe(true);
         expect(component.chartData()).toEqual([]);
-        expect(component.availableRegions()).toEqual([]);
-        expect(component.selectedRegions()).toEqual([]);
+        expect(component.availableAreas()).toEqual([]);
+        expect(component.selectedAreas()).toEqual([]);
     });
 
-    describe('loadData', () => {
-        it('should load region data and set all regions as selected', () => {
-            jest.spyOn(dashboardService, 'getEPCByRegion').mockReturnValue(of(mockApiResponse));
+    describe('National mode (no areaFilter)', () => {
+        it('should load region data grouped by region with no filter', () => {
+            jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of(mockRegionData));
 
             fixture.detectChanges();
 
-            expect(dashboardService.getEPCByRegion).toHaveBeenCalledWith(undefined);
-            expect(component.availableRegions()).toEqual(['North West', 'London', 'South East', 'Yorkshire', 'East Midlands']);
-            expect(component.selectedRegions()).toEqual(['North West', 'London', 'South East', 'Yorkshire', 'East Midlands']);
+            expect(dashboardService.getEPCByAreaLevel).toHaveBeenCalledWith('region', undefined, undefined);
+            expect(component.availableAreas()).toEqual(['North West', 'London', 'South East']);
+            expect(component.selectedAreas()).toEqual(['North West', 'London', 'South East']);
             expect(component.loading()).toBe(false);
         });
 
-        it('should select all regions when fewer than 4 available', () => {
-            const twoRegions = mockApiResponse.slice(0, 2);
-            jest.spyOn(dashboardService, 'getEPCByRegion').mockReturnValue(of(twoRegions));
+        it('should have correct title and selector label for national mode', () => {
+            jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of(mockRegionData));
 
             fixture.detectChanges();
 
-            expect(component.availableRegions()).toEqual(['North West', 'London']);
-            expect(component.selectedRegions()).toEqual(['North West', 'London']);
-        });
-
-        it('should pass areaFilter to service when areaFilter is provided', () => {
-            const mockAreaFilter: AreaFilter = {
-                mode: 'polygon',
-                polygon: {
-                    type: 'Polygon',
-                    coordinates: [
-                        [
-                            [0, 0],
-                            [1, 0],
-                            [1, 1],
-                            [0, 1],
-                            [0, 0],
-                        ],
-                    ],
-                },
-            };
-
-            jest.spyOn(dashboardService, 'getEPCByRegion').mockReturnValue(of(mockApiResponse));
-
-            fixture.componentRef.setInput('areaFilter', mockAreaFilter);
-            fixture.detectChanges();
-
-            expect(dashboardService.getEPCByRegion).toHaveBeenCalledWith(mockAreaFilter);
-        });
-
-        it('should handle empty response', () => {
-            jest.spyOn(dashboardService, 'getEPCByRegion').mockReturnValue(of([]));
-
-            fixture.detectChanges();
-
-            expect(component.availableRegions()).toEqual([]);
-            expect(component.selectedRegions()).toEqual([]);
-        });
-
-        it('should handle zero EPC rating values correctly', () => {
-            const dataWithZeros: EPCRegionData[] = [
-                {
-                    region_name: 'Test Region',
-                    epc_a: 100,
-                    epc_b: 0,
-                    epc_c: 0,
-                    epc_d: 200,
-                    epc_e: 0,
-                    epc_f: 0,
-                    epc_g: 0,
-                    total: 300,
-                },
-            ];
-
-            jest.spyOn(dashboardService, 'getEPCByRegion').mockReturnValue(of(dataWithZeros));
-            fixture.detectChanges();
-
-            component.selectedRegions.set(['Test Region']);
-            fixture.detectChanges();
-
-            const chartData = component.chartData();
-            const cTrace = chartData.find((trace) => (trace as PlotData).name === 'C') as PlotData;
-            expect(cTrace.x).toEqual([0]);
+            expect(component.chartTitle()).toBe('EPC ratings by');
+            expect(component.selectorLabel()).toBe('region');
+            expect(component.titleSuffix()).toBe('');
         });
     });
 
-    describe('chart data transformation', () => {
+    describe('Multiple areas selected', () => {
+        it('should group by same level when multiple regions selected', () => {
+            const areaFilter: AreaFilter = {
+                mode: 'named-areas',
+                level: 'region',
+                names: ['North West', 'London'],
+            };
+
+            jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of(mockRegionData.slice(0, 2)));
+
+            fixture.componentRef.setInput('areaFilter', areaFilter);
+            fixture.detectChanges();
+
+            expect(dashboardService.getEPCByAreaLevel).toHaveBeenCalledWith('region', 'region', ['North West', 'London']);
+            expect(component.chartTitle()).toBe('Count of EPC ratings by');
+            expect(component.selectorLabel()).toBe('region');
+            expect(component.titleSuffix()).toBe('');
+        });
+
+        it('should group by same level when multiple counties selected', () => {
+            const areaFilter: AreaFilter = {
+                mode: 'named-areas',
+                level: 'county',
+                names: ['Greater Manchester', 'Lancashire'],
+            };
+
+            jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of(mockCountyData));
+
+            fixture.componentRef.setInput('areaFilter', areaFilter);
+            fixture.detectChanges();
+
+            expect(dashboardService.getEPCByAreaLevel).toHaveBeenCalledWith('county', 'county', ['Greater Manchester', 'Lancashire']);
+            expect(component.chartTitle()).toBe('Count of EPC ratings by');
+            expect(component.selectorLabel()).toBe('county');
+        });
+    });
+
+    describe('Single area selected (drill-down)', () => {
+        it('should group by counties when single region selected', () => {
+            const areaFilter: AreaFilter = {
+                mode: 'named-areas',
+                level: 'region',
+                names: ['North West'],
+            };
+
+            jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of(mockCountyData));
+
+            fixture.componentRef.setInput('areaFilter', areaFilter);
+            fixture.detectChanges();
+
+            expect(dashboardService.getEPCByAreaLevel).toHaveBeenCalledWith('county', 'region', ['North West']);
+            expect(component.chartTitle()).toBe('EPC ratings of');
+            expect(component.selectorLabel()).toBe('county');
+            expect(component.titleSuffix()).toBe(' in North West');
+        });
+
+        it('should group by districts when single county selected', () => {
+            const areaFilter: AreaFilter = {
+                mode: 'named-areas',
+                level: 'county',
+                names: ['Greater Manchester'],
+            };
+
+            const mockDistrictData: EPCAreaData[] = [
+                { area_name: 'Manchester', epc_a: 10, epc_b: 20, epc_c: 30, epc_d: 40, epc_e: 50, epc_f: 60, epc_g: 70, total: 280 },
+                { area_name: 'Salford', epc_a: 15, epc_b: 25, epc_c: 35, epc_d: 45, epc_e: 55, epc_f: 65, epc_g: 75, total: 315 },
+            ];
+
+            jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of(mockDistrictData));
+
+            fixture.componentRef.setInput('areaFilter', areaFilter);
+            fixture.detectChanges();
+
+            expect(dashboardService.getEPCByAreaLevel).toHaveBeenCalledWith('district', 'county', ['Greater Manchester']);
+            expect(component.selectorLabel()).toBe('district');
+            expect(component.titleSuffix()).toBe(' in Greater Manchester');
+        });
+
+        it('should group by wards when single district selected', () => {
+            const areaFilter: AreaFilter = {
+                mode: 'named-areas',
+                level: 'district',
+                names: ['Manchester'],
+            };
+
+            const mockWardData: EPCAreaData[] = [
+                { area_name: 'Ancoats', epc_a: 5, epc_b: 10, epc_c: 15, epc_d: 20, epc_e: 25, epc_f: 30, epc_g: 35, total: 140 },
+                { area_name: 'Deansgate', epc_a: 8, epc_b: 12, epc_c: 18, epc_d: 24, epc_e: 30, epc_f: 36, epc_g: 42, total: 170 },
+            ];
+
+            jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of(mockWardData));
+
+            fixture.componentRef.setInput('areaFilter', areaFilter);
+            fixture.detectChanges();
+
+            expect(dashboardService.getEPCByAreaLevel).toHaveBeenCalledWith('ward', 'district', ['Manchester']);
+            expect(component.selectorLabel()).toBe('ward');
+            expect(component.titleSuffix()).toBe(' in Manchester');
+        });
+
+        it('should stay at ward level when single ward selected', () => {
+            const areaFilter: AreaFilter = {
+                mode: 'named-areas',
+                level: 'ward',
+                names: ['Ancoats'],
+            };
+
+            const mockSingleWardData: EPCAreaData[] = [
+                { area_name: 'Ancoats', epc_a: 5, epc_b: 10, epc_c: 15, epc_d: 20, epc_e: 25, epc_f: 30, epc_g: 35, total: 140 },
+            ];
+
+            jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of(mockSingleWardData));
+
+            fixture.componentRef.setInput('areaFilter', areaFilter);
+            fixture.detectChanges();
+
+            expect(dashboardService.getEPCByAreaLevel).toHaveBeenCalledWith('ward', 'ward', ['Ancoats']);
+            expect(component.selectorLabel()).toBe('ward');
+            expect(component.titleSuffix()).toBe(' in Ancoats');
+        });
+    });
+
+    describe('Chart data transformation', () => {
         beforeEach(() => {
-            jest.spyOn(dashboardService, 'getEPCByRegion').mockReturnValue(of(mockApiResponse));
+            jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of(mockRegionData));
             fixture.detectChanges();
         });
 
-        it('should create stacked bar chart with correct structure', () => {
+        it('should create horizontal stacked bar chart with correct structure', () => {
             const chartData = component.chartData();
             expect(chartData.length).toBe(7);
             expect(chartData.every((trace) => trace.type === 'bar')).toBe(true);
+            expect(chartData.every((trace) => (trace as PlotData).orientation === 'h')).toBe(true);
         });
 
         it('should create one trace per EPC rating', () => {
@@ -215,8 +281,15 @@ describe('EpcByAreaChartComponent', () => {
             });
         });
 
-        it('should filter chart data by selected regions', () => {
-            component.selectedRegions.set(['London', 'South East']);
+        it('should sort areas by total count (ascending)', () => {
+            const chartData = component.chartData();
+            const firstTrace = chartData[0] as PlotData;
+
+            expect(firstTrace.y).toEqual(['North West', 'South East', 'London']);
+        });
+
+        it('should filter chart data by selected areas', () => {
+            component.selectedAreas.set(['London', 'South East']);
             fixture.detectChanges();
 
             const chartData = component.chartData();
@@ -224,26 +297,8 @@ describe('EpcByAreaChartComponent', () => {
             expect(firstTrace.y).toEqual(['South East', 'London']);
         });
 
-        it('should sort regions by total count (ascending) in chart', () => {
-            component.selectedRegions.set(['Yorkshire', 'North West', 'London']);
-            fixture.detectChanges();
-
-            const chartData = component.chartData();
-            const firstTrace = chartData[0] as PlotData;
-            expect(firstTrace.y).toEqual(['Yorkshire', 'North West', 'London']);
-        });
-
-        it('should use plain region names without formatting', () => {
-            component.selectedRegions.set(['North West', 'South East']);
-            fixture.detectChanges();
-
-            const chartData = component.chartData();
-            const firstTrace = chartData[0] as PlotData;
-            expect(firstTrace.y).toEqual(['North West', 'South East']);
-        });
-
         it('should map EPC rating values correctly', () => {
-            component.selectedRegions.set(['London']);
+            component.selectedAreas.set(['London']);
             fixture.detectChanges();
 
             const chartData = component.chartData();
@@ -263,43 +318,58 @@ describe('EpcByAreaChartComponent', () => {
             expect(gTrace.marker?.color).toBe(mockRuntimeConfig.epcColours.G);
         });
 
-        it('should include EPC rating and percentages in hovertemplate', () => {
-            component.selectedRegions.set(['London']);
+        it('should calculate percentages correctly', () => {
+            component.selectedAreas.set(['London']);
             fixture.detectChanges();
 
             const chartData = component.chartData();
             const aTrace = chartData.find((trace) => (trace as PlotData).name === 'A') as PlotData;
-            const gTrace = chartData.find((trace) => (trace as PlotData).name === 'G') as PlotData;
 
-            expect(aTrace.hovertemplate).toContain('%{fullData.name}');
-            expect(aTrace.hovertemplate).toContain('%{customdata}%');
-            expect(gTrace.hovertemplate).toContain('%{fullData.name}');
-            expect(gTrace.hovertemplate).toContain('%{customdata}%');
-            expect(aTrace.customdata).toBeDefined();
-            expect(gTrace.customdata).toBeDefined();
+            // 150 / 3150 * 100 = 4.76...
+            expect(aTrace.customdata).toEqual(['4.8']);
         });
 
-        it('should calculate percentages correctly', () => {
-            component.selectedRegions.set(['London']);
-            fixture.detectChanges();
+        it('should handle zero EPC rating values correctly', () => {
+            const dataWithZeros: EPCAreaData[] = [
+                {
+                    area_name: 'Test Area',
+                    epc_a: 100,
+                    epc_b: 0,
+                    epc_c: 0,
+                    epc_d: 200,
+                    epc_e: 0,
+                    epc_f: 0,
+                    epc_g: 0,
+                    total: 300,
+                },
+            ];
 
-            const chartData = component.chartData();
-            const aTrace = chartData.find((trace) => (trace as PlotData).name === 'A') as PlotData;
+            jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of(dataWithZeros));
 
-            expect(aTrace.customdata).toEqual(['4.8']);
+            // Create a fresh component for this test
+            const newFixture = TestBed.createComponent(EpcByAreaChartComponent);
+            const newComponent = newFixture.componentInstance;
+            newFixture.detectChanges();
+
+            newComponent.selectedAreas.set(['Test Area']);
+            newFixture.detectChanges();
+
+            const chartData = newComponent.chartData();
+            const cTrace = chartData.find((trace) => (trace as PlotData).name === 'C') as PlotData;
+            expect(cTrace.x).toEqual([0]);
         });
     });
 
-    describe('region selection updates', () => {
+    describe('Region selection updates', () => {
         beforeEach(() => {
-            jest.spyOn(dashboardService, 'getEPCByRegion').mockReturnValue(of(mockApiResponse));
+            jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of(mockRegionData));
             fixture.detectChanges();
         });
 
-        it('should update chart when selected regions change', () => {
+        it('should update chart when selected areas change', () => {
             const initialData = component.chartData();
 
-            component.selectedRegions.set(['London']);
+            component.selectedAreas.set(['London']);
             fixture.detectChanges();
 
             const updatedData = component.chartData();
@@ -307,15 +377,21 @@ describe('EpcByAreaChartComponent', () => {
 
             const firstTrace = updatedData[0] as PlotData;
             expect(firstTrace.y).toEqual(['London']);
+        });
+    });
 
-            component.selectedRegions.set(['London', 'South East']);
+    describe('Empty data handling', () => {
+        it('should handle empty response', () => {
+            jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of([]));
+
             fixture.detectChanges();
 
-            const updatedData2 = component.chartData();
-            expect(updatedData2).not.toEqual(updatedData);
-
-            const firstTrace2 = updatedData2[0] as PlotData;
-            expect(firstTrace2.y).toEqual(['South East', 'London']);
+            expect(component.availableAreas()).toEqual([]);
+            expect(component.selectedAreas()).toEqual([]);
         });
     });
 });
+
+// SPDX-License-Identifier: Apache-2.0
+// © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+// and is legally attributed to the Department for Business and Trade (UK) as the governing entity.

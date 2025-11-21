@@ -13,11 +13,12 @@
             </mat-select>
         </mat-form-field>
         <span>per</span>
-        <c477-region-selector
-            [selectedRegions]="selectedRegions()"
-            [availableRegions]="availableRegions()"
-            (selectedRegionsChange)="selectedRegions.set($event)"
-        ></c477-region-selector>
+        <c477-area-selector
+            [label]="'region'"
+            [selectedAreas]="selectedRegions()"
+            [availableAreas]="availableRegions()"
+            (selectedAreasChange)="selectedRegions.set($event)"
+        ></c477-area-selector>
     </div>
 </div>
 

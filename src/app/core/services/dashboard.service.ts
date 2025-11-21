@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { AreaFilter } from '../models/area-filter.model';
+import { AreaFilter, AreaLevel } from '../models/area-filter.model';
 
 interface EPCRatings {
     epc_a: number;
@@ -36,6 +36,11 @@ export interface SAPTimelineResponse {
 
 export interface EPCRegionData extends EPCRatings {
     region_name: string;
+    total: number;
+}
+
+export interface EPCAreaData extends EPCRatings {
+    area_name: string;
     total: number;
 }
 
@@ -87,6 +92,11 @@ export interface BackendNumberOfInDateAndExpiredEpcsResponse {
 
 interface BackendEPCRegionData extends EPCRatings {
     region_name: string;
+}
+
+interface BackendEPCAreaData extends EPCRatings {
+    area_name: string;
+    total: number;
 }
 
 interface BackendEpcRatingsOvertimeResponse extends EPCRatings {
@@ -167,6 +177,7 @@ export class DashboardService {
             .pipe(map((results) => results.map((item) => ({ ...item, date: new Date(item.date) }))));
     }
 
+    // TODO: can be removed when we update the copied component, this is now done as unfiltered getEPCByAreaLevel call
     public getEPCByRegion(filter?: AreaFilter): Observable<EPCRegionData[]> {
         return this.#http
             .get<BackendEPCRegionData[]>(`${this.#endpointRoot}/epc-ratings-per-region`, { params: this.getParamsWithFilter(filter), withCredentials: true })
@@ -185,6 +196,19 @@ export class DashboardService {
                     })),
                 ),
             );
+    }
+
+    public getEPCByAreaLevel(groupBy: AreaLevel, filterLevel?: AreaLevel, filterNames?: string[]): Observable<EPCAreaData[]> {
+        const params: Record<string, string | string[]> = {
+            group_by_level: groupBy,
+        };
+
+        if (filterLevel && filterNames) {
+            params['filter_area_level'] = filterLevel;
+            params['filter_area_names'] = filterNames;
+        }
+
+        return this.#http.get<BackendEPCAreaData[]>(`${this.#endpointRoot}/epc-ratings-by-area-level`, { params, withCredentials: true });
     }
 
     public getOverallEPC(filter?: AreaFilter): Observable<OverallEPCResponse> {

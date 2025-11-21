@@ -6,11 +6,11 @@ import { BackendBuildingAttributesResponse, RegionCharacteristicData } from '@co
 import { PlotlyModule } from 'angular-plotly.js';
 import type { Data, Layout } from 'plotly.js-dist-min';
 import { BaseChartComponent } from '../base-chart.component';
-import { RegionSelectorComponent } from '../shared/region-selector.component';
+import { AreaSelectorComponent } from '../shared/area-selector.component';
 
 @Component({
     selector: 'c477-characteristics-chart',
-    imports: [CommonModule, PlotlyModule, MatFormFieldModule, MatSelectModule, RegionSelectorComponent],
+    imports: [CommonModule, PlotlyModule, MatFormFieldModule, MatSelectModule, AreaSelectorComponent],
     templateUrl: './characteristics-chart.component.html',
     styleUrl: './characteristics-chart.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
