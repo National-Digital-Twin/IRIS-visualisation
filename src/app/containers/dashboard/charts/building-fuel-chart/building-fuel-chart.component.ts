@@ -128,6 +128,7 @@ export class BuildingFuelChartComponent extends BaseChartComponent {
             margin: { l: 20, r: 20, t: 20, b: 20 },
             font: this.chartService.commonFont,
             height: 300,
+            hovermode: 'y',
             xaxis: {
                 showgrid: false,
                 showticklabels: true,
