@@ -190,7 +190,7 @@ describe('EpcByAreaChartComponent', () => {
 
             const chartData = component.chartData();
             const cTrace = chartData.find((trace) => (trace as PlotData).name === 'C') as PlotData;
-            expect(cTrace.y).toEqual([0]);
+            expect(cTrace.x).toEqual([0]);
         });
     });
 
@@ -221,25 +221,25 @@ describe('EpcByAreaChartComponent', () => {
 
             const chartData = component.chartData();
             const firstTrace = chartData[0] as PlotData;
-            expect(firstTrace.x).toEqual(['London', 'South<br>East']);
+            expect(firstTrace.y).toEqual(['South East', 'London']);
         });
 
-        it('should sort regions by total count (descending) in chart', () => {
+        it('should sort regions by total count (ascending) in chart', () => {
             component.selectedRegions.set(['Yorkshire', 'North West', 'London']);
             fixture.detectChanges();
 
             const chartData = component.chartData();
             const firstTrace = chartData[0] as PlotData;
-            expect(firstTrace.x).toEqual(['London', 'North<br>West', 'Yorkshire']);
+            expect(firstTrace.y).toEqual(['Yorkshire', 'North West', 'London']);
         });
 
-        it('should format region names with line breaks for spaces', () => {
+        it('should use plain region names without formatting', () => {
             component.selectedRegions.set(['North West', 'South East']);
             fixture.detectChanges();
 
             const chartData = component.chartData();
             const firstTrace = chartData[0] as PlotData;
-            expect(firstTrace.x).toEqual(['South<br>East', 'North<br>West']);
+            expect(firstTrace.y).toEqual(['North West', 'South East']);
         });
 
         it('should map EPC rating values correctly', () => {
@@ -250,8 +250,8 @@ describe('EpcByAreaChartComponent', () => {
             const aTrace = chartData.find((trace) => (trace as PlotData).name === 'A') as PlotData;
             const gTrace = chartData.find((trace) => (trace as PlotData).name === 'G') as PlotData;
 
-            expect(aTrace.y).toEqual([150]);
-            expect(gTrace.y).toEqual([750]);
+            expect(aTrace.x).toEqual([150]);
+            expect(gTrace.x).toEqual([750]);
         });
 
         it('should use EPC colors from configuration', () => {
@@ -306,7 +306,7 @@ describe('EpcByAreaChartComponent', () => {
             expect(updatedData).not.toEqual(initialData);
 
             const firstTrace = updatedData[0] as PlotData;
-            expect(firstTrace.x).toEqual(['London']);
+            expect(firstTrace.y).toEqual(['London']);
 
             component.selectedRegions.set(['London', 'South East']);
             fixture.detectChanges();
@@ -315,7 +315,7 @@ describe('EpcByAreaChartComponent', () => {
             expect(updatedData2).not.toEqual(updatedData);
 
             const firstTrace2 = updatedData2[0] as PlotData;
-            expect(firstTrace2.x).toEqual(['London', 'South<br>East']);
+            expect(firstTrace2.y).toEqual(['South East', 'London']);
         });
     });
 });

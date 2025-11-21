@@ -56,7 +56,7 @@ export class EpcByAreaChartComponent extends BaseChartComponent {
 
     private buildChart(regionData: EPCRegionData[], selectedRegions: string[]): { data: Data[]; layout: Partial<Layout> } {
         const filteredData = regionData.filter((r) => selectedRegions.includes(r.region_name));
-        const sortedData = filteredData.toSorted((a, b) => b.total - a.total);
+        const sortedData = filteredData.toSorted((a, b) => a.total - b.total);
 
         const ratings = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
         const regionNames = sortedData.map((r) => r.region_name);
@@ -70,12 +70,13 @@ export class EpcByAreaChartComponent extends BaseChartComponent {
             return {
                 type: 'bar',
                 name: rating,
-                x: regionNames.map((r) => r.replaceAll(' ', '<br>')),
-                y: values,
+                y: regionNames,
+                x: values,
+                orientation: 'h',
                 customdata: percentages,
                 marker: { color: this.chartService.epcColors[rating] },
                 hoverlabel: this.chartService.commonHoverStyle,
-                hovertemplate: '<b>%{fullData.name}</b><br>%{y:,}<br>%{customdata}%<extra></extra>',
+                hovertemplate: '<b>%{fullData.name}</b><br>%{x:,}<br>%{customdata}%<extra></extra>',
             };
         });
 
@@ -85,32 +86,30 @@ export class EpcByAreaChartComponent extends BaseChartComponent {
 
         const layout: Partial<Layout> = {
             barmode: 'stack',
-            margin: { l: 20, r: 60, t: 20, b: 80 },
+            margin: { l: 0, r: 20, t: 20, b: 0 },
             xaxis: {
-                title: { text: '' },
-                tickangle: 'auto',
-                tickfont: { size: 11, color: '#999' },
-                automargin: true,
-            },
-            yaxis: {
                 title: { text: '' },
                 range: [0, maxTotal * 1.1],
                 tickformat: '.2s',
                 tickfont: { size: 11, color: '#999' },
-                showgrid: true,
-                gridcolor: '#e0e0e0',
-                side: 'right',
+                showgrid: false,
+                linecolor: '#e0e0e0',
+                zerolinecolor: '#e0e0e0',
+            },
+            yaxis: {
+                title: { text: '' },
+                tickfont: { size: 11, color: '#999' },
                 automargin: true,
+                linecolor: '#e0e0e0',
             },
             font: this.chartService.commonFont,
-            height: 300,
+            height: 500,
             plot_bgcolor: 'white',
             paper_bgcolor: 'white',
             showlegend: true,
             legend: {
                 orientation: 'h',
-                x: 0.5,
-                y: -0.5,
+                x: 0.3,
                 xanchor: 'center',
                 traceorder: 'normal',
             },
