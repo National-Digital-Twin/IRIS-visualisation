@@ -56,7 +56,7 @@ export class EpcRegionChartComponent extends BaseChartComponent {
 
     private buildChart(regionData: EPCRegionData[], selectedRegions: string[]): { data: Data[]; layout: Partial<Layout> } {
         const filteredData = regionData.filter((r) => selectedRegions.includes(r.region_name));
-        const sortedData = this.chartService.sortRegionsAlphabetically(filteredData);
+        const sortedData = filteredData.toSorted((a, b) => b.total - a.total);
 
         const ratings = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
         const regionNames = sortedData.map((r) => r.region_name);

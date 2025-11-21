@@ -224,7 +224,7 @@ describe('EpcRegionChartComponent', () => {
             expect(firstTrace.x).toEqual(['London', 'South<br>East']);
         });
 
-        it('should sort regions alphabetically in chart', () => {
+        it('should sort regions by total count (descending) in chart', () => {
             component.selectedRegions.set(['Yorkshire', 'North West', 'London']);
             fixture.detectChanges();
 
@@ -239,7 +239,7 @@ describe('EpcRegionChartComponent', () => {
 
             const chartData = component.chartData();
             const firstTrace = chartData[0] as PlotData;
-            expect(firstTrace.x).toEqual(['North<br>West', 'South<br>East']);
+            expect(firstTrace.x).toEqual(['South<br>East', 'North<br>West']);
         });
 
         it('should map EPC rating values correctly', () => {
