@@ -101,7 +101,7 @@ export class EpcByAreaChartComponent extends BaseChartComponent {
         const sub = this.dashboardService.getEPCByAreaLevel(config.groupBy, config.filterLevel, config.filterNames).subscribe((areaData) => {
             this.epcAreaData.set(areaData);
 
-            const areas = areaData.map((r) => r.area_name);
+            const areas = areaData.map((r) => r.name);
             this.availableAreas.set(areas);
             this.selectedAreas.set(areas);
         });
@@ -110,11 +110,11 @@ export class EpcByAreaChartComponent extends BaseChartComponent {
     }
 
     private buildChart(areaData: EPCAreaData[], selectedAreas: string[]): { data: Data[]; layout: Partial<Layout> } {
-        const filteredData = areaData.filter((r) => selectedAreas.includes(r.area_name));
+        const filteredData = areaData.filter((r) => selectedAreas.includes(r.name));
         const sortedData = filteredData.toSorted((a, b) => a.total - b.total);
 
         const ratings = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
-        const areaNames = sortedData.map((r) => r.area_name);
+        const areaNames = sortedData.map((r) => r.name);
 
         const data: Data[] = ratings.map((rating) => {
             const values = sortedData.map((r) => r[`epc_${rating.toLowerCase()}` as keyof EPCAreaData] || 0);

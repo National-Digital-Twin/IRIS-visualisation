@@ -1,12 +1,13 @@
 <div class="widget-header">
     <div class="widget-title">
-        <span>EPC ratings by</span>
-        <c477-area-selector
-            [label]="'region'"
-            [selectedAreas]="selectedRegions()"
-            [availableAreas]="availableRegions()"
-            (selectedAreasChange)="selectedRegions.set($event)"
-        ></c477-area-selector>
+        <span>EPC ratings for different</span>
+        <mat-form-field appearance="outline" class="inline-select">
+            <mat-select [value]="selectedFeatureDisplay()" (selectionChange)="onFeatureChange($event.value)" [placeholder]="loading() ? 'Loading...' : ''">
+                @for (feature of availableFeatures; track feature) {
+                    <mat-option [value]="feature">{{ feature }}</mat-option>
+                }
+            </mat-select>
+        </mat-form-field>
     </div>
 </div>
 

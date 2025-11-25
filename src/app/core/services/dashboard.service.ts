@@ -34,15 +34,12 @@ export interface SAPTimelineResponse {
     timeline: TimelineAvgSAPDataPoint[];
 }
 
-export interface EPCRegionData extends EPCRatings {
-    region_name: string;
+export interface EPCRatingsByCategory extends EPCRatings {
+    name: string;
     total: number;
 }
 
-export interface EPCAreaData extends EPCRatings {
-    area_name: string;
-    total: number;
-}
+export type EPCAreaData = EPCRatingsByCategory;
 
 export interface EPCRatingTotal {
     rating: string;
@@ -90,12 +87,8 @@ export interface BackendNumberOfInDateAndExpiredEpcsResponse {
     active: number;
 }
 
-interface BackendEPCRegionData extends EPCRatings {
-    region_name: string;
-}
-
 interface BackendEPCAreaData extends EPCRatings {
-    area_name: string;
+    name: string;
     total: number;
 }
 
@@ -177,27 +170,6 @@ export class DashboardService {
             .pipe(map((results) => results.map((item) => ({ ...item, date: new Date(item.date) }))));
     }
 
-    // TODO: can be removed when we update the copied component, this is now done as unfiltered getEPCByAreaLevel call
-    public getEPCByRegion(filter?: AreaFilter): Observable<EPCRegionData[]> {
-        return this.#http
-            .get<BackendEPCRegionData[]>(`${this.#endpointRoot}/epc-ratings-per-region`, { params: this.getParamsWithFilter(filter), withCredentials: true })
-            .pipe(
-                map((results) =>
-                    results.map((data) => ({
-                        region_name: this.REGION_NAME_MAP[data.region_name] || data.region_name,
-                        epc_a: data.epc_a,
-                        epc_b: data.epc_b,
-                        epc_c: data.epc_c,
-                        epc_d: data.epc_d,
-                        epc_e: data.epc_e,
-                        epc_f: data.epc_f,
-                        epc_g: data.epc_g,
-                        total: data.epc_a + data.epc_b + data.epc_c + data.epc_d + data.epc_e + data.epc_f + data.epc_g,
-                    })),
-                ),
-            );
-    }
-
     public getEPCByAreaLevel(groupBy: AreaLevel, filterLevel?: AreaLevel, filterNames?: string[]): Observable<EPCAreaData[]> {
         const params: Record<string, string | string[]> = {
             group_by_level: groupBy,
@@ -250,6 +222,16 @@ export class DashboardService {
     public getNumberOfInDateAndExpiredEpcs(filter?: AreaFilter): Observable<BackendNumberOfInDateAndExpiredEpcsResponse[]> {
         return this.#http.get<BackendNumberOfInDateAndExpiredEpcsResponse[]>(`${this.#endpointRoot}/no-of-in-date-and-expired-epcs`, {
             params: this.getParamsWithFilter(filter),
+            withCredentials: true,
+        });
+    }
+
+    public getEPCByFeature(feature: string, filter?: AreaFilter): Observable<EPCRatingsByCategory[]> {
+        const params = this.getParamsWithFilter(filter);
+        params['feature'] = feature;
+
+        return this.#http.get<EPCRatingsByCategory[]>(`${this.#endpointRoot}/epc-ratings-by-feature`, {
+            params,
             withCredentials: true,
         });
     }

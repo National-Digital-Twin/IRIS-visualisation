@@ -23,7 +23,7 @@ const mockRuntimeConfig = {
 
 const mockRegionData: EPCAreaData[] = [
     {
-        area_name: 'North West',
+        name: 'North West',
         epc_a: 100,
         epc_b: 200,
         epc_c: 300,
@@ -34,7 +34,7 @@ const mockRegionData: EPCAreaData[] = [
         total: 2800,
     },
     {
-        area_name: 'London',
+        name: 'London',
         epc_a: 150,
         epc_b: 250,
         epc_c: 350,
@@ -45,7 +45,7 @@ const mockRegionData: EPCAreaData[] = [
         total: 3150,
     },
     {
-        area_name: 'South East',
+        name: 'South East',
         epc_a: 120,
         epc_b: 220,
         epc_c: 320,
@@ -59,7 +59,7 @@ const mockRegionData: EPCAreaData[] = [
 
 const mockCountyData: EPCAreaData[] = [
     {
-        area_name: 'Greater Manchester',
+        name: 'Greater Manchester',
         epc_a: 50,
         epc_b: 100,
         epc_c: 150,
@@ -70,7 +70,7 @@ const mockCountyData: EPCAreaData[] = [
         total: 1400,
     },
     {
-        area_name: 'Lancashire',
+        name: 'Lancashire',
         epc_a: 30,
         epc_b: 60,
         epc_c: 90,
@@ -201,8 +201,8 @@ describe('EpcByAreaChartComponent', () => {
             };
 
             const mockDistrictData: EPCAreaData[] = [
-                { area_name: 'Manchester', epc_a: 10, epc_b: 20, epc_c: 30, epc_d: 40, epc_e: 50, epc_f: 60, epc_g: 70, total: 280 },
-                { area_name: 'Salford', epc_a: 15, epc_b: 25, epc_c: 35, epc_d: 45, epc_e: 55, epc_f: 65, epc_g: 75, total: 315 },
+                { name: 'Manchester', epc_a: 10, epc_b: 20, epc_c: 30, epc_d: 40, epc_e: 50, epc_f: 60, epc_g: 70, total: 280 },
+                { name: 'Salford', epc_a: 15, epc_b: 25, epc_c: 35, epc_d: 45, epc_e: 55, epc_f: 65, epc_g: 75, total: 315 },
             ];
 
             jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of(mockDistrictData));
@@ -223,8 +223,8 @@ describe('EpcByAreaChartComponent', () => {
             };
 
             const mockWardData: EPCAreaData[] = [
-                { area_name: 'Ancoats', epc_a: 5, epc_b: 10, epc_c: 15, epc_d: 20, epc_e: 25, epc_f: 30, epc_g: 35, total: 140 },
-                { area_name: 'Deansgate', epc_a: 8, epc_b: 12, epc_c: 18, epc_d: 24, epc_e: 30, epc_f: 36, epc_g: 42, total: 170 },
+                { name: 'Ancoats', epc_a: 5, epc_b: 10, epc_c: 15, epc_d: 20, epc_e: 25, epc_f: 30, epc_g: 35, total: 140 },
+                { name: 'Deansgate', epc_a: 8, epc_b: 12, epc_c: 18, epc_d: 24, epc_e: 30, epc_f: 36, epc_g: 42, total: 170 },
             ];
 
             jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of(mockWardData));
@@ -245,7 +245,7 @@ describe('EpcByAreaChartComponent', () => {
             };
 
             const mockSingleWardData: EPCAreaData[] = [
-                { area_name: 'Ancoats', epc_a: 5, epc_b: 10, epc_c: 15, epc_d: 20, epc_e: 25, epc_f: 30, epc_g: 35, total: 140 },
+                { name: 'Ancoats', epc_a: 5, epc_b: 10, epc_c: 15, epc_d: 20, epc_e: 25, epc_f: 30, epc_g: 35, total: 140 },
             ];
 
             jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of(mockSingleWardData));
@@ -332,7 +332,7 @@ describe('EpcByAreaChartComponent', () => {
         it('should handle zero EPC rating values correctly', () => {
             const dataWithZeros: EPCAreaData[] = [
                 {
-                    area_name: 'Test Area',
+                    name: 'Test Area',
                     epc_a: 100,
                     epc_b: 0,
                     epc_c: 0,

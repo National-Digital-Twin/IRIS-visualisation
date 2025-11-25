@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AreaFilter } from '@core/models/area-filter.model';
-import { DashboardService, EPCRegionData } from '@core/services/dashboard.service';
+import { DashboardService, EPCRatingsByCategory } from '@core/services/dashboard.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import type { PlotData } from 'plotly.js-dist-min';
 import { of } from 'rxjs';
@@ -21,9 +21,9 @@ const mockRuntimeConfig = {
     },
 };
 
-const mockApiResponse: EPCRegionData[] = [
+const mockGlazingData: EPCRatingsByCategory[] = [
     {
-        region_name: 'North West',
+        name: 'DoubleGlazing',
         epc_a: 100,
         epc_b: 200,
         epc_c: 300,
@@ -34,7 +34,7 @@ const mockApiResponse: EPCRegionData[] = [
         total: 2800,
     },
     {
-        region_name: 'London',
+        name: 'SingleGlazing',
         epc_a: 150,
         epc_b: 250,
         epc_c: 350,
@@ -45,7 +45,7 @@ const mockApiResponse: EPCRegionData[] = [
         total: 3150,
     },
     {
-        region_name: 'South East',
+        name: 'TripleGlazing',
         epc_a: 120,
         epc_b: 220,
         epc_c: 320,
@@ -55,28 +55,11 @@ const mockApiResponse: EPCRegionData[] = [
         epc_g: 720,
         total: 2940,
     },
-    {
-        region_name: 'Yorkshire',
-        epc_a: 80,
-        epc_b: 180,
-        epc_c: 280,
-        epc_d: 380,
-        epc_e: 480,
-        epc_f: 580,
-        epc_g: 680,
-        total: 2660,
-    },
-    {
-        region_name: 'East Midlands',
-        epc_a: 90,
-        epc_b: 190,
-        epc_c: 290,
-        epc_d: 390,
-        epc_e: 490,
-        epc_f: 590,
-        epc_g: 690,
-        total: 2730,
-    },
+];
+
+const mockFuelData: EPCRatingsByCategory[] = [
+    { name: 'MainsGas', epc_a: 80, epc_b: 180, epc_c: 280, epc_d: 380, epc_e: 480, epc_f: 580, epc_g: 680, total: 2660 },
+    { name: 'Electricity', epc_a: 90, epc_b: 190, epc_c: 290, epc_d: 390, epc_e: 490, epc_f: 590, epc_g: 690, total: 2730 },
 ];
 
 describe('EpcByFeatureChartComponent', () => {
@@ -107,30 +90,32 @@ describe('EpcByFeatureChartComponent', () => {
     it('should initialize with loading state', () => {
         expect(component.loading()).toBe(true);
         expect(component.chartData()).toEqual([]);
-        expect(component.availableRegions()).toEqual([]);
-        expect(component.selectedRegions()).toEqual([]);
+        expect(component.availableFeatures).toEqual([
+            'Glazing types',
+            'Fuel types',
+            'Wall construction types',
+            'Wall insulation types',
+            'Floor construction types',
+            'Floor insulation types',
+            'Roof construction types',
+            'Roof insulation location',
+            'Roof insulation thickness',
+            'Roof material',
+            'Solar panels',
+            'Roof aspect',
+        ]);
+        expect(component.selectedFeatureDisplay()).toBe('Glazing types');
     });
 
     describe('loadData', () => {
-        it('should load region data and set all regions as selected', () => {
-            jest.spyOn(dashboardService, 'getEPCByRegion').mockReturnValue(of(mockApiResponse));
+        it('should load glazing feature data by default', () => {
+            jest.spyOn(dashboardService, 'getEPCByFeature').mockReturnValue(of(mockGlazingData));
 
             fixture.detectChanges();
 
-            expect(dashboardService.getEPCByRegion).toHaveBeenCalledWith(undefined);
-            expect(component.availableRegions()).toEqual(['North West', 'London', 'South East', 'Yorkshire', 'East Midlands']);
-            expect(component.selectedRegions()).toEqual(['North West', 'London', 'South East', 'Yorkshire', 'East Midlands']);
+            expect(dashboardService.getEPCByFeature).toHaveBeenCalledWith('glazing_types', undefined);
+            expect(component.selectedFeatureDisplay()).toBe('Glazing types');
             expect(component.loading()).toBe(false);
-        });
-
-        it('should select all regions when fewer than 4 available', () => {
-            const twoRegions = mockApiResponse.slice(0, 2);
-            jest.spyOn(dashboardService, 'getEPCByRegion').mockReturnValue(of(twoRegions));
-
-            fixture.detectChanges();
-
-            expect(component.availableRegions()).toEqual(['North West', 'London']);
-            expect(component.selectedRegions()).toEqual(['North West', 'London']);
         });
 
         it('should pass areaFilter to service when areaFilter is provided', () => {
@@ -150,27 +135,27 @@ describe('EpcByFeatureChartComponent', () => {
                 },
             };
 
-            jest.spyOn(dashboardService, 'getEPCByRegion').mockReturnValue(of(mockApiResponse));
+            jest.spyOn(dashboardService, 'getEPCByFeature').mockReturnValue(of(mockGlazingData));
 
             fixture.componentRef.setInput('areaFilter', mockAreaFilter);
             fixture.detectChanges();
 
-            expect(dashboardService.getEPCByRegion).toHaveBeenCalledWith(mockAreaFilter);
+            expect(dashboardService.getEPCByFeature).toHaveBeenCalledWith('glazing_types', mockAreaFilter);
         });
 
         it('should handle empty response', () => {
-            jest.spyOn(dashboardService, 'getEPCByRegion').mockReturnValue(of([]));
+            jest.spyOn(dashboardService, 'getEPCByFeature').mockReturnValue(of([]));
 
             fixture.detectChanges();
 
-            expect(component.availableRegions()).toEqual([]);
-            expect(component.selectedRegions()).toEqual([]);
+            expect(component.chartData()).toEqual([]);
+            expect(component.loading()).toBe(true); // Still loading since no data
         });
 
         it('should handle zero EPC rating values correctly', () => {
-            const dataWithZeros: EPCRegionData[] = [
+            const dataWithZeros: EPCRatingsByCategory[] = [
                 {
-                    region_name: 'Test Region',
+                    name: 'TestValue',
                     epc_a: 100,
                     epc_b: 0,
                     epc_c: 0,
@@ -182,10 +167,7 @@ describe('EpcByFeatureChartComponent', () => {
                 },
             ];
 
-            jest.spyOn(dashboardService, 'getEPCByRegion').mockReturnValue(of(dataWithZeros));
-            fixture.detectChanges();
-
-            component.selectedRegions.set(['Test Region']);
+            jest.spyOn(dashboardService, 'getEPCByFeature').mockReturnValue(of(dataWithZeros));
             fixture.detectChanges();
 
             const chartData = component.chartData();
@@ -196,7 +178,7 @@ describe('EpcByFeatureChartComponent', () => {
 
     describe('chart data transformation', () => {
         beforeEach(() => {
-            jest.spyOn(dashboardService, 'getEPCByRegion').mockReturnValue(of(mockApiResponse));
+            jest.spyOn(dashboardService, 'getEPCByFeature').mockReturnValue(of(mockGlazingData));
             fixture.detectChanges();
         });
 
@@ -215,107 +197,94 @@ describe('EpcByFeatureChartComponent', () => {
             });
         });
 
-        it('should filter chart data by selected regions', () => {
-            component.selectedRegions.set(['London', 'South East']);
+        it('should load new feature data when feature changes', () => {
+            jest.spyOn(dashboardService, 'getEPCByFeature').mockReturnValue(of(mockFuelData));
+
+            component.onFeatureChange('Fuel types');
             fixture.detectChanges();
 
+            expect(dashboardService.getEPCByFeature).toHaveBeenCalledWith('fuel_types', undefined);
             const chartData = component.chartData();
             const firstTrace = chartData[0] as PlotData;
-            expect(firstTrace.x).toEqual(['London', 'South<br>East']);
+            expect(firstTrace.x).toEqual(['Electricity', 'Mains gas']);
         });
 
-        it('should sort regions by total count (descending) in chart', () => {
-            component.selectedRegions.set(['Yorkshire', 'North West', 'London']);
-            fixture.detectChanges();
-
+        it('should sort values by total count (descending) in chart', () => {
             const chartData = component.chartData();
             const firstTrace = chartData[0] as PlotData;
-            expect(firstTrace.x).toEqual(['London', 'North<br>West', 'Yorkshire']);
-        });
-
-        it('should format region names with line breaks for spaces', () => {
-            component.selectedRegions.set(['North West', 'South East']);
-            fixture.detectChanges();
-
-            const chartData = component.chartData();
-            const firstTrace = chartData[0] as PlotData;
-            expect(firstTrace.x).toEqual(['South<br>East', 'North<br>West']);
+            expect(firstTrace.x).toEqual(['Single glazing', 'Triple glazing', 'Double glazing']);
         });
 
         it('should map EPC rating values correctly', () => {
-            component.selectedRegions.set(['London']);
-            fixture.detectChanges();
-
             const chartData = component.chartData();
-            const aTrace = chartData.find((trace) => (trace as PlotData).name === 'A') as PlotData;
-            const gTrace = chartData.find((trace) => (trace as PlotData).name === 'G') as PlotData;
-
-            expect(aTrace.y).toEqual([150]);
-            expect(gTrace.y).toEqual([750]);
+            const aTrace = chartData[0] as PlotData;
+            expect(aTrace.y).toEqual([150, 120, 100]);
         });
 
-        it('should use EPC colors from configuration', () => {
+        it('should apply EPC colors to traces', () => {
             const chartData = component.chartData();
-            const aTrace = chartData.find((trace) => (trace as PlotData).name === 'A') as PlotData;
-            const gTrace = chartData.find((trace) => (trace as PlotData).name === 'G') as PlotData;
+            const aTrace = chartData[0] as PlotData;
+            expect(aTrace.marker).toEqual({ color: '#008054' });
 
-            expect(aTrace.marker?.color).toBe(mockRuntimeConfig.epcColours.A);
-            expect(gTrace.marker?.color).toBe(mockRuntimeConfig.epcColours.G);
+            const gTrace = chartData[6] as PlotData;
+            expect(gTrace.marker).toEqual({ color: '#990000' });
         });
 
-        it('should include EPC rating and percentages in hovertemplate', () => {
-            component.selectedRegions.set(['London']);
-            fixture.detectChanges();
-
+        it('should generate correct hover template', () => {
             const chartData = component.chartData();
-            const aTrace = chartData.find((trace) => (trace as PlotData).name === 'A') as PlotData;
-            const gTrace = chartData.find((trace) => (trace as PlotData).name === 'G') as PlotData;
-
-            expect(aTrace.hovertemplate).toContain('%{fullData.name}');
-            expect(aTrace.hovertemplate).toContain('%{customdata}%');
-            expect(gTrace.hovertemplate).toContain('%{fullData.name}');
-            expect(gTrace.hovertemplate).toContain('%{customdata}%');
-            expect(aTrace.customdata).toBeDefined();
-            expect(gTrace.customdata).toBeDefined();
+            chartData.forEach((trace) => {
+                const plotData = trace as PlotData;
+                expect(plotData.hovertemplate).toBe('<b>%{fullData.name}</b><br>%{y:,}<br>%{customdata}%<extra></extra>');
+            });
         });
 
-        it('should calculate percentages correctly', () => {
-            component.selectedRegions.set(['London']);
-            fixture.detectChanges();
-
+        it('should calculate percentages for hover correctly', () => {
             const chartData = component.chartData();
-            const aTrace = chartData.find((trace) => (trace as PlotData).name === 'A') as PlotData;
-
-            expect(aTrace.customdata).toEqual(['4.8']);
+            const aTrace = chartData[0] as PlotData;
+            expect(aTrace.customdata).toEqual(['4.8', '4.1', '3.6']);
         });
     });
 
-    describe('region selection updates', () => {
+    describe('chart layout', () => {
         beforeEach(() => {
-            jest.spyOn(dashboardService, 'getEPCByRegion').mockReturnValue(of(mockApiResponse));
+            jest.spyOn(dashboardService, 'getEPCByFeature').mockReturnValue(of(mockGlazingData));
             fixture.detectChanges();
         });
 
-        it('should update chart when selected regions change', () => {
-            const initialData = component.chartData();
+        it('should configure stacked bar mode', () => {
+            const layout = component.chartLayout();
+            expect(layout.barmode).toBe('stack');
+        });
 
-            component.selectedRegions.set(['London']);
+        it('should set y-axis range to 110% of max value', () => {
+            const layout = component.chartLayout();
+            const maxTotal = 3150;
+            expect(layout.yaxis?.range).toEqual([0, maxTotal * 1.1]);
+        });
+    });
+
+    describe('feature selection', () => {
+        beforeEach(() => {
+            jest.spyOn(dashboardService, 'getEPCByFeature').mockReturnValue(of(mockGlazingData));
+            fixture.detectChanges();
+        });
+
+        it('should update chart when feature changes', () => {
+            expect(component.selectedFeatureDisplay()).toBe('Glazing types');
+
+            jest.spyOn(dashboardService, 'getEPCByFeature').mockReturnValue(of(mockFuelData));
+            component.onFeatureChange('Fuel types');
             fixture.detectChanges();
 
-            const updatedData = component.chartData();
-            expect(updatedData).not.toEqual(initialData);
-
-            const firstTrace = updatedData[0] as PlotData;
-            expect(firstTrace.x).toEqual(['London']);
-
-            component.selectedRegions.set(['London', 'South East']);
-            fixture.detectChanges();
-
-            const updatedData2 = component.chartData();
-            expect(updatedData2).not.toEqual(updatedData);
-
-            const firstTrace2 = updatedData2[0] as PlotData;
-            expect(firstTrace2.x).toEqual(['London', 'South<br>East']);
+            expect(component.selectedFeatureDisplay()).toBe('Fuel types');
+            expect(dashboardService.getEPCByFeature).toHaveBeenCalledWith('fuel_types', undefined);
+            const chartData = component.chartData();
+            const firstTrace = chartData[0] as PlotData;
+            expect((firstTrace.x as string[]).length).toBe(2);
         });
     });
 });
+
+// SPDX-License-Identifier: Apache-2.0
+// © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+// and is legally attributed to the Department for Business and Trade (UK) as the governing entity.

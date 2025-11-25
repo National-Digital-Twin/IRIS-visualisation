@@ -2,15 +2,31 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, signal } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { EPCRegionData } from '@core/services/dashboard.service';
+import { EPCRatingsByCategory } from '@core/services/dashboard.service';
 import { PlotlyModule } from 'angular-plotly.js';
 import type { Data, Layout } from 'plotly.js-dist-min';
 import { BaseChartComponent } from '../base-chart.component';
-import { AreaSelectorComponent } from '../shared/area-selector.component';
+
+const FEATURE_CONFIG: Record<string, string> = {
+    glazing_types: 'Glazing types',
+    fuel_types: 'Fuel types',
+    wall_construction: 'Wall construction types',
+    wall_insulation: 'Wall insulation types',
+    floor_construction: 'Floor construction types',
+    floor_insulation: 'Floor insulation types',
+    roof_construction: 'Roof construction types',
+    roof_insulation: 'Roof insulation location',
+    roof_insulation_thickness: 'Roof insulation thickness',
+    roof_material: 'Roof material',
+    solar_panels: 'Solar panels',
+    roof_aspect: 'Roof aspect',
+};
+
+const DISPLAY_NAME_TO_KEY = Object.fromEntries(Object.entries(FEATURE_CONFIG).map(([key, displayName]) => [displayName, key]));
 
 @Component({
     selector: 'c477-epc-by-feature-chart',
-    imports: [CommonModule, PlotlyModule, MatFormFieldModule, MatSelectModule, AreaSelectorComponent],
+    imports: [CommonModule, PlotlyModule, MatFormFieldModule, MatSelectModule],
     templateUrl: './epc-by-feature-chart.component.html',
     styleUrl: './epc-by-feature-chart.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,21 +35,22 @@ export class EpcByFeatureChartComponent extends BaseChartComponent {
     public chartData = signal<Data[]>([]);
     public chartLayout = signal<Partial<Layout>>({});
     public loading = signal(true);
-    public availableRegions = signal<string[]>([]);
 
-    public selectedRegions = signal<string[]>([]);
-    private readonly epcRegionData = signal<EPCRegionData[] | null>(null);
+    private readonly selectedFeatureKey = signal<string>('glazing_types');
+    public readonly selectedFeatureDisplay = signal<string>('Glazing types');
+    private readonly featureData = signal<EPCRatingsByCategory[]>([]);
+
+    public readonly availableFeatures = Object.values(FEATURE_CONFIG);
 
     constructor() {
         super();
         effect(() => {
-            const data = this.epcRegionData();
-            const regions = this.selectedRegions();
-            if (!data || regions.length === 0) {
+            const data = this.featureData();
+            if (data.length === 0) {
                 return;
             }
 
-            const built = this.buildChart(data, regions);
+            const built = this.buildChart(data);
             this.chartData.set(built.data);
             this.chartLayout.set(built.layout);
             this.loading.set(false);
@@ -41,36 +58,57 @@ export class EpcByFeatureChartComponent extends BaseChartComponent {
     }
 
     protected loadData(): void {
+        this.loadFeatureData(this.selectedFeatureKey());
+    }
+
+    private loadFeatureData(featureKey: string): void {
         this.loading.set(true);
 
-        const sub = this.dashboardService.getEPCByRegion(this.areaFilter).subscribe((regionData) => {
-            this.epcRegionData.set(regionData);
-
-            const regions = regionData.map((r) => r.region_name);
-            this.availableRegions.set(regions);
-            this.selectedRegions.set(regions);
+        const sub = this.dashboardService.getEPCByFeature(featureKey, this.areaFilter).subscribe((data) => {
+            this.featureData.set(data);
         });
 
         this.subscriptions.add(sub);
     }
 
-    private buildChart(regionData: EPCRegionData[], selectedRegions: string[]): { data: Data[]; layout: Partial<Layout> } {
-        const filteredData = regionData.filter((r) => selectedRegions.includes(r.region_name));
-        const sortedData = filteredData.toSorted((a, b) => b.total - a.total);
+    public onFeatureChange(displayName: string): void {
+        const featureKey = DISPLAY_NAME_TO_KEY[displayName];
+        if (featureKey) {
+            this.selectedFeatureKey.set(featureKey);
+            this.selectedFeatureDisplay.set(displayName);
+            this.loadFeatureData(featureKey);
+        }
+    }
+
+    private formatValueName(name: string): string {
+        if (name.length > 1 && name === name.toUpperCase()) {
+            return name;
+        }
+
+        return name
+            .replaceAll(/([A-Z])/g, ' $1')
+            .trim()
+            .toLowerCase()
+            .replace(/^\w/, (c) => c.toUpperCase());
+    }
+
+    private buildChart(featureValues: EPCRatingsByCategory[]): { data: Data[]; layout: Partial<Layout> } {
+        const sortedData = featureValues.toSorted((a, b) => b.total - a.total);
 
         const ratings = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
-        const regionNames = sortedData.map((r) => r.region_name);
+        const valueNames = sortedData.map((v) => this.formatValueName(v.name));
 
         const data: Data[] = ratings.map((rating) => {
-            const values = sortedData.map((r) => r[`epc_${rating.toLowerCase()}` as keyof EPCRegionData] || 0);
-            const percentages = sortedData.map((r) => {
-                const ratingCount = (r[`epc_${rating.toLowerCase()}` as keyof EPCRegionData] as number) || 0;
-                return ((ratingCount / r.total) * 100).toFixed(1);
+            const ratingKey = `epc_${rating.toLowerCase()}` as keyof EPCRatingsByCategory;
+            const values = sortedData.map((v) => (v[ratingKey] as number) || 0);
+            const percentages = sortedData.map((v) => {
+                const count = (v[ratingKey] as number) || 0;
+                return ((count / v.total) * 100).toFixed(1);
             });
             return {
                 type: 'bar',
                 name: rating,
-                x: regionNames.map((r) => r.replaceAll(' ', '<br>')),
+                x: valueNames,
                 y: values,
                 customdata: percentages,
                 marker: { color: this.chartService.epcColors[rating] },
@@ -80,12 +118,12 @@ export class EpcByFeatureChartComponent extends BaseChartComponent {
         });
 
         const maxTotal = Math.max(
-            ...sortedData.map((r) => ratings.reduce((acc, curr) => acc + ((r[`epc_${curr.toLowerCase()}` as keyof EPCRegionData] as number) || 0), 0)),
+            ...sortedData.map((v) => ratings.reduce((acc, curr) => acc + ((v[`epc_${curr.toLowerCase()}` as keyof EPCRatingsByCategory] as number) || 0), 0)),
         );
 
         const layout: Partial<Layout> = {
             barmode: 'stack',
-            margin: { l: 20, r: 60, t: 20, b: 80 },
+            margin: { l: 20, r: 45, t: 20, b: 0 },
             xaxis: {
                 title: { text: '' },
                 tickangle: 'auto',
@@ -111,6 +149,7 @@ export class EpcByFeatureChartComponent extends BaseChartComponent {
                 orientation: 'h',
                 x: 0.5,
                 y: -0.5,
+                yref: 'container',
                 xanchor: 'center',
                 traceorder: 'normal',
             },
