@@ -10,7 +10,7 @@
             placeholder="Choose area type"
             [value]="areaLevel()"
             (selectionChange)="areaLevel.set($any($event).value); onAreaLevelChange()"
-            [disabled]="hasAreaLevelSelected()"
+            [disabled]="selectionCount() > 0"
         >
             <mat-option value="region">Regions</mat-option>
             <mat-option value="county">Counties</mat-option>

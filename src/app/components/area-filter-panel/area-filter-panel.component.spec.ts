@@ -43,7 +43,7 @@ describe('AreaFilterPanelComponent', () => {
             expect(areaService.getAreasByLevel).toHaveBeenCalledWith('region');
         });
 
-        it('should disable dropdown once area level is selected', () => {
+        it('should keep dropdown enabled when area level selected but no areas chosen', () => {
             jest.spyOn(areaService, 'getAreasByLevel').mockReturnValue(of(mockRegions));
             fixture.detectChanges();
 
@@ -57,6 +57,18 @@ describe('AreaFilterPanelComponent', () => {
             (options[0] as HTMLElement).click();
             fixture.detectChanges();
 
+            expect(select.getAttribute('aria-disabled')).toBe('false');
+        });
+
+        it('should disable dropdown once areas are selected', () => {
+            jest.spyOn(areaService, 'getAreasByLevel').mockReturnValue(of(mockRegions));
+            fixture.detectChanges();
+
+            component['areaLevel'].set('region');
+            component['selectedAreas'].set(new Set(['North West']));
+            fixture.detectChanges();
+
+            const select = fixture.nativeElement.querySelector('mat-select');
             expect(select.getAttribute('aria-disabled')).toBe('true');
         });
     });
