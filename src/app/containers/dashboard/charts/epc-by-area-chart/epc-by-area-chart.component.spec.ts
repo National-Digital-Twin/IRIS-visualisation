@@ -390,6 +390,123 @@ describe('EpcByAreaChartComponent', () => {
             expect(component.selectedAreas()).toEqual([]);
         });
     });
+
+    describe('Scrolling behavior', () => {
+        const createManyAreas = (count: number): EPCAreaData[] => {
+            return Array.from({ length: count }, (_, i) => ({
+                name: `Area ${i + 1}`,
+                epc_a: 10 * (i + 1),
+                epc_b: 20 * (i + 1),
+                epc_c: 30 * (i + 1),
+                epc_d: 40 * (i + 1),
+                epc_e: 50 * (i + 1),
+                epc_f: 60 * (i + 1),
+                epc_g: 70 * (i + 1),
+                total: 280 * (i + 1),
+            }));
+        };
+
+        it('should not need scrolling when items fit within maxVisibleItems', () => {
+            const fewAreas = createManyAreas(5);
+            jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of(fewAreas));
+
+            fixture.detectChanges();
+
+            expect(component.scrollMetrics.needsScroll).toBe(false);
+        });
+
+        it('should need scrolling when items exceed maxVisibleItems', () => {
+            const manyAreas = createManyAreas(20);
+            jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of(manyAreas));
+
+            fixture.detectChanges();
+
+            expect(component.scrollMetrics.needsScroll).toBe(true);
+            expect(component.scrollMetrics.maxScroll).toBe(10); // 20 - 10 maxVisibleItems
+        });
+
+        it('should initialize scroll to show top (largest values first)', () => {
+            const manyAreas = createManyAreas(20);
+            jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of(manyAreas));
+
+            fixture.detectChanges();
+
+            // Should be at max scroll position
+            expect(component.scrollPosition()).toBe(component.scrollMetrics.maxScroll);
+        });
+
+        it('should clamp scroll position when hiding areas reduces total below current position', () => {
+            const manyAreas = createManyAreas(20);
+            jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of(manyAreas));
+
+            fixture.detectChanges();
+
+            // Start at max scroll (10)
+            expect(component.scrollPosition()).toBe(10);
+
+            // Hide most areas, leaving only 5
+            component.selectedAreas.set(manyAreas.slice(0, 5).map((a) => a.name));
+            fixture.detectChanges();
+
+            // Should clamp to 0 since 5 items don't need scroll
+            expect(component.scrollPosition()).toBe(0);
+        });
+
+        it('should update scroll position via onScrollPositionChange', () => {
+            const manyAreas = createManyAreas(20);
+            jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of(manyAreas));
+
+            fixture.detectChanges();
+
+            component.onScrollPositionChange(5);
+
+            expect(component.scrollPosition()).toBe(5);
+        });
+
+        it('should clamp scroll position to valid bounds', () => {
+            const manyAreas = createManyAreas(20);
+            jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of(manyAreas));
+
+            fixture.detectChanges();
+
+            // Try to scroll past max
+            component.onScrollPositionChange(100);
+            expect(component.scrollPosition()).toBe(10);
+
+            // Try to scroll below 0
+            component.onScrollPositionChange(-5);
+            expect(component.scrollPosition()).toBe(0);
+        });
+
+        it('should handle wheel scroll events', () => {
+            const manyAreas = createManyAreas(20);
+            jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of(manyAreas));
+
+            fixture.detectChanges();
+
+            // Start at max (10)
+            expect(component.scrollPosition()).toBe(10);
+
+            // Scroll down (positive deltaY) should decrease position
+            const scrollDownEvent = new WheelEvent('wheel', { deltaY: 100 });
+            component.onChartWheel(scrollDownEvent);
+
+            expect(component.scrollPosition()).toBe(9);
+        });
+
+        it('should not handle wheel events when scrolling not needed', () => {
+            const fewAreas = createManyAreas(5);
+            jest.spyOn(dashboardService, 'getEPCByAreaLevel').mockReturnValue(of(fewAreas));
+
+            fixture.detectChanges();
+
+            const initialPosition = component.scrollPosition();
+            const scrollEvent = new WheelEvent('wheel', { deltaY: 100 });
+            component.onChartWheel(scrollEvent);
+
+            expect(component.scrollPosition()).toBe(initialPosition);
+        });
+    });
 });
 
 // SPDX-License-Identifier: Apache-2.0

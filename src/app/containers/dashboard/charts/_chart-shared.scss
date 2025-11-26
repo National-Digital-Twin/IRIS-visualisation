@@ -12,6 +12,26 @@
     }
 }
 
+.chart-with-scrollbar {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+
+    plotly-plot {
+        width: 100%;
+        // Prevent Plotly's drag cursor when dragmode is disabled
+        ::ng-deep .drag {
+            cursor: default !important;
+        }
+    }
+}
+
+.chart-scrollbar {
+    display: flex;
+    align-items: center;
+    width: 12px;
+}
+
 ::ng-deep .plotly .legend {
     .legendpoints path {
         --circle-r6: path('M 6 0 A 6 6 0 1 1 -6 0 A 6 6 0 1 1 6 0 Z');

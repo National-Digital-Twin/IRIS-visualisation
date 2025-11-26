@@ -6,22 +6,27 @@ import { AreaLevel } from '@core/models/area-filter.model';
 import { EPCAreaData } from '@core/services/dashboard.service';
 import { PlotlyModule } from 'angular-plotly.js';
 import type { Data, Layout } from 'plotly.js-dist-min';
-import { BaseChartComponent } from '../base-chart.component';
 import { AreaSelectorComponent } from '../shared/area-selector.component';
 import { ChartPlaceholderComponent } from '../shared/chart-placeholder.component';
+import { ChartScrollbarComponent } from '../shared/chart-scrollbar.component';
+import { ScrollableChartComponent } from '../shared/scrollable-chart.component';
 
 @Component({
     selector: 'c477-epc-by-area-chart',
-    imports: [CommonModule, PlotlyModule, MatFormFieldModule, MatSelectModule, AreaSelectorComponent, ChartPlaceholderComponent],
+    imports: [CommonModule, PlotlyModule, MatFormFieldModule, MatSelectModule, AreaSelectorComponent, ChartPlaceholderComponent, ChartScrollbarComponent],
     templateUrl: './epc-by-area-chart.component.html',
     styleUrl: './epc-by-area-chart.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EpcByAreaChartComponent extends BaseChartComponent {
+export class EpcByAreaChartComponent extends ScrollableChartComponent {
+    protected readonly maxVisibleItems = 10;
+    protected readonly totalItems = (): number => this.selectedAreas().length;
+
     public chartData = signal<Data[]>([]);
     public chartLayout = signal<Partial<Layout>>({});
     public availableAreas = signal<string[]>([]);
     public selectedAreas = signal<string[]>([]);
+
     private readonly epcAreaData = signal<EPCAreaData[] | null>(null);
 
     private readonly groupingConfig = computed(() => {
@@ -87,6 +92,8 @@ export class EpcByAreaChartComponent extends BaseChartComponent {
                 return;
             }
 
+            this.clampScrollPosition();
+
             const built = this.buildChart(data, areas);
             this.chartData.set(built.data);
             this.chartLayout.set(built.layout);
@@ -102,6 +109,8 @@ export class EpcByAreaChartComponent extends BaseChartComponent {
             const areas = areaData.map((r) => r.name);
             this.availableAreas.set(areas);
             this.selectedAreas.set(areas);
+
+            this.initializeScrollToTop();
         });
     }
 
@@ -146,13 +155,17 @@ export class EpcByAreaChartComponent extends BaseChartComponent {
                 showgrid: false,
                 linecolor: '#e0e0e0',
                 zerolinecolor: '#e0e0e0',
+                fixedrange: true,
             },
             yaxis: {
                 title: { text: '' },
                 tickfont: { size: 11, color: '#999' },
                 automargin: true,
                 linecolor: '#e0e0e0',
+                range: this.getAxisRange(),
+                fixedrange: true,
             },
+            dragmode: false,
             font: this.chartService.commonFont,
             height: 400,
             plot_bgcolor: 'white',
@@ -160,8 +173,9 @@ export class EpcByAreaChartComponent extends BaseChartComponent {
             showlegend: true,
             legend: {
                 orientation: 'h',
-                x: 0.3,
-                xanchor: 'center',
+                x: -1,
+                xref: 'paper',
+                xanchor: 'left',
                 traceorder: 'normal',
             },
         };
