@@ -4,10 +4,11 @@ import { EPCRatingOvertimeDataPoint } from '@core/services/dashboard.service';
 import { PlotlyModule } from 'angular-plotly.js';
 import type { Data, Layout } from 'plotly.js-dist-min';
 import { BaseChartComponent } from '../base-chart.component';
+import { ChartPlaceholderComponent } from '../shared/chart-placeholder.component';
 
 @Component({
     selector: 'c477-epc-ratings-overtime-chart',
-    imports: [CommonModule, PlotlyModule],
+    imports: [CommonModule, PlotlyModule, ChartPlaceholderComponent],
     templateUrl: './epc-ratings-overtime-chart.component.html',
     styleUrl: './epc-ratings-overtime-chart.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -15,20 +16,13 @@ import { BaseChartComponent } from '../base-chart.component';
 export class EpcRatingsOvertimeChartComponent extends BaseChartComponent {
     public chartData = signal<Data[]>([]);
     public chartLayout = signal<Partial<Layout>>({});
-    public loading = signal(true);
 
     protected loadData(): void {
-        this.loading.set(true);
-
-        const sub = this.dashboardService.getEPCRatingsOvertime(this.areaFilter).subscribe((response) => {
+        this.subscribe(this.dashboardService.getEPCRatingsOvertime(this.areaFilter), (response) => {
             const { data, layout } = this.buildChart(response);
-
             this.chartData.set(data);
             this.chartLayout.set(layout);
-            this.loading.set(false);
         });
-
-        this.subscriptions.add(sub);
     }
 
     private buildChart(data: EPCRatingOvertimeDataPoint[]): { data: Data[]; layout: Partial<Layout> } {

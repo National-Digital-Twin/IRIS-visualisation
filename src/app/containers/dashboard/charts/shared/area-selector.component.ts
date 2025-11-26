@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, EventEmitter, Input, input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, EventEmitter, Input, Output } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 
@@ -8,7 +8,13 @@ import { MatSelectModule } from '@angular/material/select';
     imports: [CommonModule, MatFormFieldModule, MatSelectModule],
     template: `
         <mat-form-field appearance="outline" class="inline-select">
-            <mat-select multiple [value]="selectedAreas" (selectionChange)="onSelectionChange($event.value)" [placeholder]="pluralLabel()">
+            <mat-select
+                multiple
+                [value]="selectedAreas"
+                (selectionChange)="onSelectionChange($event.value)"
+                [placeholder]="pluralLabel()"
+                [disabled]="disabled"
+            >
                 <mat-select-trigger>{{ pluralLabel() }}</mat-select-trigger>
                 @for (area of availableAreas; track area) {
                     <mat-option [value]="area" [disabled]="selectedAreas.length === 1 && selectedAreas.includes(area)">
@@ -21,13 +27,18 @@ import { MatSelectModule } from '@angular/material/select';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AreaSelectorComponent {
-    public label = input<string>('area');
+    @Input() public label: string = 'area';
+    @Input() public singularLabel: boolean = false;
+    @Input() public disabled: boolean = false;
     @Input() public selectedAreas: string[] = [];
     @Input() public availableAreas: string[] = [];
     @Output() public selectedAreasChange = new EventEmitter<string[]>();
 
     protected readonly pluralLabel = computed(() => {
-        const singular = this.label();
+        const singular = this.label;
+        if (this.singularLabel) {
+            return singular;
+        }
         return singular === 'county' ? 'counties' : `${singular}s`;
     });
 

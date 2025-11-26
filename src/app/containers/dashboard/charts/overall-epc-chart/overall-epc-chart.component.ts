@@ -5,10 +5,11 @@ import { PlotlyModule, PlotlyComponent } from 'angular-plotly.js';
 import type { Data, Layout } from 'plotly.js-dist-min';
 import * as Plotly from 'plotly.js-dist-min';
 import { BaseChartComponent } from '../base-chart.component';
+import { ChartPlaceholderComponent } from '../shared/chart-placeholder.component';
 
 @Component({
     selector: 'c477-overall-epc-chart',
-    imports: [CommonModule, PlotlyModule],
+    imports: [CommonModule, PlotlyModule, ChartPlaceholderComponent],
     templateUrl: './overall-epc-chart.component.html',
     styleUrl: './overall-epc-chart.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,8 +22,6 @@ export class OverallEpcChartComponent extends BaseChartComponent {
 
     public barChartData = signal<Data[]>([]);
     public barChartLayout = signal<Partial<Layout>>({});
-
-    public loading = signal(true);
 
     #hiddenRatings: Record<string, boolean> = {};
     #overallEPCResponse?: OverallEPCResponse;
@@ -55,23 +54,16 @@ export class OverallEpcChartComponent extends BaseChartComponent {
     }
 
     protected loadData(): void {
-        this.loading.set(true);
-
-        const sub = this.dashboardService.getOverallEPC(this.areaFilter).subscribe((response) => {
+        this.subscribe(this.dashboardService.getOverallEPC(this.areaFilter), (response) => {
             this.#overallEPCResponse = response;
             const { data: donutData, layout: donutLayout } = this.buildDonutChart(response);
             const { data: barData, layout: barLayout } = this.buildBarChart(response);
 
             this.donutChartData.set(donutData);
             this.donutChartLayout.set(donutLayout);
-
             this.barChartData.set(barData);
             this.barChartLayout.set(barLayout);
-
-            this.loading.set(false);
         });
-
-        this.subscriptions.add(sub);
     }
 
     private buildDonutChart(response: OverallEPCResponse, hiddenRatings: Record<string, boolean> = {}): { data: Data[]; layout: Partial<Layout> } {

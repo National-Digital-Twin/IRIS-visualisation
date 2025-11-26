@@ -45,7 +45,7 @@ export class ExceptionService implements ErrorHandler {
                     }
 
                     this.handleError(new Error(message));
-                    return throwError(() => new Error(message));
+                    return throwError(() => httpError);
                 }),
             );
     }

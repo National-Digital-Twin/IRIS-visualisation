@@ -5,10 +5,11 @@ import { BackendBuildingsAffectedByExtremeWeatherResponse } from '@core/services
 import { PlotlyModule } from 'angular-plotly.js';
 import { Layout } from 'plotly.js-dist-min';
 import { BaseChartComponent } from '../base-chart.component';
+import { ChartPlaceholderComponent } from '../shared/chart-placeholder.component';
 
 @Component({
     selector: 'c477-extreme-weather-chart',
-    imports: [CommonModule, PlotlyModule],
+    imports: [CommonModule, PlotlyModule, ChartPlaceholderComponent],
     templateUrl: './extreme-weather-chart.component.html',
     styleUrl: './extreme-weather-chart.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -16,7 +17,6 @@ import { BaseChartComponent } from '../base-chart.component';
 export class ExtremeWeatherChartComponent extends BaseChartComponent {
     public chartData = signal<Data[]>([]);
     public chartLayout = signal<Partial<Layout>>({});
-    public loading = signal(true);
 
     public readonly buildingsAffectedByExtremeWeatherData = signal<BackendBuildingsAffectedByExtremeWeatherResponse[] | null>(null);
 
@@ -31,18 +31,13 @@ export class ExtremeWeatherChartComponent extends BaseChartComponent {
             const built = this.buildChart(buildingsAffectedByExtremeWeatherData);
             this.chartData.set(built.data);
             this.chartLayout.set(built.layout);
-            this.loading.set(false);
         });
     }
 
     protected override loadData(): void {
-        this.loading.set(true);
-
-        const sub = this.dashboardService
-            .getBuildingsAffectedByExtremeWeather(this.areaFilter)
-            .subscribe((data) => this.buildingsAffectedByExtremeWeatherData.set(data));
-
-        this.subscriptions.add(sub);
+        this.subscribe(this.dashboardService.getBuildingsAffectedByExtremeWeather(this.areaFilter), (data) => {
+            this.buildingsAffectedByExtremeWeatherData.set(data);
+        });
     }
 
     private filterBuildingsAffectedByExtremeWeatherData(

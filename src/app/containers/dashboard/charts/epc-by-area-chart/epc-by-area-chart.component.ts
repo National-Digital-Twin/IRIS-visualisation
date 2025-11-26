@@ -8,10 +8,11 @@ import { PlotlyModule } from 'angular-plotly.js';
 import type { Data, Layout } from 'plotly.js-dist-min';
 import { BaseChartComponent } from '../base-chart.component';
 import { AreaSelectorComponent } from '../shared/area-selector.component';
+import { ChartPlaceholderComponent } from '../shared/chart-placeholder.component';
 
 @Component({
     selector: 'c477-epc-by-area-chart',
-    imports: [CommonModule, PlotlyModule, MatFormFieldModule, MatSelectModule, AreaSelectorComponent],
+    imports: [CommonModule, PlotlyModule, MatFormFieldModule, MatSelectModule, AreaSelectorComponent, ChartPlaceholderComponent],
     templateUrl: './epc-by-area-chart.component.html',
     styleUrl: './epc-by-area-chart.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,7 +20,6 @@ import { AreaSelectorComponent } from '../shared/area-selector.component';
 export class EpcByAreaChartComponent extends BaseChartComponent {
     public chartData = signal<Data[]>([]);
     public chartLayout = signal<Partial<Layout>>({});
-    public loading = signal(true);
     public availableAreas = signal<string[]>([]);
     public selectedAreas = signal<string[]>([]);
     private readonly epcAreaData = signal<EPCAreaData[] | null>(null);
@@ -90,23 +90,19 @@ export class EpcByAreaChartComponent extends BaseChartComponent {
             const built = this.buildChart(data, areas);
             this.chartData.set(built.data);
             this.chartLayout.set(built.layout);
-            this.loading.set(false);
         });
     }
 
     protected loadData(): void {
-        this.loading.set(true);
         const config = this.groupingConfig();
 
-        const sub = this.dashboardService.getEPCByAreaLevel(config.groupBy, config.filterLevel, config.filterNames).subscribe((areaData) => {
+        this.subscribe(this.dashboardService.getEPCByAreaLevel(config.groupBy, config.filterLevel, config.filterNames), (areaData) => {
             this.epcAreaData.set(areaData);
 
             const areas = areaData.map((r) => r.name);
             this.availableAreas.set(areas);
             this.selectedAreas.set(areas);
         });
-
-        this.subscriptions.add(sub);
     }
 
     private buildChart(areaData: EPCAreaData[], selectedAreas: string[]): { data: Data[]; layout: Partial<Layout> } {

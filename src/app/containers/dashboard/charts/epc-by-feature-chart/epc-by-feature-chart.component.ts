@@ -6,6 +6,7 @@ import { EPCRatingsByCategory } from '@core/services/dashboard.service';
 import { PlotlyModule } from 'angular-plotly.js';
 import type { Data, Layout } from 'plotly.js-dist-min';
 import { BaseChartComponent } from '../base-chart.component';
+import { ChartPlaceholderComponent } from '../shared/chart-placeholder.component';
 
 const FEATURE_CONFIG: Record<string, string> = {
     glazing_types: 'Glazing types',
@@ -26,7 +27,7 @@ const DISPLAY_NAME_TO_KEY = Object.fromEntries(Object.entries(FEATURE_CONFIG).ma
 
 @Component({
     selector: 'c477-epc-by-feature-chart',
-    imports: [CommonModule, PlotlyModule, MatFormFieldModule, MatSelectModule],
+    imports: [CommonModule, PlotlyModule, MatFormFieldModule, MatSelectModule, ChartPlaceholderComponent],
     templateUrl: './epc-by-feature-chart.component.html',
     styleUrl: './epc-by-feature-chart.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,7 +35,6 @@ const DISPLAY_NAME_TO_KEY = Object.fromEntries(Object.entries(FEATURE_CONFIG).ma
 export class EpcByFeatureChartComponent extends BaseChartComponent {
     public chartData = signal<Data[]>([]);
     public chartLayout = signal<Partial<Layout>>({});
-    public loading = signal(true);
 
     private readonly selectedFeatureKey = signal<string>('glazing_types');
     public readonly selectedFeatureDisplay = signal<string>('Glazing types');
@@ -53,7 +53,6 @@ export class EpcByFeatureChartComponent extends BaseChartComponent {
             const built = this.buildChart(data);
             this.chartData.set(built.data);
             this.chartLayout.set(built.layout);
-            this.loading.set(false);
         });
     }
 
@@ -62,13 +61,9 @@ export class EpcByFeatureChartComponent extends BaseChartComponent {
     }
 
     private loadFeatureData(featureKey: string): void {
-        this.loading.set(true);
-
-        const sub = this.dashboardService.getEPCByFeature(featureKey, this.areaFilter).subscribe((data) => {
+        this.subscribe(this.dashboardService.getEPCByFeature(featureKey, this.areaFilter), (data) => {
             this.featureData.set(data);
         });
-
-        this.subscriptions.add(sub);
     }
 
     public onFeatureChange(displayName: string): void {

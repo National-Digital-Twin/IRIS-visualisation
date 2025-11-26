@@ -4,10 +4,11 @@ import { TimelineAvgSAPDataPoint } from '@core/services/dashboard.service';
 import { PlotlyModule } from 'angular-plotly.js';
 import type { Data, Layout } from 'plotly.js-dist-min';
 import { BaseChartComponent } from '../base-chart.component';
+import { ChartPlaceholderComponent } from '../shared/chart-placeholder.component';
 
 @Component({
     selector: 'c477-sap-timeline-chart',
-    imports: [CommonModule, PlotlyModule],
+    imports: [CommonModule, PlotlyModule, ChartPlaceholderComponent],
     templateUrl: './sap-timeline-chart.component.html',
     styleUrl: './sap-timeline-chart.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -15,20 +16,13 @@ import { BaseChartComponent } from '../base-chart.component';
 export class SapTimelineChartComponent extends BaseChartComponent {
     public chartData = signal<Data[]>([]);
     public chartLayout = signal<Partial<Layout>>({});
-    public loading = signal(true);
 
     protected loadData(): void {
-        this.loading.set(true);
-
-        const sub = this.dashboardService.getSAPTimeline(this.areaFilter).subscribe((response) => {
+        this.subscribe(this.dashboardService.getSAPTimeline(this.areaFilter), (response) => {
             const { data, layout } = this.buildChart(response.timeline);
-
             this.chartData.set(data);
             this.chartLayout.set(layout);
-            this.loading.set(false);
         });
-
-        this.subscriptions.add(sub);
     }
 
     private buildChart(timeline: TimelineAvgSAPDataPoint[]): { data: Data[]; layout: Partial<Layout> } {

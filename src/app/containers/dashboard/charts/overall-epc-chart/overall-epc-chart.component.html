@@ -2,8 +2,8 @@
     <span class="widget-title">Overall EPC</span>
 </div>
 
-@if (loading()) {
-    <div class="chart-skeleton double-skeleton"></div>
+@if (loading() || error()) {
+    <c477-chart-placeholder [error]="error()" [onRetry]="retry.bind(this)" />
 } @else {
     <div class="overall-epc-container">
         <div class="donut-section">

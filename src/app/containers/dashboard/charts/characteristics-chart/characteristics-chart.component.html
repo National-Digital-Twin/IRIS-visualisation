@@ -2,29 +2,32 @@
     <div class="widget-title">
         <span>Percentage of buildings with</span>
         <mat-form-field appearance="outline" class="inline-select">
-            <mat-select [value]="selectedCharacteristic() || ''" (selectionChange)="selectedCharacteristic.set($event.value)" [disabled]="loading()">
-                @if (loading()) {
-                    <mat-option value="" disabled selected>Loading...</mat-option>
-                } @else {
-                    @for (option of characteristicOptions(); track option) {
-                        <mat-option [value]="option">{{ option }}</mat-option>
-                    }
+            <mat-select
+                [value]="selectedCharacteristic()"
+                (selectionChange)="selectedCharacteristic.set($event.value)"
+                [placeholder]="'characteristic'"
+                [disabled]="loading() || !!error()"
+            >
+                @for (option of characteristicOptions(); track option) {
+                    <mat-option [value]="option">{{ option }}</mat-option>
                 }
             </mat-select>
         </mat-form-field>
         <span>per</span>
         <c477-area-selector
             [label]="'region'"
+            [singularLabel]="true"
             [selectedAreas]="selectedRegions()"
             [availableAreas]="availableRegions()"
+            [disabled]="loading() || !!error()"
             (selectedAreasChange)="selectedRegions.set($event)"
         ></c477-area-selector>
     </div>
 </div>
 
 <div class="chart-wrapper">
-    @if (loading()) {
-        <div class="chart-skeleton"></div>
+    @if (loading() || error()) {
+        <c477-chart-placeholder [error]="error()" [onRetry]="retry.bind(this)" />
     } @else {
         <plotly-plot [data]="chartData()" [layout]="chartLayout()" [config]="chartConfig"></plotly-plot>
     }

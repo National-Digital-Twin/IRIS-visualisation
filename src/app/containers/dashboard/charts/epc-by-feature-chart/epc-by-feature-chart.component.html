@@ -2,7 +2,7 @@
     <div class="widget-title">
         <span>EPC ratings for different</span>
         <mat-form-field appearance="outline" class="inline-select">
-            <mat-select [value]="selectedFeatureDisplay()" (selectionChange)="onFeatureChange($event.value)" [placeholder]="loading() ? 'Loading...' : ''">
+            <mat-select [value]="selectedFeatureDisplay()" (selectionChange)="onFeatureChange($event.value)" [disabled]="loading() || !!error()">
                 @for (feature of availableFeatures; track feature) {
                     <mat-option [value]="feature">{{ feature }}</mat-option>
                 }
@@ -12,8 +12,8 @@
 </div>
 
 <div class="chart-wrapper">
-    @if (loading()) {
-        <div class="chart-skeleton"></div>
+    @if (loading() || error()) {
+        <c477-chart-placeholder [error]="error()" [onRetry]="retry.bind(this)" />
     } @else {
         <plotly-plot [data]="chartData()" [layout]="chartLayout()" [config]="chartConfig"></plotly-plot>
     }

@@ -11,6 +11,7 @@ import { BackendFuelTypesByBuildingTypeResponse } from '@core/services/dashboard
 import { PlotlyModule } from 'angular-plotly.js';
 import type { Data } from 'plotly.js-dist-min';
 import { BaseChartComponent } from '../base-chart.component';
+import { ChartPlaceholderComponent } from '../shared/chart-placeholder.component';
 
 interface FuelTypeData {
     label: string;
@@ -25,7 +26,7 @@ interface Layout extends Partial<Plotly.Layout> {
 
 @Component({
     selector: 'c477-building-fuel-chart',
-    imports: [CommonModule, PlotlyModule, MatFormFieldModule, MatSelectModule],
+    imports: [CommonModule, PlotlyModule, MatFormFieldModule, MatSelectModule, ChartPlaceholderComponent],
     templateUrl: './building-fuel-chart.component.html',
     styleUrl: './building-fuel-chart.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,7 +36,6 @@ export class BuildingFuelChartComponent extends BaseChartComponent {
 
     public chartData = signal<Data[]>([]);
     public chartLayout = signal<Partial<Layout>>({});
-    public loading = signal(true);
 
     public availableBuildingTypes = signal<string[]>([]);
     public selectedBuildingType = signal<string | null>(null);
@@ -76,14 +76,11 @@ export class BuildingFuelChartComponent extends BaseChartComponent {
             const built = this.buildChart(data);
             this.chartData.set(built.data);
             this.chartLayout.set(built.layout);
-            this.loading.set(false);
         });
     }
 
     protected loadData(): void {
-        this.loading.set(true);
-
-        const sub = this.dashboardService.getFuelTypesByBuildingType(this.areaFilter).subscribe((apiResponse) => {
+        this.subscribe(this.dashboardService.getFuelTypesByBuildingType(this.areaFilter), (apiResponse) => {
             this.fuelTypesByBuildingType.set(apiResponse);
 
             const buildingTypes = [...new Set(apiResponse.map((r) => r.building_type))].sort((a, b) => a.localeCompare(b));
@@ -94,8 +91,6 @@ export class BuildingFuelChartComponent extends BaseChartComponent {
                 this.selectedBuildingType.set(defaultType);
             }
         });
-
-        this.subscriptions.add(sub);
     }
 
     private getFuelTypeLabel(fuelType: string): string {

@@ -7,10 +7,11 @@ import { PlotlyModule } from 'angular-plotly.js';
 import type { Data, Layout } from 'plotly.js-dist-min';
 import { BaseChartComponent } from '../base-chart.component';
 import { AreaSelectorComponent } from '../shared/area-selector.component';
+import { ChartPlaceholderComponent } from '../shared/chart-placeholder.component';
 
 @Component({
     selector: 'c477-characteristics-chart',
-    imports: [CommonModule, PlotlyModule, MatFormFieldModule, MatSelectModule, AreaSelectorComponent],
+    imports: [CommonModule, PlotlyModule, MatFormFieldModule, MatSelectModule, AreaSelectorComponent, ChartPlaceholderComponent],
     templateUrl: './characteristics-chart.component.html',
     styleUrl: './characteristics-chart.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -18,7 +19,6 @@ import { AreaSelectorComponent } from '../shared/area-selector.component';
 export class CharacteristicsChartComponent extends BaseChartComponent {
     public chartData = signal<Data[]>([]);
     public chartLayout = signal<Partial<Layout>>({});
-    public loading = signal(true);
 
     public selectedCharacteristic = signal<string>('');
     public availableRegions = signal<string[]>([]);
@@ -64,14 +64,11 @@ export class CharacteristicsChartComponent extends BaseChartComponent {
             const built = this.buildChart(characteristic, data, regions);
             this.chartData.set(built.data);
             this.chartLayout.set(built.layout);
-            this.loading.set(false);
         });
     }
 
     protected loadData(): void {
-        this.loading.set(true);
-
-        const sub = this.dashboardService.getAllBuildingAttributesPerRegion(this.areaFilter).subscribe((apiResponse) => {
+        this.subscribe(this.dashboardService.getAllBuildingAttributesPerRegion(this.areaFilter), (apiResponse) => {
             this.buildingAttributesByRegion.set(apiResponse);
 
             const regions = apiResponse.map((r) => r.region_name);
@@ -84,8 +81,6 @@ export class CharacteristicsChartComponent extends BaseChartComponent {
                 this.selectedCharacteristic.set(defaultCharacteristic);
             }
         });
-
-        this.subscriptions.add(sub);
     }
 
     private buildChart(characteristic: string, regions: RegionCharacteristicData[], selectedRegions: string[]): { data: Data[]; layout: Partial<Layout> } {

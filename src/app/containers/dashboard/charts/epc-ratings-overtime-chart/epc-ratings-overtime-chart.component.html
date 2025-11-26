@@ -3,8 +3,8 @@
 </div>
 
 <div class="chart-wrapper">
-    @if (loading()) {
-        <div class="chart-skeleton"></div>
+    @if (loading() || error()) {
+        <c477-chart-placeholder [error]="error()" [onRetry]="retry.bind(this)" />
     } @else {
         <plotly-plot [data]="chartData()" [layout]="chartLayout()" [config]="chartConfig"></plotly-plot>
     }

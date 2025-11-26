@@ -1,7 +1,8 @@
-import { Directive, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, inject } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Directive, Input, OnChanges, OnDestroy, OnInit, signal, SimpleChanges, inject } from '@angular/core';
 import { DashboardService } from '@core/services/dashboard.service';
 import type { Config } from 'plotly.js-dist-min';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { AreaFilter } from '../../../core/models/area-filter.model';
 import { ChartService } from '../chart.service';
 
@@ -12,6 +13,9 @@ export abstract class BaseChartComponent implements OnInit, OnChanges, OnDestroy
     protected readonly dashboardService = inject(DashboardService);
     protected readonly chartService = inject(ChartService);
     protected readonly subscriptions = new Subscription();
+
+    public readonly loading = signal(true);
+    public readonly error = signal<HttpErrorResponse | null>(null);
 
     public readonly chartConfig: Partial<Config> = {
         responsive: true,
@@ -33,7 +37,31 @@ export abstract class BaseChartComponent implements OnInit, OnChanges, OnDestroy
         this.subscriptions.unsubscribe();
     }
 
+    public retry(): void {
+        this.loadData();
+    }
+
     protected abstract loadData(): void;
+
+    /** Subscribe to an observable with automatic loading/error state management */
+    protected subscribe<T>(source$: Observable<T>, onNext: (data: T) => void): void {
+        this.loading.set(true);
+        this.error.set(null);
+
+        const sub = source$.subscribe({
+            next: (data) => {
+                onNext(data);
+                this.loading.set(false);
+            },
+            error: (err: HttpErrorResponse) => {
+                console.error('Chart data load failed:', this.constructor.name, err);
+                this.error.set(err);
+                this.loading.set(false);
+            },
+        });
+
+        this.subscriptions.add(sub);
+    }
 }
 
 // SPDX-License-Identifier: Apache-2.0

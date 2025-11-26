@@ -36,7 +36,7 @@ describe('ExceptionService', () => {
     });
 
     describe('handleHttpError', () => {
-        it('should handle a 5xx HTTP error', (done) => {
+        it('should handle a 5xx HTTP error and rethrow original error', (done) => {
             const httpError = new HttpErrorResponse({
                 url: 'https://fake-api-url/transparent-proxy',
                 status: HttpStatusCode.InternalServerError,
@@ -47,7 +47,7 @@ describe('ExceptionService', () => {
                 .pipe(
                     service.handleHttpError(),
                     catchError((err) => of(err)),
-                    map((err) => expect(err).toEqual(new Error('Server error 500: Internal Server Error'))),
+                    map((err) => expect(err).toBe(httpError)),
                 )
                 .subscribe(() => done());
         });

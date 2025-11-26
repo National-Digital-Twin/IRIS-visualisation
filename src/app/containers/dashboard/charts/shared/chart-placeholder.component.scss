@@ -1,0 +1,54 @@
+// SPDX-License-Identifier: Apache-2.0
+// © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+// and is legally attributed to the Department for Business and Trade (UK) as the governing entity.
+
+:host {
+    display: flex;
+    flex: 1;
+    width: 100%;
+    height: 100%;
+}
+
+.chart-placeholder {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-height: 250px;
+    border-radius: 4px;
+}
+
+.loading-content,
+.error-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+
+    padding: 2rem;
+
+    text-align: center;
+}
+
+.loading-text {
+    font-size: 14px;
+    color: var(--mat-sys-on-surface);
+}
+
+.error-icon {
+    width: 64px;
+    height: 64px;
+    font-size: 64px;
+    color: var(--mat-sys-error);
+}
+
+.error-message {
+    font-size: 14px;
+    color: var(--mat-sys-on-surface);
+}
+
+button mat-icon {
+    margin-right: 0.5rem;
+}

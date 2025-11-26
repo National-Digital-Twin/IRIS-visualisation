@@ -4,7 +4,8 @@
             <mat-select
                 [value]="selectedBuildingType()"
                 (selectionChange)="selectedBuildingType.set($event.value)"
-                [placeholder]="loading() ? 'Loading...' : ''"
+                [placeholder]="'Building'"
+                [disabled]="loading() || !!error()"
             >
                 @for (type of availableBuildingTypes(); track type) {
                     <mat-option [value]="type">{{ type }}</mat-option>
@@ -16,8 +17,8 @@
 </div>
 
 <div class="chart-wrapper">
-    @if (loading()) {
-        <div class="chart-skeleton"></div>
+    @if (loading() || error()) {
+        <c477-chart-placeholder [error]="error()" [onRetry]="retry.bind(this)" />
     } @else {
         <plotly-plot [data]="chartData()" [layout]="chartLayout()" [config]="chartConfig"></plotly-plot>
     }

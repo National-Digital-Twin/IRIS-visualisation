@@ -1,0 +1,23 @@
+<div class="chart-placeholder">
+    @if (error()) {
+        <div class="error-content">
+            <mat-icon class="error-icon">error_outline</mat-icon>
+            <span class="error-message">{{ errorMessage() }}</span>
+            @if (onRetry()) {
+                <button mat-flat-button (click)="onRetry()!()">
+                    <mat-icon>refresh</mat-icon>
+                    Retry
+                </button>
+            }
+        </div>
+    } @else {
+        <div class="loading-content">
+            <mat-spinner diameter="40" />
+            <span class="loading-text">Loading chart...</span>
+        </div>
+    }
+</div>
+
+<!-- SPDX-License-Identifier: Apache-2.0
+© Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+and is legally attributed to the Department for Business and Trade (UK) as the governing entity. -->

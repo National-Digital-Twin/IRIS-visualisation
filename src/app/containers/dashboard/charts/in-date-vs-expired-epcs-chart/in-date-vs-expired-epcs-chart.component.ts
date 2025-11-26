@@ -4,10 +4,11 @@ import { BackendNumberOfInDateAndExpiredEpcsResponse } from '@core/services/dash
 import { PlotlyModule } from 'angular-plotly.js';
 import { Data, Layout } from 'plotly.js-dist-min';
 import { BaseChartComponent } from '../base-chart.component';
+import { ChartPlaceholderComponent } from '../shared/chart-placeholder.component';
 
 @Component({
     selector: 'c477-in-date-vs-expired-epcs-chart',
-    imports: [CommonModule, PlotlyModule],
+    imports: [CommonModule, PlotlyModule, ChartPlaceholderComponent],
     templateUrl: './in-date-vs-expired-epcs-chart.component.html',
     styleUrl: './in-date-vs-expired-epcs-chart.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -15,7 +16,6 @@ import { BaseChartComponent } from '../base-chart.component';
 export class InDateVsExpiredEpcsComponent extends BaseChartComponent {
     public chartData = signal<Data[]>([]);
     public chartLayout = signal<Partial<Layout>>({});
-    public loading = signal<boolean>(true);
 
     public numberOfInDateAndExpiredEpcs = signal<BackendNumberOfInDateAndExpiredEpcsResponse[] | null>(null);
 
@@ -30,16 +30,13 @@ export class InDateVsExpiredEpcsComponent extends BaseChartComponent {
             const built = this.buildChart(numberOfInDateAndExpiredEpcs);
             this.chartData.set(built.data);
             this.chartLayout.set(built.layout);
-            this.loading.set(false);
         });
     }
 
     protected override loadData(): void {
-        this.loading.set(true);
-
-        const sub = this.dashboardService.getNumberOfInDateAndExpiredEpcs(this.areaFilter).subscribe((data) => this.numberOfInDateAndExpiredEpcs.set(data));
-
-        this.subscriptions.add(sub);
+        this.subscribe(this.dashboardService.getNumberOfInDateAndExpiredEpcs(this.areaFilter), (data) => {
+            this.numberOfInDateAndExpiredEpcs.set(data);
+        });
     }
 
     private buildChart(numberOfInDateAndExpiredEpcs: BackendNumberOfInDateAndExpiredEpcsResponse[]): { data: Data[]; layout: Partial<Layout> } {

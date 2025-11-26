@@ -149,7 +149,6 @@ describe('EpcByFeatureChartComponent', () => {
             fixture.detectChanges();
 
             expect(component.chartData()).toEqual([]);
-            expect(component.loading()).toBe(true); // Still loading since no data
         });
 
         it('should handle zero EPC rating values correctly', () => {
