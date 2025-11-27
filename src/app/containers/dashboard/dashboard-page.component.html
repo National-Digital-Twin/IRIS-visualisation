@@ -44,6 +44,18 @@
             <c477-sap-timeline-chart [areaFilter]="areaFilter()"></c477-sap-timeline-chart>
         </section>
 
+        @if (dashboardType() === 'area' && areaFilter()?.mode === 'polygon') {
+            <section class="widget-card">
+                <c477-sap-timeline-by-property-type-chart [areaFilter]="areaFilter()"></c477-sap-timeline-by-property-type-chart>
+            </section>
+        }
+
+        @if (dashboardType() === 'area' && areaFilter()?.mode === 'named-areas' && !(areaFilter()?.level === 'ward' && areaFilter()?.names?.length === 1)) {
+            <section class="widget-card">
+                <c477-sap-timeline-by-area-chart [areaFilter]="areaFilter()"></c477-sap-timeline-by-area-chart>
+            </section>
+        }
+
         <section class="widget-card">
             <c477-epc-ratings-overtime-chart [areaFilter]="areaFilter()"></c477-epc-ratings-overtime-chart>
         </section>
@@ -64,7 +76,7 @@
             <c477-in-date-vs-expired-epcs-chart [areaFilter]="areaFilter()"></c477-in-date-vs-expired-epcs-chart>
         </section>
 
-        @if (dashboardType() === 'area' && areaFilter()?.mode === 'named-areas') {
+        @if (dashboardType() === 'area' && areaFilter()?.mode === 'named-areas' && !(areaFilter()?.level === 'ward' && areaFilter()?.names?.length === 1)) {
             <section class="widget-card">
                 <c477-epc-by-area-chart [areaFilter]="areaFilter()"></c477-epc-by-area-chart>
             </section>

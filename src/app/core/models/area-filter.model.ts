@@ -1,6 +1,8 @@
 export type AreaLevel = 'region' | 'county' | 'district' | 'ward';
 
-export type AreaFilter = { mode: 'polygon'; polygon: GeoJSON.Polygon } | { mode: 'named-areas'; level: AreaLevel; names: string[] };
+export type AreaFilter =
+    | { mode: 'polygon'; polygon: GeoJSON.Polygon; level?: never; names?: never }
+    | { mode: 'named-areas'; level: AreaLevel; names: string[]; polygon?: never };
 
 export interface AreaSelectionDialogResult {
     level: AreaLevel;

@@ -14,6 +14,8 @@ import { EpcRatingsOvertimeChartComponent } from './charts/epc-ratings-overtime-
 import { ExtremeWeatherChartComponent } from './charts/extreme-weather-chart/extreme-weather-chart.component';
 import { InDateVsExpiredEpcsComponent } from './charts/in-date-vs-expired-epcs-chart/in-date-vs-expired-epcs-chart.component';
 import { OverallEpcChartComponent } from './charts/overall-epc-chart/overall-epc-chart.component';
+import { SapTimelineByAreaChartComponent } from './charts/sap-timeline-by-area-chart/sap-timeline-by-area-chart.component';
+import { SapTimelineByPropertyTypeChartComponent } from './charts/sap-timeline-by-property-type-chart/sap-timeline-by-property-type-chart.component';
 import { SapTimelineChartComponent } from './charts/sap-timeline-chart/sap-timeline-chart.component';
 
 @Component({
@@ -33,6 +35,8 @@ import { SapTimelineChartComponent } from './charts/sap-timeline-chart/sap-timel
         EpcByFeatureChartComponent,
         ExtremeWeatherChartComponent,
         InDateVsExpiredEpcsComponent,
+        SapTimelineByPropertyTypeChartComponent,
+        SapTimelineByAreaChartComponent,
     ],
     templateUrl: './dashboard-page.component.html',
     styleUrl: './dashboard-page.component.scss',

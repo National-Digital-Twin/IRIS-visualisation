@@ -100,6 +100,12 @@ export interface EPCRatingOvertimeDataPoint extends EPCRatings {
     date: Date;
 }
 
+export interface SAPRatingTimelineDataPoint {
+    date: Date;
+    name: string;
+    avg_sap_rating: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
     readonly #http = inject(HttpClient);
@@ -234,6 +240,48 @@ export class DashboardService {
             params,
             withCredentials: true,
         });
+    }
+
+    public getSAPTimelineByPropertyType(polygon: GeoJSON.Polygon): Observable<SAPRatingTimelineDataPoint[]> {
+        const params = { polygon: JSON.stringify(polygon) };
+        return this.#http
+            .get<SAPRatingTimelineDataPoint[]>(`${this.#endpointRoot}/sap-rating-overtime-by-property-type`, {
+                params,
+                withCredentials: true,
+            })
+            .pipe(
+                map((results) =>
+                    results.map((data) => ({
+                        ...data,
+                        date: new Date(data.date),
+                    })),
+                ),
+            );
+    }
+
+    public getSAPTimelineByArea(groupBy: AreaLevel, filterLevel?: AreaLevel, filterNames?: string[]): Observable<SAPRatingTimelineDataPoint[]> {
+        const params: Record<string, string | string[]> = {
+            group_by_level: groupBy,
+        };
+
+        if (filterLevel && filterNames) {
+            params['filter_area_level'] = filterLevel;
+            params['filter_area_names'] = filterNames;
+        }
+
+        return this.#http
+            .get<SAPRatingTimelineDataPoint[]>(`${this.#endpointRoot}/sap-rating-overtime-by-area`, {
+                params,
+                withCredentials: true,
+            })
+            .pipe(
+                map((results) =>
+                    results.map((data) => ({
+                        ...data,
+                        date: new Date(data.date),
+                    })),
+                ),
+            );
     }
 }
 

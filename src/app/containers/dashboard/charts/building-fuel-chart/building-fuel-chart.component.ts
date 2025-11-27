@@ -9,19 +9,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { FuelType } from '@core/enums';
 import { BackendFuelTypesByBuildingTypeResponse } from '@core/services/dashboard.service';
 import { PlotlyModule } from 'angular-plotly.js';
-import type { Data } from 'plotly.js-dist-min';
+import type { Data, Layout } from 'plotly.js-dist-min';
 import { BaseChartComponent } from '../base-chart.component';
 import { ChartPlaceholderComponent } from '../shared/chart-placeholder.component';
 
 interface FuelTypeData {
     label: string;
     value: number;
-}
-
-interface Layout extends Partial<Plotly.Layout> {
-    legend?: Plotly.Layout['legend'] & {
-        maxheight?: number; // documented in Python: https://plotly.com/python/legend/#legend-max-height
-    };
 }
 
 @Component({
@@ -119,7 +113,7 @@ export class BuildingFuelChartComponent extends BaseChartComponent {
             },
         ];
 
-        const layout: Layout = {
+        const layout: Partial<Layout> = {
             margin: { l: 20, r: 20, t: 20, b: 20 },
             font: this.chartService.commonFont,
             height: 300,
