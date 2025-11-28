@@ -49,13 +49,16 @@ export class BuildingFuelChartComponent extends BaseChartComponent {
             return [];
         }
 
-        const chartData = buildingData.map((item) => ({
-            label: this.getFuelTypeLabel(item.fuel_type),
-            value: item.count,
-        }));
+        // Aggregate counts by label (multiple fuel types may map to the same label)
+        const aggregatedByLabel: Record<string, number> = {};
+        for (const item of buildingData) {
+            const label = this.getFuelTypeLabel(item.fuel_type);
+            aggregatedByLabel[label] = (aggregatedByLabel[label] ?? 0) + item.count;
+        }
 
-        // smallest first, rendered bottom-to-top
-        return chartData.sort((a, b) => a.value - b.value);
+        return Object.entries(aggregatedByLabel)
+            .map(([label, value]) => ({ label, value }))
+            .toSorted((a, b) => a.value - b.value);
     });
 
     constructor() {

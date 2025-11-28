@@ -168,4 +168,58 @@ describe('BuildingFuelChartComponent', () => {
             expect(flatData).not.toEqual(houseData);
         });
     });
+
+    describe('fuel type ordering', () => {
+        it('should not have duplicate labels due to Fuel and Other both mapping to "Other"', () => {
+            const realWorldData: BackendFuelTypesByBuildingTypeResponse[] = [
+                { building_type: 'House', fuel_type: 'NaturalFuelGas', count: 16674 },
+                { building_type: 'House', fuel_type: 'Oil', count: 1658 },
+                { building_type: 'House', fuel_type: 'Electricity', count: 1252 },
+                { building_type: 'House', fuel_type: 'LPG', count: 428 },
+                { building_type: 'House', fuel_type: 'Other', count: 70 },
+                { building_type: 'House', fuel_type: 'WoodLogs', count: 38 },
+                { building_type: 'House', fuel_type: 'Coal', count: 18 },
+                { building_type: 'House', fuel_type: 'Biomass', count: 16 },
+                { building_type: 'House', fuel_type: 'WoodPellets', count: 5 },
+                { building_type: 'House', fuel_type: 'Anthracite', count: 4 },
+                { building_type: 'House', fuel_type: 'WoodChips', count: 3 },
+                { building_type: 'House', fuel_type: 'SmokelessCoal', count: 3 },
+                { building_type: 'House', fuel_type: 'Fuel', count: 3 },
+            ];
+
+            jest.spyOn(dashboardService, 'getFuelTypesByBuildingType').mockReturnValue(of(realWorldData));
+            fixture.detectChanges();
+
+            const chartData = component.chartData();
+            const barData = chartData[0] as PlotData;
+            const yLabels = barData.y as string[];
+
+            const uniqueLabels = new Set(yLabels);
+            expect(uniqueLabels.size).toBe(yLabels.length);
+        });
+
+        it('should aggregate counts when multiple fuel types map to the same label', () => {
+            // Both "Fuel" and "Other" map to label "Other" - counts should be summed
+            const dataWithDuplicateLabels: BackendFuelTypesByBuildingTypeResponse[] = [
+                { building_type: 'House', fuel_type: 'Other', count: 70 },
+                { building_type: 'House', fuel_type: 'Fuel', count: 3 },
+                { building_type: 'House', fuel_type: 'NaturalFuelGas', count: 100 },
+            ];
+
+            jest.spyOn(dashboardService, 'getFuelTypesByBuildingType').mockReturnValue(of(dataWithDuplicateLabels));
+            fixture.detectChanges();
+
+            const chartData = component.chartData();
+            const barData = chartData[0] as PlotData;
+            const yLabels = barData.y as string[];
+            const customdata = barData.customdata as number[];
+
+            // Should only have 2 labels: "Other" (aggregated) and "Natural Gas"
+            expect(yLabels.length).toBe(2);
+
+            // "Other" should have aggregated count of 70 + 3 = 73
+            const otherIndex = yLabels.indexOf('Other');
+            expect(customdata[otherIndex]).toBe(73);
+        });
+    });
 });
