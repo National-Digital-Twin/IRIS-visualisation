@@ -50,7 +50,7 @@
             </section>
         }
 
-        @if (dashboardType() === 'area' && areaFilter()?.mode === 'named-areas' && !(areaFilter()?.level === 'ward' && areaFilter()?.names?.length === 1)) {
+        @if (dashboardType() === 'area' && areaFilter()?.mode === 'named-areas' && areaFilter()?.names?.length !== 1) {
             <section class="widget-card">
                 <c477-sap-timeline-by-area-chart [areaFilter]="areaFilter()"></c477-sap-timeline-by-area-chart>
             </section>
