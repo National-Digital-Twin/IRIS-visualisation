@@ -85,38 +85,40 @@ export class CharacteristicsChartComponent extends BaseChartComponent {
 
     private buildChart(characteristic: string, regions: RegionCharacteristicData[], selectedRegions: string[]): { data: Data[]; layout: Partial<Layout> } {
         const filteredRegions = regions.filter((r) => selectedRegions.includes(r.region_name));
-        const sortedRegions = filteredRegions.toSorted((a, b) => b.percentage - a.percentage);
+        const sortedRegions = filteredRegions.toSorted((a, b) => a.percentage - b.percentage);
 
         const data: Data[] = [
             {
                 type: 'bar',
-                x: sortedRegions.map((r) => r.region_name.replaceAll(' ', '<br>')),
-                y: sortedRegions.map((r) => r.percentage),
+                orientation: 'h',
+                x: sortedRegions.map((r) => r.percentage),
+                y: sortedRegions.map((r) => r.region_name),
                 marker: { color: '#3670B3' },
                 text: sortedRegions.map((r) => `${r.percentage > 9 ? Math.round(r.percentage) : r.percentage}%`),
                 textposition: 'auto',
                 textfont: { ...this.chartService.commonFont, color: 'white', size: 14 },
-                hovertemplate: '<b>%{x}</b><br>%{y:.1f}% of buildings have ' + characteristic + '<extra></extra>',
+                hovertemplate: '<b>%{y}</b><br>%{x:.1f}% of buildings have ' + characteristic + '<extra></extra>',
                 hoverlabel: this.chartService.commonHoverStyle,
             },
         ];
 
         const maxPercentage = Math.max(...sortedRegions.map((r) => r.percentage));
         const layout: Partial<Layout> = {
-            margin: { l: 20, r: 20, t: 20, b: 80 },
+            margin: { l: 0, r: 20, t: 20, b: 0 },
             xaxis: {
-                title: { text: '' },
-                tickangle: 'auto',
-                tickfont: { size: 11, color: '#999' },
-                automargin: true,
-            },
-            yaxis: {
                 title: { text: '' },
                 range: [0, maxPercentage * 1.15],
                 visible: false,
             },
+            yaxis: {
+                title: { text: '' },
+                tickangle: 'auto',
+                tickfont: { size: 11, color: '#999' },
+                linecolor: '#e0e0e0',
+                automargin: true,
+            },
             font: this.chartService.commonFont,
-            height: 250,
+            height: 400,
             plot_bgcolor: 'white',
             paper_bgcolor: 'white',
             showlegend: false,
