@@ -182,17 +182,17 @@ describe('CharacteristicsChartComponent', () => {
 
             const chartData = component.chartData();
             const plotData = chartData[0] as PlotData;
-            expect(plotData.x).toEqual(['London', 'South<br>East']);
+            expect(plotData.y).toEqual(['South East', 'London']);
         });
 
         it('should sort regions by value descending in chart', () => {
-            component.selectedRegions.set(['South East', 'London', 'North West']);
+            component.selectedRegions.set(['South East', 'London', 'North West', 'London']);
             fixture.detectChanges();
 
             const chartData = component.chartData();
             const plotData = chartData[0] as PlotData;
-            expect(plotData.x).toEqual(['London', 'North<br>West', 'South<br>East']);
-            expect(plotData.y).toEqual([10.0, 8.5, 7.5]);
+            expect(plotData.x).toEqual([7.5, 8.5, 10.0]);
+            expect(plotData.y).toEqual(['South East', 'North West', 'London']);
         });
 
         it('should display percentage values for selected characteristic', () => {
@@ -201,7 +201,7 @@ describe('CharacteristicsChartComponent', () => {
 
             const chartData = component.chartData();
             const plotData = chartData[0] as PlotData;
-            expect(plotData.y).toEqual([10.0, 8.5, 7.5]);
+            expect(plotData.x).toEqual([7.5, 8.5, 10.0]);
         });
 
         it('should update chart and resort when selected characteristic changes', () => {
@@ -214,8 +214,8 @@ describe('CharacteristicsChartComponent', () => {
             const glazingData = component.chartData();
 
             expect(solarData).not.toEqual(glazingData);
-            expect((glazingData[0] as PlotData).x).toEqual(['South<br>East', 'North<br>West', 'London']);
-            expect((glazingData[0] as PlotData).y).toEqual([18.0, 15.5, 12.0]);
+            expect((glazingData[0] as PlotData).x).toEqual([12.0, 15.5, 18.0]);
+            expect((glazingData[0] as PlotData).y).toEqual(['London', 'North West', 'South East']);
         });
     });
 
@@ -235,7 +235,7 @@ describe('CharacteristicsChartComponent', () => {
 
             const chartData = component.chartData();
             const plotData = chartData[0] as PlotData;
-            expect(plotData.y).toEqual([0]);
+            expect(plotData.x).toEqual([0]);
         });
     });
 
@@ -255,8 +255,8 @@ describe('CharacteristicsChartComponent', () => {
             expect(updatedData).not.toEqual(initialData);
 
             const plotData = updatedData[0] as PlotData;
-            expect(plotData.x).toEqual(['London']);
-            expect(plotData.y).toEqual([10.0]);
+            expect(plotData.x).toEqual([10.0]);
+            expect(plotData.y).toEqual(['London']);
         });
     });
 });
