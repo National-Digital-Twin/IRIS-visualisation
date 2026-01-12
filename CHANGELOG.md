@@ -14,12 +14,50 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
 ---
 
-## Unreleased
+## [0.95.0] - 2026-01-12
+
+### Features
+
+- [DPAV-1779]: extract and refactor Plotly from tech spike
+- [DPAV-1779]: area dashboard
+- [DPAV-1779]: support selectedArea in charts
+- [DPAV-1779]: reduce initial bundle size
+- [DPAV-1779]: update dialog content to match design
+- [NON-REQ]: added fixes for floor construction mapping and advanced filters
+- [DPAV-1779]: add building fuel types chart
+- [DPAV-1688]: update chart icon to match design
+- [DPAV-1779]: rename to generic interface name
+- [DPAV-1688]: disabled layer click handlers when drawing
+- [NON-REQ]: added icons for secondary layer menus
+- [DPAV-1955]: fuel chart graph: add tests and matched finalised designs
+- [DPAV-1956]: added the number of buildings affected by extreme weather chart
+- [DPAV-1962]: epc ratings by region: tests and match design
+- [DPAV-1961]: added the expired vs in date epc chart
+- [DPAV-1951]: update average SAP over time chart
+- [DPAV-1968]: add named areas dashboard
+- [DPAV-1961]: add in-date vs expired chart to area dashboards
+- [DPAV-1957]: add extreme weather chart to area dashboards
+- [DPAV-1970]: add info text to Area view button
+- [DPAV-1955]: change fuel types graph to horizontal bar
+- [DPAV-1963]: update percentage of buildings with graph to match designs
+- [DPAV-1968]: allow changing area level if nothing selected
+- [DPAV-1779]: New EPC charts and styling updates
+- [DPAV-2061]: charts: improve error handling and state management
+- [DPAV-1954]: add custom scrollbar to epc-by-area-chart
+- [DPAV-1778] & [DPAV-1779]: add SAP timeline by area/property type charts
+- [DPAV-1959]: hide SAP by area if single area selected
 
 ### Bugfixes
 
+- [DPAV-1968]: correct counties pluralization and drawer style
+- [DPAV-1955]: fix fuel types graph sort
+- [DPAV-1957]: prevent custom legend being cut off
+- [DPAV-1779]: handle single points on timeline graphs better
+- [NON-REQ]: small fix to correct hsd layer values
+- [DPAV-1955]: aggregate fuel type labels
 - [DPAV-2119]: Fixed issue with routing when refreshing dashboard
-
+- [DPAV-1963]: flipped the orientation of the building characteristics chart to horizontal
+- [DPAV-1931]: fixed spelling issue with epc rating over time chart
 
 ## [0.94.4] - 2025-10-24
 
