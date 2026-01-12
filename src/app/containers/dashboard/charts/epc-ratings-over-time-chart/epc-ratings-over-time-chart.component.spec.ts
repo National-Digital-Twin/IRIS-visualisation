@@ -8,7 +8,7 @@ import type { PlotData } from 'plotly.js-dist-min';
 import { of } from 'rxjs';
 import { ChartService } from '../../chart.service';
 import { getPlotlyModuleProviders } from '../plotly.mock';
-import { EpcRatingsOvertimeChartComponent } from './epc-ratings-overtime-chart.component';
+import { EpcRatingsOvertimeChartComponent } from './epc-ratings-over-time-chart.component';
 
 const mockRuntimeConfig = {
     epcColours: {

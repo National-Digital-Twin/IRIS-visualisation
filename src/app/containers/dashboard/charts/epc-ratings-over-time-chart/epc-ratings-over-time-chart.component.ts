@@ -9,8 +9,8 @@ import { ChartPlaceholderComponent } from '../shared/chart-placeholder.component
 @Component({
     selector: 'c477-epc-ratings-overtime-chart',
     imports: [CommonModule, PlotlyModule, ChartPlaceholderComponent],
-    templateUrl: './epc-ratings-overtime-chart.component.html',
-    styleUrl: './epc-ratings-overtime-chart.component.scss',
+    templateUrl: './epc-ratings-over-time-chart.component.html',
+    styleUrl: './epc-ratings-over-time-chart.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EpcRatingsOvertimeChartComponent extends BaseChartComponent {
