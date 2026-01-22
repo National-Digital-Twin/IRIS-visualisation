@@ -424,7 +424,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
                 this.mapInstance.removeLayer(layerId);
             }
 
-            (layerGroup[type] as boolean) = false;
+            (layerGroup[type as keyof T] as boolean) = false;
         }
     }
 
