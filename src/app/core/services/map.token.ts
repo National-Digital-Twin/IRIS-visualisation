@@ -1,6 +1,7 @@
 import { InjectionToken, WritableSignal } from '@angular/core';
 import { URLStateModel } from '@core/models/url-state.model';
 import { Feature, FeatureCollection, Geometry } from 'geojson';
+import mapboxgl from 'mapbox-gl';
 import { Observable } from 'rxjs';
 
 export const MAP_SERVICE = new InjectionToken<MapService<mapboxgl.Map>>('MAP_SERVICE');
