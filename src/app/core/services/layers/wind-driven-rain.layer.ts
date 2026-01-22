@@ -108,11 +108,11 @@ export class WindDrivenRainLayer extends AbstractClimateLayer<WindDrivenRainProp
     }
 
     private updateGlobalMaxValues(localMin: number, localMax: number): void {
-        if (!WindDrivenRainLayer.globalMaxValues) {
-            WindDrivenRainLayer.globalMaxValues = { min: localMin, max: localMax };
-        } else {
+        if (WindDrivenRainLayer.globalMaxValues) {
             WindDrivenRainLayer.globalMaxValues.min = Math.min(WindDrivenRainLayer.globalMaxValues.min, localMin);
             WindDrivenRainLayer.globalMaxValues.max = Math.max(WindDrivenRainLayer.globalMaxValues.max, localMax);
+        } else {
+            WindDrivenRainLayer.globalMaxValues = { min: localMin, max: localMax };
         }
     }
 
@@ -150,11 +150,11 @@ export class WindDrivenRainLayer extends AbstractClimateLayer<WindDrivenRainProp
                     </div>
                     
                     <div class="scenario-toggle">
-                        <button class="scenario-button ${!isTwoDegree ? 'checked' : ''}" onclick="toggleWindDrivenRainScenario(this, 'wdr40_', ${JSON.stringify(properties).replace(/"/g, '&quot;')})">
+                        <button class="scenario-button ${isTwoDegree ? '' : 'checked'}" onclick="toggleWindDrivenRainScenario(this, 'wdr40_', ${JSON.stringify(properties).replaceAll('"', '&quot;')})">
                             <div class="check"></div>
                             <span>4&deg;C warming</span>
                         </button>
-                        <button class="scenario-button ${isTwoDegree ? 'checked' : ''}" onclick="toggleWindDrivenRainScenario(this, 'wdr20_', ${JSON.stringify(properties).replace(/"/g, '&quot;')})">
+                        <button class="scenario-button ${isTwoDegree ? 'checked' : ''}" onclick="toggleWindDrivenRainScenario(this, 'wdr20_', ${JSON.stringify(properties).replaceAll('"', '&quot;')})">
                             <div class="check"></div>
                             <span>2&deg;C warming</span>
                         </button>

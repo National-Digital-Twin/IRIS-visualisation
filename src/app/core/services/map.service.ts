@@ -22,6 +22,7 @@ export class MapBoxService implements MapService<mapboxgl.Map> {
     readonly #document = inject(DOCUMENT);
     readonly #zone = inject(NgZone);
     readonly #runtimeConfig = inject(RUNTIME_CONFIGURATION);
+    private readonly _popups = new Set<mapboxgl.Popup>();
 
     public mapInstance!: mapboxgl.Map;
     public drawControl?: MapboxDraw;
@@ -31,7 +32,6 @@ export class MapBoxService implements MapService<mapboxgl.Map> {
 
     private mapLoaded: AsyncSubject<boolean>;
     private _isDrawing: boolean = false;
-    private _popups = new Set<mapboxgl.Popup>();
 
     constructor() {
         this.mapLoaded = new AsyncSubject<boolean>();
