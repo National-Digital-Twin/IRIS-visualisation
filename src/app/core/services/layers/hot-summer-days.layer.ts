@@ -93,10 +93,11 @@ export class HotSummerDaysLayer extends AbstractClimateLayer<HotSummerDaysProper
                 </div>
             `;
 
-            const popup = new mapboxgl.Popup().setLngLat(event.lngLat).setHTML(popupContent).addTo(this.mapService.mapInstance);
+            const popup = new mapboxgl.Popup().setLngLat(event.lngLat).setHTML(popupContent);
             popup.on('close', () => {
                 this.clearHighlighting(event.target);
             });
+            this.mapService.registerPopup(popup);
             this.highlightPolygon(event.target, properties.objectid, 'objectid');
         }
     };

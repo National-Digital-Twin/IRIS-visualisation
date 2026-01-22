@@ -108,7 +108,7 @@ export class EPCLayer extends AbstractBaseLayer {
             const properties = feature.properties as EPCWardsProperties;
 
             if (this.currentPopup) {
-                this.currentPopup.remove();
+                this.mapService.removePopup(this.currentPopup);
             }
 
             this.currentPopup = new mapboxgl.Popup({
@@ -117,12 +117,13 @@ export class EPCLayer extends AbstractBaseLayer {
                 maxWidth: '400px',
             })
                 .setLngLat(event.lngLat)
-                .setHTML(this.createPopupContent(properties))
-                .addTo(event.target);
+                .setHTML(this.createPopupContent(properties));
 
             this.currentPopup.on('close', () => {
                 this.clearHighlighting(event.target);
             });
+
+            this.mapService.registerPopup(this.currentPopup);
 
             this.highlightWard(event.target, properties.name);
         }

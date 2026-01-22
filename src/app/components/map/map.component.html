@@ -138,11 +138,11 @@
                         <span>Draw area</span>
                     </button>
                 }
-                <button mat-menu-item (click)="openAreaFilterDialog.emit(null)">
+                <button mat-menu-item (click)="onChooseAreaDashboardNavClick($event)">
                     <mat-icon>highlight_alt</mat-icon>
                     <span>Choose areas</span>
                 </button>
-                <a mat-menu-item routerLink="/dashboards/national">
+                <a mat-menu-item routerLink="/dashboards/national" (click)="onDashboardNavClick($event)">
                     <mat-icon>public</mat-icon>
                     <span>National view</span>
                 </a>

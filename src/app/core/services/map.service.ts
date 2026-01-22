@@ -31,6 +31,7 @@ export class MapBoxService implements MapService<mapboxgl.Map> {
 
     private mapLoaded: AsyncSubject<boolean>;
     private _isDrawing: boolean = false;
+    private _popups = new Set<mapboxgl.Popup>();
 
     constructor() {
         this.mapLoaded = new AsyncSubject<boolean>();
@@ -461,6 +462,36 @@ export class MapBoxService implements MapService<mapboxgl.Map> {
         const imageData = rasterizeSvgBase64String(svgBase64 ?? '');
 
         return imageData;
+    }
+
+    /**
+     *
+     * Adds the provided mapboxgl popup to the map instance and adds it to the internal set of popups.
+     *
+     */
+    public registerPopup(popup: mapboxgl.Popup): void {
+        this._popups.add(popup);
+        popup.addTo(this.mapInstance);
+    }
+
+    /**
+     *
+     * Removes the provided mapboxgl popup from the map instance and the internal set of popups.
+     *
+     */
+    public removePopup(popup: mapboxgl.Popup): void {
+        popup.remove();
+        this._popups.delete(popup);
+    }
+
+    /**
+     *
+     * Removes all the popups from the map instance and the internal set of popups.
+     *
+     */
+    public clearAllPopups(): void {
+        this._popups.forEach((p) => p.remove());
+        this._popups.clear();
     }
 }
 

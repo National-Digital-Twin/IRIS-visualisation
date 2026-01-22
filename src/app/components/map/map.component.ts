@@ -584,6 +584,19 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             }
         }
     }
+
+    public onDashboardNavClick(event: MouseEvent): void {
+        event.preventDefault();
+        event.stopPropagation();
+
+        this.#mapService.clearAllPopups();
+    }
+
+    public onChooseAreaDashboardNavClick(event: MouseEvent): void {
+        this.onDashboardNavClick(event);
+
+        this.openAreaFilterDialog.emit(null);
+    }
 }
 
 // SPDX-License-Identifier: Apache-2.0
