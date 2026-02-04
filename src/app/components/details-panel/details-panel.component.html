@@ -25,14 +25,28 @@
 
             <div class="content">
                 <mat-tab-group [mat-stretch-tabs]="false" (selectedTabChange)="tabChanged($event)">
-                    <mat-tab label="Overview">
+                    <mat-tab>
+                        <ng-template mat-tab-label>
+                            <span class="tab-label">Overview</span>
+                        </ng-template>
                         @let expired = epcExpired();
                         <ng-container [ngTemplateOutlet]="property" [ngTemplateOutletContext]="{ building: building, expired: expired }" />
                     </mat-tab>
-                    <mat-tab label="Flag">
+                    <mat-tab>
+                        <ng-template mat-tab-label>
+                            <span class="tab-label">Flag</span>
+                        </ng-template>
                         @let activeFlag = activeFlag$ | async;
                         @let flagHistory = flagHistory$ | async;
                         <ng-container [ngTemplateOutlet]="flagging" [ngTemplateOutletContext]="{ activeFlag: activeFlag, flagHistory: flagHistory }" />
+                    </mat-tab>
+                    <mat-tab>
+                        <ng-template mat-tab-label>
+                            <div class="warning-tab-label-container">
+                                <span class="tab-label warning-tab-label">Warning</span><mat-icon class="warning-tab-label-icon">report</mat-icon>
+                            </div>
+                        </ng-template>
+                        <ng-container [ngTemplateOutlet]="warning" [ngTemplateOutletContext]="{}" />
                     </mat-tab>
                 </mat-tab-group>
             </div>
@@ -258,6 +272,13 @@
             <p class="no-flag">There are no flags for this dwelling</p>
         }
     </div>
+</ng-template>
+
+<ng-template #warning>
+    <p class="warning-subtext"><em>Based on forecasted data, use at your own discretion.</em></p>
+    <mat-divider class="warning-divider"></mat-divider>
+
+    <c477-warning-section></c477-warning-section>
 </ng-template>
 
 <!-- SPDX-License-Identifier: Apache-2.0
