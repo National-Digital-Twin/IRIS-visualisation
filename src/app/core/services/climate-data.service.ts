@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { FeatureCollection, Geometry } from 'geojson';
 import { Observable } from 'rxjs';
 
-export interface WindDrivenRainProperties {
+export interface WindDrivenRainLayerProperties {
     shape: string;
     wdr20_0: number;
     wdr40_0: number;
@@ -25,7 +25,27 @@ export interface WindDrivenRainProperties {
     wdr40_315: number;
 }
 
-export interface HotSummerDaysProperties {
+export interface BuildingWindDrivenRainData {
+    north_two_degrees_median: number;
+    east_two_degrees_median: number;
+    south_east_two_degrees_median: number;
+    south_degrees_median: number;
+    south_west_two_degrees_median: number;
+    west_two_degrees_median: number;
+    north_west_two_degrees_median: number;
+    north_east_two_degrees_median: number;
+
+    north_four_degrees_median: number;
+    east_four_degrees_median: number;
+    south_east_four_degrees_median: number;
+    south_four_median: number;
+    south_west_four_degrees_median: number;
+    west_four_degrees_median: number;
+    north_west_four_degrees_median: number;
+    north_east_four_degrees_median: number;
+}
+
+export interface HotSummerDaysLayerProperties {
     objectid: number;
     latitude: number;
     longitude: number;
@@ -37,24 +57,59 @@ export interface HotSummerDaysProperties {
     hsd_baseline_01_20_median: number;
 }
 
-export interface IcingDaysProperties {
+export interface BuildingHotSummerDaysData {
+    hsd_baseline: number;
+    hsd_1_5_degree_above_baseline: number;
+    hsd_2_0_degree_above_baseline: number;
+    hsd_2_5_degree_above_baseline: number;
+    hsd_3_0_degree_above_baseline: number;
+    hsd_4_0_degree_above_baseline: number;
+}
+
+export interface IcingDaysLayerProperties {
     objectid: number;
     icingdays: number;
+}
+
+export interface BuildingIcingDaysData {
+    icing_days: number;
+}
+
+export interface BuildingExtremeWeatherSummaryData {
+    affected_by_icing_days: boolean;
+    affected_by_hot_summer_days: boolean;
+    affected_by_wind_driven_rain: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
 export class ClimateDataService {
     readonly #http = inject(HttpClient);
 
-    public getWindDrivenRainData(): Observable<FeatureCollection<Geometry, WindDrivenRainProperties>> {
-        return this.#http.get<FeatureCollection<Geometry, WindDrivenRainProperties>>(`/api/data/climate/wind-driven-rain`);
+    public getWindDrivenRainLayerData(): Observable<FeatureCollection<Geometry, WindDrivenRainLayerProperties>> {
+        return this.#http.get<FeatureCollection<Geometry, WindDrivenRainLayerProperties>>(`/api/data/climate/wind-driven-rain`);
     }
 
-    public getHotSummerDaysData(): Observable<FeatureCollection<Geometry, HotSummerDaysProperties>> {
-        return this.#http.get<FeatureCollection<Geometry, HotSummerDaysProperties>>(`/api/data/climate/hot-summer-days`);
+    public getWindDrivenRainBuildingData(uprn: string): Observable<BuildingWindDrivenRainData> {
+        return this.#http.get<BuildingWindDrivenRainData>(`/api/buildings/${uprn}/wind-driven-rain`);
     }
 
-    public getIcingDaysData(): Observable<FeatureCollection<Geometry, IcingDaysProperties>> {
-        return this.#http.get<FeatureCollection<Geometry, IcingDaysProperties>>(`/api/data/climate/icing-days`);
+    public getHotSummerDaysLayerData(): Observable<FeatureCollection<Geometry, HotSummerDaysLayerProperties>> {
+        return this.#http.get<FeatureCollection<Geometry, HotSummerDaysLayerProperties>>(`/api/data/climate/hot-summer-days`);
+    }
+
+    public getHotSummerDaysBuildingData(uprn: string): Observable<BuildingHotSummerDaysData> {
+        return this.#http.get<BuildingHotSummerDaysData>(`/api/buildings/${uprn}/hot-summer-days`);
+    }
+
+    public getIcingDaysLayerData(): Observable<FeatureCollection<Geometry, IcingDaysLayerProperties>> {
+        return this.#http.get<FeatureCollection<Geometry, IcingDaysLayerProperties>>(`/api/data/climate/icing-days`);
+    }
+
+    public getIcingDaysBuildingData(uprn: string): Observable<BuildingIcingDaysData> {
+        return this.#http.get<BuildingIcingDaysData>(`/api/buildings/${uprn}/icing-days`);
+    }
+
+    public getExtremeWeatherSummaryData(uprn: string): Observable<BuildingExtremeWeatherSummaryData> {
+        return this.#http.get<BuildingExtremeWeatherSummaryData>(`/api/buildings/${uprn}/weather-summary`);
     }
 }

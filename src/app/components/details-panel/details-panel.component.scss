@@ -101,11 +101,11 @@
     }
 }
 
-.warning-tab-label-container {
+.more-info-tab-label-container {
     display: flex;
     gap: 5px;
 
-    .warning-tab-label-icon {
+    .more-info-tab-label-icon {
         color: #7c7c7c;
     }
 }
@@ -115,17 +115,17 @@
     color: #7c7c7c;
     text-transform: uppercase;
 
-    &.warning-tab-label {
+    &.more-info-tab-label {
         margin-top: auto;
         margin-bottom: auto;
     }
 }
 
 
-.warning-subtext {
+.more-info-subtext {
     color: #7c7c7c;
 }
 
-.warning-divider {
+.more-info-divider {
     margin-bottom: 5px;
 }

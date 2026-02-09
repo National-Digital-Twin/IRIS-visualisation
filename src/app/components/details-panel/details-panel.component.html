@@ -42,11 +42,11 @@
                     </mat-tab>
                     <mat-tab>
                         <ng-template mat-tab-label>
-                            <div class="warning-tab-label-container">
-                                <span class="tab-label warning-tab-label">Warning</span><mat-icon class="warning-tab-label-icon">report</mat-icon>
+                            <div class="more-info-tab-label-container">
+                                <span class="tab-label more-info-tab-label">More info</span><mat-icon class="more-info-tab-label-icon">report</mat-icon>
                             </div>
                         </ng-template>
-                        <ng-container [ngTemplateOutlet]="warning" [ngTemplateOutletContext]="{}" />
+                        <ng-container [ngTemplateOutlet]="moreinfo" [ngTemplateOutletContext]="{}" />
                     </mat-tab>
                 </mat-tab-group>
             </div>
@@ -274,11 +274,11 @@
     </div>
 </ng-template>
 
-<ng-template #warning>
-    <p class="warning-subtext"><em>Based on forecasted data, use at your own discretion.</em></p>
-    <mat-divider class="warning-divider"></mat-divider>
+<ng-template #moreinfo>
+    <p class="more-info-subtext"><em>Based on forecasted data, use at your own discretion.</em></p>
+    <mat-divider class="more-info-divider"></mat-divider>
 
-    <c477-warning-section></c477-warning-section>
+    <c477-more-info-section></c477-more-info-section>
 </ng-template>
 
 <!-- SPDX-License-Identifier: Apache-2.0

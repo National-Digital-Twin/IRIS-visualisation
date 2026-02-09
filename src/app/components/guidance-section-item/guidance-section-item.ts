@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { WarningSectionItem } from '@components/warning-section-item/warning-section-item';
+import { MoreInfoSectionItem } from '@components/more-info-section-item/more-info-section-item';
 
 @Component({
     selector: 'c477-guidance-section-item',
-    imports: [WarningSectionItem, MatIconModule],
+    imports: [MoreInfoSectionItem, MatIconModule],
     templateUrl: './guidance-section-item.html',
     styleUrl: './guidance-section-item.scss',
 })

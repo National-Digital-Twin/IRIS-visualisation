@@ -8,7 +8,7 @@ import { IcingDaysSectionItem } from '@components/icing-days-section-item/icing-
 import { WindDrivenRainSectionItem } from '@components/wind-driven-rain-section-item/wind-driven-rain-section-item';
 
 @Component({
-    selector: 'c477-warning-section',
+    selector: 'c477-more-info-section',
     imports: [
         MatDividerModule,
         CdkAccordionModule,
@@ -18,10 +18,10 @@ import { WindDrivenRainSectionItem } from '@components/wind-driven-rain-section-
         HoursOfSunlightSectionItem,
         GuidanceSectionItem,
     ],
-    templateUrl: './warning-section.html',
-    styleUrl: './warning-section.scss',
+    templateUrl: './more-info-section.html',
+    styleUrl: './more-info-section.scss',
 })
-export class WarningSection {}
+export class MoreInfoSection {}
 
 // SPDX-License-Identifier: Apache-2.0
 // © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme

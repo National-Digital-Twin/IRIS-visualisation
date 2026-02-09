@@ -9,7 +9,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
 import { LabelComponent } from '@components/label/label.component';
-import { WarningSection } from '@components/warning-section/warning-section';
+import { MoreInfoSection } from '@components/more-info-section/more-info-section';
 import { InfoPanelComponent } from '@containers/info-panel';
 import {
     BuiltForm,
@@ -47,7 +47,7 @@ import { EMPTY, switchMap } from 'rxjs';
         MatTabsModule,
         LabelComponent,
         InfoPanelComponent,
-        WarningSection,
+        MoreInfoSection,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     templateUrl: './details-panel.component.html',

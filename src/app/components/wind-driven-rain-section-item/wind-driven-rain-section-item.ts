@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { WarningSectionItem } from '@components/warning-section-item/warning-section-item';
+import { MoreInfoSectionItem } from '@components/more-info-section-item/more-info-section-item';
 
 @Component({
     selector: 'c477-wind-driven-rain-section-item',
-    imports: [WarningSectionItem],
+    imports: [MoreInfoSectionItem],
     templateUrl: './wind-driven-rain-section-item.html',
     styleUrl: './wind-driven-rain-section-item.scss',
 })

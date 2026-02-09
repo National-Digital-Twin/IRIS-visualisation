@@ -6,12 +6,12 @@ import { MatIconModule } from '@angular/material/icon';
 let idCounter = 0;
 
 @Component({
-    selector: 'c477-warning-section-item',
+    selector: 'c477-more-info-section-item',
     imports: [CdkAccordionModule, MatIconModule, MatDividerModule],
-    templateUrl: './warning-section-item.html',
-    styleUrl: './warning-section-item.scss',
+    templateUrl: './more-info-section-item.html',
+    styleUrl: './more-info-section-item.scss',
 })
-export class WarningSectionItem {
+export class MoreInfoSectionItem {
     @Input() public header: string = '';
     @Input() public subtitle?: string;
     public id: string = `warning-section-item-${idCounter++}`;

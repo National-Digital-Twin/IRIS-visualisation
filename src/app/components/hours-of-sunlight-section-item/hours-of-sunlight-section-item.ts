@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { WarningSectionItem } from '@components/warning-section-item/warning-section-item';
+import { MoreInfoSectionItem } from '@components/more-info-section-item/more-info-section-item';
 
 @Component({
     selector: 'c477-hours-of-sunlight-section-item',
-    imports: [WarningSectionItem],
+    imports: [MoreInfoSectionItem],
     templateUrl: './hours-of-sunlight-section-item.html',
     styleUrl: './hours-of-sunlight-section-item.scss',
 })
