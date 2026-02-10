@@ -122,7 +122,6 @@ export class UtilService {
             expressions[expressionKey].mapLayerFilter.expression[2].push(toid);
         }
 
-        const flaggedTOIDS: string[] = [];
         /** TOIDS to exclude from the default layer */
         const excludeFromDefault: string[] = [];
 
@@ -138,11 +137,9 @@ export class UtilService {
             } else if (dwellings.length === 1) {
                 /* One UPRN for a TOID */
 
-                const { EPC, Flagged } = dwellings[0];
+                const { EPC } = dwellings[0];
                 const color = EPC ? this.getEPCColour(EPC) : defaultPattern;
 
-                /* Add toid to flagged array if flagged */
-                if (Flagged) flaggedTOIDS.push(toid);
                 /** Add toid to default layer array */
                 excludeFromDefault.push(toid);
 
@@ -159,14 +156,11 @@ export class UtilService {
                 /* Multiple UPRNs for a TOID */
 
                 const epcs: string[] = [];
-                const Flagged = dwellings.some(({ Flagged }) => Flagged);
                 dwellings.forEach(({ EPC }) => {
                     if (EPC) epcs.push(EPC);
                 });
                 const pattern = epcs.length === 0 ? defaultPattern : this.getEPCPattern(epcs);
 
-                /* Add toid to flagged array if flagged */
-                if (Flagged) flaggedTOIDS.push(toid);
                 /** Add toid to default layer array */
                 excludeFromDefault.push(toid);
 
@@ -203,11 +197,6 @@ export class UtilService {
             this.#dataService.setSelectedBuildings(Object.values(filteredBuildings));
         }
 
-        /* Apply the flagged filter */
-        this.#mapService.filterMapLayer({
-            layerId: 'OS/TopographicArea_2/Building/1_3D-Dwelling-Flagged',
-            expression: ['all', ['==', '_symbol', 4], ['in', 'TOID', ...flaggedTOIDS]],
-        });
         /** Remove from toids from default layer so they're not rendered */
         this.#mapService.filterMapLayer({
             layerId: 'OS/TopographicArea_2/Building/1_3D',
@@ -351,12 +340,7 @@ export class UtilService {
                     // remove additional quotes for year filter
                     // may not need this any more?
                     const removeQuotes = filterProps[key as keyof FilterProps]?.map((k) => k.replace(/['"]+/g, ''));
-                    /** if flagged filter exists return the building if it has a flag */
-                    if (key === 'Flagged') {
-                        return filterableBuildingModel.Flagged;
-                    }
-                    // compare inspection dates to 10 years ago
-                    else if (key === 'EPCExpiry') {
+                    if (key === 'EPCExpiry') {
                         const tenYearsAgo = new Date();
                         tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
                         if (

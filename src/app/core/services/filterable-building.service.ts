@@ -84,7 +84,6 @@ export class FilterableBuildingService {
             WallConstruction: filterableBuilding.wall_construction,
             WallInsulation: filterableBuilding.wall_insulation,
             WindowGlazing: filterableBuilding.window_glazing,
-            Flagged: false,
             RoofMaterial: filterableBuilding.roof_material,
             HasRoofSolarPanels: filterableBuilding.has_roof_solar_panels,
             RoofAspectAreaFacingNorth: filterableBuilding.roof_aspect_area_facing_north,

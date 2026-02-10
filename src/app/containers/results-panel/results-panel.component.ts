@@ -51,8 +51,6 @@ export class ResultsPanelComponent {
     public selectMultiple: boolean = false;
     public selectedCardUPRN = this.#utilService.selectedCardUPRN;
 
-    public flag: OutputEmitterRef<BuildingModel[]> = output();
-    public removeFlag: OutputEmitterRef<BuildingModel> = output();
     public resultsPanelCollapsed: OutputEmitterRef<boolean> = output();
 
     public viewPort = viewChild<CdkVirtualScrollViewport>(CdkVirtualScrollViewport);

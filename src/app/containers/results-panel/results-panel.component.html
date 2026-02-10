@@ -32,8 +32,6 @@
                                 (emitViewDetails)="viewDetails($event)"
                                 [checked]="cardIsChecked([dwellingSet[0]])"
                                 (toggleChecked)="onToggleChecked(dwellingSet[0])"
-                                (flag)="flag.emit([dwellingSet[0]])"
-                                (removeFlag)="removeFlag.emit(dwellingSet[0])"
                                 [card]="dwellingSet[0]"
                                 [select]="selectMultiple"
                             />
@@ -46,8 +44,6 @@
                                 [checkedCards]="checkedCards()"
                                 (emitViewDetails)="viewDetails($event)"
                                 (toggleChecked)="onToggleChecked($event)"
-                                (flag)="flag.emit($event)"
-                                (removeFlag)="removeFlag.emit($event)"
                                 (downloadData)="downloadBuilding($event)"
                             />
                         }
