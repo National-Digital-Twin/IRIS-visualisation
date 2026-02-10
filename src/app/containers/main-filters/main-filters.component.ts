@@ -10,7 +10,7 @@ import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule } from '@angular/mat
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { LabelComponent } from '@components/label/label.component';
 import { FilterPanelComponent } from '@containers/filter-panel/filter-panel.component';
 import { EPCRating, StructureUnitType } from '@core/enums';
@@ -177,14 +177,6 @@ export class MainFiltersComponent {
 
     public ratingChange(e: MatSelectChange): void {
         this.setRouteParams.emit({ EPC: e.value.map((r: string) => r) });
-    }
-
-    public flaggedFilterChange(e: MatSlideToggleChange): void {
-        if (e.checked) {
-            this.setRouteParams.emit({ Flagged: ['true'] });
-        } else {
-            this.setRouteParams.emit({ Flagged: [] });
-        }
     }
 
     public clearEPC($event: Event): void {

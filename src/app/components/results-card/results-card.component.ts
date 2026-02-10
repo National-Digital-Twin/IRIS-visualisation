@@ -37,8 +37,6 @@ export class ResultsCardComponent {
     public cardSelected: OutputEmitterRef<BuildingModel> = output();
     public downloadData: OutputEmitterRef<DownloadBuilding> = output();
     public emitViewDetails: OutputEmitterRef<BuildingModel> = output();
-    public flag: OutputEmitterRef<void> = output();
-    public removeFlag: OutputEmitterRef<void> = output();
     public toggleChecked: OutputEmitterRef<boolean> = output();
 
     get theme(): Signal<Theme> {

@@ -50,7 +50,6 @@ const mockData: FilterDialogData = {
         RoofMaterial: [],
         HasRoofSolarPanels: [],
         RoofAspectAreaDirection: [],
-        Flagged: [],
         StructureUnitType: [],
         FuelType: [],
     },

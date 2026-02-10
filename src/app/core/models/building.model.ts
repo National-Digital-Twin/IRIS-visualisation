@@ -20,7 +20,6 @@ export type BuildingModel = {
     WallConstruction?: string;
     WallInsulation?: string;
     WindowGlazing?: string;
-    Flagged?: string;
     longitude?: string;
     latitude?: string;
     FuelType?: string;

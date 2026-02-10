@@ -13,7 +13,6 @@ export type FilterableBuildingModel = {
     WallConstruction?: string;
     WallInsulation?: string;
     WindowGlazing?: string;
-    Flagged: boolean;
     RoofMaterial?: string;
     HasRoofSolarPanels?: boolean;
     RoofAspectAreaFacingNorth?: number;

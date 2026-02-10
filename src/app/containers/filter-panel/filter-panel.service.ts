@@ -38,7 +38,6 @@ export const filterNames = [
     'RoofConstruction',
     'RoofInsulationLocation',
     'RoofInsulationThickness',
-    'Flagged',
     'StructureUnitType',
     'RoofMaterial',
     'HasRoofSolarPanels',

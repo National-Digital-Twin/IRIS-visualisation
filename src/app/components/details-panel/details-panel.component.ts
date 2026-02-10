@@ -1,12 +1,12 @@
 import { AsyncPipe, DatePipe, NgClass, NgTemplateOutlet } from '@angular/common';
-import { CUSTOM_ELEMENTS_SCHEMA, Component, InputSignal, OnInit, OutputEmitterRef, inject, input, output } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, Component, InputSignal, OutputEmitterRef, inject, input, output } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
+import { MatTabsModule } from '@angular/material/tabs';
 import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
 import { LabelComponent } from '@components/label/label.component';
 import { MoreInfoSection } from '@components/more-info-section/more-info-section';
@@ -15,7 +15,6 @@ import {
     BuiltForm,
     FloorConstruction,
     FloorInsulation,
-    InvalidateFlagReason,
     RoofConstruction,
     RoofInsulationLocation,
     RoofInsulationThickness,
@@ -37,7 +36,6 @@ import { EMPTY, switchMap } from 'rxjs';
 @Component({
     selector: 'c477-details-panel',
     imports: [
-        AsyncPipe,
         DatePipe,
         NgClass,
         NgTemplateOutlet,
@@ -49,12 +47,13 @@ import { EMPTY, switchMap } from 'rxjs';
         LabelComponent,
         InfoPanelComponent,
         MoreInfoSection,
+        AsyncPipe,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     templateUrl: './details-panel.component.html',
     styleUrl: './details-panel.component.scss',
 })
-export class DetailsPanelComponent implements OnInit {
+export class DetailsPanelComponent {
     readonly #dataService = inject(DataService);
     readonly #dialog = inject(MatDialog);
     readonly #utilService = inject(UtilService);
@@ -64,18 +63,12 @@ export class DetailsPanelComponent implements OnInit {
 
     public closePanel: OutputEmitterRef<void> = output();
     public downloadData: OutputEmitterRef<DownloadDataWarningResponse> = output();
-    public flag: OutputEmitterRef<BuildingModel[]> = output();
-    public getFlagHistory: OutputEmitterRef<string> = output();
-    public removeFlag: OutputEmitterRef<BuildingModel> = output();
 
-    public activeFlag$ = toObservable(this.#dataService.activeFlag);
     public builtForm: Record<string, string> = BuiltForm;
     public buildingDetails = this.#dataService.selectedBuilding;
     public buildingSelection = this.#dataService.buildingsSelection;
-    public flagHistory$ = toObservable(this.#dataService.flagHistory);
     public floor: Record<string, string> = FloorConstruction;
     public floorInsulation: Record<string, string> = FloorInsulation;
-    public invalidateReason: Record<string, string> = InvalidateFlagReason;
     public roof: Record<string, string> = RoofConstruction;
     public roofInsulation: Record<string, string> = RoofInsulationLocation;
     public roofInsulationThickness: Record<string, string> = RoofInsulationThickness;
@@ -87,11 +80,6 @@ export class DetailsPanelComponent implements OnInit {
     public roofShape: Record<string, string> = RoofShape;
     public solarPanelPresence: Record<string, string> = SolarPanelPresence;
 
-    private readonly updateFlagHistory$ = toObservable(this.buildingDetails).pipe(
-        takeUntilDestroyed(),
-        switchMap((b) => (b ? this.#dataService.updateFlagHistory(b.UPRN) : EMPTY)),
-    );
-
     public readonly buildingWindDrivenRainData$ = toObservable(this.buildingDetails).pipe(
         takeUntilDestroyed(),
         switchMap((b) => (b ? this.#climateDataService.getWindDrivenRainBuildingData(b.UPRN) : EMPTY)),
@@ -101,11 +89,6 @@ export class DetailsPanelComponent implements OnInit {
         takeUntilDestroyed(),
         switchMap((b) => (b ? this.#climateDataService.getHotSummerDaysBuildingData(b.UPRN) : EMPTY)),
     );
-
-    /** subscribe to the flag history to make updates */
-    public ngOnInit(): void {
-        this.updateFlagHistory$.pipe().subscribe();
-    }
 
     public getAddressSegment(index: number): string {
         return this.#utilService.splitAddress(index, this.buildingDetails()?.FullAddress);
@@ -132,16 +115,6 @@ export class DetailsPanelComponent implements OnInit {
                     this.downloadData.emit(download);
                 }
             });
-    }
-
-    public tabChanged($event: MatTabChangeEvent): void {
-        if ($event.tab.textLabel === 'Flag') {
-            const building = this.buildingDetails();
-            if (building) {
-                const { UPRN } = building;
-                this.#dataService.updateFlagHistory(UPRN).subscribe();
-            }
-        }
     }
 
     public formatRoofAspectAreas(building?: BuildingModel): string {
