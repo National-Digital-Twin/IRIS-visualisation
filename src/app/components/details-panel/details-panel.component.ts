@@ -97,6 +97,11 @@ export class DetailsPanelComponent implements OnInit {
         switchMap((b) => (b ? this.#climateDataService.getWindDrivenRainBuildingData(b.UPRN) : EMPTY)),
     );
 
+    public readonly buildingIcingDaysData$ = toObservable(this.buildingDetails).pipe(
+        takeUntilDestroyed(),
+        switchMap((b) => (b ? this.#climateDataService.getIcingDaysBuildingData(b.UPRN) : EMPTY)),
+    );
+
     /** subscribe to the flag history to make updates */
     public ngOnInit(): void {
         this.updateFlagHistory$.pipe().subscribe();

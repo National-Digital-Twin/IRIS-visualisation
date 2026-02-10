@@ -1,7 +1,12 @@
 <c477-more-info-section-item header="Icing days" subtitle="Within an area of many icing days">
-    <div class="container">
-        <p>Icing days data</p>
-    </div>
+    @if (data) {
+        <div class="container data-table">
+            <dl>
+                <dt>Icing days</dt>
+                <dd>{{ data.icing_days.toFixed(2) }} days</dd>
+            </dl>
+        </div>
+    }
 </c477-more-info-section-item>
 <!-- SPDX-License-Identifier: Apache-2.0
 © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
