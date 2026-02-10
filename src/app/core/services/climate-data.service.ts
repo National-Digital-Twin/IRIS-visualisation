@@ -29,7 +29,7 @@ export interface BuildingWindDrivenRainData {
     north_two_degrees_median: number;
     east_two_degrees_median: number;
     south_east_two_degrees_median: number;
-    south_degrees_median: number;
+    south_two_degrees_median: number;
     south_west_two_degrees_median: number;
     west_two_degrees_median: number;
     north_west_two_degrees_median: number;
@@ -38,7 +38,7 @@ export interface BuildingWindDrivenRainData {
     north_four_degrees_median: number;
     east_four_degrees_median: number;
     south_east_four_degrees_median: number;
-    south_four_median: number;
+    south_four_degrees_median: number;
     south_west_four_degrees_median: number;
     west_four_degrees_median: number;
     north_west_four_degrees_median: number;

@@ -2,7 +2,8 @@
     <div class="section-item-container">
         <div (click)="sectionItem.toggle()" class="section-item-header-container">
             <div class="section-item-header">
-                <span [innerHTML]="header"></span><mat-icon>{{ sectionItem.expanded ? 'arrow_drop_up' : 'arrow_drop_down' }}</mat-icon>
+                <span [innerHTML]="header"></span
+                ><mat-icon data-testid="section-item-toggle-icon">{{ sectionItem.expanded ? 'arrow_drop_up' : 'arrow_drop_down' }}</mat-icon>
             </div>
             @if (subtitle) {
                 <div>

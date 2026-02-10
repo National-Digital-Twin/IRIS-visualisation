@@ -1,12 +1,54 @@
 <c477-more-info-section-item header="Wind-driven rain - <em>4&deg;Cwarming</em>" subtitle="Within an area of high wind-driven rain">
-    <div class="container">
-        <p>Wind-driven rain 4&deg;C data</p>
-    </div>
+    @if (data) {
+        <div class="container data-table">
+            <dl>
+                <dt>Wall orientation</dt>
+                <dd>Wind-driven rain index (mm/year)</dd>
+                <dt>North</dt>
+                <dd>{{ data.north_four_degrees_median }}</dd>
+                <dt>North east</dt>
+                <dd>{{ data.north_east_four_degrees_median }}</dd>
+                <dt>East</dt>
+                <dd>{{ data.east_four_degrees_median }}</dd>
+                <dt>South east</dt>
+                <dd>{{ data.south_east_four_degrees_median }}</dd>
+                <dt>South</dt>
+                <dd>{{ data.south_four_degrees_median }}</dd>
+                <dt>South west</dt>
+                <dd>{{ data.south_west_four_degrees_median }}</dd>
+                <dt>West</dt>
+                <dd>{{ data.west_four_degrees_median }}</dd>
+                <dt>North west</dt>
+                <dd>{{ data.north_west_four_degrees_median }}</dd>
+            </dl>
+        </div>
+    }
 </c477-more-info-section-item>
 <c477-more-info-section-item header="Wind-driven rain - <em>2&deg;C warming</em>" subtitle="Within an area of high wind-driven rain">
-    <div class="container">
-        <p>Wind-driven rain 2&deg;C data</p>
-    </div>
+    @if (data) {
+        <div class="container data-table">
+            <dl>
+                <dt>Wall orientation</dt>
+                <dd>Wind-driven rain index (mm/year)</dd>
+                <dt>North</dt>
+                <dd>{{ data.north_two_degrees_median }}</dd>
+                <dt>North east</dt>
+                <dd>{{ data.north_east_two_degrees_median }}</dd>
+                <dt>East</dt>
+                <dd>{{ data.east_two_degrees_median }}</dd>
+                <dt>South east</dt>
+                <dd>{{ data.south_east_two_degrees_median }}</dd>
+                <dt>South</dt>
+                <dd>{{ data.south_two_degrees_median }}</dd>
+                <dt>South west</dt>
+                <dd>{{ data.south_west_two_degrees_median }}</dd>
+                <dt>West</dt>
+                <dd>{{ data.west_two_degrees_median }}</dd>
+                <dt>North west</dt>
+                <dd>{{ data.north_west_two_degrees_median }}</dd>
+            </dl>
+        </div>
+    }
 </c477-more-info-section-item>
 <!-- SPDX-License-Identifier: Apache-2.0
 © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme

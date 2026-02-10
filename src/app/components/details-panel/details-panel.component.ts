@@ -29,6 +29,7 @@ import { RoofShape } from '@core/enums/roof-shape';
 import { SolarPanelPresence } from '@core/enums/solar-panel-presence';
 import { BuildingModel } from '@core/models/building.model';
 import { DownloadDataWarningData, DownloadDataWarningResponse } from '@core/models/download-data-warning.model';
+import { ClimateDataService } from '@core/services/climate-data.service';
 import { DataService } from '@core/services/data.service';
 import { UtilService } from '@core/services/utils.service';
 import { EMPTY, switchMap } from 'rxjs';
@@ -57,6 +58,7 @@ export class DetailsPanelComponent implements OnInit {
     readonly #dataService = inject(DataService);
     readonly #dialog = inject(MatDialog);
     readonly #utilService = inject(UtilService);
+    readonly #climateDataService = inject(ClimateDataService);
 
     public resultsPanelCollapsed: InputSignal<boolean> = input(false);
 
@@ -88,6 +90,11 @@ export class DetailsPanelComponent implements OnInit {
     private readonly updateFlagHistory$ = toObservable(this.buildingDetails).pipe(
         takeUntilDestroyed(),
         switchMap((b) => (b ? this.#dataService.updateFlagHistory(b.UPRN) : EMPTY)),
+    );
+
+    public readonly buildingWindDrivenRainData$ = toObservable(this.buildingDetails).pipe(
+        takeUntilDestroyed(),
+        switchMap((b) => (b ? this.#climateDataService.getWindDrivenRainBuildingData(b.UPRN) : EMPTY)),
     );
 
     /** subscribe to the flag history to make updates */

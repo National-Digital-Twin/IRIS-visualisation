@@ -1,3 +1,5 @@
+@use 'tables' as tables;
+
 @mixin popup {
     padding: 1rem 1rem 0;
     box-shadow: var(--mat-sys-level2);
@@ -169,6 +171,8 @@
             font-family: var(--mat-sys-body-medium-font);
             color: var(--mat-sys-on-surface);
 
+            @include tables.climate-data-table;
+
             .popup-header {
                 display: grid;
                 grid-auto-columns: auto;
@@ -190,38 +194,6 @@
                 gap: 1rem;
                 align-items: center;
                 padding: 1rem 1rem 0;
-            }
-
-            .data-table {
-                margin: 0 1rem;
-
-                dl {
-                    overflow: hidden;
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 0;
-
-                    border-radius: 0.5rem;
-
-                    background-color: var(--mat-sys-surface-container-low);
-
-                    dt,
-                    dd {
-                        margin: 0;
-                        padding: 0.5rem;
-                    }
-
-                    dt:nth-child(4n + 1),
-                    dd:nth-child(4n + 2) {
-                        background-color: var(--mat-sys-surface-container);
-                    }
-
-                    dt:nth-child(1),
-                    dd:nth-child(2) {
-                        font-weight: var(--mat-sys-label-large-weight);
-                        background-color: var(--mat-sys-surface-container-high);
-                    }
-                }
             }
 
             .info-tooltip-container {

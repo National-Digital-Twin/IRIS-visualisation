@@ -3,8 +3,6 @@ import { Component, Input } from '@angular/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 
-let idCounter = 0;
-
 @Component({
     selector: 'c477-more-info-section-item',
     imports: [CdkAccordionModule, MatIconModule, MatDividerModule],
@@ -14,7 +12,6 @@ let idCounter = 0;
 export class MoreInfoSectionItem {
     @Input() public header: string = '';
     @Input() public subtitle?: string;
-    public id: string = `warning-section-item-${idCounter++}`;
 }
 
 // SPDX-License-Identifier: Apache-2.0
