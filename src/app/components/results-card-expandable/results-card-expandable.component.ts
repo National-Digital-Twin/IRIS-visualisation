@@ -24,8 +24,6 @@ export class ResultsCardExpandableComponent {
 
     public cardSelected: OutputEmitterRef<BuildingModel> = output();
     public emitViewDetails: OutputEmitterRef<BuildingModel> = output();
-    public flag: OutputEmitterRef<BuildingModel[]> = output();
-    public removeFlag: OutputEmitterRef<BuildingModel> = output();
     public toggleChecked: OutputEmitterRef<BuildingModel> = output();
     public downloadData: OutputEmitterRef<DownloadBuilding> = output();
 
@@ -38,7 +36,6 @@ export class ResultsCardExpandableComponent {
         PostCode: undefined,
         StructureUnitType: undefined,
         UPRN: '',
-        Flagged: undefined,
         SAPPoints: undefined,
         YearOfAssessment: undefined,
         FloorConstruction: undefined,

@@ -63,7 +63,6 @@ export interface MultiButtonFilterOption {
 export interface FilterProps {
     BuiltForm?: string[];
     EPC?: string[];
-    Flagged?: string[];
     FloorConstruction?: string[];
     FloorInsulation?: string[];
     WindowGlazing?: string[];
@@ -87,7 +86,6 @@ export type FilterKeys =
     | 'EPC'
     | 'FloorConstruction'
     | 'FloorInsulation'
-    | 'Flagged'
     | 'WindowGlazing'
     | 'PostCode'
     | 'StructureUnitType'

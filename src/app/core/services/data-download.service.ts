@@ -41,7 +41,6 @@ export class DataDownloadService {
                 'WallConstruction',
                 'WallInsulation',
                 'WindowGlazing',
-                'Flagged',
             ],
         });
 

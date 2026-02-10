@@ -1,17 +1,10 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
 import { BuiltForm, EPCRating, FloorConstruction, RoofConstruction, StructureUnitType, WallConstruction, WindowGlazing } from '@core/enums';
-import { InvalidateFlagReason } from '@core/enums/invalidate-flag-reason';
 import { BuildingMap, BuildingModel, BuildingParts } from '@core/models/building.model';
 import { MinimalBuildingData, MinimalBuildingMap } from '@core/models/minimal-building-data.model';
-import { BACKEND_API_ENDPOINT } from '@core/tokens/backend-endpoint.token';
 import { EPCBuildingResponseModel } from '@core/types/building-response';
-import { FlagHistory } from '@core/types/flag-history';
-import { FlagMap, FlagResponse } from '@core/types/flag-response';
-import { EMPTY, Observable, catchError, first, map, of, switchMap, tap } from 'rxjs';
-
-type Loading<T> = T | 'loading';
+import { Observable, catchError, first, map, of } from 'rxjs';
 
 export type Building = {
     uprn: string;
@@ -54,16 +47,13 @@ interface BuildingDetailAPIResponse extends Record<string, unknown> {
 @Injectable({ providedIn: 'root' })
 export class DataService {
     readonly #http: HttpClient = inject(HttpClient);
-    readonly #backendApiEndpoint = inject(BACKEND_API_ENDPOINT);
 
     public uiReady = signal<boolean>(true);
 
     public viewportBuildingsLoading = signal<boolean>(false);
     public minimalBuildings = signal<MinimalBuildingMap>({});
 
-    public activeFlag = signal<Loading<FlagHistory> | undefined>(undefined);
     public buildingsSelection = signal<BuildingModel[][] | undefined>(undefined);
-    public flagHistory = signal<Loading<FlagHistory[]>>([]);
 
     public loading = computed(() => {
         // Loading set to false after initial load
@@ -73,19 +63,11 @@ export class DataService {
     public selectedBuilding = signal<BuildingModel | undefined>(undefined);
     public selectedUPRN = signal<string | undefined>(undefined);
 
-    private readonly buildingsFlagged = signal<FlagMap>({});
-    private readonly buildingsFlagged$ = toObservable(this.buildingsFlagged);
-
     private readonly _buildingsCache = new Map<string, MinimalBuildingData>();
     private readonly _buildingCacheOrder: string[] = []; // FIFO tracking
     private readonly MAX_CACHED_BUILDINGS = 10000; // Number of properties
 
     private _selectedBuildingsCache = new Map<string, BuildingModel>();
-
-    private readonly flags$ = this.#http.get<FlagResponse[]>('/api/flagged-buildings', { withCredentials: true }).pipe(
-        map((flags: FlagResponse[]) => this.getCurrentFlags(flags)),
-        map((currentFlags) => this.mapFlagsToToids(currentFlags)),
-    );
 
     public buildings = computed(() => {
         // Convert minimalBuildings to BuildingMap format
@@ -119,84 +101,15 @@ export class DataService {
                     WallConstruction: undefined,
                     WallInsulation: undefined,
                     WindowGlazing: undefined,
-                    Flagged: undefined,
                 } as BuildingModel;
             });
         });
 
-        // Apply flags if available
-        this.applyFlagsToBuildings(buildingMap);
-
         return buildingMap;
     });
 
-    /**
-     * Apply flags to building data
-     */
-    private applyFlagsToBuildings(buildingMap: BuildingMap): void {
-        const flaggedBuildings = this.buildingsFlagged();
-
-        Object.entries(flaggedBuildings).forEach(([toid, flaggedList]) => {
-            if (buildingMap[toid]) {
-                flaggedList.forEach(({ UPRN, Flagged }) => {
-                    const building = buildingMap[toid].find((b) => b.UPRN === UPRN);
-                    if (building) {
-                        building.Flagged = Flagged;
-                    }
-                });
-            }
-        });
-    }
-
     public setSelectedUPRN(uprn?: string): void {
         this.selectedUPRN.set(uprn);
-    }
-
-    /**
-     * Initialise the data service
-     */
-    public initialise(): void {
-        this.loadFlags().subscribe();
-    }
-
-    /**
-     * Load flags separately
-     */
-    private loadFlags(): Observable<void> {
-        return this.#http.get<FlagResponse[]>('/api/flagged-buildings', { withCredentials: true }).pipe(
-            map((flags: FlagResponse[]) => this.getCurrentFlags(flags)),
-            map((currentFlags) => this.mapFlagsToToids(currentFlags)),
-            tap((flagMap) => {
-                this.buildingsFlagged.set(flagMap);
-                // Update viewport loading signal
-                this.viewportBuildingsLoading.set(false);
-            }),
-            map(() => void 0),
-        );
-    }
-
-    /**
-     * Return flag history for an individual building
-     * @param query Query string to request data from IA
-     * @returns
-     */
-    private getBuildingFlagHistory(uprn: string): Observable<FlagHistory[]> {
-        return this.#http.get<FlagHistory[]>(`/api/buildings/${uprn}/flag-history`, { withCredentials: true });
-    }
-
-    /** get the flag history for selected building and update the signals */
-    public updateFlagHistory(uprn: BuildingModel['UPRN']): Observable<FlagHistory[]> {
-        this.flagHistory.set('loading');
-        this.activeFlag.set('loading');
-        return this.getBuildingFlagHistory(uprn).pipe(
-            first(),
-            tap((flagHistory) => {
-                const flags = flagHistory.filter((f) => f.Flagged && f.AssessmentReason);
-                this.flagHistory.set(flags);
-                const flag = flagHistory.find((f) => f.Flagged && !f.AssessmentReason);
-                this.activeFlag.set(flag);
-            }),
-        );
     }
 
     /**
@@ -644,114 +557,6 @@ export class DataService {
             }
         });
         return parts;
-    }
-
-    public flagToInvestigate(building: BuildingModel): Observable<FlagHistory[]> {
-        const lodgementDate = building.LodgementDate ? `_${building.LodgementDate.replaceAll('-', '')}` : '';
-        return this.#http
-            .post<NonNullable<BuildingModel['Flagged']>>(
-                `${this.#backendApiEndpoint}/flag-to-investigate`,
-                {
-                    uri: `http://ndtp.co.uk/data#StructureUnitState_${building.UPRN}${lodgementDate}`,
-                },
-                { withCredentials: true },
-            )
-            .pipe(
-                switchMap((flagUri) => {
-                    const toid = building.TOID ?? building.ParentTOID;
-                    if (!toid) throw new Error(`Building ${building.UPRN} has no TOID`);
-                    building.Flagged = flagUri;
-                    const flag: FlagResponse = {
-                        UPRN: building.UPRN,
-                        TOID: building.TOID,
-                        Flagged: flagUri,
-                    };
-                    this.buildingsFlagged.update((f) => ({
-                        ...f,
-                        [toid]: f[toid] ? [...f[toid], flag] : [flag],
-                    }));
-
-                    /* if invalidaing flag for selected building, update the flag history */
-                    const { UPRN } = building;
-                    const selectedBuilding = this.selectedBuilding();
-                    if (selectedBuilding?.UPRN === UPRN) {
-                        return this.updateFlagHistory(UPRN);
-                    }
-                    return EMPTY;
-                }),
-            );
-    }
-
-    public invalidateFlag(building: BuildingModel, reason: InvalidateFlagReason): Observable<FlagHistory[]> {
-        /* If building has no flag, throw error */
-        const activeFlag = this.activeFlag();
-        if (activeFlag === undefined || activeFlag === 'loading' || !activeFlag) throw new Error(`Building ${building.UPRN} has no flag`);
-
-        /* convert reason string to enum key */
-        const keys = Object.keys(InvalidateFlagReason) as Array<keyof typeof InvalidateFlagReason>;
-        const key = keys.find((k) => InvalidateFlagReason[k] === reason);
-
-        return this.#http
-            .post<NonNullable<BuildingModel['Flagged']>>(
-                `${this.#backendApiEndpoint}/invalidate-flag`,
-                {
-                    flagUri: activeFlag.Flagged,
-                    assessmentTypeOverride: `http://ndtp.co.uk/ontology#${key}`,
-                },
-                { withCredentials: true },
-            )
-            .pipe(
-                switchMap(() => {
-                    const toid = building.TOID ?? building.ParentTOID;
-                    if (!toid) throw new Error(`Building ${building.UPRN} has no TOID`);
-                    /* set flagged property to undefined */
-                    building.Flagged = undefined;
-                    this.buildingsFlagged.update((b) => {
-                        /* remove building from flagged buildings */
-                        const index = b[toid].findIndex((b) => b.UPRN === building.UPRN);
-                        b[toid].splice(index, 1);
-                        return { ...b };
-                    });
-
-                    /* if invalidaing flag for selected building, update the flag history */
-                    const { UPRN } = building;
-                    const selectedBuilding = this.selectedBuilding();
-                    if (selectedBuilding?.UPRN === UPRN) {
-                        return this.updateFlagHistory(UPRN);
-                    }
-                    return EMPTY;
-                }),
-            );
-    }
-
-    /**
-     * Takes an array of flags and returns an array
-     * of the most current unique flags
-     * @param flags
-     * @returns current flags
-     */
-    private getCurrentFlags(flags: FlagResponse[]): FlagResponse[] {
-        const result = Object.values(
-            flags.reduce((acc: Record<string, FlagResponse>, { UPRN, Flagged, TOID }) => {
-                acc[UPRN] = { UPRN, Flagged, TOID };
-                return acc;
-            }, {}),
-        );
-        return result;
-    }
-
-    private mapFlagsToToids(flags: FlagResponse[]): FlagMap {
-        const flagMap: FlagMap = {};
-        flags.forEach((flag) => {
-            const toid = flag.TOID;
-            if (!toid) throw new Error(`Flag ${flag.UPRN} has no TOID`);
-            if (flagMap[toid]) {
-                flagMap[toid].push(flag);
-            } else {
-                flagMap[toid] = [flag];
-            }
-        });
-        return flagMap;
     }
 }
 
