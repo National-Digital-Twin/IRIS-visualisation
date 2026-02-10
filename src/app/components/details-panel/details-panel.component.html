@@ -278,7 +278,10 @@
     <p class="more-info-subtext"><em>Based on forecasted data, use at your own discretion.</em></p>
     <mat-divider class="more-info-divider"></mat-divider>
 
-    <c477-more-info-section [buildingWindDrivenRainData]="buildingWindDrivenRainData$ | async"></c477-more-info-section>
+    <c477-more-info-section
+        [buildingWindDrivenRainData]="buildingWindDrivenRainData$ | async"
+        [buildingHotSummerDaysData]="buildingHotSummerDaysData$ | async"
+    ></c477-more-info-section>
 </ng-template>
 
 <!-- SPDX-License-Identifier: Apache-2.0

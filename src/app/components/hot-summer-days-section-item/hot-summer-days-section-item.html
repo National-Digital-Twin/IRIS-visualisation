@@ -1,7 +1,24 @@
 <c477-more-info-section-item header="Hot summer days" subtitle="Within an area of many hot summer days">
-    <div class="container">
-        <p>Hot summer days data</p>
-    </div>
+    @if (data) {
+        <div class="container data-table">
+            <dl>
+                <dt>Projections</dt>
+                <dd>Annual count (days)</dd>
+                <dt>2001-2020</dt>
+                <dd>{{ data.hsd_baseline.toFixed(1) }}</dd>
+                <dt>≥ 1.5°C</dt>
+                <dd>{{ data.hsd_1_5_degree_above_baseline.toFixed(1) }}</dd>
+                <dt>≥ 2°C</dt>
+                <dd>{{ data.hsd_2_0_degree_above_baseline.toFixed(1) }}</dd>
+                <dt>≥ 2.5°C</dt>
+                <dd>{{ data.hsd_2_5_degree_above_baseline.toFixed(1) }}</dd>
+                <dt>≥ 3°C</dt>
+                <dd>{{ data.hsd_3_0_degree_above_baseline.toFixed(1) }}</dd>
+                <dt>≥ 4°C</dt>
+                <dd>{{ data.hsd_4_0_degree_above_baseline.toFixed(1) }}</dd>
+            </dl>
+        </div>
+    }
 </c477-more-info-section-item>
 <!-- SPDX-License-Identifier: Apache-2.0
 © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
