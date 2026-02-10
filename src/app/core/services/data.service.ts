@@ -113,11 +113,6 @@ export class DataService {
     }
 
     /**
-     * Initialise the data service
-     */
-    public initialise(): void {}
-
-    /**
      * Set individual building and load detailed data if not already available
      * @param building individual building
      */
