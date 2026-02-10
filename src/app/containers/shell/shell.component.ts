@@ -14,12 +14,10 @@ import { AreaFilterPanelComponent } from '@components/area-filter-panel/area-fil
 import { DashboardAreaSelectionDialogComponent } from '@components/dashboard-area-selection-dialog/dashboard-area-selection-dialog.component';
 import { DetailsPanelComponent } from '@components/details-panel/details-panel.component';
 import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
-import { FlagModalComponent, FlagModalData, FlagModalResult } from '@components/flag-modal/flag.modal.component';
 import { InformationComponent } from '@components/information/information.component';
 import { MapComponent } from '@components/map/map.component';
 import { MinimapComponent } from '@components/minimap/minimap.component';
 import { PrivacyNoticeComponent } from '@components/privacy-notice/privacy-notice.component';
-import { RemoveFlagModalComponent, RemoveFlagModalData, RemoveFlagModalResult } from '@components/remove-flag-modal/remove-flag-modal.component';
 import { MainFiltersComponent } from '@containers/main-filters/main-filters.component';
 import { ResultsPanelComponent } from '@containers/results-panel/results-panel.component';
 import { AdvancedFiltersFormModel, FilterKeys, FilterProps } from '@core/models/advanced-filters.model';
@@ -39,7 +37,7 @@ import { UserDetailsService } from '@core/services/user-details.service';
 import { UtilService } from '@core/services/utils.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import { Polygon } from 'geojson';
-import { EMPTY, filter, forkJoin, map, switchMap, take } from 'rxjs';
+import { filter, map, take } from 'rxjs';
 
 @Component({
     selector: 'c477-shell',
@@ -405,39 +403,6 @@ export class ShellComponent {
         this.navigate(queryParams);
     }
 
-    public onFlag(buildings: BuildingModel[]): void {
-        const toFlag = buildings.filter((b) => b.Flagged === undefined);
-
-        this.#dialog
-            .open<FlagModalComponent, FlagModalData, FlagModalResult>(FlagModalComponent, {
-                width: '90%',
-                maxWidth: '40rem',
-                data: toFlag,
-            })
-            .afterClosed()
-            .pipe(
-                filter((confirmed): confirmed is true => confirmed === true),
-                switchMap(() => (toFlag.length ? forkJoin(toFlag.map((b) => this.#dataService.flagToInvestigate(b))) : EMPTY)),
-            )
-            .subscribe();
-    }
-
-    public onRemoveFlag(building: BuildingModel): void {
-        this.#dialog
-            .open<RemoveFlagModalComponent, RemoveFlagModalData, RemoveFlagModalResult>(RemoveFlagModalComponent, {
-                panelClass: 'download-modal',
-                width: '90%',
-                maxWidth: '50rem',
-                data: building,
-            })
-            .afterClosed()
-            .pipe(
-                filter((reason): reason is RemoveFlagModalResult => reason !== undefined),
-                switchMap((reason) => this.#dataService.invalidateFlag(building, reason)),
-            )
-            .subscribe();
-    }
-
     private createQueryParams(filter: Record<string, string[]>): Record<'filter', string | undefined> {
         for (const key of Object.keys(filter)) {
             delete this.filterProps[key as FilterKeys];
@@ -465,7 +430,6 @@ export class ShellComponent {
                 RoofInsulationLocation: [],
                 RoofInsulationThickness: [],
                 YearOfAssessment: [],
-                Flagged: [],
                 EPCExpiry: [],
                 FuelType: [],
                 RoofMaterial: [],

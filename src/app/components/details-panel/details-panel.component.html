@@ -24,21 +24,13 @@
             </div>
 
             <div class="content">
-                <mat-tab-group [mat-stretch-tabs]="false" (selectedTabChange)="tabChanged($event)">
+                <mat-tab-group [mat-stretch-tabs]="false">
                     <mat-tab>
                         <ng-template mat-tab-label>
                             <span class="tab-label">Overview</span>
                         </ng-template>
                         @let expired = epcExpired();
                         <ng-container [ngTemplateOutlet]="property" [ngTemplateOutletContext]="{ building: building, expired: expired }" />
-                    </mat-tab>
-                    <mat-tab>
-                        <ng-template mat-tab-label>
-                            <span class="tab-label">Flag</span>
-                        </ng-template>
-                        @let activeFlag = activeFlag$ | async;
-                        @let flagHistory = flagHistory$ | async;
-                        <ng-container [ngTemplateOutlet]="flagging" [ngTemplateOutletContext]="{ activeFlag: activeFlag, flagHistory: flagHistory }" />
                     </mat-tab>
                     <mat-tab>
                         <ng-template mat-tab-label>
@@ -52,13 +44,6 @@
             </div>
 
             <div class="actions">
-                @if (building.Flagged === undefined) {
-                    <button mat-flat-button aria-label="Flag property" (click)="flag.emit([building!])"><mat-icon>flag</mat-icon> Add a flag</button>
-                } @else {
-                    <button mat-flat-button class="remove" aria-label="Remove property flag" (click)="removeFlag.emit(building!)">
-                        <mat-icon>flag</mat-icon> Remove a flag
-                    </button>
-                }
                 <button mat-flat-button (click)="openDownloadWarning()"><mat-icon>download</mat-icon> Download</button>
             </div>
         </div>
@@ -215,62 +200,6 @@
                 }
             </dd>
         </dl>
-    </div>
-</ng-template>
-
-<ng-template let-activeFlag="activeFlag" let-flagHistory="flagHistory" #flagging>
-    <div class="flagging">
-        @if (activeFlag || (flagHistory && flagHistory.length > 0)) {
-            <h3>Active Flag</h3>
-            @if (activeFlag) {
-                @if (activeFlag !== 'loading') {
-                    <dl class="horizontal">
-                        <dt>Flagged by:</dt>
-                        <dd>{{ activeFlag.FlaggedByName }}</dd>
-                        <dt>Flag date:</dt>
-                        <dd>{{ activeFlag.FlagDate | date: 'dd-MMM-YYYY' }}</dd>
-                    </dl>
-                } @else {
-                    <mat-progress-bar mode="indeterminate" />
-                }
-            } @else {
-                <p>There are no active flags for this dwelling</p>
-            }
-
-            <h3>Previous Flags</h3>
-            @if (flagHistory && flagHistory !== 'loading') {
-                @if (flagHistory.length > 0) {
-                    @for (flag of flagHistory; track flag.Flagged) {
-                        <div class="history">
-                            <mat-icon>flag</mat-icon>
-                            <div>
-                                <strong>Flagged on {{ flag.FlagDate | date: 'dd-MMM-YYYY' }}</strong>
-
-                                <dl class="horizontal">
-                                    <dt>Flagged by:</dt>
-                                    <dd>{{ flag.FlaggedByName }}</dd>
-
-                                    <dt>Remove date:</dt>
-                                    <dd>{{ flag.AssessmentDate | date: 'dd-MMM-YYYY' }}</dd>
-
-                                    <dt>Removed by:</dt>
-                                    <dd>{{ flag.AssessorName }}</dd>
-
-                                    <dt>Reason:</dt>
-                                    <dd>{{ invalidateReason[flag.AssessmentReason] }}</dd>
-                                </dl>
-                            </div>
-                        </div>
-                    }
-                } @else {
-                    <p>There are no previous flags for this dwelling</p>
-                }
-            } @else {
-                <mat-progress-bar mode="indeterminate" />
-            }
-        } @else {
-            <p class="no-flag">There are no flags for this dwelling</p>
-        }
     </div>
 </ng-template>
 

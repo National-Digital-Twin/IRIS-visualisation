@@ -42,7 +42,7 @@ When('I zoom out on the map to display wards', async function () {
 Then('I should be able to click on a ward', async function () {
     searchViewPage = new SearchViewPage(basePage.page);
     await basePage.sleep(2000);
-    await searchViewPage.clickMapLocation(450,386);
+    await searchViewPage.clickMapLocation(450, 386);
     await basePage.sleep(500);
 });
 
@@ -54,23 +54,6 @@ Then('I should see the Ward Details panel', async function () {
 Then('I should be able to pan around the map', async function () {
     searchViewPage = new SearchViewPage(basePage.page);
     await searchViewPage.panWithScreenshotComparison();
-});
-
-Then('I should be able to add a flag to the property', async function () {
-    searchViewPage = new SearchViewPage(basePage.page);
-    await searchViewPage.addPropertyFlag();
-});
-
-//TODO: Will be implemented in the next PR
-Then('I should be able to remove a flag to the property', async function () {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
-});
-
-//TODO: Will be implemented in the next PR
-Then('I should be able to view the reason for removal of a Flag from a property', async function () {
-    // Write code here that turns the phrase above into concrete actions
-    return 'pending';
 });
 
 When('I add the Filter area around the multiple properties', async function () {
@@ -93,4 +76,3 @@ Then('I should be able add additional filter by {string}', async function (filte
 export const sleep = (ms: number): Promise<void> => {
     return new Promise((resolve) => setTimeout(resolve, ms));
 };
-
