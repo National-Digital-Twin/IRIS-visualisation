@@ -1,5 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { BuildingIcingDaysData } from '@core/services/climate-data.service';
 import { IcingDaysSectionItem } from './icing-days-section-item';
+
+function generateBuildingIcingDaysData(min: number, max: number): BuildingIcingDaysData {
+    return {
+        icing_days: Math.random() * (max - min + 1) * min,
+    };
+}
 
 describe('IcingDaysSectionItem', () => {
     let component: IcingDaysSectionItem;
@@ -17,6 +25,21 @@ describe('IcingDaysSectionItem', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should not create the data table when no data is provided', async () => {
+        const dataTableElement = fixture.debugElement.query(By.css('.data-table'));
+        expect(dataTableElement).toBeFalsy();
+    });
+
+    it('should create the data table when data is provided', async () => {
+        component.data = generateBuildingIcingDaysData(0, 30);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        const dataTableElement = fixture.debugElement.query(By.css('.data-table')).nativeElement;
+        expect(dataTableElement).toBeTruthy();
     });
 });
 

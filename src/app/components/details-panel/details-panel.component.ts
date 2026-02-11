@@ -85,6 +85,11 @@ export class DetailsPanelComponent {
         switchMap((b) => (b ? this.#climateDataService.getWindDrivenRainBuildingData(b.UPRN) : EMPTY)),
     );
 
+    public readonly buildingIcingDaysData$ = toObservable(this.buildingDetails).pipe(
+        takeUntilDestroyed(),
+        switchMap((b) => (b ? this.#climateDataService.getIcingDaysBuildingData(b.UPRN) : EMPTY)),
+    );
+
     public readonly buildingHotSummerDaysData$ = toObservable(this.buildingDetails).pipe(
         takeUntilDestroyed(),
         switchMap((b) => (b ? this.#climateDataService.getHotSummerDaysBuildingData(b.UPRN) : EMPTY)),
