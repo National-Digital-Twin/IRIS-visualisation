@@ -10,6 +10,7 @@ import { BuildingWindDrivenRainData } from '@core/services/climate-data.service'
 })
 export class WindDrivenRainSectionItem {
     @Input() public data: BuildingWindDrivenRainData | null = null;
+    @Input() public warn: boolean = false;
 }
 
 // SPDX-License-Identifier: Apache-2.0

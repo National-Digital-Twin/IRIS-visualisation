@@ -10,6 +10,7 @@ import { BuildingIcingDaysData } from '@core/services/climate-data.service';
 })
 export class IcingDaysSectionItem {
     @Input() public data: BuildingIcingDaysData | null = null;
+    @Input() public warn: boolean = false;
 }
 
 // SPDX-License-Identifier: Apache-2.0

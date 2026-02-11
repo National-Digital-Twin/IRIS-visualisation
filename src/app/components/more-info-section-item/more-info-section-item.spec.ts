@@ -47,4 +47,20 @@ describe('MoreInfoSectionItem', () => {
 
         expect(toggleIconElement.textContent.trim()).toBe('arrow_drop_up');
     });
+
+    it('should not create the warning icon when warn is false', () => {
+        const warningIconElement = fixture.debugElement.query(By.css('.section-item-warning-icon'));
+        expect(warningIconElement).toBeFalsy();
+    });
+
+    it('should create the warning icon when warn is true', async () => {
+        component.warn = true;
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        const warningIconElement = fixture.debugElement.query(By.css('.section-item-warning-icon')).nativeElement;
+
+        expect(warningIconElement.textContent.trim()).toBe('warning_amber');
+    });
 });

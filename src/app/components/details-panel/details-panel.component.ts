@@ -1,3 +1,4 @@
+import { OverlayModule } from '@angular/cdk/overlay';
 import { AsyncPipe, DatePipe, NgClass, NgTemplateOutlet } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, Component, InputSignal, OutputEmitterRef, inject, input, output } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
@@ -6,7 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatTabsModule } from '@angular/material/tabs';
+import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
 import { LabelComponent } from '@components/label/label.component';
 import { MoreInfoSection } from '@components/more-info-section/more-info-section';
@@ -48,6 +49,7 @@ import { EMPTY, switchMap } from 'rxjs';
         InfoPanelComponent,
         MoreInfoSection,
         AsyncPipe,
+        OverlayModule,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     templateUrl: './details-panel.component.html',
@@ -79,6 +81,12 @@ export class DetailsPanelComponent {
     public roofMaterial: Record<string, string> = RoofMaterial;
     public roofShape: Record<string, string> = RoofShape;
     public solarPanelPresence: Record<string, string> = SolarPanelPresence;
+    public warnOverlayIsOpen: boolean = false;
+
+    public readonly buildingExtremeWeatherSummaryData$ = toObservable(this.buildingDetails).pipe(
+        takeUntilDestroyed(),
+        switchMap((b) => (b ? this.#climateDataService.getExtremeWeatherSummaryData(b.UPRN) : EMPTY)),
+    );
 
     public readonly buildingWindDrivenRainData$ = toObservable(this.buildingDetails).pipe(
         takeUntilDestroyed(),
@@ -147,6 +155,17 @@ export class DetailsPanelComponent {
         add('North West', building.RoofAspectAreaNorthwest);
         add('Unknown', building.RoofAspectAreaIndeterminable);
         return entries.join(', ');
+    }
+
+    public closeDetailsPanel(): void {
+        this.warnOverlayIsOpen = false;
+        this.closePanel.emit();
+    }
+
+    public tabChanged($event: MatTabChangeEvent): void {
+        if ($event.tab.id !== 'moreInfo') {
+            this.warnOverlayIsOpen = false;
+        }
     }
 }
 

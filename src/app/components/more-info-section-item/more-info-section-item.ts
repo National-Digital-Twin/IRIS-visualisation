@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 export class MoreInfoSectionItem {
     @Input() public header: string = '';
     @Input() public subtitle?: string;
+    @Input() public warn: boolean = false;
 }
 
 // SPDX-License-Identifier: Apache-2.0

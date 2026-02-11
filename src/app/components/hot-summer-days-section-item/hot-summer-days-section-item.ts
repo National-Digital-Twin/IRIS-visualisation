@@ -10,6 +10,7 @@ import { BuildingHotSummerDaysData } from '@core/services/climate-data.service';
 })
 export class HotSummerDaysSectionItem {
     @Input() public data: BuildingHotSummerDaysData | null = null;
+    @Input() public warn: boolean = false;
 }
 
 // SPDX-License-Identifier: Apache-2.0

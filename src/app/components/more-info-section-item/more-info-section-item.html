@@ -2,8 +2,13 @@
     <div class="section-item-container">
         <div (click)="sectionItem.toggle()" class="section-item-header-container">
             <div class="section-item-header">
-                <span [innerHTML]="header"></span
-                ><mat-icon data-testid="section-item-toggle-icon">{{ sectionItem.expanded ? 'arrow_drop_up' : 'arrow_drop_down' }}</mat-icon>
+                <div class="section-item-text">
+                    <span [innerHTML]="header"></span>
+                    @if (warn) {
+                        <mat-icon class="section-item-warning-icon">warning_amber</mat-icon>
+                    }
+                </div>
+                <mat-icon data-testid="section-item-toggle-icon">{{ sectionItem.expanded ? 'arrow_drop_up' : 'arrow_drop_down' }}</mat-icon>
             </div>
             @if (subtitle) {
                 <div>

@@ -1,4 +1,4 @@
-<c477-more-info-section-item header="Wind-driven rain - <em>4&deg;C warming</em>" subtitle="Within an area of high wind-driven rain">
+<c477-more-info-section-item header="Wind-driven rain - <em>4&deg;C warming</em>" subtitle="Within an area of high wind-driven rain" [warn]="warn">
     @if (data) {
         <div class="container data-table" data-testid="4-degrees-table">
             <dl>
@@ -24,7 +24,7 @@
         </div>
     }
 </c477-more-info-section-item>
-<c477-more-info-section-item header="Wind-driven rain - <em>2&deg;C warming</em>" subtitle="Within an area of high wind-driven rain">
+<c477-more-info-section-item header="Wind-driven rain - <em>2&deg;C warming</em>" subtitle="Within an area of high wind-driven rain" [warn]="warn">
     @if (data) {
         <div class="container data-table" data-testid="2-degrees-table">
             <dl>

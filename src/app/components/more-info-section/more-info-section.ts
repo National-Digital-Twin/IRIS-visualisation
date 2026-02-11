@@ -24,8 +24,11 @@ import { BuildingHotSummerDaysData, BuildingIcingDaysData, BuildingWindDrivenRai
 })
 export class MoreInfoSection {
     @Input() public buildingWindDrivenRainData: BuildingWindDrivenRainData | null = null;
+    @Input() public warnForWindDrivenRain: boolean = false;
     @Input() public buildingIcingDaysData: BuildingIcingDaysData | null = null;
+    @Input() public warnForIcingDays: boolean = false;
     @Input() public buildingHotSummerDaysData: BuildingHotSummerDaysData | null = null;
+    @Input() public warnForHotSummerDays: boolean = false;
 }
 
 // SPDX-License-Identifier: Apache-2.0

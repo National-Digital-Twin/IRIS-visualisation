@@ -1,7 +1,7 @@
 <cdk-accordion>
-    <c477-wind-driven-rain-section-item [data]="buildingWindDrivenRainData"></c477-wind-driven-rain-section-item>
-    <c477-icing-days-section-item [data]="buildingIcingDaysData"></c477-icing-days-section-item>
-    <c477-hot-summer-days-section-item [data]="buildingHotSummerDaysData"></c477-hot-summer-days-section-item>
+    <c477-wind-driven-rain-section-item [data]="buildingWindDrivenRainData" [warn]="warnForWindDrivenRain"></c477-wind-driven-rain-section-item>
+    <c477-icing-days-section-item [data]="buildingIcingDaysData" [warn]="warnForIcingDays"></c477-icing-days-section-item>
+    <c477-hot-summer-days-section-item [data]="buildingHotSummerDaysData" [warn]="warnForHotSummerDays"></c477-hot-summer-days-section-item>
     <c477-hours-of-sunlight-section-item></c477-hours-of-sunlight-section-item>
     <c477-guidance-section-item></c477-guidance-section-item>
 </cdk-accordion>
