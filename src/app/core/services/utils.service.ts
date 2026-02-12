@@ -657,7 +657,9 @@ export class UtilService {
         const building = this.#dataService.getBuildingByUPRN(UPRN.toString());
         const buildingWeatherData = this.#dataService.getBuildingWeatherDetailsByUprn(UPRN);
 
-        if (!buildingWeatherData) {
+        if (buildingWeatherData) {
+            this.#dataService.setSelectedBuildingWeatherData(buildingWeatherData);
+        } else {
             const buildingWindDrivenRainData = this.#climateDataService.getWindDrivenRainBuildingData(UPRN);
             const buildingHotSummerDaysData = this.#climateDataService.getHotSummerDaysBuildingData(UPRN);
             const buildingIcingDaysData = this.#climateDataService.getIcingDaysBuildingData(UPRN);
@@ -665,9 +667,8 @@ export class UtilService {
             forkJoin([buildingWindDrivenRainData, buildingHotSummerDaysData, buildingIcingDaysData]).subscribe((results) => {
                 this.#dataService.setSelectedBuildingWeatherData(this.mapBuildingWeatherData(UPRN, results[0], results[1], results[2]));
             });
-        } else {
-            this.#dataService.setSelectedBuildingWeatherData(buildingWeatherData);
         }
+
         this.#dataService.setSelectedBuilding(building);
     }
 

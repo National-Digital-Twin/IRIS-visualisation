@@ -188,7 +188,7 @@ export class DataDownloadService {
             'RoofShape': buildingModel.RoofShape,
             'Longitude': buildingModel.longitude,
             'Latitude': buildingModel.latitude,
-            'SolarPanels': buildingModel.SolarPanelPresence === 'HasSolarPanels' ? true : false,
+            'SolarPanels': buildingModel.SolarPanelPresence === 'HasSolarPanels',
             'RoofAspectAreaFacingNorth(m2)': buildingModel.RoofAspectAreaNorth,
             'RoofAspectAreaFacingNorthEast(m2)': buildingModel.RoofAspectAreaNortheast,
             'RoofAspectAreaFacingEast(m2)': buildingModel.RoofAspectAreaEast,

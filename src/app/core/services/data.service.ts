@@ -69,7 +69,7 @@ export class DataService {
     private readonly MAX_CACHED_BUILDINGS = 10000; // Number of properties
 
     private _selectedBuildingsCache = new Map<string, BuildingModel>();
-    private _selectedBuildingsWeatherDetailsCache = new Map<string, BuildingWeatherDataModel>();
+    private readonly _selectedBuildingsWeatherDetailsCache = new Map<string, BuildingWeatherDataModel>();
 
     public buildings = computed(() => {
         // Convert minimalBuildings to BuildingMap format
