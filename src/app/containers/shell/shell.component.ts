@@ -272,10 +272,10 @@ export class ShellComponent {
     public downloadData(format: string): void {
         switch (format) {
             case 'xlsx':
-                this.#dataDownloadService.downloadXlsxData([this.#dataService.selectedBuilding()!]);
+                this.#dataDownloadService.downloadXlsxData([this.#dataService.selectedBuilding()!], [this.#dataService.selectedBuildingWeatherData()!]);
                 break;
             case 'csv':
-                this.#dataDownloadService.downloadCSVData([this.#dataService.selectedBuilding()!]);
+                this.#dataDownloadService.downloadCSVData([this.#dataService.selectedBuilding()!], [this.#dataService.selectedBuildingWeatherData()!]);
                 break;
         }
     }
@@ -318,10 +318,10 @@ export class ShellComponent {
                 map((download) => {
                     switch (download) {
                         case 'xlsx':
-                            this.#dataDownloadService.downloadXlsxData(buildingsToDownload);
+                            this.#dataDownloadService.downloadXlsxData(buildingsToDownload, []);
                             break;
                         case 'csv':
-                            this.#dataDownloadService.downloadCSVData(buildingsToDownload);
+                            this.#dataDownloadService.downloadCSVData(buildingsToDownload, []);
                             break;
                     }
                     addresses = [];

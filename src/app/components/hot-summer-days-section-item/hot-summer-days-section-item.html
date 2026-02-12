@@ -5,17 +5,17 @@
                 <dt>Projections</dt>
                 <dd>Annual count (days)</dd>
                 <dt>2001-2020</dt>
-                <dd>{{ data.hsd_baseline.toFixed(1) }}</dd>
+                <dd>{{ data.baselineMedian.toFixed(1) }}</dd>
                 <dt>≥ 1.5°C</dt>
-                <dd>{{ data.hsd_1_5_degree_above_baseline.toFixed(1) }}</dd>
+                <dd>{{ data.degreesAboveBaselineMedian.get(1.5)?.toFixed(1) || 'N/A' }}</dd>
                 <dt>≥ 2°C</dt>
-                <dd>{{ data.hsd_2_0_degree_above_baseline.toFixed(1) }}</dd>
+                <dd>{{ data.degreesAboveBaselineMedian.get(2)?.toFixed(1) || 'N/A' }}</dd>
                 <dt>≥ 2.5°C</dt>
-                <dd>{{ data.hsd_2_5_degree_above_baseline.toFixed(1) }}</dd>
+                <dd>{{ data.degreesAboveBaselineMedian.get(2.5)?.toFixed(1) || 'N/A' }}</dd>
                 <dt>≥ 3°C</dt>
-                <dd>{{ data.hsd_3_0_degree_above_baseline.toFixed(1) }}</dd>
+                <dd>{{ data.degreesAboveBaselineMedian.get(3)?.toFixed(1) || 'N/A' }}</dd>
                 <dt>≥ 4°C</dt>
-                <dd>{{ data.hsd_4_0_degree_above_baseline.toFixed(1) }}</dd>
+                <dd>{{ data.degreesAboveBaselineMedian.get(4)?.toFixed(1) || 'N/A' }}</dd>
             </dl>
         </div>
     }

@@ -69,6 +69,7 @@ export class DetailsPanelComponent {
     public builtForm: Record<string, string> = BuiltForm;
     public buildingDetails = this.#dataService.selectedBuilding;
     public buildingSelection = this.#dataService.buildingsSelection;
+    public buildingWeatherDetails = this.#dataService.selectedBuildingWeatherData;
     public floor: Record<string, string> = FloorConstruction;
     public floorInsulation: Record<string, string> = FloorInsulation;
     public roof: Record<string, string> = RoofConstruction;
@@ -86,21 +87,6 @@ export class DetailsPanelComponent {
     public readonly buildingExtremeWeatherSummaryData$ = toObservable(this.buildingDetails).pipe(
         takeUntilDestroyed(),
         switchMap((b) => (b ? this.#climateDataService.getExtremeWeatherSummaryData(b.UPRN) : EMPTY)),
-    );
-
-    public readonly buildingWindDrivenRainData$ = toObservable(this.buildingDetails).pipe(
-        takeUntilDestroyed(),
-        switchMap((b) => (b ? this.#climateDataService.getWindDrivenRainBuildingData(b.UPRN) : EMPTY)),
-    );
-
-    public readonly buildingIcingDaysData$ = toObservable(this.buildingDetails).pipe(
-        takeUntilDestroyed(),
-        switchMap((b) => (b ? this.#climateDataService.getIcingDaysBuildingData(b.UPRN) : EMPTY)),
-    );
-
-    public readonly buildingHotSummerDaysData$ = toObservable(this.buildingDetails).pipe(
-        takeUntilDestroyed(),
-        switchMap((b) => (b ? this.#climateDataService.getHotSummerDaysBuildingData(b.UPRN) : EMPTY)),
     );
 
     public getAddressSegment(index: number): string {

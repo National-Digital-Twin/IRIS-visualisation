@@ -1,4 +1,5 @@
 @let building = buildingDetails();
+@let buildingWeather = buildingWeatherDetails();
 @let expanded = resultsPanelCollapsed();
 @let indent = buildingSelection() ? 2 : 1;
 @let extremeWeatherWarningData = buildingExtremeWeatherSummaryData$ | async;
@@ -230,11 +231,9 @@
     <mat-divider class="more-info-divider"></mat-divider>
 
     <c477-more-info-section
-        [buildingWindDrivenRainData]="buildingWindDrivenRainData$ | async"
+        [buildingWeatherData]="buildingWeather"
         [warnForWindDrivenRain]="extremeWeatherWarningData?.affected_by_wind_driven_rain || false"
-        [buildingIcingDaysData]="buildingIcingDaysData$ | async"
         [warnForIcingDays]="extremeWeatherWarningData?.affected_by_icing_days || false"
-        [buildingHotSummerDaysData]="buildingHotSummerDaysData$ | async"
         [warnForHotSummerDays]="extremeWeatherWarningData?.affected_by_hot_summer_days || false"
     ></c477-more-info-section>
 </ng-template>
