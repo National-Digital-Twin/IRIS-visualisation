@@ -1,11 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 import { BuildingModel } from '@core/models/building.model';
+import { BuildingWeatherDataModel } from '@core/models/building.weather.data.model';
 import fileSaver from 'file-saver';
 import * as JSZip from 'jszip';
 import xlsx from 'xlsx';
 import { DataDownloadService } from './data-download.service';
 
 const mockBuilding = { UPRN: '1' } as BuildingModel;
+const mockBuildingWeatherData = { uprn: '1' } as BuildingWeatherDataModel;
 
 describe('DataDownloadService', () => {
     let service: DataDownloadService;
@@ -26,7 +28,7 @@ describe('DataDownloadService', () => {
         it('should generate an XLSX file', () => {
             const writeFileSpy = jest.spyOn(xlsx, 'writeFileXLSX').mockImplementation(() => {});
 
-            service.downloadXlsxData([mockBuilding]);
+            service.downloadXlsxData([mockBuilding], [mockBuildingWeatherData]);
 
             expect(writeFileSpy).toHaveBeenCalled();
 
@@ -41,7 +43,7 @@ describe('DataDownloadService', () => {
 
             const generateAsyncSpy = jest.spyOn(JSZip.prototype, 'generateAsync').mockResolvedValue(new Blob(['zipcontent'], { type: 'application/zip' }));
 
-            service.downloadCSVData([mockBuilding]);
+            service.downloadCSVData([mockBuilding], [mockBuildingWeatherData]);
 
             await generateAsyncSpy.mock.results[0].value;
 

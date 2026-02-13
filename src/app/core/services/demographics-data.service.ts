@@ -5,6 +5,8 @@ import { Observable } from 'rxjs';
 
 export interface DeprivationLayerProperties {
     area_nm?: string;
+    dep_3?: number;
+    dep_4?: number;
     dep_pct_0?: number;
     dep_pct_1?: number;
     dep_pct_2?: number;

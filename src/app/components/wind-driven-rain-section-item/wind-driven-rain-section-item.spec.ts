@@ -1,26 +1,26 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { BuildingWindDrivenRainData } from '@core/services/climate-data.service';
+import { BuildingWindDrivenRainDataModel } from '@core/models/building.weather.data.model';
 import { WindDrivenRainSectionItem } from './wind-driven-rain-section-item';
 
-function generateBuildingWindDrivenRainData(min: number, max: number): BuildingWindDrivenRainData {
+function generateBuildingWindDrivenRainData(min: number, max: number): BuildingWindDrivenRainDataModel {
     return {
-        north_four_degrees_median: Math.random() * (max - min + 1) + min,
-        north_east_four_degrees_median: Math.random() * (max - min + 1) + min,
-        east_four_degrees_median: Math.random() * (max - min + 1) + min,
-        south_east_four_degrees_median: Math.random() * (max - min + 1) + min,
-        south_four_degrees_median: Math.random() * (max - min + 1) + min,
-        south_west_four_degrees_median: Math.random() * (max - min + 1) + min,
-        west_four_degrees_median: Math.random() * (max - min + 1) + min,
-        north_west_four_degrees_median: Math.random() * (max - min + 1) + min,
-        north_two_degrees_median: Math.random() * (max - min + 1) + min,
-        north_east_two_degrees_median: Math.random() * (max - min + 1) + min,
-        east_two_degrees_median: Math.random() * (max - min + 1) + min,
-        south_east_two_degrees_median: Math.random() * (max - min + 1) + min,
-        south_two_degrees_median: Math.random() * (max - min + 1) + min,
-        south_west_two_degrees_median: Math.random() * (max - min + 1) + min,
-        west_two_degrees_median: Math.random() * (max - min + 1) + min,
-        north_west_two_degrees_median: Math.random() * (max - min + 1) + min,
+        northFourDegreesMedian: Math.random() * (max - min + 1) + min,
+        northEastFourDegreesMedian: Math.random() * (max - min + 1) + min,
+        eastFourDegreesMedian: Math.random() * (max - min + 1) + min,
+        southEastFourDegreesMedian: Math.random() * (max - min + 1) + min,
+        southFourDegreesMedian: Math.random() * (max - min + 1) + min,
+        southWestFourDegreesMedian: Math.random() * (max - min + 1) + min,
+        westFourDegreesMedian: Math.random() * (max - min + 1) + min,
+        northWestFourDegreesMedian: Math.random() * (max - min + 1) + min,
+        northTwoDegreesMedian: Math.random() * (max - min + 1) + min,
+        northEastTwoDegreesMedian: Math.random() * (max - min + 1) + min,
+        eastTwoDegreesMedian: Math.random() * (max - min + 1) + min,
+        southEastTwoDegreesMedian: Math.random() * (max - min + 1) + min,
+        southTwoDegreesMedian: Math.random() * (max - min + 1) + min,
+        southWestTwoDegreesMedian: Math.random() * (max - min + 1) + min,
+        westTwoDegreesMedian: Math.random() * (max - min + 1) + min,
+        northWestTwoDegreesMedian: Math.random() * (max - min + 1) + min,
     };
 }
 

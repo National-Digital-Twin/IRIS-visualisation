@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { BuildingIcingDaysData } from '@core/services/climate-data.service';
+import { BuildingIcingDaysDataModel } from '@core/models/building.weather.data.model';
 import { IcingDaysSectionItem } from './icing-days-section-item';
 
-function generateBuildingIcingDaysData(min: number, max: number): BuildingIcingDaysData {
+function generateBuildingIcingDaysData(min: number, max: number): BuildingIcingDaysDataModel {
     return {
-        icing_days: Math.random() * (max - min + 1) * min,
+        icingDays: Math.random() * (max - min + 1) * min,
     };
 }
 

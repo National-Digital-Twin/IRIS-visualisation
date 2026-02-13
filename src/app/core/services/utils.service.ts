@@ -2,6 +2,12 @@ import { Injectable, NgZone, inject, signal } from '@angular/core';
 import { RoofAspectAreaDirectionField } from '@core/enums/roof-aspect-area-direction';
 import { FilterProps } from '@core/models/advanced-filters.model';
 import { BuildingMap, BuildingModel } from '@core/models/building.model';
+import {
+    BuildingHotSummerDaysDataModel,
+    BuildingIcingDaysDataModel,
+    BuildingWeatherDataModel,
+    BuildingWindDrivenRainDataModel,
+} from '@core/models/building.weather.data.model';
 import { FilterableBuildingModel } from '@core/models/filterable-building.model';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
@@ -10,6 +16,8 @@ import { MapLayerId } from '@core/types/map-layer-id';
 import { booleanWithin } from '@turf/boolean-within';
 import { Polygon } from 'geojson';
 import { ExpressionSpecification, PaintSpecification } from 'mapbox-gl';
+import { forkJoin } from 'rxjs';
+import { BuildingHotSummerDaysData, BuildingIcingDaysData, BuildingWindDrivenRainData, ClimateDataService } from './climate-data.service';
 import { DataService } from './data.service';
 import { FilterableBuildingService } from './filterable-building.service';
 import { MAP_SERVICE, MapLatLng } from './map.token';
@@ -34,6 +42,7 @@ export class UtilService {
     readonly #spatialQueryService = inject(SpatialQueryService);
     readonly #zone = inject(NgZone);
     readonly #roofAspectAreaDirectionFieldMap: Record<string, string> = RoofAspectAreaDirectionField;
+    readonly #climateDataService = inject(ClimateDataService);
 
     private readonly colourBlindMode = this.#settings.get(SETTINGS.ColourBlindMode);
 
@@ -646,6 +655,20 @@ export class UtilService {
     private viewBuildingDetails(UPRN: string): void {
         this.#dataService.setSelectedUPRN(UPRN);
         const building = this.#dataService.getBuildingByUPRN(UPRN.toString());
+        const buildingWeatherData = this.#dataService.getBuildingWeatherDetailsByUprn(UPRN);
+
+        if (buildingWeatherData) {
+            this.#dataService.setSelectedBuildingWeatherData(buildingWeatherData);
+        } else {
+            const buildingWindDrivenRainData = this.#climateDataService.getWindDrivenRainBuildingData(UPRN);
+            const buildingHotSummerDaysData = this.#climateDataService.getHotSummerDaysBuildingData(UPRN);
+            const buildingIcingDaysData = this.#climateDataService.getIcingDaysBuildingData(UPRN);
+
+            forkJoin([buildingWindDrivenRainData, buildingHotSummerDaysData, buildingIcingDaysData]).subscribe((results) => {
+                this.#dataService.setSelectedBuildingWeatherData(this.mapBuildingWeatherData(UPRN, results[0], results[1], results[2]));
+            });
+        }
+
         this.#dataService.setSelectedBuilding(building);
     }
 
@@ -698,6 +721,54 @@ export class UtilService {
 
     private openResultsPanel(buildings: BuildingModel[]): void {
         this.#dataService.setSelectedBuildings([buildings]);
+    }
+
+    private mapBuildingWeatherData(
+        uprn: string,
+        buildingWindDrivenRainData: BuildingWindDrivenRainData,
+        buildingHotSummerDaysData: BuildingHotSummerDaysData,
+        buildingIcingDaysData: BuildingIcingDaysData,
+    ): BuildingWeatherDataModel {
+        const windDrivenRainData: BuildingWindDrivenRainDataModel = {
+            northTwoDegreesMedian: buildingWindDrivenRainData.north_two_degrees_median,
+            northEastTwoDegreesMedian: buildingWindDrivenRainData.north_east_two_degrees_median,
+            eastTwoDegreesMedian: buildingWindDrivenRainData.east_two_degrees_median,
+            southEastTwoDegreesMedian: buildingWindDrivenRainData.south_east_two_degrees_median,
+            southTwoDegreesMedian: buildingWindDrivenRainData.south_two_degrees_median,
+            southWestTwoDegreesMedian: buildingWindDrivenRainData.south_west_two_degrees_median,
+            westTwoDegreesMedian: buildingWindDrivenRainData.west_two_degrees_median,
+            northWestTwoDegreesMedian: buildingWindDrivenRainData.north_west_two_degrees_median,
+            northFourDegreesMedian: buildingWindDrivenRainData.north_four_degrees_median,
+            northEastFourDegreesMedian: buildingWindDrivenRainData.north_east_four_degrees_median,
+            eastFourDegreesMedian: buildingWindDrivenRainData.east_four_degrees_median,
+            southEastFourDegreesMedian: buildingWindDrivenRainData.south_east_four_degrees_median,
+            southFourDegreesMedian: buildingWindDrivenRainData.south_four_degrees_median,
+            southWestFourDegreesMedian: buildingWindDrivenRainData.south_west_four_degrees_median,
+            westFourDegreesMedian: buildingWindDrivenRainData.west_four_degrees_median,
+            northWestFourDegreesMedian: buildingWindDrivenRainData.north_west_four_degrees_median,
+        };
+
+        const hotSummerDaysData: BuildingHotSummerDaysDataModel = {
+            baselineMedian: buildingHotSummerDaysData.hsd_baseline,
+            degreesAboveBaselineMedian: new Map([
+                [1.5, buildingHotSummerDaysData.hsd_1_5_degree_above_baseline],
+                [2, buildingHotSummerDaysData.hsd_2_0_degree_above_baseline],
+                [2.5, buildingHotSummerDaysData.hsd_2_5_degree_above_baseline],
+                [3, buildingHotSummerDaysData.hsd_3_0_degree_above_baseline],
+                [4, buildingHotSummerDaysData.hsd_4_0_degree_above_baseline],
+            ]),
+        };
+
+        const icingDaysData: BuildingIcingDaysDataModel = {
+            icingDays: buildingIcingDaysData.icing_days,
+        };
+
+        return {
+            uprn: uprn,
+            buildingWindDrivenRainDataModel: windDrivenRainData,
+            buildingHotSummerDaysDataModel: hotSummerDaysData,
+            buildingIcingDaysDataModel: icingDaysData,
+        };
     }
 }
 

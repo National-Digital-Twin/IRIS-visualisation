@@ -1,9 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { BuiltForm, EPCRating, FloorConstruction, RoofConstruction, StructureUnitType, WallConstruction, WindowGlazing } from '@core/enums';
-import { BuildingMap, BuildingModel, BuildingParts } from '@core/models/building.model';
+import { BuiltForm, EPCRating, StructureUnitType } from '@core/enums';
+import { BuildingMap, BuildingModel } from '@core/models/building.model';
+import { BuildingWeatherDataModel } from '@core/models/building.weather.data.model';
 import { MinimalBuildingData, MinimalBuildingMap } from '@core/models/minimal-building-data.model';
-import { EPCBuildingResponseModel } from '@core/types/building-response';
 import { Observable, catchError, first, map, of } from 'rxjs';
 
 export type Building = {
@@ -62,12 +62,14 @@ export class DataService {
 
     public selectedBuilding = signal<BuildingModel | undefined>(undefined);
     public selectedUPRN = signal<string | undefined>(undefined);
+    public selectedBuildingWeatherData = signal<BuildingWeatherDataModel | undefined>(undefined);
 
     private readonly _buildingsCache = new Map<string, MinimalBuildingData>();
     private readonly _buildingCacheOrder: string[] = []; // FIFO tracking
     private readonly MAX_CACHED_BUILDINGS = 10000; // Number of properties
 
     private _selectedBuildingsCache = new Map<string, BuildingModel>();
+    private readonly _selectedBuildingsWeatherDetailsCache = new Map<string, BuildingWeatherDataModel>();
 
     public buildings = computed(() => {
         // Convert minimalBuildings to BuildingMap format
@@ -126,18 +128,20 @@ export class DataService {
 
         const hasDetailedData = building.StructureUnitType !== undefined && building.BuiltForm !== undefined;
 
-        if (!hasDetailedData && building.UPRN) {
-            this.loadBuildingDetails(building.UPRN)
-                .pipe(first())
-                .subscribe({
-                    next: (detailedBuilding) => {
-                        // Update the selected building with detailed data
-                        this.selectedBuilding.set(detailedBuilding);
-                    },
-                    error: (error) => {
-                        console.error(`Failed to load details for building ${building.UPRN}:`, error);
-                    },
-                });
+        if (building.UPRN) {
+            if (!hasDetailedData) {
+                this.loadBuildingDetails(building.UPRN)
+                    .pipe(first())
+                    .subscribe({
+                        next: (detailedBuilding) => {
+                            // Update the selected building with detailed data
+                            this.selectedBuilding.set(detailedBuilding);
+                        },
+                        error: (error) => {
+                            console.error(`Failed to load details for building ${building.UPRN}:`, error);
+                        },
+                    });
+            }
         }
     }
 
@@ -484,79 +488,15 @@ export class DataService {
         return building ?? ({} as BuildingModel);
     }
 
-    private isWallKey(value: string): value is keyof typeof WallConstruction {
-        return Object.keys(WallConstruction).includes(value as WallConstruction);
+    public setSelectedBuildingWeatherData(buildingWeatherData: BuildingWeatherDataModel): void {
+        if (!(buildingWeatherData.uprn in this._selectedBuildingsWeatherDetailsCache.keys())) {
+            this._selectedBuildingsWeatherDetailsCache.set(buildingWeatherData.uprn, buildingWeatherData);
+        }
+        this.selectedBuildingWeatherData.set(buildingWeatherData);
     }
 
-    private isWindowKey(value: string): value is keyof typeof WindowGlazing {
-        return Object.keys(WindowGlazing).includes(value as WindowGlazing);
-    }
-
-    private isRoofKey(value: string): value is keyof typeof RoofConstruction {
-        return Object.keys(RoofConstruction).includes(value as RoofConstruction);
-    }
-
-    private isFloorKey(value: string): value is keyof typeof FloorConstruction {
-        return Object.keys(FloorConstruction).includes(value as FloorConstruction);
-    }
-
-    /**
-     * Building parts are returned from the IA in the format
-     * PartTypes: "CavityWall; DoubleGlazedBefore2002Window; SolidFloor; FlatRoof",
-     * InsulationTypes: "NoData; NoData; NoData; AssumedLimitedInsulation",
-     * InsulationThickness: "NoData; NoData; NoData; NoData",
-     * InsulationThicknessLowerBound: "NoData; NoData; NoData; NoData"
-     *
-     * This function:
-     * 1. Splits the PartTypes string and for each part identifies if it's a Wall,
-     * Window, Roof or Floor.
-     * 2. Using the index of the part, it then finds the corresponding insulation type
-     * and thicknesses
-     * @param row EPCBuildingResponseModel
-     * @returns object of parts and insulation types and thicknesses
-     */
-    private parseBuildingParts(row: EPCBuildingResponseModel): BuildingParts {
-        const parts: BuildingParts = {
-            FloorConstruction: 'NoData',
-            FloorInsulation: 'NoData',
-            RoofConstruction: 'NoData',
-            RoofInsulationLocation: 'NoData',
-            RoofInsulationThickness: 'NoData',
-            WallConstruction: 'NoData',
-            WallInsulation: 'NoData',
-            WindowGlazing: 'NoData',
-        };
-
-        const partTypes = row.PartTypes.replaceAll(' ', '').split(';');
-        const insulationTypes = row.InsulationTypes.replaceAll(' ', '').split(';');
-        const insulationThickness = row.InsulationThickness.replaceAll(' ', '').split(';');
-        const insulationThicknessLowerBounds = row.InsulationThicknessLowerBound.replaceAll(' ', '').split(';');
-
-        partTypes.forEach((part, i) => {
-            if (this.isWallKey(part)) {
-                parts['WallConstruction'] = part;
-                parts['WallInsulation'] = insulationTypes[i];
-            } else if (this.isFloorKey(part)) {
-                parts['FloorConstruction'] = part;
-                parts['FloorInsulation'] = insulationTypes[i];
-            } else if (this.isRoofKey(part)) {
-                parts['RoofConstruction'] = part;
-                parts['RoofInsulationLocation'] = insulationTypes[i];
-                /** check thickness types */
-                let roofInsulationThickness = 'NoData';
-                const thickness = insulationThickness[i];
-                const thicknessLB = insulationThicknessLowerBounds[i];
-                if (thickness !== 'NoData' && thicknessLB === 'NoData') {
-                    roofInsulationThickness = `${thickness.split('.')[0]}mm`;
-                } else if (thickness === 'NoData' && thicknessLB !== 'NoData') {
-                    roofInsulationThickness = `${thicknessLB.split('.')[0]}+mm`;
-                }
-                parts['RoofInsulationThickness'] = roofInsulationThickness;
-            } else if (this.isWindowKey(part)) {
-                parts['WindowGlazing'] = part;
-            }
-        });
-        return parts;
+    public getBuildingWeatherDetailsByUprn(uprn: string): BuildingWeatherDataModel | undefined {
+        return this._selectedBuildingsWeatherDetailsCache.get(uprn);
     }
 }
 

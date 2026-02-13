@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { MoreInfoSectionItem } from '@components/more-info-section-item/more-info-section-item';
-import { BuildingWindDrivenRainData } from '@core/services/climate-data.service';
+import { BuildingWindDrivenRainDataModel } from '@core/models/building.weather.data.model';
 
 @Component({
     selector: 'c477-wind-driven-rain-section-item',
@@ -9,7 +9,7 @@ import { BuildingWindDrivenRainData } from '@core/services/climate-data.service'
     styleUrl: './wind-driven-rain-section-item.scss',
 })
 export class WindDrivenRainSectionItem {
-    @Input() public data: BuildingWindDrivenRainData | null = null;
+    @Input() public data?: BuildingWindDrivenRainDataModel;
     @Input() public warn: boolean = false;
 }
 

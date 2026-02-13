@@ -1,16 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { BuildingHotSummerDaysData } from '@core/services/climate-data.service';
+import { BuildingHotSummerDaysDataModel } from '@core/models/building.weather.data.model';
 import { HotSummerDaysSectionItem } from './hot-summer-days-section-item';
 
-function generateBuildingHotSummerDaysData(min: number, max: number): BuildingHotSummerDaysData {
+function generateBuildingHotSummerDaysData(min: number, max: number): BuildingHotSummerDaysDataModel {
     return {
-        hsd_baseline: Math.random() * (max - min + 1) + min,
-        hsd_1_5_degree_above_baseline: Math.random() * (max - min + 1) + min,
-        hsd_2_0_degree_above_baseline: Math.random() * (max - min + 1) + min,
-        hsd_2_5_degree_above_baseline: Math.random() * (max - min + 1) + min,
-        hsd_3_0_degree_above_baseline: Math.random() * (max - min + 1) + min,
-        hsd_4_0_degree_above_baseline: Math.random() * (max - min + 1) + min,
+        baselineMedian: Math.random() * (max - min + 1) + min,
+        degreesAboveBaselineMedian: new Map([
+            [1.5, Math.random() * (max - min + 1) + min],
+            [2, Math.random() * (max - min + 1) + min],
+            [2.5, Math.random() * (max - min + 1) + min],
+            [3, Math.random() * (max - min + 1) + min],
+            [4, Math.random() * (max - min + 1) + min],
+        ]),
     };
 }
 

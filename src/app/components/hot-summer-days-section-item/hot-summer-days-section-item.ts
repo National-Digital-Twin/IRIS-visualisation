@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { MoreInfoSectionItem } from '@components/more-info-section-item/more-info-section-item';
-import { BuildingHotSummerDaysData } from '@core/services/climate-data.service';
+import { BuildingHotSummerDaysDataModel } from '@core/models/building.weather.data.model';
 
 @Component({
     selector: 'c477-hot-summer-days-section-item',
@@ -9,7 +9,7 @@ import { BuildingHotSummerDaysData } from '@core/services/climate-data.service';
     styleUrl: './hot-summer-days-section-item.scss',
 })
 export class HotSummerDaysSectionItem {
-    @Input() public data: BuildingHotSummerDaysData | null = null;
+    @Input() public data?: BuildingHotSummerDaysDataModel;
     @Input() public warn: boolean = false;
 }
 

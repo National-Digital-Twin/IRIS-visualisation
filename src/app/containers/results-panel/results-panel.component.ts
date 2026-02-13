@@ -185,16 +185,16 @@ export class ResultsPanelComponent {
                     switch (download) {
                         case 'xlsx':
                             if (this.selectMultiple) {
-                                this.#dataDownloadService.downloadXlsxData(checkedCards);
+                                this.#dataDownloadService.downloadXlsxData(checkedCards, []);
                             } else if (buildingSelection) {
-                                this.#dataDownloadService.downloadXlsxData(buildingSelection.flat());
+                                this.#dataDownloadService.downloadXlsxData(buildingSelection.flat(), []);
                             }
                             break;
                         case 'csv':
                             if (this.selectMultiple) {
-                                this.#dataDownloadService.downloadCSVData(checkedCards);
+                                this.#dataDownloadService.downloadCSVData(checkedCards, []);
                             } else if (buildingSelection) {
-                                this.#dataDownloadService.downloadCSVData(buildingSelection.flat());
+                                this.#dataDownloadService.downloadCSVData(buildingSelection.flat(), []);
                             }
                             break;
                     }
@@ -207,9 +207,9 @@ export class ResultsPanelComponent {
 
     public downloadBuilding(result: DownloadBuilding): void {
         if (result.format === 'xlsx') {
-            this.#dataDownloadService.downloadXlsxData([result.building]);
+            this.#dataDownloadService.downloadXlsxData([result.building], [result.weatherData]);
         } else if (result.format === 'csv') {
-            this.#dataDownloadService.downloadCSVData([result.building]);
+            this.#dataDownloadService.downloadCSVData([result.building], [result.weatherData]);
         }
     }
 }

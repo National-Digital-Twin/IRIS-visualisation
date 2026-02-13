@@ -1,4 +1,5 @@
 import { BuildingModel } from './building.model';
+import { BuildingWeatherDataModel } from './building.weather.data.model';
 
 export type DownloadDataWarningData = {
     addresses: string[];
@@ -8,6 +9,7 @@ export type DownloadDataWarningResponse = 'xlsx' | 'csv';
 
 export interface DownloadBuilding {
     building: BuildingModel;
+    weatherData: BuildingWeatherDataModel;
     format: DownloadDataWarningResponse;
 }
 
