@@ -8,6 +8,7 @@ import { AreaFilter } from '../../core/models/area-filter.model';
 import { DashboardType } from './chart.service';
 import { BuildingFuelChartComponent } from './charts/building-fuel-chart/building-fuel-chart.component';
 import { CharacteristicsChartComponent } from './charts/characteristics-chart/characteristics-chart.component';
+import { DeprivationDimensionChartComponent } from './charts/deprivation-dimension-chart/deprivation-dimension-chart.component';
 import { EpcByAreaChartComponent } from './charts/epc-by-area-chart/epc-by-area-chart.component';
 import { EpcByFeatureChartComponent } from './charts/epc-by-feature-chart/epc-by-feature-chart.component';
 import { EpcRatingsOvertimeChartComponent } from './charts/epc-ratings-over-time-chart/epc-ratings-over-time-chart.component';
@@ -31,6 +32,7 @@ const AREA_FILTER_STORAGE_KEY = 'dashboard.areaFilter';
         OverallEpcChartComponent,
         EpcByAreaChartComponent,
         CharacteristicsChartComponent,
+        DeprivationDimensionChartComponent,
         SapTimelineChartComponent,
         EpcRatingsOvertimeChartComponent,
         BuildingFuelChartComponent,

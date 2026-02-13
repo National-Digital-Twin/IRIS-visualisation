@@ -87,6 +87,14 @@ export interface BackendNumberOfInDateAndExpiredEpcsResponse {
     active: number;
 }
 
+export interface BackendBuildingsByDeprivationDimensionResponse {
+    dep_0_pct: number;
+    dep_1_pct: number;
+    dep_2_pct: number;
+    dep_3_pct: number;
+    dep_4_pct: number;
+}
+
 interface BackendEPCAreaData extends EPCRatings {
     name: string;
     total: number;
@@ -230,6 +238,29 @@ export class DashboardService {
             params: this.getParamsWithFilter(filter),
             withCredentials: true,
         });
+    }
+
+    public getBuildingsByDeprivationDimension(filter?: AreaFilter): Observable<BackendBuildingsByDeprivationDimensionResponse> {
+        const defaultValues: BackendBuildingsByDeprivationDimensionResponse = {
+            dep_0_pct: 0,
+            dep_1_pct: 0,
+            dep_2_pct: 0,
+            dep_3_pct: 0,
+            dep_4_pct: 0,
+        };
+
+        return this.#http
+            .get<
+                BackendBuildingsByDeprivationDimensionResponse[] | BackendBuildingsByDeprivationDimensionResponse
+            >(`${this.#endpointRoot}/buildings-by-deprivation-dimension`, { params: this.getParamsWithFilter(filter), withCredentials: true })
+            .pipe(
+                map((response) => {
+                    if (Array.isArray(response)) {
+                        return response[0] ?? defaultValues;
+                    }
+                    return response ?? defaultValues;
+                }),
+            );
     }
 
     public getEPCByFeature(feature: string, filter?: AreaFilter): Observable<EPCRatingsByCategory[]> {
