@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { BuiltForm, EPCRating, StructureUnitType } from '@core/enums';
+import { parseEPCRating } from '@core/helpers';
 import { BuildingMap, BuildingModel } from '@core/models/building.model';
 import { BuildingWeatherDataModel } from '@core/models/building.weather.data.model';
 import { MinimalBuildingData, MinimalBuildingMap } from '@core/models/minimal-building-data.model';
@@ -214,7 +215,7 @@ export class DataService {
         return results.map((row) => {
             const building: MinimalBuildingData = {
                 UPRN: row.uprn,
-                EPC: row.energy_rating ? this.parseEPCRating(row.energy_rating) : EPCRating.none,
+                EPC: parseEPCRating(row.energy_rating),
                 fullAddress: row.first_line_of_address ?? undefined,
                 latitude: row.latitude ? parseFloat(row.latitude) : undefined,
                 longitude: row.longitude ? parseFloat(row.longitude) : undefined,
@@ -224,20 +225,6 @@ export class DataService {
 
             return building;
         });
-    }
-
-    /**
-     * Parse EPC rating from string to enum
-     */
-    private parseEPCRating(epcValue: string): EPCRating {
-        if (!epcValue) return EPCRating.none;
-
-        if (/^[A-G]$/i.test(epcValue)) {
-            const rating = epcValue.toUpperCase() as keyof typeof EPCRating;
-            return EPCRating[rating] || EPCRating.none;
-        }
-
-        return EPCRating.none;
     }
 
     /**

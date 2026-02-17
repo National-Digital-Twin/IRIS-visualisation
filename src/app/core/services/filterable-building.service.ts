@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { BuiltForm } from '@core/enums';
+import { parsePostcode, parseBuiltForm } from '@core/helpers';
 import { FilterableBuildingModel } from '@core/models/filterable-building.model';
 import { catchError, map, Observable, of } from 'rxjs';
 
@@ -73,8 +73,8 @@ export class FilterableBuildingService {
             UPRN: filterableBuilding.uprn,
             LodgementDate: filterableBuilding.lodgement_date,
             YearOfAssessment: new Date(filterableBuilding.lodgement_date).getFullYear().toString(),
-            PostCode: this.parsePostcode(filterableBuilding.postcode),
-            BuiltForm: this.parseBuiltForm(filterableBuilding.built_form),
+            PostCode: parsePostcode(filterableBuilding.postcode),
+            BuiltForm: parseBuiltForm(filterableBuilding.built_form),
             FuelType: filterableBuilding.fuel_type,
             FloorConstruction: filterableBuilding.floor_construction,
             FloorInsulation: filterableBuilding.floor_insulation,
@@ -96,24 +96,6 @@ export class FilterableBuildingService {
             RoofAspectAreaFacingNorthWest: filterableBuilding.roof_aspect_area_facing_north_west,
         };
         return buildingModel;
-    }
-
-    private parsePostcode(postcode: string): string {
-        const postcodePartMatch = /^[A-Z0-9]{3,4}/.exec(postcode);
-        if (postcodePartMatch?.[0]) {
-            return postcodePartMatch[0];
-        }
-
-        return '';
-    }
-
-    private parseBuiltForm(builtForm: string | undefined): string | undefined {
-        if (builtForm) {
-            const parsedBuiltForm = BuiltForm[builtForm as keyof typeof BuiltForm];
-            return parsedBuiltForm?.replaceAll(' ', '');
-        }
-
-        return undefined;
     }
 }
 

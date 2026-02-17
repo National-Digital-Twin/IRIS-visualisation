@@ -181,20 +181,22 @@ export class ResultsPanelComponent {
                 map((download) => {
                     const checkedCards = this.checkedCards();
                     const buildingSelection = this.buildingSelection();
+                    const uprnsForCheckedCards = checkedCards.map((checkedCard) => checkedCard.UPRN);
+                    const uprnsForBuildingSelection = buildingSelection?.flatMap((bs) => bs.map((b) => b.UPRN)) ?? [];
 
                     switch (download) {
                         case 'xlsx':
                             if (this.selectMultiple) {
-                                this.#dataDownloadService.downloadXlsxData(checkedCards, []);
+                                this.#dataDownloadService.bulkDownloadXlsxData(uprnsForCheckedCards);
                             } else if (buildingSelection) {
-                                this.#dataDownloadService.downloadXlsxData(buildingSelection.flat(), []);
+                                this.#dataDownloadService.bulkDownloadXlsxData(uprnsForBuildingSelection);
                             }
                             break;
                         case 'csv':
                             if (this.selectMultiple) {
-                                this.#dataDownloadService.downloadCSVData(checkedCards, []);
+                                this.#dataDownloadService.bulkDownloadCSVData(uprnsForCheckedCards);
                             } else if (buildingSelection) {
-                                this.#dataDownloadService.downloadCSVData(buildingSelection.flat(), []);
+                                this.#dataDownloadService.bulkDownloadCSVData(uprnsForBuildingSelection);
                             }
                             break;
                     }

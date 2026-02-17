@@ -302,6 +302,8 @@ export class ShellComponent {
             addressCount = buildingsToDownload.length;
         }
 
+        const uprnsForBuildingsToDownload = buildingsToDownload.map((buildingToDownload) => buildingToDownload.UPRN);
+
         this.#dialog
             .open<DownloadWarningComponent, DownloadDataWarningData, DownloadDataWarningResponse>(DownloadWarningComponent, {
                 panelClass: 'download-modal',
@@ -318,10 +320,10 @@ export class ShellComponent {
                 map((download) => {
                     switch (download) {
                         case 'xlsx':
-                            this.#dataDownloadService.downloadXlsxData(buildingsToDownload, []);
+                            this.#dataDownloadService.bulkDownloadXlsxData(uprnsForBuildingsToDownload);
                             break;
                         case 'csv':
-                            this.#dataDownloadService.downloadCSVData(buildingsToDownload, []);
+                            this.#dataDownloadService.bulkDownloadCSVData(uprnsForBuildingsToDownload);
                             break;
                     }
                     addresses = [];
