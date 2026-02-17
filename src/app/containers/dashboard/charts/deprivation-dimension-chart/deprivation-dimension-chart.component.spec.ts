@@ -4,27 +4,35 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AreaFilter } from '@core/models/area-filter.model';
 import { BackendBuildingsByDeprivationDimensionResponse, DashboardService } from '@core/services/dashboard.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
-import { Data, PlotData } from 'plotly.js-dist-min';
 import { of } from 'rxjs';
-import { getPlotlyModuleProviders } from '../plotly.mock';
 import { DeprivationDimensionChartComponent } from './deprivation-dimension-chart.component';
 
 const mockRuntimeConfig = {};
 
 const mockApiResponse: BackendBuildingsByDeprivationDimensionResponse = {
-    dep_0_pct: 52.3,
-    dep_1_pct: 27.4,
-    dep_2_pct: 12.8,
-    dep_3_pct: 5.6,
-    dep_4_pct: 1.9,
+    dep_3_pct: null,
+    dep_4_pct: null,
+    dep_3_count: 1632876,
+    dep_4_count: 603221,
+    unfiltered_dep_3_pct: 8.21,
+    unfiltered_dep_4_pct: 3.28,
+    min_dep_3_pct: 0.0,
+    max_dep_3_pct: 27.64,
+    min_dep_4_pct: 0.0,
+    max_dep_4_pct: 18.92,
 };
 
 const mockFilteredApiResponse: BackendBuildingsByDeprivationDimensionResponse = {
-    dep_0_pct: 48.4,
-    dep_1_pct: 30.2,
-    dep_2_pct: 13.5,
-    dep_3_pct: 6.0,
-    dep_4_pct: 1.9,
+    dep_3_pct: 9.47,
+    dep_4_pct: 4.03,
+    dep_3_count: 128442,
+    dep_4_count: 54631,
+    unfiltered_dep_3_pct: 8.21,
+    unfiltered_dep_4_pct: 3.28,
+    min_dep_3_pct: 1.12,
+    max_dep_3_pct: 22.85,
+    min_dep_4_pct: 0.24,
+    max_dep_4_pct: 14.73,
 };
 
 describe('DeprivationDimensionChartComponent', () => {
@@ -35,12 +43,7 @@ describe('DeprivationDimensionChartComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [DeprivationDimensionChartComponent],
-            providers: [
-                provideHttpClient(),
-                provideHttpClientTesting(),
-                ...getPlotlyModuleProviders(),
-                { provide: RUNTIME_CONFIGURATION, useValue: mockRuntimeConfig },
-            ],
+            providers: [provideHttpClient(), provideHttpClientTesting(), { provide: RUNTIME_CONFIGURATION, useValue: mockRuntimeConfig }],
         }).compileComponents();
 
         fixture = TestBed.createComponent(DeprivationDimensionChartComponent);
@@ -54,7 +57,7 @@ describe('DeprivationDimensionChartComponent', () => {
 
     it('should initialize with loading state', () => {
         expect(component.loading()).toBe(true);
-        expect(component.chartData()).toEqual([]);
+        expect(component.histogramRows()).toEqual([]);
     });
 
     it('should load deprivation data', () => {
@@ -62,11 +65,11 @@ describe('DeprivationDimensionChartComponent', () => {
 
         fixture.detectChanges();
 
-        expect(dashboardService.getBuildingsByDeprivationDimension).toHaveBeenCalledWith();
+        expect(dashboardService.getBuildingsByDeprivationDimension).toHaveBeenCalledWith(undefined);
         expect(component.loading()).toBe(false);
     });
 
-    it('should load national and filtered data when areaFilter is provided', () => {
+    it('should load filtered data with a single API call when areaFilter is provided', () => {
         const mockAreaFilter: AreaFilter = {
             mode: 'polygon',
             polygon: {
@@ -83,47 +86,45 @@ describe('DeprivationDimensionChartComponent', () => {
             },
         };
 
-        const spy = jest.spyOn(dashboardService, 'getBuildingsByDeprivationDimension').mockImplementation((filter?: AreaFilter) => {
-            return of(filter ? mockFilteredApiResponse : mockApiResponse);
-        });
+        const spy = jest.spyOn(dashboardService, 'getBuildingsByDeprivationDimension').mockReturnValue(of(mockFilteredApiResponse));
 
         fixture.componentRef.setInput('areaFilter', mockAreaFilter);
         fixture.detectChanges();
 
-        expect(spy).toHaveBeenCalledTimes(2);
-        expect(spy).toHaveBeenNthCalledWith(1);
-        expect(spy).toHaveBeenNthCalledWith(2, mockAreaFilter);
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith(mockAreaFilter);
         expect(component.loading()).toBe(false);
     });
 
-    describe('chart data transformation', () => {
-        beforeEach(() => {
-            jest.spyOn(dashboardService, 'getBuildingsByDeprivationDimension').mockReturnValue(of(mockApiResponse));
-            fixture.detectChanges();
-        });
+    it('should use unfiltered values in national mode when dep values are null', () => {
+        jest.spyOn(dashboardService, 'getBuildingsByDeprivationDimension').mockReturnValue(of(mockApiResponse));
+        fixture.detectChanges();
 
-        it('should create one bar series', () => {
-            const chartData: Data[] = component.chartData();
-            expect(chartData.length).toBe(1);
-            expect(chartData[0].type).toBe('bar');
-        });
-
-        it('should map data to deprivation dimension labels in order', () => {
-            const chartData: Data[] = component.chartData();
-            const plotData: PlotData = chartData[0] as PlotData;
-
-            expect(plotData.x).toEqual(['0D', '1D', '2D', '3D', '4D']);
-            expect(plotData.y).toEqual([52.3, 27.4, 12.8, 5.6, 1.9]);
-        });
-
-        it('should format hover as percentage', () => {
-            const chartData: Data[] = component.chartData();
-            const plotData: PlotData = chartData[0] as PlotData;
-            expect(plotData.hovertemplate).toBe('%{y:.1f}%<extra></extra>');
-        });
+        expect(component.histogramRows()).toEqual([
+            {
+                key: 'dep4',
+                count: 603221,
+                value: 3.28,
+                statement: 'are highly deprived',
+                context: '(deprived in four dimensions)',
+                min: 0,
+                max: 18.92,
+                nationalAverage: undefined,
+            },
+            {
+                key: 'dep3',
+                count: 1632876,
+                value: 8.21,
+                statement: 'are deprived in three dimensions',
+                min: 0,
+                max: 27.64,
+                nationalAverage: undefined,
+            },
+        ]);
+        expect(component.isNationalView()).toBe(true);
     });
 
-    it('should create comparison mode chart in area/polygon view', () => {
+    it('should include national averages in area/polygon mode histogram rows', () => {
         const mockAreaFilter: AreaFilter = {
             mode: 'polygon',
             polygon: {
@@ -140,22 +141,32 @@ describe('DeprivationDimensionChartComponent', () => {
             },
         };
 
-        jest.spyOn(dashboardService, 'getBuildingsByDeprivationDimension').mockImplementation((filter?: AreaFilter) => {
-            return of(filter ? mockFilteredApiResponse : mockApiResponse);
-        });
-
+        jest.spyOn(dashboardService, 'getBuildingsByDeprivationDimension').mockReturnValue(of(mockFilteredApiResponse));
         fixture.componentRef.setInput('areaFilter', mockAreaFilter);
         fixture.detectChanges();
 
-        const chartData: Data[] = component.chartData();
-        expect(chartData.length).toBe(2);
-        expect(chartData[0].name).toBe('Area average');
-        expect(chartData[1].name).toBe('National average');
-
-        const filteredPlotData: PlotData = chartData[0] as PlotData;
-        const nationalPlotData: PlotData = chartData[1] as PlotData;
-        expect(filteredPlotData.y).toEqual([48.4, 30.2, 13.5, 6.0, 1.9]);
-        expect(nationalPlotData.y).toEqual([52.3, 27.4, 12.8, 5.6, 1.9]);
+        expect(component.histogramRows()).toEqual([
+            {
+                key: 'dep4',
+                count: 54631,
+                value: 4.03,
+                statement: 'are highly deprived',
+                context: '(deprived in four dimensions)',
+                min: 0.24,
+                max: 14.73,
+                nationalAverage: 3.28,
+            },
+            {
+                key: 'dep3',
+                count: 128442,
+                value: 9.47,
+                statement: 'are deprived in three dimensions',
+                min: 1.12,
+                max: 22.85,
+                nationalAverage: 8.21,
+            },
+        ]);
+        expect(component.isNationalView()).toBe(false);
     });
 });
 

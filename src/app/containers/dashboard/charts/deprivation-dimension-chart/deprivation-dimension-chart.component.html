@@ -7,7 +7,43 @@
     @if (loading() || error()) {
         <c477-chart-placeholder [error]="error()" [onRetry]="retry.bind(this)" />
     } @else {
-        <plotly-plot [data]="chartData()" [layout]="chartLayout()" [config]="chartConfig"></plotly-plot>
+        <div class="national-histograms">
+            @for (row of histogramRows(); track row.key) {
+                <div class="histogram-row">
+                    <p class="histogram-title">
+                        <strong>{{ formatCount(row.count) }} households ({{ formatPercentage(row.value) }}) {{ row.statement }}</strong>
+                        @if (row.context) {
+                            <small>{{ row.context }}</small>
+                        }
+                    </p>
+                    @if (row.nationalAverage !== undefined) {
+                        <p class="national-average">National average {{ formatPercentage(row.nationalAverage) }}</p>
+                    }
+                    <div class="histogram deprivation-histogram">
+                        <div class="scale-wrapper">
+                            <div class="scale">
+                                @for (color of histogramColors; track color) {
+                                    <span class="scale-segment" [style.background-color]="color"></span>
+                                }
+                            </div>
+                            <div class="scale-marker area-marker" [style.left.%]="getMarkerPosition(row.value, row.min, row.max)" aria-hidden="true"></div>
+                            @if (row.nationalAverage !== undefined) {
+                                <div
+                                    class="scale-marker national-marker"
+                                    [style.left.%]="getMarkerPosition(row.nationalAverage, row.min, row.max)"
+                                    aria-hidden="true"
+                                ></div>
+                            }
+                        </div>
+                        <div class="stage-labels">
+                            @for (stage of getStageStops(row.min, row.max); track $index) {
+                                <span class="stage-label" [style.left.%]="$index * 20">{{ formatPercentage(stage) }}</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
     }
 </div>
 

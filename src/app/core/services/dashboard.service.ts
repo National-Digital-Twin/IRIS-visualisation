@@ -88,11 +88,16 @@ export interface BackendNumberOfInDateAndExpiredEpcsResponse {
 }
 
 export interface BackendBuildingsByDeprivationDimensionResponse {
-    dep_0_pct: number;
-    dep_1_pct: number;
-    dep_2_pct: number;
-    dep_3_pct: number;
-    dep_4_pct: number;
+    dep_3_pct: number | null;
+    dep_4_pct: number | null;
+    dep_3_count: number;
+    dep_4_count: number;
+    unfiltered_dep_3_pct: number;
+    unfiltered_dep_4_pct: number;
+    min_dep_3_pct: number;
+    max_dep_3_pct: number;
+    min_dep_4_pct: number;
+    max_dep_4_pct: number;
 }
 
 interface BackendEPCAreaData extends EPCRatings {
@@ -242,11 +247,16 @@ export class DashboardService {
 
     public getBuildingsByDeprivationDimension(filter?: AreaFilter): Observable<BackendBuildingsByDeprivationDimensionResponse> {
         const defaultValues: BackendBuildingsByDeprivationDimensionResponse = {
-            dep_0_pct: 0,
-            dep_1_pct: 0,
-            dep_2_pct: 0,
             dep_3_pct: 0,
             dep_4_pct: 0,
+            dep_3_count: 0,
+            dep_4_count: 0,
+            unfiltered_dep_3_pct: 0,
+            unfiltered_dep_4_pct: 0,
+            min_dep_3_pct: 0,
+            max_dep_3_pct: 0,
+            min_dep_4_pct: 0,
+            max_dep_4_pct: 0,
         };
 
         return this.#http
