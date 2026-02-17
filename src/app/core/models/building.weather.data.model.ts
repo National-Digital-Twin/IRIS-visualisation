@@ -26,9 +26,15 @@ export type BuildingIcingDaysDataModel = {
     icingDays: number;
 };
 
+export type BuildingSunlightHoursDataModel = {
+    sunlightHours: number;
+    dailySunlightHours: number;
+};
+
 export type BuildingWeatherDataModel = {
     uprn: string;
     buildingWindDrivenRainDataModel: BuildingWindDrivenRainDataModel;
     buildingHotSummerDaysDataModel: BuildingHotSummerDaysDataModel;
     buildingIcingDaysDataModel: BuildingIcingDaysDataModel;
+    buildingSunlightHoursDataModel: BuildingSunlightHoursDataModel;
 };

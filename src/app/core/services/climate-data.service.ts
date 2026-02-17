@@ -75,6 +75,11 @@ export interface BuildingIcingDaysData {
     icing_days: number;
 }
 
+export interface BuildingSunlightHoursData {
+    sunlight_hours: number;
+    daily_sunlight_hours: number;
+}
+
 export interface BuildingExtremeWeatherSummaryData {
     affected_by_icing_days: boolean;
     affected_by_hot_summer_days: boolean;
@@ -107,6 +112,10 @@ export class ClimateDataService {
 
     public getIcingDaysBuildingData(uprn: string): Observable<BuildingIcingDaysData> {
         return this.#http.get<BuildingIcingDaysData>(`/api/buildings/${uprn}/icing-days`);
+    }
+
+    public getSunlightHoursData(uprn: string): Observable<BuildingSunlightHoursData> {
+        return this.#http.get<BuildingSunlightHoursData>(`/api/buildings/${uprn}/hours-of-sunlight`);
     }
 
     public getExtremeWeatherSummaryData(uprn: string): Observable<BuildingExtremeWeatherSummaryData> {

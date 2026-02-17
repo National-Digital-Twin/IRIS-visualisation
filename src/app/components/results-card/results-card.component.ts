@@ -84,6 +84,10 @@ export class ResultsCardComponent {
             buildingIcingDaysDataModel: {
                 icingDays: 0,
             },
+            buildingSunlightHoursDataModel: {
+                sunlightHours: 0,
+                dailySunlightHours: 0,
+            },
         };
 
         this.#dialog

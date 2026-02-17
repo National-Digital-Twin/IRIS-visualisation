@@ -378,6 +378,10 @@ export class DataDownloadService {
             buildingIcingDaysDataModel: {
                 icingDays: buildingDetails.icing_days,
             },
+            buildingSunlightHoursDataModel: {
+                sunlightHours: 0,
+                dailySunlightHours: 0,
+            },
         }));
     }
 

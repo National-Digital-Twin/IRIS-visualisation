@@ -5,6 +5,7 @@ import { BuildingMap, BuildingModel } from '@core/models/building.model';
 import {
     BuildingHotSummerDaysDataModel,
     BuildingIcingDaysDataModel,
+    BuildingSunlightHoursDataModel,
     BuildingWeatherDataModel,
     BuildingWindDrivenRainDataModel,
 } from '@core/models/building.weather.data.model';
@@ -17,7 +18,13 @@ import { booleanWithin } from '@turf/boolean-within';
 import { Polygon } from 'geojson';
 import { ExpressionSpecification, PaintSpecification } from 'mapbox-gl';
 import { forkJoin } from 'rxjs';
-import { BuildingHotSummerDaysData, BuildingIcingDaysData, BuildingWindDrivenRainData, ClimateDataService } from './climate-data.service';
+import {
+    BuildingHotSummerDaysData,
+    BuildingIcingDaysData,
+    BuildingSunlightHoursData,
+    BuildingWindDrivenRainData,
+    ClimateDataService,
+} from './climate-data.service';
 import { DataService } from './data.service';
 import { FilterableBuildingService } from './filterable-building.service';
 import { MAP_SERVICE, MapLatLng } from './map.token';
@@ -663,9 +670,10 @@ export class UtilService {
             const buildingWindDrivenRainData = this.#climateDataService.getWindDrivenRainBuildingData(UPRN);
             const buildingHotSummerDaysData = this.#climateDataService.getHotSummerDaysBuildingData(UPRN);
             const buildingIcingDaysData = this.#climateDataService.getIcingDaysBuildingData(UPRN);
+            const buildingSunlightHoursData = this.#climateDataService.getSunlightHoursData(UPRN);
 
-            forkJoin([buildingWindDrivenRainData, buildingHotSummerDaysData, buildingIcingDaysData]).subscribe((results) => {
-                this.#dataService.setSelectedBuildingWeatherData(this.mapBuildingWeatherData(UPRN, results[0], results[1], results[2]));
+            forkJoin([buildingWindDrivenRainData, buildingHotSummerDaysData, buildingIcingDaysData, buildingSunlightHoursData]).subscribe((results) => {
+                this.#dataService.setSelectedBuildingWeatherData(this.mapBuildingWeatherData(UPRN, results[0], results[1], results[2], results[3]));
             });
         }
 
@@ -728,6 +736,7 @@ export class UtilService {
         buildingWindDrivenRainData: BuildingWindDrivenRainData,
         buildingHotSummerDaysData: BuildingHotSummerDaysData,
         buildingIcingDaysData: BuildingIcingDaysData,
+        buildingSunlightHoursData: BuildingSunlightHoursData,
     ): BuildingWeatherDataModel {
         const windDrivenRainData: BuildingWindDrivenRainDataModel = {
             northTwoDegreesMedian: buildingWindDrivenRainData.north_two_degrees_median,
@@ -763,11 +772,17 @@ export class UtilService {
             icingDays: buildingIcingDaysData.icing_days,
         };
 
+        const sunlightHoursData: BuildingSunlightHoursDataModel = {
+            sunlightHours: buildingSunlightHoursData.sunlight_hours,
+            dailySunlightHours: buildingSunlightHoursData.daily_sunlight_hours,
+        };
+
         return {
             uprn: uprn,
             buildingWindDrivenRainDataModel: windDrivenRainData,
             buildingHotSummerDaysDataModel: hotSummerDaysData,
             buildingIcingDaysDataModel: icingDaysData,
+            buildingSunlightHoursDataModel: sunlightHoursData,
         };
     }
 }

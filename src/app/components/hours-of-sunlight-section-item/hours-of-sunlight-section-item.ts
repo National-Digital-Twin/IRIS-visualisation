@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { MoreInfoSectionItem } from '@components/more-info-section-item/more-info-section-item';
+import { BuildingSunlightHoursDataModel } from '@core/models/building.weather.data.model';
 
 @Component({
     selector: 'c477-hours-of-sunlight-section-item',
@@ -7,7 +8,9 @@ import { MoreInfoSectionItem } from '@components/more-info-section-item/more-inf
     templateUrl: './hours-of-sunlight-section-item.html',
     styleUrl: './hours-of-sunlight-section-item.scss',
 })
-export class HoursOfSunlightSectionItem {}
+export class HoursOfSunlightSectionItem {
+    @Input() public data?: BuildingSunlightHoursDataModel;
+}
 
 // SPDX-License-Identifier: Apache-2.0
 // © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
