@@ -17,6 +17,7 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 ## Unreleased
 
 - [DPAV-2487]: added high deprivation layer and associated popover
+- [DPAV-2499]: added deprivation charts for national + area views
 
 ## [0.95.1] - 2026-01-22
 
