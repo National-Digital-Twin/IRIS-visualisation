@@ -12,7 +12,7 @@ export class HotSummerDaysSectionItem {
     public readonly warningGuidance = `
         <p>
             <strong>This property is in an area that experiences high temperatures.</strong>
-            Energy efficiency improvements can increase overheating risk if ventillation and shading are not considered.
+            Energy efficiency improvements can increase overheating risk if ventilation and shading are not considered.
         </p>
         <p>
             Some retrofit measures, such as insulation and airtightness, may require additional design checks to maintain comfortable indoor temperatures.

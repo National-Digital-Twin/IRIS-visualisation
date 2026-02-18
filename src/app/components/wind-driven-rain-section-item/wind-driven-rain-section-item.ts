@@ -12,10 +12,10 @@ export class WindDrivenRainSectionItem {
     public readonly warningGuidance = `
         <p>
             <strong>This property is within an area that experiences high levels of wind-driven rain under projected future climate conditions.</strong>
-            Increase moisture exposure can affect walls, roofs and external elements.
+            Increased moisture exposure can affect walls, roofs and external elements.
         </p>
         <p>
-            Some retrofit measures, particularly insulation or airtightness improvments, may increase damp risk without appropriate design. Additional checks
+            Some retrofit measures, particularly insulation or airtightness improvements, may increase damp risk without appropriate design. Additional checks
             are recommended before installation.
         </p>
     `;

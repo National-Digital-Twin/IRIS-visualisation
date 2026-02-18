@@ -12,10 +12,10 @@ export class IcingDaysSectionItem {
     public readonly warningGuidance = `
         <p>
             <strong>This property is in an area that experiences frequent icing or freezing conditions.</strong>
-            These conditions can increase stress on building materials, roofs, drainage and ventillation systems.
+            These conditions can increase stress on building materials, roofs, drainage and ventilation systems.
         </p>
         <p>
-            Some retrofit measures, particularly external insulation or ventillation upgrades, may not perform effectively without appropriate design.
+            Some retrofit measures, particularly external insulation or ventilation upgrades, may not perform effectively without appropriate design.
             Additional checks are recommended before installation.
         </p>
     `;
