@@ -19,6 +19,8 @@ export type Building = {
 
 interface BuildingDetailAPIResponse extends Record<string, unknown> {
     uprn?: string;
+    post_code: string;
+    sap_rating: string;
     lodgement_date?: string;
     built_form?: string;
     structure_unit_type?: string;
@@ -410,7 +412,8 @@ export class DataService {
         const detailedBuilding: BuildingModel = {
             ...existingData,
             UPRN: response.uprn ?? uprn,
-            FullAddress: existingData.FullAddress,
+            PostCode: response.post_code,
+            SAPPoints: response.sap_rating,
             LodgementDate: response.lodgement_date,
             BuiltForm: response.built_form as BuiltForm | undefined,
             YearOfAssessment: response.lodgement_date ? new Date(response.lodgement_date).getFullYear().toString() : '',

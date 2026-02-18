@@ -7,8 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
 import { LabelComponent } from '@components/label/label.component';
 import { BuildingModel } from '@core/models/building.model';
-import { BuildingWeatherDataModel } from '@core/models/building.weather.data.model';
-import { DownloadBuilding } from '@core/models/download-data-warning.model';
+import { DownloadDataWarningResponse } from '@core/models/download-data-warning.model';
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
 import { UtilService } from '@core/services/utils.service';
 import { Theme } from '@core/types/theme';
@@ -36,7 +35,7 @@ export class ResultsCardComponent {
     public select: InputSignal<boolean> = input(false);
 
     public cardSelected: OutputEmitterRef<BuildingModel> = output();
-    public downloadData: OutputEmitterRef<DownloadBuilding> = output();
+    public downloadData: OutputEmitterRef<{ uprn: string; format: DownloadDataWarningResponse }> = output();
     public emitViewDetails: OutputEmitterRef<BuildingModel> = output();
     public toggleChecked: OutputEmitterRef<boolean> = output();
 
@@ -57,39 +56,6 @@ export class ResultsCardComponent {
     public openDownloadWarning(): void {
         const card = this.card();
 
-        const emptyWeatherData: BuildingWeatherDataModel = {
-            uprn: card.UPRN,
-            buildingWindDrivenRainDataModel: {
-                northFourDegreesMedian: 0,
-                northEastFourDegreesMedian: 0,
-                eastFourDegreesMedian: 0,
-                southEastFourDegreesMedian: 0,
-                southFourDegreesMedian: 0,
-                southWestFourDegreesMedian: 0,
-                westFourDegreesMedian: 0,
-                northWestFourDegreesMedian: 0,
-                northTwoDegreesMedian: 0,
-                northEastTwoDegreesMedian: 0,
-                eastTwoDegreesMedian: 0,
-                southEastTwoDegreesMedian: 0,
-                southTwoDegreesMedian: 0,
-                southWestTwoDegreesMedian: 0,
-                westTwoDegreesMedian: 0,
-                northWestTwoDegreesMedian: 0,
-            },
-            buildingHotSummerDaysDataModel: {
-                baselineMedian: 0,
-                degreesAboveBaselineMedian: new Map([]),
-            },
-            buildingIcingDaysDataModel: {
-                icingDays: 0,
-            },
-            buildingSunlightHoursDataModel: {
-                sunlightHours: 0,
-                dailySunlightHours: 0,
-            },
-        };
-
         this.#dialog
             .open(DownloadWarningComponent, {
                 panelClass: 'download-modal',
@@ -102,7 +68,7 @@ export class ResultsCardComponent {
             .afterClosed()
             .subscribe((download) => {
                 if (download) {
-                    this.downloadData.emit({ building: card, weatherData: emptyWeatherData, format: download });
+                    this.downloadData.emit({ uprn: card.UPRN, format: download });
                 }
             });
     }

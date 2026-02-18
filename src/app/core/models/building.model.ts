@@ -1,11 +1,11 @@
-import { BuiltForm, EPCRating, PostCode, StructureUnitType } from '@core/enums';
+import { BuiltForm, EPCRating, StructureUnitType } from '@core/enums';
 
 export type BuildingModel = {
     UPRN: string;
     TOID?: string;
     ParentTOID?: string;
     FullAddress: string;
-    PostCode?: PostCode;
+    PostCode?: string;
     StructureUnitType?: StructureUnitType;
     BuiltForm?: BuiltForm;
     LodgementDate?: string;

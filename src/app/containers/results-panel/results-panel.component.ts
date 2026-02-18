@@ -12,7 +12,7 @@ import { ResultsCardExpandableComponent } from '@components/results-card-expanda
 import { ResultsPanelButtonComponent } from '@components/results-panel-button/results-panel-button.component';
 import { InfoPanelComponent } from '@containers/info-panel';
 import { BuildingModel } from '@core/models/building.model';
-import { DownloadBuilding, DownloadDataWarningData, DownloadDataWarningResponse } from '@core/models/download-data-warning.model';
+import { DownloadDataWarningData, DownloadDataWarningResponse } from '@core/models/download-data-warning.model';
 import { DataDownloadService } from '@core/services/data-download.service';
 import { DataService } from '@core/services/data.service';
 import { MAP_SERVICE } from '@core/services/map.token';
@@ -207,11 +207,11 @@ export class ResultsPanelComponent {
             .subscribe();
     }
 
-    public downloadBuilding(result: DownloadBuilding): void {
+    public downloadBuilding(result: { uprn: string; format: DownloadDataWarningResponse }): void {
         if (result.format === 'xlsx') {
-            this.#dataDownloadService.downloadXlsxData([result.building], [result.weatherData]);
+            this.#dataDownloadService.bulkDownloadXlsxData([result.uprn]);
         } else if (result.format === 'csv') {
-            this.#dataDownloadService.downloadCSVData([result.building], [result.weatherData]);
+            this.#dataDownloadService.bulkDownloadCSVData([result.uprn]);
         }
     }
 }

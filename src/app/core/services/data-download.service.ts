@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BuiltForm, EPCRating, PostCode, StructureUnitType } from '@core/enums';
-import { parseEPCRating, parsePostcode, parseBuiltForm } from '@core/helpers';
+import { BuiltForm, EPCRating, StructureUnitType } from '@core/enums';
+import { parseEPCRating, parseBuiltForm } from '@core/helpers';
 import { BuildingModel } from '@core/models/building.model';
 import { BuildingWeatherDataModel } from '@core/models/building.weather.data.model';
 import { saveAs } from 'file-saver';
@@ -31,7 +31,7 @@ type BuildingDetails = {
     wall_insulation?: string;
     window_glazing?: string;
     roof_material?: string;
-    solar_panel_presence?: string;
+    solar_panel_presence?: boolean;
     roof_shape?: string;
     roof_aspect_area_facing_north_m2?: string;
     roof_aspect_area_facing_north_east_m2?: string;
@@ -64,13 +64,15 @@ type BuildingDetails = {
     hsd_3_0_degree_above_baseline: number;
     hsd_4_0_degree_above_baseline: number;
     icing_days: number;
+    sunlight_hours: number;
+    daily_sunlight_hours: number;
 };
 
 type BuildingDetailsOutputModel = {
     'UPRN': string;
     'TOID'?: string;
     'FullAddress'?: string;
-    'PostCode'?: PostCode;
+    'PostCode'?: string;
     'StructureUnitType'?: StructureUnitType;
     'BuiltForm'?: BuiltForm;
     'LodgementDate': string | Date;
@@ -123,6 +125,8 @@ type BuildingDetailsOutputModel = {
     'AnnualCountOfHotSummerDaysAboveBaselineMedian(3 degrees)'?: number;
     'AnnualCountOfHotSummerDaysAboveBaselineMedian(4 degrees)'?: number;
     'AnnualCountOfIcingDays'?: number;
+    'AverageAnnualSunlightHours'?: number;
+    'AverageDailySunlightHours'?: number;
 };
 
 @Injectable({ providedIn: 'root' })
@@ -304,6 +308,8 @@ export class DataDownloadService {
             'AnnualCountOfHotSummerDaysAboveBaselineMedian(4 degrees)':
                 buildingWeatherDataModel?.buildingHotSummerDaysDataModel?.degreesAboveBaselineMedian.get(4),
             'AnnualCountOfIcingDays': buildingWeatherDataModel?.buildingIcingDaysDataModel?.icingDays,
+            'AverageAnnualSunlightHours': buildingWeatherDataModel?.buildingSunlightHoursDataModel?.sunlightHours,
+            'AverageDailySunlightHours': buildingWeatherDataModel?.buildingSunlightHoursDataModel?.dailySunlightHours,
         };
     }
 
@@ -312,7 +318,7 @@ export class DataDownloadService {
             UPRN: buildingDetails.uprn,
             TOID: buildingDetails.toid,
             FullAddress: buildingDetails.first_line_of_address ?? '',
-            PostCode: parsePostcode(buildingDetails.post_code ?? '') as PostCode | undefined,
+            PostCode: buildingDetails.post_code,
             StructureUnitType: buildingDetails.type as StructureUnitType | undefined,
             BuiltForm: parseBuiltForm(buildingDetails.built_form) as BuiltForm | undefined,
             LodgementDate: buildingDetails.lodgement_date,
@@ -331,7 +337,7 @@ export class DataDownloadService {
             latitude: buildingDetails.latitude,
             FuelType: buildingDetails.fuel_type,
             RoofMaterial: buildingDetails.roof_material,
-            SolarPanelPresence: buildingDetails.solar_panel_presence,
+            SolarPanelPresence: buildingDetails.solar_panel_presence ? 'HasSolarPanels' : 'NoSolarPanels',
             RoofShape: buildingDetails.roof_shape,
             RoofAspectAreaNorth: buildingDetails.roof_aspect_area_facing_north_m2,
             RoofAspectAreaNorthEast: buildingDetails.roof_aspect_area_facing_north_east_m2,
@@ -379,8 +385,8 @@ export class DataDownloadService {
                 icingDays: buildingDetails.icing_days,
             },
             buildingSunlightHoursDataModel: {
-                sunlightHours: 0,
-                dailySunlightHours: 0,
+                sunlightHours: buildingDetails.sunlight_hours,
+                dailySunlightHours: buildingDetails.daily_sunlight_hours,
             },
         }));
     }

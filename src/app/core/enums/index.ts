@@ -2,7 +2,6 @@ export * from './built-form';
 export * from './epc-rating';
 export * from './floor-construction';
 export * from './floor-insulation';
-export * from './post-code';
 export * from './structure-unit-type';
 export * from './roof-construction';
 export * from './roof-insulation-location';
