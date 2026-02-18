@@ -10,6 +10,7 @@ import { DeprivationLayer } from './deprivation.layer';
 import { EPCLayer } from './epc.layer';
 import { HotSummerDaysLayer } from './hot-summer-days.layer';
 import { IcingDaysLayer } from './icing-days.layer';
+import { SunlightHoursLayer } from './sunlight-hours.layer';
 import { WindDrivenRainLayer, WindDrivenRainLayerConfig } from './wind-driven-rain.layer';
 
 @Injectable({ providedIn: 'root' })
@@ -63,6 +64,9 @@ export class LayerFactoryService {
 
         const deprivationLayer = new DeprivationLayer(this.#demographicsDataService);
         this.layers.set('deprivation-layer', deprivationLayer);
+
+        const sunlightHoursLayer = new SunlightHoursLayer(this.#climateDataService);
+        this.layers.set('sunlight-hours-layer', sunlightHoursLayer);
     }
 
     private initializeEPCLayers(): void {

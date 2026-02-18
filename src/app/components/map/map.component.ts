@@ -95,6 +95,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             icingDays: false,
             hotSummerDays: false,
             deprivation: false,
+            sunlightHours: false,
         };
     }
 
@@ -406,6 +407,24 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         }
     }
 
+    public toggleSunlightHoursLayer(): void {
+        const layerId = 'sunlight-hours-layer';
+        const layer = this.#layerFactory.getLayer(layerId);
+
+        if (layer) {
+            if (this.layerStates.sunlightHours) {
+                layer.hide();
+                this.hideOutlineLayer(`${layerId}-outline`);
+                this.layerStates.sunlightHours = false;
+            } else {
+                this.hideAllLayers();
+                layer.show();
+                this.layerStates.sunlightHours = true;
+            }
+            this.updateLayersVisibility();
+        }
+    }
+
     private hideAllLayers(): void {
         this.hideLayerGroup(this.layerStates.epc, 'epc', '-layer');
         this.hideLayerGroup(this.layerStates.epc, 'epc', '-layer-outline');
@@ -434,6 +453,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             `${deprivationLayer}-outline`,
             () => this.layerStates.deprivation,
             (value) => (this.layerStates.deprivation = value),
+        );
+
+        const sunlightHoursLayer = 'sunlight-hours-layer';
+        this.hideSingleLayerWithOutline(
+            sunlightHoursLayer,
+            `${sunlightHoursLayer}-outline`,
+            () => this.layerStates.sunlightHours,
+            (value) => (this.layerStates.sunlightHours = value),
         );
     }
 

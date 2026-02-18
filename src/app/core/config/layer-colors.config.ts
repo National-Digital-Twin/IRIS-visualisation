@@ -10,6 +10,7 @@ export interface LayerColorConfig {
     hotSummerDays: LayerColors;
     icingDays: LayerColors;
     deprivation: LayerColors;
+    sunlightHours: LayerColors;
 }
 
 export const LAYER_COLORS: LayerColorConfig = {
@@ -34,6 +35,12 @@ export const LAYER_COLORS: LayerColorConfig = {
     deprivation: {
         low: '#CDE594',
         high: '#080C54',
+        outline: '#ffffff',
+        opacity: 0.8,
+    },
+    sunlightHours: {
+        low: '#464433',
+        high: '#FFF91F',
         outline: '#ffffff',
         opacity: 0.8,
     },

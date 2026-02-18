@@ -86,6 +86,16 @@ export interface BuildingExtremeWeatherSummaryData {
     affected_by_wind_driven_rain: boolean;
 }
 
+export interface SunlightHoursProperties {
+    objectid: number;
+    sunlight_hours: number;
+    latitude: number;
+    longitude: number;
+    shape_wkt: string;
+    projection_x_coordinate: number;
+    projection_y_coordinate: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ClimateDataService {
     readonly #http = inject(HttpClient);
@@ -120,5 +130,9 @@ export class ClimateDataService {
 
     public getExtremeWeatherSummaryData(uprn: string): Observable<BuildingExtremeWeatherSummaryData> {
         return this.#http.get<BuildingExtremeWeatherSummaryData>(`/api/buildings/${uprn}/weather-summary`);
+    }
+
+    public getSunlightHoursLayerData(): Observable<FeatureCollection<Geometry, SunlightHoursProperties>> {
+        return this.#http.get<FeatureCollection<Geometry, SunlightHoursProperties>>(`/api/data/climate/sunlight-hours`);
     }
 }

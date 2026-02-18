@@ -123,6 +123,13 @@
                             <span>High deprivation</span>
                         </button>
                     </div>
+
+                    <div>
+                        <button mat-menu-item (click)="toggleSunlightHoursLayer()" [class.active]="layerStates.sunlightHours">
+                            <mat-icon>sunny</mat-icon>
+                            <span>Sunlight hours</span>
+                        </button>
+                    </div>
                 </mat-menu>
             </div>
         }
