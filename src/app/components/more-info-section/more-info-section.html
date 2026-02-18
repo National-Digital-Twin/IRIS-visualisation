@@ -1,14 +1,28 @@
+@let buildingWeatherData = buildingWeatherDataModel();
 <cdk-accordion>
-    <c477-wind-driven-rain-section-item
-        [data]="buildingWeatherData?.buildingWindDrivenRainDataModel"
-        [warn]="warnForWindDrivenRain"
-    ></c477-wind-driven-rain-section-item>
-    <c477-icing-days-section-item [data]="buildingWeatherData?.buildingIcingDaysDataModel" [warn]="warnForIcingDays"></c477-icing-days-section-item>
-    <c477-hot-summer-days-section-item
-        [data]="buildingWeatherData?.buildingHotSummerDaysDataModel"
-        [warn]="warnForHotSummerDays"
-    ></c477-hot-summer-days-section-item>
-    <c477-hours-of-sunlight-section-item [data]="buildingWeatherData?.buildingSunlightHoursDataModel"></c477-hours-of-sunlight-section-item>
+    @if (buildingWeatherData) {
+        @if (buildingWeatherData.buildingWindDrivenRainDataModel) {
+            <c477-wind-driven-rain-section-item
+                [dataInput]="buildingWeatherData.buildingWindDrivenRainDataModel"
+                [warnInput]="warnForWindDrivenRain()"
+            ></c477-wind-driven-rain-section-item>
+        }
+        @if (buildingWeatherData.buildingIcingDaysDataModel) {
+            <c477-icing-days-section-item
+                [dataInput]="buildingWeatherData.buildingIcingDaysDataModel"
+                [warnInput]="warnForIcingDays()"
+            ></c477-icing-days-section-item>
+        }
+        @if (buildingWeatherData.buildingHotSummerDaysDataModel) {
+            <c477-hot-summer-days-section-item
+                [dataInput]="buildingWeatherData.buildingHotSummerDaysDataModel"
+                [warnInput]="warnForHotSummerDays()"
+            ></c477-hot-summer-days-section-item>
+        }
+        @if (buildingWeatherData.buildingSunlightHoursDataModel) {
+            <c477-hours-of-sunlight-section-item [dataInput]="buildingWeatherData.buildingSunlightHoursDataModel"></c477-hours-of-sunlight-section-item>
+        }
+    }
     <c477-guidance-section-item></c477-guidance-section-item>
 </cdk-accordion>
 <!-- SPDX-License-Identifier: Apache-2.0

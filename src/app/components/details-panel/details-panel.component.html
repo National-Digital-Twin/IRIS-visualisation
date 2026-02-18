@@ -227,11 +227,11 @@
 </ng-template>
 
 <ng-template #moreinfo>
-    <p class="more-info-subtext"><em>Based on forecasted data, use at your own discretion.</em></p>
+    <p class="more-info-subtext"><em>Based on historic and forecasted data, use at your own discretion.</em></p>
     <mat-divider class="more-info-divider"></mat-divider>
 
     <c477-more-info-section
-        [buildingWeatherData]="buildingWeather"
+        [buildingWeatherDataModel]="buildingWeather"
         [warnForWindDrivenRain]="extremeWeatherWarningData?.affected_by_wind_driven_rain || false"
         [warnForIcingDays]="extremeWeatherWarningData?.affected_by_icing_days || false"
         [warnForHotSummerDays]="extremeWeatherWarningData?.affected_by_hot_summer_days || false"

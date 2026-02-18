@@ -1,5 +1,5 @@
 import { CdkAccordionModule } from '@angular/cdk/accordion';
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -10,9 +10,10 @@ import { MatIconModule } from '@angular/material/icon';
     styleUrl: './more-info-section-item.scss',
 })
 export class MoreInfoSectionItem {
-    @Input() public header: string = '';
-    @Input() public subtitle?: string;
-    @Input() public warn: boolean = false;
+    public headerInput = input.required<string>();
+    public subtitleInput = input<string | undefined>(undefined);
+    public warnInput = input<boolean>(false);
+    public warningGuidanceInput = input<string | undefined>(undefined);
 }
 
 // SPDX-License-Identifier: Apache-2.0

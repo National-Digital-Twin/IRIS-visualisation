@@ -1,24 +1,26 @@
-<c477-more-info-section-item header="Hot summer days" subtitle="Within an area of many hot summer days" [warn]="warn">
-    @if (data) {
-        <div class="container data-table">
-            <dl>
-                <dt>Projections</dt>
-                <dd>Annual count (days)</dd>
-                <dt>2001-2020</dt>
-                <dd>{{ data.baselineMedian.toFixed(1) }}</dd>
-                <dt>≥ 1.5°C</dt>
-                <dd>{{ data.degreesAboveBaselineMedian.get(1.5)?.toFixed(1) || 'N/A' }}</dd>
-                <dt>≥ 2°C</dt>
-                <dd>{{ data.degreesAboveBaselineMedian.get(2)?.toFixed(1) || 'N/A' }}</dd>
-                <dt>≥ 2.5°C</dt>
-                <dd>{{ data.degreesAboveBaselineMedian.get(2.5)?.toFixed(1) || 'N/A' }}</dd>
-                <dt>≥ 3°C</dt>
-                <dd>{{ data.degreesAboveBaselineMedian.get(3)?.toFixed(1) || 'N/A' }}</dd>
-                <dt>≥ 4°C</dt>
-                <dd>{{ data.degreesAboveBaselineMedian.get(4)?.toFixed(1) || 'N/A' }}</dd>
-            </dl>
-        </div>
-    }
+@let data = dataInput();
+@let warn = warnInput();
+@let subtitle = warn ? 'Within an area of many hot summer days' : undefined;
+
+<c477-more-info-section-item headerInput="Hot summer days" [subtitleInput]="subtitle" [warnInput]="warn" [warningGuidanceInput]="warningGuidance">
+    <div class="container data-table">
+        <dl>
+            <dt>Projections</dt>
+            <dd>Annual count (days)</dd>
+            <dt>2001-2020</dt>
+            <dd>{{ data.baselineMedian.toFixed(1) }}</dd>
+            <dt>≥ 1.5°C</dt>
+            <dd>{{ data.degreesAboveBaselineMedian.get(1.5)?.toFixed(1) || 'N/A' }}</dd>
+            <dt>≥ 2°C</dt>
+            <dd>{{ data.degreesAboveBaselineMedian.get(2)?.toFixed(1) || 'N/A' }}</dd>
+            <dt>≥ 2.5°C</dt>
+            <dd>{{ data.degreesAboveBaselineMedian.get(2.5)?.toFixed(1) || 'N/A' }}</dd>
+            <dt>≥ 3°C</dt>
+            <dd>{{ data.degreesAboveBaselineMedian.get(3)?.toFixed(1) || 'N/A' }}</dd>
+            <dt>≥ 4°C</dt>
+            <dd>{{ data.degreesAboveBaselineMedian.get(4)?.toFixed(1) || 'N/A' }}</dd>
+        </dl>
+    </div>
 </c477-more-info-section-item>
 <!-- SPDX-License-Identifier: Apache-2.0
 © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme

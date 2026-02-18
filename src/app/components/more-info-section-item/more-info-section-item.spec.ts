@@ -1,3 +1,4 @@
+import { inputBinding, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { MoreInfoSectionItem } from './more-info-section-item';
@@ -6,12 +7,22 @@ describe('MoreInfoSectionItem', () => {
     let component: MoreInfoSectionItem;
     let fixture: ComponentFixture<MoreInfoSectionItem>;
 
+    const headerInput = signal<string>('Test Section Item');
+    const subtitleInput = signal<string | undefined>(undefined);
+    const warnInput = signal<boolean>(false);
+
     beforeEach(async () => {
+        headerInput.set('Test Section Item');
+        subtitleInput.set(undefined);
+        warnInput.set(false);
+
         await TestBed.configureTestingModule({
             imports: [MoreInfoSectionItem],
         }).compileComponents();
 
-        fixture = TestBed.createComponent(MoreInfoSectionItem);
+        fixture = TestBed.createComponent(MoreInfoSectionItem, {
+            bindings: [inputBinding('headerInput', headerInput), inputBinding('subtitleInput', subtitleInput), inputBinding('warnInput', warnInput)],
+        });
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
@@ -27,7 +38,7 @@ describe('MoreInfoSectionItem', () => {
 
     it('should add the subtitle when it is provided', async () => {
         const testSubtitleText = 'Test subtitle';
-        component.subtitle = testSubtitleText;
+        subtitleInput.set(testSubtitleText);
 
         fixture.detectChanges();
         await fixture.whenStable();
@@ -54,7 +65,7 @@ describe('MoreInfoSectionItem', () => {
     });
 
     it('should create the warning icon when warn is true', async () => {
-        component.warn = true;
+        warnInput.set(true);
 
         fixture.detectChanges();
         await fixture.whenStable();

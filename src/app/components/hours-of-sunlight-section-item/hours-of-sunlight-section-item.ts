@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { MoreInfoSectionItem } from '@components/more-info-section-item/more-info-section-item';
 import { BuildingSunlightHoursDataModel } from '@core/models/building.weather.data.model';
 
@@ -9,7 +9,7 @@ import { BuildingSunlightHoursDataModel } from '@core/models/building.weather.da
     styleUrl: './hours-of-sunlight-section-item.scss',
 })
 export class HoursOfSunlightSectionItem {
-    @Input() public data?: BuildingSunlightHoursDataModel;
+    public dataInput = input.required<BuildingSunlightHoursDataModel>();
 }
 
 // SPDX-License-Identifier: Apache-2.0

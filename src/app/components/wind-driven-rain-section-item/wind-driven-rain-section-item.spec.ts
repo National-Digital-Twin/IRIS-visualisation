@@ -1,3 +1,4 @@
+import { inputBinding, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { BuildingWindDrivenRainDataModel } from '@core/models/building.weather.data.model';
@@ -28,12 +29,20 @@ describe('WindDrivenRainSectionItem', () => {
     let component: WindDrivenRainSectionItem;
     let fixture: ComponentFixture<WindDrivenRainSectionItem>;
 
+    const dataInput = signal<BuildingWindDrivenRainDataModel>(generateBuildingWindDrivenRainData(0, 500));
+    const warnInput = signal<boolean>(false);
+
     beforeEach(async () => {
+        dataInput.set(generateBuildingWindDrivenRainData(0, 500));
+        warnInput.set(false);
+
         await TestBed.configureTestingModule({
             imports: [WindDrivenRainSectionItem],
         }).compileComponents();
 
-        fixture = TestBed.createComponent(WindDrivenRainSectionItem);
+        fixture = TestBed.createComponent(WindDrivenRainSectionItem, {
+            bindings: [inputBinding('dataInput', dataInput), inputBinding('warnInput', warnInput)],
+        });
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
@@ -42,34 +51,21 @@ describe('WindDrivenRainSectionItem', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should not create the data table for the wind driven rain 4 degrees section if no data is provided', () => {
-        const fourDegressTableElement = fixture.debugElement.query(By.css('[data-testid="4-degress-table"]'));
-        expect(fourDegressTableElement).toBeFalsy();
-    });
-
-    it('should not create the data table for the wind driven rain 2 degrees section if no data is provided', () => {
-        const twoDegressTableElement = fixture.debugElement.query(By.css('[data-testid="2-degress-table"]'));
-        expect(twoDegressTableElement).toBeFalsy();
+    it('should not set subtitle when warn is false', () => {
+        const subtitleElement = fixture.debugElement.query(By.css('.section-item-subtitle'));
+        expect(subtitleElement).toBeFalsy();
     });
 
     it('should create the data table for the wind driven rain 4 degrees section when data is provided', async () => {
-        component.data = generateBuildingWindDrivenRainData(0, 500);
+        warnInput.set(true);
 
         fixture.detectChanges();
         await fixture.whenStable();
 
-        const fourDegreesTableElement = fixture.debugElement.query(By.css('[data-testid="4-degrees-table"]')).nativeElement;
-        expect(fourDegreesTableElement).toBeTruthy();
-    });
-
-    it('should create the data table for the wind driven rain 2 degrees section when data is provided', async () => {
-        component.data = generateBuildingWindDrivenRainData(0, 500);
-
-        fixture.detectChanges();
-        await fixture.whenStable();
-
-        const twoDegreesTableElement = fixture.debugElement.query(By.css('[data-testid="2-degrees-table"]')).nativeElement;
-        expect(twoDegreesTableElement).toBeTruthy();
+        const subtitleElements = fixture.debugElement.queryAll(By.css('.section-item-subtitle'));
+        expect(subtitleElements).toHaveLength(2);
+        expect(subtitleElements[0].nativeElement.textContent).toBe('Within an area of high wind-driven rain');
+        expect(subtitleElements[1].nativeElement.textContent).toBe('Within an area of high wind-driven rain');
     });
 });
 

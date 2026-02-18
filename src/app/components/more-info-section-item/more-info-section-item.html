@@ -1,3 +1,8 @@
+@let header = headerInput();
+@let warn = warnInput();
+@let subtitle = subtitleInput();
+@let warningGuidance = warningGuidanceInput();
+
 <cdk-accordion-item #sectionItem="cdkAccordionItem" class="section-item" [class.is-expanded]="sectionItem.expanded">
     <div class="section-item-container">
         <div (click)="sectionItem.toggle()" class="section-item-header-container">
@@ -17,6 +22,9 @@
             }
         </div>
         <div class="section-content">
+            @if (warn) {
+                <div class="section-item-warning-guidance-content" [innerHTML]="warningGuidance"></div>
+            }
             <ng-content></ng-content>
         </div>
         <mat-divider class="section-divider"></mat-divider>

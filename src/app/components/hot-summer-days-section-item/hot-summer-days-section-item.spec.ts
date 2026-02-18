@@ -1,3 +1,4 @@
+import { inputBinding, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { BuildingHotSummerDaysDataModel } from '@core/models/building.weather.data.model';
@@ -20,12 +21,18 @@ describe('HotSummerDaysSectionItem', () => {
     let component: HotSummerDaysSectionItem;
     let fixture: ComponentFixture<HotSummerDaysSectionItem>;
 
+    const dataInput = signal<BuildingHotSummerDaysDataModel>(generateBuildingHotSummerDaysData(0, 25));
+    const warnInput = signal<boolean>(false);
+
     beforeEach(async () => {
+        dataInput.set(generateBuildingHotSummerDaysData(0, 25));
+        warnInput.set(false);
+
         await TestBed.configureTestingModule({
             imports: [HotSummerDaysSectionItem],
         }).compileComponents();
 
-        fixture = TestBed.createComponent(HotSummerDaysSectionItem);
+        fixture = TestBed.createComponent(HotSummerDaysSectionItem, { bindings: [inputBinding('dataInput', dataInput), inputBinding('warnInput', warnInput)] });
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
@@ -34,19 +41,19 @@ describe('HotSummerDaysSectionItem', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should not create the data table when no data is provided', () => {
-        const dataTableElement = fixture.debugElement.query(By.css('.data-table'));
-        expect(dataTableElement).toBeFalsy();
+    it('should not set subtitle when warn is false', () => {
+        const subtitleElement = fixture.debugElement.query(By.css('.section-item-subtitle'));
+        expect(subtitleElement).toBeFalsy();
     });
 
-    it('should create the data table when data is provided', async () => {
-        component.data = generateBuildingHotSummerDaysData(0, 25);
+    it('should set subtitle when warn is true', async () => {
+        warnInput.set(true);
 
         fixture.detectChanges();
         await fixture.whenStable();
 
-        const dataTableElement = fixture.debugElement.query(By.css('.data-table'));
-        expect(dataTableElement).toBeTruthy();
+        const subtitleElement = fixture.debugElement.query(By.css('.section-item-subtitle')).nativeElement;
+        expect(subtitleElement.textContent).toBe('Within an area of many hot summer days');
     });
 });
 

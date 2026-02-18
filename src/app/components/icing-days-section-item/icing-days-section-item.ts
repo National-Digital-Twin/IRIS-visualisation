@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { MoreInfoSectionItem } from '@components/more-info-section-item/more-info-section-item';
 import { BuildingIcingDaysDataModel } from '@core/models/building.weather.data.model';
 
@@ -9,8 +9,19 @@ import { BuildingIcingDaysDataModel } from '@core/models/building.weather.data.m
     styleUrl: './icing-days-section-item.scss',
 })
 export class IcingDaysSectionItem {
-    @Input() public data?: BuildingIcingDaysDataModel;
-    @Input() public warn: boolean = false;
+    public readonly warningGuidance = `
+        <p>
+            <strong>This property is in an area that experiences frequent icing or freezing conditions.</strong>
+            These conditions can increase stress on building materials, roofs, drainage and ventillation systems.
+        </p>
+        <p>
+            Some retrofit measures, particularly external insulation or ventillation upgrades, may not perform effectively without appropriate design.
+            Additional checks are recommended before installation.
+        </p>
+    `;
+
+    public dataInput = input.required<BuildingIcingDaysDataModel>();
+    public warnInput = input.required<boolean>();
 }
 
 // SPDX-License-Identifier: Apache-2.0

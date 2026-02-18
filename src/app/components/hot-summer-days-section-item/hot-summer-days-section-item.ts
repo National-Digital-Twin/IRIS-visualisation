@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { MoreInfoSectionItem } from '@components/more-info-section-item/more-info-section-item';
 import { BuildingHotSummerDaysDataModel } from '@core/models/building.weather.data.model';
 
@@ -9,8 +9,18 @@ import { BuildingHotSummerDaysDataModel } from '@core/models/building.weather.da
     styleUrl: './hot-summer-days-section-item.scss',
 })
 export class HotSummerDaysSectionItem {
-    @Input() public data?: BuildingHotSummerDaysDataModel;
-    @Input() public warn: boolean = false;
+    public readonly warningGuidance = `
+        <p>
+            <strong>This property is in an area that experiences high temperatures.</strong>
+            Energy efficiency improvements can increase overheating risk if ventillation and shading are not considered.
+        </p>
+        <p>
+            Some retrofit measures, such as insulation and airtightness, may require additional design checks to maintain comfortable indoor temperatures.
+        </p>
+    `;
+
+    public dataInput = input.required<BuildingHotSummerDaysDataModel>();
+    public warnInput = input.required<boolean>();
 }
 
 // SPDX-License-Identifier: Apache-2.0

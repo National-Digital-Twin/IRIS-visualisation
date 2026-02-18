@@ -1,3 +1,4 @@
+import { inputBinding, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { BuildingIcingDaysDataModel } from '@core/models/building.weather.data.model';
@@ -13,12 +14,18 @@ describe('IcingDaysSectionItem', () => {
     let component: IcingDaysSectionItem;
     let fixture: ComponentFixture<IcingDaysSectionItem>;
 
+    const dataInput = signal<BuildingIcingDaysDataModel>(generateBuildingIcingDaysData(0, 30));
+    const warnInput = signal<boolean>(false);
+
     beforeEach(async () => {
+        dataInput.set(generateBuildingIcingDaysData(0, 30));
+        warnInput.set(false);
+
         await TestBed.configureTestingModule({
             imports: [IcingDaysSectionItem],
         }).compileComponents();
 
-        fixture = TestBed.createComponent(IcingDaysSectionItem);
+        fixture = TestBed.createComponent(IcingDaysSectionItem, { bindings: [inputBinding('dataInput', dataInput), inputBinding('warnInput', warnInput)] });
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
@@ -27,19 +34,19 @@ describe('IcingDaysSectionItem', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should not create the data table when no data is provided', async () => {
-        const dataTableElement = fixture.debugElement.query(By.css('.data-table'));
-        expect(dataTableElement).toBeFalsy();
+    it('should not set subtitle when warn is false', async () => {
+        const subtitleElement = fixture.debugElement.query(By.css('.section-item-subtitle'));
+        expect(subtitleElement).toBeFalsy();
     });
 
-    it('should create the data table when data is provided', async () => {
-        component.data = generateBuildingIcingDaysData(0, 30);
+    it('should set subtitle when warn is true', async () => {
+        warnInput.set(true);
 
         fixture.detectChanges();
         await fixture.whenStable();
 
-        const dataTableElement = fixture.debugElement.query(By.css('.data-table')).nativeElement;
-        expect(dataTableElement).toBeTruthy();
+        const subtitleElement = fixture.debugElement.query(By.css('.section-item-subtitle')).nativeElement;
+        expect(subtitleElement.textContent).toBe('Within an area of many icing days');
     });
 });
 

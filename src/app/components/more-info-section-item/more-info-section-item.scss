@@ -45,7 +45,7 @@
 }
 
 .section-item.is-expanded .section-content {
-  max-height: 500px;
+  max-height: 600px;
   opacity: 1;
 }
 
@@ -57,6 +57,10 @@
   margin-left: 5px;
   color: #ffcf06;
   vertical-align: middle;
+}
+
+.section-item-warning-guidance-content {
+  padding-left: 5px;
 }
 
 // SPDX-License-Identifier: Apache-2.0

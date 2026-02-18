@@ -1,5 +1,5 @@
 import { CdkAccordionModule } from '@angular/cdk/accordion';
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { GuidanceSectionItem } from '@components/guidance-section-item/guidance-section-item';
 import { HotSummerDaysSectionItem } from '@components/hot-summer-days-section-item/hot-summer-days-section-item';
@@ -23,10 +23,10 @@ import { BuildingWeatherDataModel } from '@core/models/building.weather.data.mod
     styleUrl: './more-info-section.scss',
 })
 export class MoreInfoSection {
-    @Input() public warnForWindDrivenRain: boolean = false;
-    @Input() public warnForIcingDays: boolean = false;
-    @Input() public warnForHotSummerDays: boolean = false;
-    @Input() public buildingWeatherData?: BuildingWeatherDataModel;
+    public warnForWindDrivenRain = input<boolean>(false);
+    public warnForIcingDays = input<boolean>(false);
+    public warnForHotSummerDays = input<boolean>(false);
+    public buildingWeatherDataModel = input<BuildingWeatherDataModel | undefined>(undefined);
 }
 
 // SPDX-License-Identifier: Apache-2.0

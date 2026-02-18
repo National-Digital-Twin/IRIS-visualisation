@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { MoreInfoSectionItem } from '@components/more-info-section-item/more-info-section-item';
 import { BuildingWindDrivenRainDataModel } from '@core/models/building.weather.data.model';
 
@@ -9,8 +9,19 @@ import { BuildingWindDrivenRainDataModel } from '@core/models/building.weather.d
     styleUrl: './wind-driven-rain-section-item.scss',
 })
 export class WindDrivenRainSectionItem {
-    @Input() public data?: BuildingWindDrivenRainDataModel;
-    @Input() public warn: boolean = false;
+    public readonly warningGuidance = `
+        <p>
+            <strong>This property is within an area that experiences high levels of wind-driven rain under projected future climate conditions.</strong>
+            Increase moisture exposure can affect walls, roofs and external elements.
+        </p>
+        <p>
+            Some retrofit measures, particularly insulation or airtightness improvments, may increase damp risk without appropriate design. Additional checks
+            are recommended before installation.
+        </p>
+    `;
+
+    public dataInput = input.required<BuildingWindDrivenRainDataModel>();
+    public warnInput = input.required<boolean>();
 }
 
 // SPDX-License-Identifier: Apache-2.0
