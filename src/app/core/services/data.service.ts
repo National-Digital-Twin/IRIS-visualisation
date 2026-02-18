@@ -480,7 +480,15 @@ export class DataService {
 
     public setSelectedBuildingWeatherData(buildingWeatherData: BuildingWeatherDataModel): void {
         if (!(buildingWeatherData.uprn in this._selectedBuildingsWeatherDetailsCache.keys())) {
-            this._selectedBuildingsWeatherDetailsCache.set(buildingWeatherData.uprn, buildingWeatherData);
+            // if all weather data is provided then cache the weather details for the building
+            if (
+                buildingWeatherData.buildingWindDrivenRainDataModel &&
+                buildingWeatherData.buildingIcingDaysDataModel &&
+                buildingWeatherData.buildingHotSummerDaysDataModel &&
+                buildingWeatherData.buildingSunlightHoursDataModel
+            ) {
+                this._selectedBuildingsWeatherDetailsCache.set(buildingWeatherData.uprn, buildingWeatherData);
+            }
         }
         this.selectedBuildingWeatherData.set(buildingWeatherData);
     }

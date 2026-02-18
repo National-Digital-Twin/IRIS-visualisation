@@ -17,7 +17,7 @@ import { MapLayerId } from '@core/types/map-layer-id';
 import { booleanWithin } from '@turf/boolean-within';
 import { Polygon } from 'geojson';
 import { ExpressionSpecification, PaintSpecification } from 'mapbox-gl';
-import { forkJoin } from 'rxjs';
+import { catchError, forkJoin, of } from 'rxjs';
 import {
     BuildingHotSummerDaysData,
     BuildingIcingDaysData,
@@ -667,10 +667,30 @@ export class UtilService {
         if (buildingWeatherData) {
             this.#dataService.setSelectedBuildingWeatherData(buildingWeatherData);
         } else {
-            const buildingWindDrivenRainData = this.#climateDataService.getWindDrivenRainBuildingData(UPRN);
-            const buildingHotSummerDaysData = this.#climateDataService.getHotSummerDaysBuildingData(UPRN);
-            const buildingIcingDaysData = this.#climateDataService.getIcingDaysBuildingData(UPRN);
-            const buildingSunlightHoursData = this.#climateDataService.getSunlightHoursData(UPRN);
+            const buildingWindDrivenRainData = this.#climateDataService.getWindDrivenRainBuildingData(UPRN).pipe(
+                catchError((error) => {
+                    console.error(`Error: Unable to fetch wind driven rain data for building with uprn ${UPRN}: ${JSON.stringify(error)}`);
+                    return of(undefined);
+                }),
+            );
+            const buildingHotSummerDaysData = this.#climateDataService.getHotSummerDaysBuildingData(UPRN).pipe(
+                catchError((error) => {
+                    console.error(`Error: Unable to fetch hot summer days data for building with uprn ${UPRN}: ${JSON.stringify(error)}`);
+                    return of(undefined);
+                }),
+            );
+            const buildingIcingDaysData = this.#climateDataService.getIcingDaysBuildingData(UPRN).pipe(
+                catchError((error) => {
+                    console.error(`Error: Unable to fetch icing days data for building with uprn ${UPRN}: ${JSON.stringify(error)}`);
+                    return of(undefined);
+                }),
+            );
+            const buildingSunlightHoursData = this.#climateDataService.getSunlightHoursData(UPRN).pipe(
+                catchError((error) => {
+                    console.error(`Error: Unable to fetch sunlight hours data for building with uprn ${UPRN}: ${JSON.stringify(error)}`);
+                    return of(undefined);
+                }),
+            );
 
             forkJoin([buildingWindDrivenRainData, buildingHotSummerDaysData, buildingIcingDaysData, buildingSunlightHoursData]).subscribe((results) => {
                 this.#dataService.setSelectedBuildingWeatherData(this.mapBuildingWeatherData(UPRN, results[0], results[1], results[2], results[3]));
@@ -733,49 +753,57 @@ export class UtilService {
 
     private mapBuildingWeatherData(
         uprn: string,
-        buildingWindDrivenRainData: BuildingWindDrivenRainData,
-        buildingHotSummerDaysData: BuildingHotSummerDaysData,
-        buildingIcingDaysData: BuildingIcingDaysData,
-        buildingSunlightHoursData: BuildingSunlightHoursData,
+        buildingWindDrivenRainData?: BuildingWindDrivenRainData,
+        buildingHotSummerDaysData?: BuildingHotSummerDaysData,
+        buildingIcingDaysData?: BuildingIcingDaysData,
+        buildingSunlightHoursData?: BuildingSunlightHoursData,
     ): BuildingWeatherDataModel {
-        const windDrivenRainData: BuildingWindDrivenRainDataModel = {
-            northTwoDegreesMedian: buildingWindDrivenRainData.north_two_degrees_median,
-            northEastTwoDegreesMedian: buildingWindDrivenRainData.north_east_two_degrees_median,
-            eastTwoDegreesMedian: buildingWindDrivenRainData.east_two_degrees_median,
-            southEastTwoDegreesMedian: buildingWindDrivenRainData.south_east_two_degrees_median,
-            southTwoDegreesMedian: buildingWindDrivenRainData.south_two_degrees_median,
-            southWestTwoDegreesMedian: buildingWindDrivenRainData.south_west_two_degrees_median,
-            westTwoDegreesMedian: buildingWindDrivenRainData.west_two_degrees_median,
-            northWestTwoDegreesMedian: buildingWindDrivenRainData.north_west_two_degrees_median,
-            northFourDegreesMedian: buildingWindDrivenRainData.north_four_degrees_median,
-            northEastFourDegreesMedian: buildingWindDrivenRainData.north_east_four_degrees_median,
-            eastFourDegreesMedian: buildingWindDrivenRainData.east_four_degrees_median,
-            southEastFourDegreesMedian: buildingWindDrivenRainData.south_east_four_degrees_median,
-            southFourDegreesMedian: buildingWindDrivenRainData.south_four_degrees_median,
-            southWestFourDegreesMedian: buildingWindDrivenRainData.south_west_four_degrees_median,
-            westFourDegreesMedian: buildingWindDrivenRainData.west_four_degrees_median,
-            northWestFourDegreesMedian: buildingWindDrivenRainData.north_west_four_degrees_median,
-        };
+        const windDrivenRainData: BuildingWindDrivenRainDataModel | undefined = buildingWindDrivenRainData
+            ? {
+                  northTwoDegreesMedian: buildingWindDrivenRainData.north_two_degrees_median,
+                  northEastTwoDegreesMedian: buildingWindDrivenRainData.north_east_two_degrees_median,
+                  eastTwoDegreesMedian: buildingWindDrivenRainData.east_two_degrees_median,
+                  southEastTwoDegreesMedian: buildingWindDrivenRainData.south_east_two_degrees_median,
+                  southTwoDegreesMedian: buildingWindDrivenRainData.south_two_degrees_median,
+                  southWestTwoDegreesMedian: buildingWindDrivenRainData.south_west_two_degrees_median,
+                  westTwoDegreesMedian: buildingWindDrivenRainData.west_two_degrees_median,
+                  northWestTwoDegreesMedian: buildingWindDrivenRainData.north_west_two_degrees_median,
+                  northFourDegreesMedian: buildingWindDrivenRainData.north_four_degrees_median,
+                  northEastFourDegreesMedian: buildingWindDrivenRainData.north_east_four_degrees_median,
+                  eastFourDegreesMedian: buildingWindDrivenRainData.east_four_degrees_median,
+                  southEastFourDegreesMedian: buildingWindDrivenRainData.south_east_four_degrees_median,
+                  southFourDegreesMedian: buildingWindDrivenRainData.south_four_degrees_median,
+                  southWestFourDegreesMedian: buildingWindDrivenRainData.south_west_four_degrees_median,
+                  westFourDegreesMedian: buildingWindDrivenRainData.west_four_degrees_median,
+                  northWestFourDegreesMedian: buildingWindDrivenRainData.north_west_four_degrees_median,
+              }
+            : undefined;
 
-        const hotSummerDaysData: BuildingHotSummerDaysDataModel = {
-            baselineMedian: buildingHotSummerDaysData.hsd_baseline,
-            degreesAboveBaselineMedian: new Map([
-                [1.5, buildingHotSummerDaysData.hsd_1_5_degree_above_baseline],
-                [2, buildingHotSummerDaysData.hsd_2_0_degree_above_baseline],
-                [2.5, buildingHotSummerDaysData.hsd_2_5_degree_above_baseline],
-                [3, buildingHotSummerDaysData.hsd_3_0_degree_above_baseline],
-                [4, buildingHotSummerDaysData.hsd_4_0_degree_above_baseline],
-            ]),
-        };
+        const hotSummerDaysData: BuildingHotSummerDaysDataModel | undefined = buildingHotSummerDaysData
+            ? {
+                  baselineMedian: buildingHotSummerDaysData.hsd_baseline,
+                  degreesAboveBaselineMedian: new Map([
+                      [1.5, buildingHotSummerDaysData.hsd_1_5_degree_above_baseline],
+                      [2, buildingHotSummerDaysData.hsd_2_0_degree_above_baseline],
+                      [2.5, buildingHotSummerDaysData.hsd_2_5_degree_above_baseline],
+                      [3, buildingHotSummerDaysData.hsd_3_0_degree_above_baseline],
+                      [4, buildingHotSummerDaysData.hsd_4_0_degree_above_baseline],
+                  ]),
+              }
+            : undefined;
 
-        const icingDaysData: BuildingIcingDaysDataModel = {
-            icingDays: buildingIcingDaysData.icing_days,
-        };
+        const icingDaysData: BuildingIcingDaysDataModel | undefined = buildingIcingDaysData
+            ? {
+                  icingDays: buildingIcingDaysData.icing_days,
+              }
+            : undefined;
 
-        const sunlightHoursData: BuildingSunlightHoursDataModel = {
-            sunlightHours: buildingSunlightHoursData.sunlight_hours,
-            dailySunlightHours: buildingSunlightHoursData.daily_sunlight_hours,
-        };
+        const sunlightHoursData: BuildingSunlightHoursDataModel | undefined = buildingSunlightHoursData
+            ? {
+                  sunlightHours: buildingSunlightHoursData.sunlight_hours,
+                  dailySunlightHours: buildingSunlightHoursData.daily_sunlight_hours,
+              }
+            : undefined;
 
         return {
             uprn: uprn,
