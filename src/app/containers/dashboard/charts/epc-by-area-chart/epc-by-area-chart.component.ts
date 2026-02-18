@@ -65,9 +65,7 @@ export class EpcByAreaChartComponent extends ScrollableChartComponent {
     public readonly chartTitle = computed(() => {
         const config = this.groupingConfig();
 
-        if (config.mode === 'multiple') {
-            return 'Count of EPC ratings by';
-        } else if (config.mode === 'single') {
+        if (config.mode === 'single') {
             return 'EPC ratings of';
         }
 
