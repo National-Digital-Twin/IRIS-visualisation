@@ -11,12 +11,15 @@ import { BuildingIcingDaysDataModel } from '@core/models/building.weather.data.m
 export class IcingDaysSectionItem {
     public readonly warningGuidance = `
         <p>
-            <strong>This property is in an area that experiences frequent icing or freezing conditions.</strong>
-            These conditions can increase stress on building materials, roofs, drainage and ventilation systems.
+            <strong>This property is located in an area that experiences frequent freezing conditions.</strong>
         </p>
         <p>
-            Some retrofit measures, particularly external insulation or ventilation upgrades, may not perform effectively without appropriate design.
-            Additional checks are recommended before installation.
+            Repeated freeze–thaw cycles can increase stress on masonry, render, roofing elements, rainwater goods and external finishes. In colder climates,
+            retrofit measures, particularly external wall insulation, roof upgrades, ventilation changes and drainage alterations, should be specified to
+            withstand freeze–thaw exposure and maintain adequate moisture management.
+        </p>
+        <p>
+            This flag reflects area-level climate conditions, not confirmed defects at this property. Additional assessment may be appropriate before installation.
         </p>
     `;
 

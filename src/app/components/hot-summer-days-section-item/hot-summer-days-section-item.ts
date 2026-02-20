@@ -11,11 +11,16 @@ import { BuildingHotSummerDaysDataModel } from '@core/models/building.weather.da
 export class HotSummerDaysSectionItem {
     public readonly warningGuidance = `
         <p>
-            <strong>This property is in an area that experiences high temperatures.</strong>
-            Energy efficiency improvements can increase overheating risk if ventilation and shading are not considered.
+            <strong>This property is located in an area that experiences elevated summer temperatures.</strong>
         </p>
         <p>
-            Some retrofit measures, such as insulation and airtightness, may require additional design checks to maintain comfortable indoor temperatures.
+            Higher peak temperatures increase the risk of overheating, particularly in well-insulated and more airtight dwellings. Retrofit measures,
+            including insulation upgrades, glazing changes and airtightness improvements, should be designed alongside ventilation, shading and solar gain
+            controls to maintain safe and comfortable indoor temperatures.
+        </p>
+        <p>
+            This flag reflects area-level climate exposure, not confirmed overheating at this property. A whole-dwelling assessment should consider summer
+            performance as well as energy efficiency.
         </p>
     `;
 

@@ -11,12 +11,18 @@ import { BuildingWindDrivenRainDataModel } from '@core/models/building.weather.d
 export class WindDrivenRainSectionItem {
     public readonly warningGuidance = `
         <p>
-            <strong>This property is within an area that experiences high levels of wind-driven rain under projected future climate conditions.</strong>
-            Increased moisture exposure can affect walls, roofs and external elements.
+            <strong>This property is within an area with elevated wind-driven rain exposure under current and projected climate conditions.</strong>
         </p>
         <p>
-            Some retrofit measures, particularly insulation or airtightness improvements, may increase damp risk without appropriate design. Additional checks
-            are recommended before installation.
+            Wind-driven rain increases moisture loading on exposed walls and roofs. In higher-exposure areas, some retrofit measures — particularly cavity wall
+            insulation, internal wall insulation, external wall insulation and airtightness improvements — may require enhanced moisture risk assessment and
+            detailing to avoid unintended damp or condensation risks.
+        </p>
+        <p>
+            This flag reflects area-level climate exposure, not confirmed defects at this property.
+        </p>
+        <p>
+            A <a href="https://www.bsigroup.com/en-GB/insights-and-media/insights/brochures/pas-2035-retrofitting-dwellings-for-improved-energy-efficiency/" target="_blank">PAS 2035</a> - compliant assessment should consider local exposure and wall construction before installation.
         </p>
     `;
 
