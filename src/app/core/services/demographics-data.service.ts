@@ -4,6 +4,7 @@ import { FeatureCollection, Geometry } from 'geojson';
 import { Observable } from 'rxjs';
 
 export interface DeprivationLayerProperties {
+    mlsoa_id?: string;
     area_nm?: string;
     dep_3?: number;
     dep_4?: number;

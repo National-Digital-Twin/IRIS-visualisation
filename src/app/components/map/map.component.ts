@@ -243,11 +243,20 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         /** close popup if open and zoom is > 15 and remove selection*/
         this.#mapService.mapInstance.on('zoomend', () => {
             const zoom = this.#mapService.mapInstance.getZoom();
+            const wasShowingLayers = this.#uiStateService.showLayersAndControls();
+            const shouldShowLayers = zoom < 16;
 
             if (zoom < 16) {
                 this.#dataService.clearBuildingsCache();
             }
-            this.#uiStateService.setLayersAndControlsVisibility(zoom < 16);
+
+            this.#uiStateService.setLayersAndControlsVisibility(shouldShowLayers);
+
+            // When zooming to property-level, close any open layer popups.
+            if (wasShowingLayers && !shouldShowLayers) {
+                this.#mapService.clearAllPopups();
+            }
+
             this.updateLayersVisibility();
         });
     }

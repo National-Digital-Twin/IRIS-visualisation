@@ -121,7 +121,7 @@ export class DeprivationLayer extends AbstractClimateLayer<DeprivationLayerPrope
 
         this.mapService.registerPopup(this.currentPopup);
 
-        this.highlightFeature(event.target, feature.id);
+        this.highlightFeature(event.target, properties.mlsoa_id ?? properties.area_nm);
     };
 
     private createHistogram(minPercentage: number, maxPercentage: number, areaPercentage: number): string {
@@ -149,34 +149,56 @@ export class DeprivationLayer extends AbstractClimateLayer<DeprivationLayerPrope
         `;
     }
 
-    private highlightFeature(map: mapboxgl.Map, featureId: string | number | undefined): void {
-        if (featureId === undefined || featureId === null) {
+    private highlightFeature(map: mapboxgl.Map, featureKey: string | undefined): void {
+        if (!featureKey) {
             return;
         }
 
-        map.setPaintProperty(this.id, 'fill-opacity', ['case', ['==', ['id'], featureId], 0.9, 0.6]);
+        const selectedFilter = ['==', ['get', 'mlsoa_id'], featureKey];
+        map.setPaintProperty(this.id, 'fill-opacity', ['case', selectedFilter, 0.9, 0.6]);
 
+        const highlightFillLayerId = `${this.id}-highlight-fill`;
         const outlineLayerId = `${this.id}-outline`;
+
+        if (map.getLayer(highlightFillLayerId)) {
+            map.removeLayer(highlightFillLayerId);
+        }
 
         if (map.getLayer(outlineLayerId)) {
             map.removeLayer(outlineLayerId);
         }
 
         map.addLayer({
+            id: highlightFillLayerId,
+            type: 'fill',
+            source: `${this.id}-source`,
+            paint: {
+                'fill-color': '#ffffff',
+                'fill-opacity': 0.16,
+            },
+            filter: selectedFilter,
+        });
+
+        map.addLayer({
             id: outlineLayerId,
             type: 'line',
             source: `${this.id}-source`,
             paint: {
-                'line-color': '#6666aa',
+                'line-color': '#000000',
                 'line-width': 3,
-                'line-opacity': 0.75,
+                'line-opacity': 1,
             },
-            filter: ['==', ['id'], featureId],
+            filter: selectedFilter,
         });
     }
 
     private clearFeatureHighlight(map: mapboxgl.Map): void {
         map.setPaintProperty(this.id, 'fill-opacity', LAYER_COLORS.deprivation.opacity);
+
+        const highlightFillLayerId = `${this.id}-highlight-fill`;
+        if (map.getLayer(highlightFillLayerId)) {
+            map.removeLayer(highlightFillLayerId);
+        }
 
         const outlineLayerId = `${this.id}-outline`;
         if (map.getLayer(outlineLayerId)) {

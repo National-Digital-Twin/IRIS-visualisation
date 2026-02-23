@@ -82,6 +82,9 @@
 
                 .info-tooltip-container {
                     position: relative;
+                    display: inline-flex;
+                    align-items: center;
+                    width: max-content;
 
                     .info-button {
                         display: flex;
@@ -101,8 +104,9 @@
                     .info-tooltip {
                         position: absolute;
                         z-index: 1000;
-                        top: 0;
-                        right: calc(100% + 0.5rem);
+                        top: 50%;
+                        left: calc(100% + 0.5rem);
+                        transform: translateY(-50%);
 
                         width: 18rem;
                         padding: 1rem;
