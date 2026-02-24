@@ -45,7 +45,7 @@
 }
 
 .section-item.is-expanded .section-content {
-  max-height: 600px;
+  max-height: 800px;
   opacity: 1;
 }
 
@@ -59,9 +59,11 @@
   vertical-align: middle;
 }
 
-.section-item-warning-guidance-content {
+.section-item-warning-guidance-content,
+.section-item-warning-guidance-more-info {
   padding-left: 5px;
 }
+
 
 // SPDX-License-Identifier: Apache-2.0
 // © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme

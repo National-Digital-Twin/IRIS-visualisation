@@ -2,6 +2,7 @@
 @let warn = warnInput();
 @let subtitle = subtitleInput();
 @let warningGuidance = warningGuidanceInput();
+@let downloadableWarningGuidanceMoreInfo = downloadableWarningGuidanceMoreInfoInput();
 
 <cdk-accordion-item #sectionItem="cdkAccordionItem" class="section-item" [class.is-expanded]="sectionItem.expanded">
     <div class="section-item-container">
@@ -24,6 +25,14 @@
         <div class="section-content">
             @if (warn) {
                 <div class="section-item-warning-guidance-content" [innerHTML]="warningGuidance"></div>
+                @if (downloadableWarningGuidanceMoreInfo) {
+                    <p class="section-item-warning-guidance-more-info">
+                        <strong
+                            >For more information, please read
+                            <a href="" (click)="$event.preventDefault(); onDownloadableWarningGuidanceMoreInfoClick()">here</a></strong
+                        >
+                    </p>
+                }
             }
             <ng-content></ng-content>
         </div>

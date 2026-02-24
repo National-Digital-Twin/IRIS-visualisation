@@ -1,4 +1,5 @@
-import { Component, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { MoreInfoSectionItem } from '@components/more-info-section-item/more-info-section-item';
 import { BuildingHotSummerDaysDataModel } from '@core/models/building.weather.data.model';
 
@@ -9,6 +10,8 @@ import { BuildingHotSummerDaysDataModel } from '@core/models/building.weather.da
     styleUrl: './hot-summer-days-section-item.scss',
 })
 export class HotSummerDaysSectionItem {
+    readonly #sanitizer = inject(DomSanitizer);
+
     public readonly warningGuidance = `
         <p>
             <strong>This property is located in an area that experiences elevated summer temperatures.</strong>
@@ -23,6 +26,15 @@ export class HotSummerDaysSectionItem {
             performance as well as energy efficiency.
         </p>
     `;
+
+    public readonly downloadableWarningGuidanceMoreInfo = {
+        content: this.#sanitizer.bypassSecurityTrustHtml(`
+            <h2 style="font-weight: 550;">Hot summer days and retrofit risk in UK housing</h2>
+            <div style="display: flex; justify-content: center; padding: 30px;">
+                <p><em>More information coming soon</em></p>
+            </div>
+        `),
+    };
 
     public dataInput = input.required<BuildingHotSummerDaysDataModel>();
     public warnInput = input.required<boolean>();

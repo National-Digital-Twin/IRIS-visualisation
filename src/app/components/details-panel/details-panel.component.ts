@@ -84,6 +84,14 @@ export class DetailsPanelComponent {
     public solarPanelPresence: Record<string, string> = SolarPanelPresence;
     public warnOverlayIsOpen: boolean = false;
 
+    constructor() {
+        toObservable(this.buildingDetails)
+            .pipe(takeUntilDestroyed())
+            .subscribe(() => {
+                this.warnOverlayIsOpen = false;
+            });
+    }
+
     public readonly buildingExtremeWeatherSummaryData$ = toObservable(this.buildingDetails).pipe(
         takeUntilDestroyed(),
         switchMap((b) => (b ? this.#climateDataService.getExtremeWeatherSummaryData(b.UPRN) : EMPTY)),

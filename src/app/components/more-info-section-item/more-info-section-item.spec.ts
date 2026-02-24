@@ -1,30 +1,49 @@
 import { inputBinding, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
+import { By, DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { MoreInfoSectionItem } from './more-info-section-item';
 
 describe('MoreInfoSectionItem', () => {
     let component: MoreInfoSectionItem;
     let fixture: ComponentFixture<MoreInfoSectionItem>;
+    let sanitizer: DomSanitizer;
 
     const headerInput = signal<string>('Test Section Item');
     const subtitleInput = signal<string | undefined>(undefined);
     const warnInput = signal<boolean>(false);
+    const downloadableWarningGuidanceMoreInfoInput = signal<{ pdfFilepath: string; pdfFilename: string; content: SafeHtml } | undefined>(undefined);
 
     beforeEach(async () => {
         headerInput.set('Test Section Item');
         subtitleInput.set(undefined);
         warnInput.set(false);
+        downloadableWarningGuidanceMoreInfoInput.set(undefined);
 
         await TestBed.configureTestingModule({
+            providers: [
+                {
+                    provide: DomSanitizer,
+                    useValue: {
+                        // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+                        bypassSecurityTrustHtml: (val: string) => val,
+                    },
+                },
+            ],
             imports: [MoreInfoSectionItem],
         }).compileComponents();
 
         fixture = TestBed.createComponent(MoreInfoSectionItem, {
-            bindings: [inputBinding('headerInput', headerInput), inputBinding('subtitleInput', subtitleInput), inputBinding('warnInput', warnInput)],
+            bindings: [
+                inputBinding('headerInput', headerInput),
+                inputBinding('subtitleInput', subtitleInput),
+                inputBinding('warnInput', warnInput),
+                inputBinding('downloadableWarningGuidanceMoreInfoInput', downloadableWarningGuidanceMoreInfoInput),
+            ],
         });
         component = fixture.componentInstance;
         fixture.detectChanges();
+
+        sanitizer = TestBed.inject(DomSanitizer);
     });
 
     it('should create', () => {
@@ -73,5 +92,51 @@ describe('MoreInfoSectionItem', () => {
         const warningIconElement = fixture.debugElement.query(By.css('.section-item-warning-icon')).nativeElement;
 
         expect(warningIconElement.textContent.trim()).toBe('warning_amber');
+    });
+
+    it('should not add the downloadable more info warning guidance when it is not provided and warn is false', () => {
+        const downloadableWarningGuidanceMoreInfoElement = fixture.debugElement.query(By.css('.section-item-warning-guidance-more-info'));
+        expect(downloadableWarningGuidanceMoreInfoElement).toBeFalsy();
+    });
+
+    it('should not add the downloadable more info warning guidance when it is provided and warn is false', async () => {
+        downloadableWarningGuidanceMoreInfoInput.set({
+            pdfFilepath: 'test/folder',
+            pdfFilename: 'testing.pdf',
+            content: sanitizer.bypassSecurityTrustHtml('<p>tesing works</p>'),
+        });
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        const downloadableWarningGuidanceMoreInfoElement = fixture.debugElement.query(By.css('.section-item-warning-guidance-more-info'));
+        expect(downloadableWarningGuidanceMoreInfoElement).toBeFalsy();
+    });
+
+    it('should not add the downloadable more info warning guidance when it is not provided and warn is true', async () => {
+        warnInput.set(true);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        const downloadableWarningGuidanceMoreInfoElement = fixture.debugElement.query(By.css('.section-item-warning-guidance-more-info'));
+        expect(downloadableWarningGuidanceMoreInfoElement).toBeFalsy();
+    });
+
+    it('should add the downloadable more info warning guidance when it is provided and warn is true', async () => {
+        warnInput.set(true);
+        downloadableWarningGuidanceMoreInfoInput.set({
+            pdfFilepath: 'test/folder',
+            pdfFilename: 'testing.pdf',
+            content: sanitizer.bypassSecurityTrustHtml('<p>tesing works</p>'),
+        });
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        const downloadableWarningGuidanceMoreInfoElement = fixture.debugElement.query(
+            By.css('.section-item-warning-guidance-more-info > strong'),
+        ).nativeElement;
+        expect(downloadableWarningGuidanceMoreInfoElement.textContent).toBe('For more information, please read here');
     });
 });

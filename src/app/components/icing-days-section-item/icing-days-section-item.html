@@ -1,8 +1,13 @@
 @let data = dataInput();
 @let warn = warnInput();
 @let subtitle = warn ? 'Within an area of many icing days' : undefined;
-
-<c477-more-info-section-item headerInput="Icing days" [subtitleInput]="subtitle" [warnInput]="warn" [warningGuidanceInput]="warningGuidance">
+<c477-more-info-section-item
+    headerInput="Icing days"
+    [subtitleInput]="subtitle"
+    [warnInput]="warn"
+    [warningGuidanceInput]="warningGuidance"
+    [downloadableWarningGuidanceMoreInfoInput]="downloadableWarningGuidanceMoreInfo"
+>
     <div class="container data-table">
         <dl>
             <dt>Icing days</dt>

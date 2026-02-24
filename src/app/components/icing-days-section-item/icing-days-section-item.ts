@@ -1,4 +1,5 @@
-import { Component, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { MoreInfoSectionItem } from '@components/more-info-section-item/more-info-section-item';
 import { BuildingIcingDaysDataModel } from '@core/models/building.weather.data.model';
 
@@ -9,6 +10,8 @@ import { BuildingIcingDaysDataModel } from '@core/models/building.weather.data.m
     styleUrl: './icing-days-section-item.scss',
 })
 export class IcingDaysSectionItem {
+    readonly #sanitizer = inject(DomSanitizer);
+
     public readonly warningGuidance = `
         <p>
             <strong>This property is located in an area that experiences frequent freezing conditions.</strong>
@@ -22,6 +25,15 @@ export class IcingDaysSectionItem {
             This flag reflects area-level climate conditions, not confirmed defects at this property. Additional assessment may be appropriate before installation.
         </p>
     `;
+
+    public readonly downloadableWarningGuidanceMoreInfo = {
+        content: this.#sanitizer.bypassSecurityTrustHtml(`
+            <h2 style="font-weight: 550;">Icing days and retrofit risk in UK housing</h2>
+            <div style="display: flex; justify-content: center; padding: 30px;">
+                <p><em>More information coming soon</em></p>
+            </div>
+        `),
+    };
 
     public dataInput = input.required<BuildingIcingDaysDataModel>();
     public warnInput = input.required<boolean>();

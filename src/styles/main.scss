@@ -219,6 +219,15 @@ p {
         ));
 }
 
+.section-item-warning-guidance-more-info-modal {
+
+    @include mat.dialog-overrides((container-color: #e5e5e5, with-actions-content-padding: 1rem, actions-padding: 1rem, container-max-width: 700px));
+    .downloadable-content {
+        padding: 0.5rem;
+        background-color: #ffffff;
+    }
+}
+
 .profile-menu {
     p {
         padding-right: 1rem;
