@@ -5,8 +5,8 @@ import { SunlightHoursRegionData, DashboardService } from '@core/services/dashbo
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import type { PlotData } from 'plotly.js-dist-min';
 import { of } from 'rxjs';
-import { SunlightHoursByAreaChartComponent } from './sunlight-hours-by-area-chart.component';
 import { getPlotlyModuleProviders } from '../plotly.mock';
+import { SunlightHoursByAreaChartComponent } from './sunlight-hours-by-area-chart.component';
 
 describe('SunlightHoursByAreaChartComponent', () => {
     let component: SunlightHoursByAreaChartComponent;
@@ -15,28 +15,23 @@ describe('SunlightHoursByAreaChartComponent', () => {
 
     const mockRegionData: SunlightHoursRegionData[] = [
         {
-            region_name: 'North West',
-            average_sunlight_hours: 5.2,
+            area_name: 'North West',
+            average_daily_sunlight_hours: 5.2,
         },
         {
-            region_name: 'London',
-            average_sunlight_hours: 4.8,
+            area_name: 'London',
+            average_daily_sunlight_hours: 4.8,
         },
         {
-            region_name: 'South East',
-            average_sunlight_hours: 5.5,
+            area_name: 'South East',
+            average_daily_sunlight_hours: 5.5,
         },
     ];
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [SunlightHoursByAreaChartComponent],
-            providers: [
-                provideHttpClient(),
-                provideHttpClientTesting(),
-                ...getPlotlyModuleProviders(),
-                { provide: RUNTIME_CONFIGURATION, useValue: {} },
-            ],
+            providers: [provideHttpClient(), provideHttpClientTesting(), ...getPlotlyModuleProviders(), { provide: RUNTIME_CONFIGURATION, useValue: {} }],
         }).compileComponents();
 
         fixture = TestBed.createComponent(SunlightHoursByAreaChartComponent);
@@ -88,4 +83,3 @@ describe('SunlightHoursByAreaChartComponent', () => {
         });
     });
 });
-

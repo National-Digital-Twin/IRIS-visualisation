@@ -101,8 +101,8 @@ export interface BackendBuildingsByDeprivationDimensionResponse {
 }
 
 export interface SunlightHoursRegionData {
-    region_name: string;
-    average_sunlight_hours: number;
+    area_name: string;
+    average_daily_sunlight_hours: number;
 }
 
 interface BackendEPCAreaData extends EPCRatings {
@@ -288,7 +288,7 @@ export class DashboardService {
             params['filter_area_names'] = filterNames;
         }
 
-        return this.#http.get<SunlightHoursRegionData[]>(`${this.#endpointRoot}/average-daily-sunlight-hours-per-region`, { params, withCredentials: true });
+        return this.#http.get<SunlightHoursRegionData[]>(`${this.#endpointRoot}/average-daily-sunlight-hours-by-area-level`, { params, withCredentials: true });
     }
 
     public getEPCByFeature(feature: string, filter?: AreaFilter): Observable<EPCRatingsByCategory[]> {

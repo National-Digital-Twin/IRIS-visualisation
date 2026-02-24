@@ -27,7 +27,7 @@ export class SunlightHoursByAreaChartComponent extends ScrollableChartComponent 
     public availableAreas = signal<string[]>([]);
     public selectedAreas = signal<string[]>([]);
 
-    private readonly sunlightHoursRegionData = signal<SunlightHoursRegionData[] | null>(null);
+    private readonly sunlightHoursAreaData = signal<SunlightHoursRegionData[] | null>(null);
 
     private readonly groupingConfig = computed(() => {
         const filter = this.areaFilter;
@@ -84,7 +84,7 @@ export class SunlightHoursByAreaChartComponent extends ScrollableChartComponent 
     constructor() {
         super();
         effect(() => {
-            const data = this.sunlightHoursRegionData();
+            const data = this.sunlightHoursAreaData();
             const areas = this.selectedAreas();
             if (!data || areas.length === 0) {
                 return;
@@ -102,9 +102,9 @@ export class SunlightHoursByAreaChartComponent extends ScrollableChartComponent 
         const config = this.groupingConfig();
 
         this.subscribe(this.dashboardService.getAverageDailySunlightHoursPerRegion(config.groupBy, config.filterLevel, config.filterNames), (areaData) => {
-            this.sunlightHoursRegionData.set(areaData);
+            this.sunlightHoursAreaData.set(areaData);
 
-            const areas = areaData.map((r) => r.region_name);
+            const areas = areaData.map((r) => r.area_name);
             this.availableAreas.set(areas);
             this.selectedAreas.set(areas);
 
@@ -113,11 +113,11 @@ export class SunlightHoursByAreaChartComponent extends ScrollableChartComponent 
     }
 
     private buildChart(areaData: SunlightHoursRegionData[], selectedAreas: string[]): { data: Data[]; layout: Partial<Layout> } {
-        const filteredData = areaData.filter((r) => selectedAreas.includes(r.region_name));
-        const sortedData = filteredData.toSorted((a, b) => a.average_sunlight_hours - b.average_sunlight_hours);
+        const filteredData = areaData.filter((r) => selectedAreas.includes(r.area_name));
+        const sortedData = filteredData.toSorted((a, b) => a.average_daily_sunlight_hours - b.average_daily_sunlight_hours);
 
-        const areaNames = sortedData.map((r) => r.region_name);
-        const values = sortedData.map((r) => r.average_sunlight_hours);
+        const areaNames = sortedData.map((r) => r.area_name);
+        const values = sortedData.map((r) => r.average_daily_sunlight_hours);
 
         const data: Data[] = [
             {
@@ -160,7 +160,7 @@ export class SunlightHoursByAreaChartComponent extends ScrollableChartComponent 
             paper_bgcolor: 'white',
             showlegend: false,
         };
-        
+
         return { data, layout };
     }
 
