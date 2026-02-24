@@ -166,7 +166,7 @@ export class LegendComponent {
         const colors = LAYER_COLORS.sunlightHours;
         return {
             type: 'sunlight-hours',
-            title: 'Sunlight Hours',
+            title: 'Hours of sunlight',
             gradient: {
                 colors: [colors.high, colors.low],
                 labels: ['High', 'Low'],

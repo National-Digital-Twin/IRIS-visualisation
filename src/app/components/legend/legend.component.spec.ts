@@ -64,6 +64,6 @@ describe('LegendComponent', () => {
         fixture.detectChanges();
 
         expect(component.currentLegend().type).toBe('sunlight-hours');
-        expect(component.currentLegend().title).toBe('Sunlight Hours');
+        expect(component.currentLegend().title).toBe('Hours of sunlight');
     });
 });

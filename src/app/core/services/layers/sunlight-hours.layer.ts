@@ -50,7 +50,7 @@ export class SunlightHoursLayer extends AbstractClimateLayer<SunlightHoursProper
             const popupContent = `
                     <div class="climate-data-popup">
                         <div class="popup-header">
-                            <h3>Sunlight hours</h3>
+                            <h3>Hours of sunlight</h3>
     
                             <div class="info-tooltip-container">
                                 <button class="info-button" onclick="togglePopoutInfo()">
@@ -64,7 +64,7 @@ export class SunlightHoursLayer extends AbstractClimateLayer<SunlightHoursProper
                                         2019 to the end of 2024 (inclusive).</p>
                                     <p>
                                         Data comes from the Met Office. 
-                                        <a href="https://catalogue.ceda.ac.uk/uuid/4dc8450d889a491ebb20e724debe2dfb/?q=&results_per_page=20&sort_by=title_desc&objects_related_to_uuid=4dc8450d889a491ebb20e724debe2dfb&permissions_option=any&geo_option=True&north_bound=&west_bound=&east_bound=&south_bound=&start_date=&end_date=&date_option=publication_date&start_date_pub=&end_date_pub=">Click here</a>
+                                        <a href="https://catalogue.ceda.ac.uk/uuid/4dc8450d889a491ebb20e724debe2dfb/?q=&results_per_page=20&sort_by=title_desc&objects_related_to_uuid=4dc8450d889a491ebb20e724debe2dfb&permissions_option=any&geo_option=True&north_bound=&west_bound=&east_bound=&south_bound=&start_date=&end_date=&date_option=publication_date&start_date_pub=&end_date_pub=" target="_blank">Click here</a>
                                         to read more about the dataset collection.
                                     </p>
                                     <button class="close-button" onclick="hidePopoutInfo()">Close</button>
