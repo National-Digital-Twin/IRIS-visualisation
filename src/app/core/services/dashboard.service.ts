@@ -100,6 +100,11 @@ export interface BackendBuildingsByDeprivationDimensionResponse {
     max_dep_4_pct: number;
 }
 
+export interface SunlightHoursRegionData {
+    region_name: string;
+    average_sunlight_hours: number;
+}
+
 interface BackendEPCAreaData extends EPCRatings {
     name: string;
     total: number;
@@ -271,6 +276,19 @@ export class DashboardService {
                     return response ?? defaultValues;
                 }),
             );
+    }
+
+    public getAverageDailySunlightHoursPerRegion(groupBy: AreaLevel, filterLevel?: AreaLevel, filterNames?: string[]): Observable<SunlightHoursRegionData[]> {
+        const params: Record<string, string | string[]> = {
+            group_by_level: groupBy,
+        };
+
+        if (filterLevel && filterNames) {
+            params['filter_area_level'] = filterLevel;
+            params['filter_area_names'] = filterNames;
+        }
+
+        return this.#http.get<SunlightHoursRegionData[]>(`${this.#endpointRoot}/average-daily-sunlight-hours-per-region`, { params, withCredentials: true });
     }
 
     public getEPCByFeature(feature: string, filter?: AreaFilter): Observable<EPCRatingsByCategory[]> {

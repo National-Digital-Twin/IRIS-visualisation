@@ -18,6 +18,7 @@ import { OverallEpcChartComponent } from './charts/overall-epc-chart/overall-epc
 import { SapTimelineByAreaChartComponent } from './charts/sap-timeline-by-area-chart/sap-timeline-by-area-chart.component';
 import { SapTimelineByPropertyTypeChartComponent } from './charts/sap-timeline-by-property-type-chart/sap-timeline-by-property-type-chart.component';
 import { SapTimelineChartComponent } from './charts/sap-timeline-chart/sap-timeline-chart.component';
+import { SunlightHoursByAreaChartComponent } from './charts/sunlight-hours-by-area-chart/sunlight-hours-by-area-chart.component';
 
 const AREA_FILTER_STORAGE_KEY = 'dashboard.areaFilter';
 
@@ -41,6 +42,7 @@ const AREA_FILTER_STORAGE_KEY = 'dashboard.areaFilter';
         InDateVsExpiredEpcsComponent,
         SapTimelineByPropertyTypeChartComponent,
         SapTimelineByAreaChartComponent,
+        SunlightHoursByAreaChartComponent,
     ],
     templateUrl: './dashboard-page.component.html',
     styleUrl: './dashboard-page.component.scss',
