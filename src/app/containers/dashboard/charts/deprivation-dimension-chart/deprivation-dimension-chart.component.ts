@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { formatHouseholdCount, getHouseholdVerb, getPluralSuffix } from '@core/helpers/household';
 import { BackendBuildingsByDeprivationDimensionResponse } from '@core/services/dashboard.service';
 import { BaseChartComponent } from '../base-chart.component';
 import { ChartPlaceholderComponent } from '../shared/chart-placeholder.component';
@@ -30,7 +31,7 @@ export class DeprivationDimensionChartComponent extends BaseChartComponent {
                 key: 'dep4',
                 count: response.dep_4_count,
                 value: resolveValue(response.dep_4_pct, response.unfiltered_dep_4_pct),
-                statement: 'are highly deprived',
+                statement: 'highly deprived',
                 context: '(deprived in four dimensions)',
                 nationalAverage: isFilteredMode ? response.unfiltered_dep_4_pct : undefined,
                 min: response.min_dep_4_pct,
@@ -40,7 +41,7 @@ export class DeprivationDimensionChartComponent extends BaseChartComponent {
                 key: 'dep3',
                 count: response.dep_3_count,
                 value: resolveValue(response.dep_3_pct, response.unfiltered_dep_3_pct),
-                statement: 'are deprived in three dimensions',
+                statement: 'deprived in three dimensions',
                 nationalAverage: isFilteredMode ? response.unfiltered_dep_3_pct : undefined,
                 min: response.min_dep_3_pct,
                 max: response.max_dep_3_pct,
@@ -73,7 +74,15 @@ export class DeprivationDimensionChartComponent extends BaseChartComponent {
     }
 
     public formatCount(value: number): string {
-        return value.toLocaleString('en-GB');
+        return formatHouseholdCount(value);
+    }
+
+    public getPluralSuffix(value: number): '' | 's' {
+        return getPluralSuffix(value);
+    }
+
+    public getHouseholdVerb(value: number): 'is' | 'are' {
+        return getHouseholdVerb(value);
     }
 }
 

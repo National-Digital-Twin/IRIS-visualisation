@@ -11,7 +11,10 @@
             @for (row of histogramRows(); track row.key) {
                 <div class="histogram-row">
                     <p class="histogram-title">
-                        <strong>{{ formatCount(row.count) }} households ({{ formatPercentage(row.value) }}) {{ row.statement }}</strong>
+                        <strong
+                            >{{ formatCount(row.count) }} household{{ getPluralSuffix(row.count) }} ({{ formatPercentage(row.value) }})
+                            {{ getHouseholdVerb(row.count) }} {{ row.statement }}</strong
+                        >
                         @if (row.context) {
                             <small>{{ row.context }}</small>
                         }

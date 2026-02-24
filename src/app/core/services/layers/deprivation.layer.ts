@@ -1,4 +1,5 @@
 import { LAYER_COLORS } from '@core/config/layer-colors.config';
+import { formatHouseholdCount, getHouseholdVerb, getPluralSuffix } from '@core/helpers/household';
 import { DemographicsDataService, DeprivationLayerProperties } from '@core/services/demographics-data.service';
 import { FeatureCollection, Geometry } from 'geojson';
 import * as mapboxgl from 'mapbox-gl';
@@ -54,9 +55,9 @@ export class DeprivationLayer extends AbstractClimateLayer<DeprivationLayerPrope
 
         const properties = feature.properties as DeprivationLayerProperties;
         const areaName = properties.area_nm?.trim() || 'this area';
-        const dep4HouseholdCount = this.formatHouseholdCount(properties.dep_4);
+        const dep4HouseholdCount = formatHouseholdCount(properties.dep_4);
         const dep4Percentage = this.getAreaPercentage(properties, 'dep_pct_4');
-        const dep3HouseholdCount = this.formatHouseholdCount(properties.dep_3);
+        const dep3HouseholdCount = formatHouseholdCount(properties.dep_3);
         const dep3Percentage = this.getAreaPercentage(properties, 'dep_pct_3');
         const dep4Range = this.getPercentageRangeForField('dep_pct_4');
         const dep3Range = this.getPercentageRangeForField('dep_pct_3');
@@ -94,12 +95,12 @@ export class DeprivationLayer extends AbstractClimateLayer<DeprivationLayerPrope
                         </div>
                     </div>
                     <p class="deprivation-summary primary">
-                        <span class="summary-emphasis">${dep4HouseholdCount} households (${this.formatPercentage(dep4Percentage)}) are highly deprived</span>
+                        <span class="summary-emphasis">${dep4HouseholdCount} household${getPluralSuffix(properties.dep_4)} (${this.formatPercentage(dep4Percentage)}) ${getHouseholdVerb(properties.dep_4)} highly deprived</span>
                         <small class="summary-context">(deprived in four dimensions)</small>
                     </p>
                     ${this.createHistogram(dep4Range.minPercentage, dep4Range.maxPercentage, dep4Percentage)}
                     <p class="deprivation-summary">
-                        <span>${dep3HouseholdCount} households (${this.formatPercentage(dep3Percentage)}) are deprived in three dimensions</span>
+                        <span>${dep3HouseholdCount} household${getPluralSuffix(properties.dep_3)} (${this.formatPercentage(dep3Percentage)}) ${getHouseholdVerb(properties.dep_3)} deprived in three dimensions</span>
                     </p>
                     ${this.createHistogram(dep3Range.minPercentage, dep3Range.maxPercentage, dep3Percentage)}
                 </div>
@@ -212,14 +213,6 @@ export class DeprivationLayer extends AbstractClimateLayer<DeprivationLayerPrope
         }
 
         return `${value.toFixed(1)}%`;
-    }
-
-    private formatHouseholdCount(value: number | undefined): string {
-        if (typeof value !== 'number' || Number.isNaN(value)) {
-            return '0';
-        }
-
-        return value.toLocaleString('en-GB');
     }
 
     private getAreaPercentage(properties: DeprivationLayerProperties, key: 'dep_pct_3' | 'dep_pct_4'): number {
