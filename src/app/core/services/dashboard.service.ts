@@ -285,9 +285,6 @@ export class DashboardService {
             >(`${this.#endpointRoot}/average-daily-sunlight-hours-by-area-level`, { params: { ...this.getParamsWithFilter(filter), group_by_level: groupBy }, withCredentials: true })
             .pipe(
                 map((response) => {
-                    if (Array.isArray(response)) {
-                        return response;
-                    }
                     return response;
                 }),
             );
