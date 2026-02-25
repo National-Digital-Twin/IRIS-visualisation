@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { AreaFilter } from '@core/models/area-filter.model';
 import { SunlightHoursRegionData, DashboardService } from '@core/services/dashboard.service';
 import { RUNTIME_CONFIGURATION } from '@core/tokens/runtime-configuration.token';
 import type { PlotData } from 'plotly.js-dist-min';
@@ -41,6 +42,57 @@ describe('SunlightHoursByAreaChartComponent', () => {
 
     it('should create the component', () => {
         expect(component).toBeTruthy();
+    });
+
+    describe('Data loading inputs', () => {
+        it('should request national data grouped by region when there is no area filter', () => {
+            const spy = jest.spyOn(dashboardService, 'getAverageDailySunlightHoursPerArea').mockReturnValue(of(mockRegionData));
+
+            fixture.detectChanges();
+
+            expect(spy).toHaveBeenCalledTimes(1);
+            expect(spy).toHaveBeenCalledWith('region', undefined);
+        });
+
+        it('should request next-level grouped data for a single named area', () => {
+            const singleAreaFilter: AreaFilter = { mode: 'named-areas', level: 'region', names: ['North West'] };
+            const spy = jest.spyOn(dashboardService, 'getAverageDailySunlightHoursPerArea').mockReturnValue(of(mockRegionData));
+
+            fixture.componentRef.setInput('areaFilter', singleAreaFilter);
+            fixture.detectChanges();
+
+            expect(spy).toHaveBeenCalledTimes(1);
+            expect(spy).toHaveBeenCalledWith('county', singleAreaFilter);
+        });
+
+        it('should request data with polygon filter and hide the area selector in polygon mode', () => {
+            const polygonFilter: AreaFilter = {
+                mode: 'polygon',
+                polygon: {
+                    type: 'Polygon',
+                    coordinates: [
+                        [
+                            [0, 0],
+                            [1, 0],
+                            [1, 1],
+                            [0, 1],
+                            [0, 0],
+                        ],
+                    ],
+                },
+            };
+
+            const spy = jest.spyOn(dashboardService, 'getAverageDailySunlightHoursPerArea').mockReturnValue(of(mockRegionData));
+
+            fixture.componentRef.setInput('areaFilter', polygonFilter);
+            fixture.detectChanges();
+
+            expect(spy).toHaveBeenCalledTimes(1);
+            expect(spy).toHaveBeenCalledWith('region', polygonFilter);
+            expect(component.chartTitle()).toBe('Average daily hours of sunlight');
+            expect(component.isPolygonView).toBe(true);
+            expect(fixture.nativeElement.querySelector('c477-area-selector')).toBeNull();
+        });
     });
 
     describe('Chart data transformation', () => {
