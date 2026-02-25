@@ -45,7 +45,7 @@ describe('SunlightHoursByAreaChartComponent', () => {
 
     describe('Chart data transformation', () => {
         beforeEach(() => {
-            jest.spyOn(dashboardService, 'getAverageDailySunlightHoursPerRegion').mockReturnValue(of(mockRegionData));
+            jest.spyOn(dashboardService, 'getAverageDailySunlightHoursPerArea').mockReturnValue(of(mockRegionData));
             fixture.detectChanges();
         });
 

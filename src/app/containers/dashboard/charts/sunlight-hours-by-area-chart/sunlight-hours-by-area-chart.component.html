@@ -1,13 +1,15 @@
 <div class="widget-header">
     <div class="widget-title">
         <span>{{ chartTitle() }}</span>
-        <c477-area-selector
-            [label]="selectorLabel()"
-            [disabled]="loading() || !!error()"
-            [selectedAreas]="selectedAreas()"
-            [availableAreas]="availableAreas()"
-            (selectedAreasChange)="selectedAreas.set($event)"
-        ></c477-area-selector>
+        @if (!isPolygonView) {
+            <c477-area-selector
+                [label]="selectorLabel()"
+                [disabled]="loading() || !!error()"
+                [selectedAreas]="selectedAreas()"
+                [availableAreas]="availableAreas()"
+                (selectedAreasChange)="selectedAreas.set($event)"
+            ></c477-area-selector>
+        }
         @if (titleSuffix()) {
             <span>{{ titleSuffix() }}</span>
         }

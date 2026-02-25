@@ -26,6 +26,7 @@ export class SunlightHoursByAreaChartComponent extends ScrollableChartComponent 
     public chartLayout = signal<Partial<Layout>>({});
     public availableAreas = signal<string[]>([]);
     public selectedAreas = signal<string[]>([]);
+    public isPolygonView = false;
 
     private readonly sunlightHoursAreaData = signal<SunlightHoursRegionData[] | null>(null);
 
@@ -65,6 +66,11 @@ export class SunlightHoursByAreaChartComponent extends ScrollableChartComponent 
     public readonly chartTitle = computed(() => {
         const config = this.groupingConfig();
 
+        if (this.areaFilter?.mode === 'polygon') {
+            this.isPolygonView = true;
+            return 'Average daily hours of sunlight';
+        }
+
         if (config.mode === 'single') {
             return 'Average daily hours of sunlight of';
         }
@@ -76,7 +82,7 @@ export class SunlightHoursByAreaChartComponent extends ScrollableChartComponent 
         const config = this.groupingConfig();
         return config.mode === 'single' ? ` in ${config.areaName}` : '';
     });
-
+    
     public readonly selectorLabel = computed(() => {
         return this.groupingConfig().groupBy;
     });
@@ -101,7 +107,7 @@ export class SunlightHoursByAreaChartComponent extends ScrollableChartComponent 
     protected loadData(): void {
         const config = this.groupingConfig();
 
-        this.subscribe(this.dashboardService.getAverageDailySunlightHoursPerRegion(config.groupBy, config.filterLevel, config.filterNames), (areaData) => {
+        this.subscribe(this.dashboardService.getAverageDailySunlightHoursPerArea(config.groupBy, this.areaFilter), (areaData) => {
             this.sunlightHoursAreaData.set(areaData);
 
             const areas = areaData.map((r) => r.area_name);

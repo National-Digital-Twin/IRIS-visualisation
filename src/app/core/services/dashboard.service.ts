@@ -278,17 +278,19 @@ export class DashboardService {
             );
     }
 
-    public getAverageDailySunlightHoursPerRegion(groupBy: AreaLevel, filterLevel?: AreaLevel, filterNames?: string[]): Observable<SunlightHoursRegionData[]> {
-        const params: Record<string, string | string[]> = {
-            group_by_level: groupBy,
-        };
-
-        if (filterLevel && filterNames) {
-            params['filter_area_level'] = filterLevel;
-            params['filter_area_names'] = filterNames;
-        }
-
-        return this.#http.get<SunlightHoursRegionData[]>(`${this.#endpointRoot}/average-daily-sunlight-hours-by-area-level`, { params, withCredentials: true });
+    public getAverageDailySunlightHoursPerArea(groupBy: AreaLevel, filter?: AreaFilter): Observable<SunlightHoursRegionData[]> {
+        return this.#http
+            .get<
+                SunlightHoursRegionData[]
+            >(`${this.#endpointRoot}/average-daily-sunlight-hours-by-area-level`, { params: { ...this.getParamsWithFilter(filter), group_by_level: groupBy }, withCredentials: true })
+            .pipe(
+                map((response) => {
+                    if (Array.isArray(response)) {
+                        return response;
+                    }
+                    return response;
+                }),
+            );
     }
 
     public getEPCByFeature(feature: string, filter?: AreaFilter): Observable<EPCRatingsByCategory[]> {
