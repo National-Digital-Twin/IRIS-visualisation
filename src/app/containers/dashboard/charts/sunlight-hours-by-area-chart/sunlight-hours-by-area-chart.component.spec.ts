@@ -142,7 +142,7 @@ describe('SunlightHoursByAreaChartComponent', () => {
 
             component['sunlightHoursAreaData'].set(dataWithNationalAverage);
 
-            component.selectedAreas.set(dataWithNationalAverage.map(d => d.area_name));
+            component.selectedAreas.set(dataWithNationalAverage.map((d) => d.area_name));
 
             fixture.detectChanges();
 
