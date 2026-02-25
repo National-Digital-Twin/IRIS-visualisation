@@ -14,11 +14,36 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
 ---
 
-## Unreleased
+## [0.96.0] - 2026-02-25
 
+- [DPAV-2419]: Added empty warnings tab
+- [DPAV-1686]: Added models for building level climate data, changed warning tab to more info
+- [DPAV-1686]: Removed refs to flagging in the app
+- [DPAV-2417]: Completed the WDR section item for the building detail panel
+- [DPAV-2415]: Completed the icing days section item for the building details panel
+- [DPAV-2416]: Completed the hot summer days section item for the building details panel
+- [DPAV-2420]: Added logic to show warnings to the climate data sections in the building details panel
 - [DPAV-2487]: added high deprivation layer and associated popover
+- [DPAV-2496]: Added code to be able to download weather data for a single building
+- [DPAV-2496]: Implemented new approach to bulk data download along with weather data
 - [DPAV-2499]: added deprivation charts for national + area views
+- [DPAV-2418]: Added hours of sunlight section item to the building details panel
+- [DPAV-2496]: Added sunlight hours data to bulk download and fixed general issues with downloads
+- [DPAV-1686]: implemented design and imeplemtnation tweaks to the buildings details panel
 - [DPAV-1685]: hours of sunlight layer implementation
+- [DPAV-1686]: Ensured the weather data requests all dont fail if one fails
+- [DPAV-2495]: Changed title of the epc rating by chart for the area defined view
+- [DPAV-1686]: Content changes post design review for the weather data sections
+- [DPAV-2487]: Design feedback implemented
+- [DPAV-2541]: Added downloadable modal component to provide more info about the weather sections
+- [DPAV-2487]: Fixed pluralisation when only 1 household in an area is deprived
+- [DPAV-1685]: Implemented feedback from dev testing for sunlight hours layer
+- [DPAV-2541]: Added downloadable modal for the sunlight hours section item
+- [DPAV-2497]: Added hours of sunlight by region chart
+- [DPAV-2498]: Handle hours of sunlight chart with polygon selection
+- [DPAV-2541]: Completed modal content for all weather sections
+- [DPAV-2541]: Implemented feedback from dev testing for downloadable content modal
+
 
 ## [0.95.1] - 2026-01-22
 

@@ -141,11 +141,11 @@ export class WindDrivenRainSectionItem {
             <div>
                 <h2 style="font-weight: 550;">Key UK guidance and research</h2>
                 <div style="margin-top: 20px;">
-                    <h3 style="font-weight: 500;"><a href="https://www.ukcmb.org/">UK Centre for Moisture in Buildings (UKCMB)</a><h3>
+                    <h3 style="font-weight: 500;"><a href="https://www.ukcmb.org/" target="_blank">UK Centre for Moisture in Buildings (UKCMB)</a><h3>
                     <p>Research on moisture risk, retrofit and building pathology.</p>
-                    <h3><a href="https://www.metoffice.gov.uk/">Met Office</a></h3>
+                    <h3><a href="https://www.metoffice.gov.uk/" target="_blank">Met Office</a></h3>
                     <p>UK climate projections and rainfall intensity datasets.</p>
-                    <h3><a href=""https://www.bsigroup.com/>British Standards Institution</a></h3>
+                    <h3><a href="https://www.bsigroup.com/" target="_blank">British Standards Institution</a></h3>
                     <p>BS EN ISO 15927-3: Calculation of wind-driven rain index.</p>
                 </div>
             </div>
