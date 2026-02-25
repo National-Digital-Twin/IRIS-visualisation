@@ -30,7 +30,6 @@ export class WindDrivenRainSectionItem {
     `;
 
     public readonly downloadableWarningGuidanceMoreInfo = {
-        pdfFilepath: '../../../assets',
         pdfFilename: 'wind-driven-rain-more-info.pdf',
         content: this.#sanitizer.bypassSecurityTrustHtml(`
             <div>
@@ -52,7 +51,7 @@ export class WindDrivenRainSectionItem {
             <hr style="border-top: 1px solid #7c7c7c; border-bottom: 0; margin-bottom: 10px;">
             <div>
                 <h2 style="font-weight: 550;">Interaction with retrofit measures</h2>
-                <div style="margin-top: 10px;">
+                <div style="margin-top: 20px;">
                     <h3 style="font-weight: 500;">1. Cavity wall insulation (CWI)</h3>
                     <p>CWI can reduce heat loss but alters the moisture balance of the wall system.</p>
                     <p>In areas of high wind-driven rain exposure:</p>
@@ -123,7 +122,7 @@ export class WindDrivenRainSectionItem {
             <hr style="border-top: 1px solid #7c7c7c; border-bottom: 0; margin-bottom: 10px;">
             <div>
                 <h2 style="font-weight: 550;">Policy and standards context</h2>
-                <div style="margin-top: 10px;">
+                <div style="margin-top: 20px;">
                     <h3 style="font-weight: 500;">PAS 2035: Retrofitting Dwellings for improved Energy Efficiency</h3>
                     <p>Requires:</p>
                     <ul>
@@ -141,7 +140,7 @@ export class WindDrivenRainSectionItem {
             <hr style="border-top: 1px solid #7c7c7c; border-bottom: 0; margin-bottom: 10px;">
             <div>
                 <h2 style="font-weight: 550;">Key UK guidance and research</h2>
-                <div style="margin-top: 10px;">
+                <div style="margin-top: 20px;">
                     <h3 style="font-weight: 500;"><a href="https://www.ukcmb.org/">UK Centre for Moisture in Buildings (UKCMB)</a><h3>
                     <p>Research on moisture risk, retrofit and building pathology.</p>
                     <h3><a href="https://www.metoffice.gov.uk/">Met Office</a></h3>
@@ -159,7 +158,6 @@ export class WindDrivenRainSectionItem {
                 <p>Area-level climate exposure does not determine outcome, but it informs appropriate design controls.</p>
                 <p>A PAS 2035-compliant process ensures that retrofit measures are suitable for both the building and its environmental context.</p>
             </div>
-            <hr style="border-top: 1px solid #7c7c7c; border-bottom: 0;">
         `),
     };
 

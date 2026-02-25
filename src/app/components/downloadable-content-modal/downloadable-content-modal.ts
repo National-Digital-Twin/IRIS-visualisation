@@ -11,9 +11,10 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class DownloadableContentModal {
     readonly #dialogRef = inject(MatDialogRef<DownloadableContentModal>);
+    readonly #pdfFilepath = '../../../assets/';
 
-    public readonly data = inject<{ pdfFilepath?: string; pdfFilename?: string; content: string }>(MAT_DIALOG_DATA);
-    public readonly pdfFilePathAndName = this.data.pdfFilepath && this.data.pdfFilename ? `${this.data.pdfFilepath}/${this.data.pdfFilename}` : undefined;
+    public readonly data = inject<{ pdfFilename: string; content: string }>(MAT_DIALOG_DATA);
+    public readonly pdfFilePathAndName = `${this.#pdfFilepath}${this.data.pdfFilename}`;
 
     public onDownload(): void {
         const downloadLinkElement = document.querySelector('#downloadLink') as HTMLElement;

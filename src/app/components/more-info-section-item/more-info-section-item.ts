@@ -19,7 +19,7 @@ export class MoreInfoSectionItem {
     public subtitleInput = input<string | undefined>(undefined);
     public warnInput = input<boolean>(false);
     public warningGuidanceInput = input<string | undefined>(undefined);
-    public downloadableWarningGuidanceMoreInfoInput = input<{ pdfFilepath?: string; pdfFilename?: string; content: SafeHtml } | undefined>(undefined);
+    public downloadableWarningGuidanceMoreInfoInput = input<{ pdfFilename: string; content: SafeHtml } | undefined>(undefined);
 
     public onDownloadableWarningGuidanceMoreInfoClick(): void {
         const downloadableWarningGuidanceMoreInfo = this.downloadableWarningGuidanceMoreInfoInput();
