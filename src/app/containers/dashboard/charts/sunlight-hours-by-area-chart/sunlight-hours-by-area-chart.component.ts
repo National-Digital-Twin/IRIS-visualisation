@@ -133,7 +133,11 @@ export class SunlightHoursByAreaChartComponent extends ScrollableChartComponent 
                 y: areaNames,
                 orientation: 'h',
                 marker: {
-                    color: '#1f77b4',
+                    color: areaNames.map(name =>
+                        name === 'National average'
+                            ? '#002244'
+                            : '#1f77b4'
+                    )
                 },
             },
         ];

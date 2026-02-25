@@ -43,7 +43,7 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 - [DPAV-2498]: Handle hours of sunlight chart with polygon selection
 - [DPAV-2541]: Completed modal content for all weather sections
 - [DPAV-2541]: Implemented feedback from dev testing for downloadable content modal
-
+- [DPAV-2498]: Adjust colour of national average in polygon area chart
 
 ## [0.95.1] - 2026-01-22
 
