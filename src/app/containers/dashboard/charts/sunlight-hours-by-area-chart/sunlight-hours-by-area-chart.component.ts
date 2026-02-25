@@ -82,7 +82,7 @@ export class SunlightHoursByAreaChartComponent extends ScrollableChartComponent 
         const config = this.groupingConfig();
         return config.mode === 'single' ? ` in ${config.areaName}` : '';
     });
-    
+
     public readonly selectorLabel = computed(() => {
         return this.groupingConfig().groupBy;
     });
