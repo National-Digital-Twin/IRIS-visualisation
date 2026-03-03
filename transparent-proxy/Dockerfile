@@ -1,4 +1,4 @@
-FROM nginxinc/nginx-unprivileged:1.29-alpine3.22
+FROM nginxinc/nginx-unprivileged:1.29.5-alpine3.23
 
 RUN ["rm", "/etc/nginx/conf.d/default.conf"]
 

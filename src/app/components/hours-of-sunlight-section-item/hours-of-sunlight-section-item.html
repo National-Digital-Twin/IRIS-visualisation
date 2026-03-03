@@ -1,0 +1,29 @@
+@let data = dataInput();
+<c477-more-info-section-item headerInput="Hours of sunlight">
+    <div class="container">
+        <p>
+            This panel is informational, based on Met Office climate data. It provides additional context on the amount of solar resource available in the local
+            area, which may influence the suitability and potential performance of solar technologies such as photovoltaic (PV) panels or solar thermal systems.
+        </p>
+        <p>
+            Solar exposure can also influence internal temperatures and solar gain, which may be relevant when planning insulation, glazing or shading measures.
+        </p>
+        <p>This information reflects area-level climate data, not site-specific roof analysis.</p>
+        <p class="section-item-warning-guidance-more-info">
+            <strong
+                >For more information, please read <a href="" (click)="$event.preventDefault(); onDownloadableWarningGuidanceMoreInfoClick()">here</a></strong
+            >
+        </p>
+        <div class="data-table">
+            <dl>
+                <dt>Average annual hours of sunlight</dt>
+                <dd>Average daily hours of sunlight</dd>
+                <dt>{{ data.sunlightHours.toFixed(2) }}</dt>
+                <dd>{{ data.dailySunlightHours.toFixed(2) }}</dd>
+            </dl>
+        </div>
+    </div>
+</c477-more-info-section-item>
+<!-- SPDX-License-Identifier: Apache-2.0
+© Crown Copyright 2025. This work has been developed by the National Digital Twin Programme
+and is legally attributed to the Department for Business and Trade (UK) as the governing entity. -->

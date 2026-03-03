@@ -1,11 +1,11 @@
-import { BuiltForm, EPCRating, PostCode, StructureUnitType } from '@core/enums';
+import { BuiltForm, EPCRating, StructureUnitType } from '@core/enums';
 
 export type BuildingModel = {
     UPRN: string;
     TOID?: string;
     ParentTOID?: string;
     FullAddress: string;
-    PostCode?: PostCode;
+    PostCode?: string;
     StructureUnitType?: StructureUnitType;
     BuiltForm?: BuiltForm;
     LodgementDate?: string;
@@ -20,7 +20,6 @@ export type BuildingModel = {
     WallConstruction?: string;
     WallInsulation?: string;
     WindowGlazing?: string;
-    Flagged?: string;
     longitude?: string;
     latitude?: string;
     FuelType?: string;
@@ -41,30 +40,6 @@ export type BuildingModel = {
 
 export interface BuildingMap {
     [key: string]: BuildingModel[];
-}
-
-export type BuildingParts = {
-    FloorConstruction: string;
-    FloorInsulation: string;
-    RoofConstruction: string;
-    RoofInsulationLocation: string;
-    RoofInsulationThickness: string;
-    WallConstruction: string;
-    WallInsulation: string;
-    WindowGlazing: string;
-};
-
-export interface BuildingPart {
-    PartType: string;
-    PartSuperType: string;
-    PartInsulationType: string;
-    PartInsulationThickness: string;
-    InsulationThickness: string;
-    InsulationThicknessLowerBound: string;
-}
-
-export interface BuildingPartMap {
-    [key: string]: BuildingPart;
 }
 
 // SPDX-License-Identifier: Apache-2.0

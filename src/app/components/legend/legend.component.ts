@@ -16,10 +16,12 @@ export interface LayerState {
     };
     icingDays: boolean;
     hotSummerDays: boolean;
+    deprivation: boolean;
+    sunlightHours: boolean;
 }
 
 export interface LegendConfig {
-    type: 'epc' | 'wind-driven-rain' | 'hot-summer-days' | 'icing-days';
+    type: 'epc' | 'wind-driven-rain' | 'hot-summer-days' | 'icing-days' | 'deprivation' | 'sunlight-hours';
     title: string;
     gradient?: {
         colors: string[];
@@ -65,6 +67,14 @@ export class LegendComponent {
 
         if (layerState.icingDays) {
             return this.getIcingDaysLegend();
+        }
+
+        if (layerState.deprivation) {
+            return this.getDeprivationLegend();
+        }
+
+        if (layerState.sunlightHours) {
+            return this.getSunlightHoursLegend();
         }
 
         if (layerState.epc.region || layerState.epc.county || layerState.epc.district || layerState.epc.ward) {
@@ -133,6 +143,30 @@ export class LegendComponent {
         return {
             type: 'icing-days',
             title: 'Icing Days',
+            gradient: {
+                colors: [colors.high, colors.low],
+                labels: ['High', 'Low'],
+            },
+        };
+    }
+
+    private getDeprivationLegend(): LegendConfig {
+        const colors = LAYER_COLORS.deprivation;
+        return {
+            type: 'deprivation',
+            title: 'High Deprivation',
+            gradient: {
+                colors: [colors.high, colors.low],
+                labels: ['High', 'Low'],
+            },
+        };
+    }
+
+    private getSunlightHoursLegend(): LegendConfig {
+        const colors = LAYER_COLORS.sunlightHours;
+        return {
+            type: 'sunlight-hours',
+            title: 'Hours of sunlight',
             gradient: {
                 colors: [colors.high, colors.low],
                 labels: ['High', 'Low'],

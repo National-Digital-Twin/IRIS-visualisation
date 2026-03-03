@@ -87,6 +87,24 @@ export interface BackendNumberOfInDateAndExpiredEpcsResponse {
     active: number;
 }
 
+export interface BackendBuildingsByDeprivationDimensionResponse {
+    dep_3_pct: number | null;
+    dep_4_pct: number | null;
+    dep_3_count: number;
+    dep_4_count: number;
+    unfiltered_dep_3_pct: number;
+    unfiltered_dep_4_pct: number;
+    min_dep_3_pct: number;
+    max_dep_3_pct: number;
+    min_dep_4_pct: number;
+    max_dep_4_pct: number;
+}
+
+export interface SunlightHoursRegionData {
+    area_name: string;
+    average_daily_sunlight_hours: number;
+}
+
 interface BackendEPCAreaData extends EPCRatings {
     name: string;
     total: number;
@@ -230,6 +248,46 @@ export class DashboardService {
             params: this.getParamsWithFilter(filter),
             withCredentials: true,
         });
+    }
+
+    public getBuildingsByDeprivationDimension(filter?: AreaFilter): Observable<BackendBuildingsByDeprivationDimensionResponse> {
+        const defaultValues: BackendBuildingsByDeprivationDimensionResponse = {
+            dep_3_pct: 0,
+            dep_4_pct: 0,
+            dep_3_count: 0,
+            dep_4_count: 0,
+            unfiltered_dep_3_pct: 0,
+            unfiltered_dep_4_pct: 0,
+            min_dep_3_pct: 0,
+            max_dep_3_pct: 0,
+            min_dep_4_pct: 0,
+            max_dep_4_pct: 0,
+        };
+
+        return this.#http
+            .get<
+                BackendBuildingsByDeprivationDimensionResponse[] | BackendBuildingsByDeprivationDimensionResponse
+            >(`${this.#endpointRoot}/buildings-by-deprivation-dimension`, { params: this.getParamsWithFilter(filter), withCredentials: true })
+            .pipe(
+                map((response) => {
+                    if (Array.isArray(response)) {
+                        return response[0] ?? defaultValues;
+                    }
+                    return response ?? defaultValues;
+                }),
+            );
+    }
+
+    public getAverageDailySunlightHoursPerArea(groupBy: AreaLevel, filter?: AreaFilter): Observable<SunlightHoursRegionData[]> {
+        return this.#http
+            .get<
+                SunlightHoursRegionData[]
+            >(`${this.#endpointRoot}/average-daily-sunlight-hours-by-area-level`, { params: { ...this.getParamsWithFilter(filter), group_by_level: groupBy }, withCredentials: true })
+            .pipe(
+                map((response) => {
+                    return response;
+                }),
+            );
     }
 
     public getEPCByFeature(feature: string, filter?: AreaFilter): Observable<EPCRatingsByCategory[]> {

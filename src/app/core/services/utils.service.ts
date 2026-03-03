@@ -2,6 +2,13 @@ import { Injectable, NgZone, inject, signal } from '@angular/core';
 import { RoofAspectAreaDirectionField } from '@core/enums/roof-aspect-area-direction';
 import { FilterProps } from '@core/models/advanced-filters.model';
 import { BuildingMap, BuildingModel } from '@core/models/building.model';
+import {
+    BuildingHotSummerDaysDataModel,
+    BuildingIcingDaysDataModel,
+    BuildingSunlightHoursDataModel,
+    BuildingWeatherDataModel,
+    BuildingWindDrivenRainDataModel,
+} from '@core/models/building.weather.data.model';
 import { FilterableBuildingModel } from '@core/models/filterable-building.model';
 import { MapLayerFilter } from '@core/models/layer-filter.model';
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
@@ -10,6 +17,14 @@ import { MapLayerId } from '@core/types/map-layer-id';
 import { booleanWithin } from '@turf/boolean-within';
 import { Polygon } from 'geojson';
 import { ExpressionSpecification, PaintSpecification } from 'mapbox-gl';
+import { catchError, forkJoin, of } from 'rxjs';
+import {
+    BuildingHotSummerDaysData,
+    BuildingIcingDaysData,
+    BuildingSunlightHoursData,
+    BuildingWindDrivenRainData,
+    ClimateDataService,
+} from './climate-data.service';
 import { DataService } from './data.service';
 import { FilterableBuildingService } from './filterable-building.service';
 import { MAP_SERVICE, MapLatLng } from './map.token';
@@ -34,6 +49,7 @@ export class UtilService {
     readonly #spatialQueryService = inject(SpatialQueryService);
     readonly #zone = inject(NgZone);
     readonly #roofAspectAreaDirectionFieldMap: Record<string, string> = RoofAspectAreaDirectionField;
+    readonly #climateDataService = inject(ClimateDataService);
 
     private readonly colourBlindMode = this.#settings.get(SETTINGS.ColourBlindMode);
 
@@ -122,7 +138,6 @@ export class UtilService {
             expressions[expressionKey].mapLayerFilter.expression[2].push(toid);
         }
 
-        const flaggedTOIDS: string[] = [];
         /** TOIDS to exclude from the default layer */
         const excludeFromDefault: string[] = [];
 
@@ -138,11 +153,9 @@ export class UtilService {
             } else if (dwellings.length === 1) {
                 /* One UPRN for a TOID */
 
-                const { EPC, Flagged } = dwellings[0];
+                const { EPC } = dwellings[0];
                 const color = EPC ? this.getEPCColour(EPC) : defaultPattern;
 
-                /* Add toid to flagged array if flagged */
-                if (Flagged) flaggedTOIDS.push(toid);
                 /** Add toid to default layer array */
                 excludeFromDefault.push(toid);
 
@@ -159,14 +172,11 @@ export class UtilService {
                 /* Multiple UPRNs for a TOID */
 
                 const epcs: string[] = [];
-                const Flagged = dwellings.some(({ Flagged }) => Flagged);
                 dwellings.forEach(({ EPC }) => {
                     if (EPC) epcs.push(EPC);
                 });
                 const pattern = epcs.length === 0 ? defaultPattern : this.getEPCPattern(epcs);
 
-                /* Add toid to flagged array if flagged */
-                if (Flagged) flaggedTOIDS.push(toid);
                 /** Add toid to default layer array */
                 excludeFromDefault.push(toid);
 
@@ -203,11 +213,6 @@ export class UtilService {
             this.#dataService.setSelectedBuildings(Object.values(filteredBuildings));
         }
 
-        /* Apply the flagged filter */
-        this.#mapService.filterMapLayer({
-            layerId: 'OS/TopographicArea_2/Building/1_3D-Dwelling-Flagged',
-            expression: ['all', ['==', '_symbol', 4], ['in', 'TOID', ...flaggedTOIDS]],
-        });
         /** Remove from toids from default layer so they're not rendered */
         this.#mapService.filterMapLayer({
             layerId: 'OS/TopographicArea_2/Building/1_3D',
@@ -351,12 +356,7 @@ export class UtilService {
                     // remove additional quotes for year filter
                     // may not need this any more?
                     const removeQuotes = filterProps[key as keyof FilterProps]?.map((k) => k.replace(/['"]+/g, ''));
-                    /** if flagged filter exists return the building if it has a flag */
-                    if (key === 'Flagged') {
-                        return filterableBuildingModel.Flagged;
-                    }
-                    // compare inspection dates to 10 years ago
-                    else if (key === 'EPCExpiry') {
+                    if (key === 'EPCExpiry') {
                         const tenYearsAgo = new Date();
                         tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
                         if (
@@ -662,6 +662,41 @@ export class UtilService {
     private viewBuildingDetails(UPRN: string): void {
         this.#dataService.setSelectedUPRN(UPRN);
         const building = this.#dataService.getBuildingByUPRN(UPRN.toString());
+        const buildingWeatherData = this.#dataService.getBuildingWeatherDetailsByUprn(UPRN);
+
+        if (buildingWeatherData) {
+            this.#dataService.setSelectedBuildingWeatherData(buildingWeatherData);
+        } else {
+            const buildingWindDrivenRainData = this.#climateDataService.getWindDrivenRainBuildingData(UPRN).pipe(
+                catchError((error) => {
+                    console.error(`Error: Unable to fetch wind driven rain data for building with uprn ${UPRN}: ${JSON.stringify(error)}`);
+                    return of(undefined);
+                }),
+            );
+            const buildingHotSummerDaysData = this.#climateDataService.getHotSummerDaysBuildingData(UPRN).pipe(
+                catchError((error) => {
+                    console.error(`Error: Unable to fetch hot summer days data for building with uprn ${UPRN}: ${JSON.stringify(error)}`);
+                    return of(undefined);
+                }),
+            );
+            const buildingIcingDaysData = this.#climateDataService.getIcingDaysBuildingData(UPRN).pipe(
+                catchError((error) => {
+                    console.error(`Error: Unable to fetch icing days data for building with uprn ${UPRN}: ${JSON.stringify(error)}`);
+                    return of(undefined);
+                }),
+            );
+            const buildingSunlightHoursData = this.#climateDataService.getSunlightHoursData(UPRN).pipe(
+                catchError((error) => {
+                    console.error(`Error: Unable to fetch sunlight hours data for building with uprn ${UPRN}: ${JSON.stringify(error)}`);
+                    return of(undefined);
+                }),
+            );
+
+            forkJoin([buildingWindDrivenRainData, buildingHotSummerDaysData, buildingIcingDaysData, buildingSunlightHoursData]).subscribe((results) => {
+                this.#dataService.setSelectedBuildingWeatherData(this.mapBuildingWeatherData(UPRN, results[0], results[1], results[2], results[3]));
+            });
+        }
+
         this.#dataService.setSelectedBuilding(building);
     }
 
@@ -714,6 +749,69 @@ export class UtilService {
 
     private openResultsPanel(buildings: BuildingModel[]): void {
         this.#dataService.setSelectedBuildings([buildings]);
+    }
+
+    private mapBuildingWeatherData(
+        uprn: string,
+        buildingWindDrivenRainData?: BuildingWindDrivenRainData,
+        buildingHotSummerDaysData?: BuildingHotSummerDaysData,
+        buildingIcingDaysData?: BuildingIcingDaysData,
+        buildingSunlightHoursData?: BuildingSunlightHoursData,
+    ): BuildingWeatherDataModel {
+        const windDrivenRainData: BuildingWindDrivenRainDataModel | undefined = buildingWindDrivenRainData
+            ? {
+                  northTwoDegreesMedian: buildingWindDrivenRainData.north_two_degrees_median,
+                  northEastTwoDegreesMedian: buildingWindDrivenRainData.north_east_two_degrees_median,
+                  eastTwoDegreesMedian: buildingWindDrivenRainData.east_two_degrees_median,
+                  southEastTwoDegreesMedian: buildingWindDrivenRainData.south_east_two_degrees_median,
+                  southTwoDegreesMedian: buildingWindDrivenRainData.south_two_degrees_median,
+                  southWestTwoDegreesMedian: buildingWindDrivenRainData.south_west_two_degrees_median,
+                  westTwoDegreesMedian: buildingWindDrivenRainData.west_two_degrees_median,
+                  northWestTwoDegreesMedian: buildingWindDrivenRainData.north_west_two_degrees_median,
+                  northFourDegreesMedian: buildingWindDrivenRainData.north_four_degrees_median,
+                  northEastFourDegreesMedian: buildingWindDrivenRainData.north_east_four_degrees_median,
+                  eastFourDegreesMedian: buildingWindDrivenRainData.east_four_degrees_median,
+                  southEastFourDegreesMedian: buildingWindDrivenRainData.south_east_four_degrees_median,
+                  southFourDegreesMedian: buildingWindDrivenRainData.south_four_degrees_median,
+                  southWestFourDegreesMedian: buildingWindDrivenRainData.south_west_four_degrees_median,
+                  westFourDegreesMedian: buildingWindDrivenRainData.west_four_degrees_median,
+                  northWestFourDegreesMedian: buildingWindDrivenRainData.north_west_four_degrees_median,
+              }
+            : undefined;
+
+        const hotSummerDaysData: BuildingHotSummerDaysDataModel | undefined = buildingHotSummerDaysData
+            ? {
+                  baselineMedian: buildingHotSummerDaysData.hsd_baseline,
+                  degreesAboveBaselineMedian: new Map([
+                      [1.5, buildingHotSummerDaysData.hsd_1_5_degree_above_baseline],
+                      [2, buildingHotSummerDaysData.hsd_2_0_degree_above_baseline],
+                      [2.5, buildingHotSummerDaysData.hsd_2_5_degree_above_baseline],
+                      [3, buildingHotSummerDaysData.hsd_3_0_degree_above_baseline],
+                      [4, buildingHotSummerDaysData.hsd_4_0_degree_above_baseline],
+                  ]),
+              }
+            : undefined;
+
+        const icingDaysData: BuildingIcingDaysDataModel | undefined = buildingIcingDaysData
+            ? {
+                  icingDays: buildingIcingDaysData.icing_days,
+              }
+            : undefined;
+
+        const sunlightHoursData: BuildingSunlightHoursDataModel | undefined = buildingSunlightHoursData
+            ? {
+                  sunlightHours: buildingSunlightHoursData.sunlight_hours,
+                  dailySunlightHours: buildingSunlightHoursData.daily_sunlight_hours,
+              }
+            : undefined;
+
+        return {
+            uprn: uprn,
+            buildingWindDrivenRainDataModel: windDrivenRainData,
+            buildingHotSummerDaysDataModel: hotSummerDaysData,
+            buildingIcingDaysDataModel: icingDaysData,
+            buildingSunlightHoursDataModel: sunlightHoursData,
+        };
     }
 }
 

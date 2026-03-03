@@ -1,17 +1,11 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { toObservable } from '@angular/core/rxjs-interop';
-import { BuiltForm, EPCRating, FloorConstruction, RoofConstruction, StructureUnitType, WallConstruction, WindowGlazing } from '@core/enums';
-import { InvalidateFlagReason } from '@core/enums/invalidate-flag-reason';
-import { BuildingMap, BuildingModel, BuildingParts } from '@core/models/building.model';
+import { BuiltForm, EPCRating, StructureUnitType } from '@core/enums';
+import { parseEPCRating } from '@core/helpers';
+import { BuildingMap, BuildingModel } from '@core/models/building.model';
+import { BuildingWeatherDataModel } from '@core/models/building.weather.data.model';
 import { MinimalBuildingData, MinimalBuildingMap } from '@core/models/minimal-building-data.model';
-import { BACKEND_API_ENDPOINT } from '@core/tokens/backend-endpoint.token';
-import { EPCBuildingResponseModel } from '@core/types/building-response';
-import { FlagHistory } from '@core/types/flag-history';
-import { FlagMap, FlagResponse } from '@core/types/flag-response';
-import { EMPTY, Observable, catchError, first, map, of, switchMap, tap } from 'rxjs';
-
-type Loading<T> = T | 'loading';
+import { Observable, catchError, first, map, of } from 'rxjs';
 
 export type Building = {
     uprn: string;
@@ -25,6 +19,8 @@ export type Building = {
 
 interface BuildingDetailAPIResponse extends Record<string, unknown> {
     uprn?: string;
+    post_code: string;
+    sap_rating: string;
     lodgement_date?: string;
     built_form?: string;
     structure_unit_type?: string;
@@ -54,16 +50,13 @@ interface BuildingDetailAPIResponse extends Record<string, unknown> {
 @Injectable({ providedIn: 'root' })
 export class DataService {
     readonly #http: HttpClient = inject(HttpClient);
-    readonly #backendApiEndpoint = inject(BACKEND_API_ENDPOINT);
 
     public uiReady = signal<boolean>(true);
 
     public viewportBuildingsLoading = signal<boolean>(false);
     public minimalBuildings = signal<MinimalBuildingMap>({});
 
-    public activeFlag = signal<Loading<FlagHistory> | undefined>(undefined);
     public buildingsSelection = signal<BuildingModel[][] | undefined>(undefined);
-    public flagHistory = signal<Loading<FlagHistory[]>>([]);
 
     public loading = computed(() => {
         // Loading set to false after initial load
@@ -72,20 +65,14 @@ export class DataService {
 
     public selectedBuilding = signal<BuildingModel | undefined>(undefined);
     public selectedUPRN = signal<string | undefined>(undefined);
-
-    private readonly buildingsFlagged = signal<FlagMap>({});
-    private readonly buildingsFlagged$ = toObservable(this.buildingsFlagged);
+    public selectedBuildingWeatherData = signal<BuildingWeatherDataModel | undefined>(undefined);
 
     private readonly _buildingsCache = new Map<string, MinimalBuildingData>();
     private readonly _buildingCacheOrder: string[] = []; // FIFO tracking
     private readonly MAX_CACHED_BUILDINGS = 10000; // Number of properties
 
     private _selectedBuildingsCache = new Map<string, BuildingModel>();
-
-    private readonly flags$ = this.#http.get<FlagResponse[]>('/api/flagged-buildings', { withCredentials: true }).pipe(
-        map((flags: FlagResponse[]) => this.getCurrentFlags(flags)),
-        map((currentFlags) => this.mapFlagsToToids(currentFlags)),
-    );
+    private readonly _selectedBuildingsWeatherDetailsCache = new Map<string, BuildingWeatherDataModel>();
 
     public buildings = computed(() => {
         // Convert minimalBuildings to BuildingMap format
@@ -119,84 +106,15 @@ export class DataService {
                     WallConstruction: undefined,
                     WallInsulation: undefined,
                     WindowGlazing: undefined,
-                    Flagged: undefined,
                 } as BuildingModel;
             });
         });
 
-        // Apply flags if available
-        this.applyFlagsToBuildings(buildingMap);
-
         return buildingMap;
     });
 
-    /**
-     * Apply flags to building data
-     */
-    private applyFlagsToBuildings(buildingMap: BuildingMap): void {
-        const flaggedBuildings = this.buildingsFlagged();
-
-        Object.entries(flaggedBuildings).forEach(([toid, flaggedList]) => {
-            if (buildingMap[toid]) {
-                flaggedList.forEach(({ UPRN, Flagged }) => {
-                    const building = buildingMap[toid].find((b) => b.UPRN === UPRN);
-                    if (building) {
-                        building.Flagged = Flagged;
-                    }
-                });
-            }
-        });
-    }
-
     public setSelectedUPRN(uprn?: string): void {
         this.selectedUPRN.set(uprn);
-    }
-
-    /**
-     * Initialise the data service
-     */
-    public initialise(): void {
-        this.loadFlags().subscribe();
-    }
-
-    /**
-     * Load flags separately
-     */
-    private loadFlags(): Observable<void> {
-        return this.#http.get<FlagResponse[]>('/api/flagged-buildings', { withCredentials: true }).pipe(
-            map((flags: FlagResponse[]) => this.getCurrentFlags(flags)),
-            map((currentFlags) => this.mapFlagsToToids(currentFlags)),
-            tap((flagMap) => {
-                this.buildingsFlagged.set(flagMap);
-                // Update viewport loading signal
-                this.viewportBuildingsLoading.set(false);
-            }),
-            map(() => void 0),
-        );
-    }
-
-    /**
-     * Return flag history for an individual building
-     * @param query Query string to request data from IA
-     * @returns
-     */
-    private getBuildingFlagHistory(uprn: string): Observable<FlagHistory[]> {
-        return this.#http.get<FlagHistory[]>(`/api/buildings/${uprn}/flag-history`, { withCredentials: true });
-    }
-
-    /** get the flag history for selected building and update the signals */
-    public updateFlagHistory(uprn: BuildingModel['UPRN']): Observable<FlagHistory[]> {
-        this.flagHistory.set('loading');
-        this.activeFlag.set('loading');
-        return this.getBuildingFlagHistory(uprn).pipe(
-            first(),
-            tap((flagHistory) => {
-                const flags = flagHistory.filter((f) => f.Flagged && f.AssessmentReason);
-                this.flagHistory.set(flags);
-                const flag = flagHistory.find((f) => f.Flagged && !f.AssessmentReason);
-                this.activeFlag.set(flag);
-            }),
-        );
     }
 
     /**
@@ -213,18 +131,20 @@ export class DataService {
 
         const hasDetailedData = building.StructureUnitType !== undefined && building.BuiltForm !== undefined;
 
-        if (!hasDetailedData && building.UPRN) {
-            this.loadBuildingDetails(building.UPRN)
-                .pipe(first())
-                .subscribe({
-                    next: (detailedBuilding) => {
-                        // Update the selected building with detailed data
-                        this.selectedBuilding.set(detailedBuilding);
-                    },
-                    error: (error) => {
-                        console.error(`Failed to load details for building ${building.UPRN}:`, error);
-                    },
-                });
+        if (building.UPRN) {
+            if (!hasDetailedData) {
+                this.loadBuildingDetails(building.UPRN)
+                    .pipe(first())
+                    .subscribe({
+                        next: (detailedBuilding) => {
+                            // Update the selected building with detailed data
+                            this.selectedBuilding.set(detailedBuilding);
+                        },
+                        error: (error) => {
+                            console.error(`Failed to load details for building ${building.UPRN}:`, error);
+                        },
+                    });
+            }
         }
     }
 
@@ -297,7 +217,7 @@ export class DataService {
         return results.map((row) => {
             const building: MinimalBuildingData = {
                 UPRN: row.uprn,
-                EPC: row.energy_rating ? this.parseEPCRating(row.energy_rating) : EPCRating.none,
+                EPC: parseEPCRating(row.energy_rating),
                 fullAddress: row.first_line_of_address ?? undefined,
                 latitude: row.latitude ? parseFloat(row.latitude) : undefined,
                 longitude: row.longitude ? parseFloat(row.longitude) : undefined,
@@ -307,20 +227,6 @@ export class DataService {
 
             return building;
         });
-    }
-
-    /**
-     * Parse EPC rating from string to enum
-     */
-    private parseEPCRating(epcValue: string): EPCRating {
-        if (!epcValue) return EPCRating.none;
-
-        if (/^[A-G]$/i.test(epcValue)) {
-            const rating = epcValue.toUpperCase() as keyof typeof EPCRating;
-            return EPCRating[rating] || EPCRating.none;
-        }
-
-        return EPCRating.none;
     }
 
     /**
@@ -506,7 +412,8 @@ export class DataService {
         const detailedBuilding: BuildingModel = {
             ...existingData,
             UPRN: response.uprn ?? uprn,
-            FullAddress: existingData.FullAddress,
+            PostCode: response.post_code,
+            SAPPoints: response.sap_rating,
             LodgementDate: response.lodgement_date,
             BuiltForm: response.built_form as BuiltForm | undefined,
             YearOfAssessment: response.lodgement_date ? new Date(response.lodgement_date).getFullYear().toString() : '',
@@ -571,187 +478,23 @@ export class DataService {
         return building ?? ({} as BuildingModel);
     }
 
-    private isWallKey(value: string): value is keyof typeof WallConstruction {
-        return Object.keys(WallConstruction).includes(value as WallConstruction);
-    }
-
-    private isWindowKey(value: string): value is keyof typeof WindowGlazing {
-        return Object.keys(WindowGlazing).includes(value as WindowGlazing);
-    }
-
-    private isRoofKey(value: string): value is keyof typeof RoofConstruction {
-        return Object.keys(RoofConstruction).includes(value as RoofConstruction);
-    }
-
-    private isFloorKey(value: string): value is keyof typeof FloorConstruction {
-        return Object.keys(FloorConstruction).includes(value as FloorConstruction);
-    }
-
-    /**
-     * Building parts are returned from the IA in the format
-     * PartTypes: "CavityWall; DoubleGlazedBefore2002Window; SolidFloor; FlatRoof",
-     * InsulationTypes: "NoData; NoData; NoData; AssumedLimitedInsulation",
-     * InsulationThickness: "NoData; NoData; NoData; NoData",
-     * InsulationThicknessLowerBound: "NoData; NoData; NoData; NoData"
-     *
-     * This function:
-     * 1. Splits the PartTypes string and for each part identifies if it's a Wall,
-     * Window, Roof or Floor.
-     * 2. Using the index of the part, it then finds the corresponding insulation type
-     * and thicknesses
-     * @param row EPCBuildingResponseModel
-     * @returns object of parts and insulation types and thicknesses
-     */
-    private parseBuildingParts(row: EPCBuildingResponseModel): BuildingParts {
-        const parts: BuildingParts = {
-            FloorConstruction: 'NoData',
-            FloorInsulation: 'NoData',
-            RoofConstruction: 'NoData',
-            RoofInsulationLocation: 'NoData',
-            RoofInsulationThickness: 'NoData',
-            WallConstruction: 'NoData',
-            WallInsulation: 'NoData',
-            WindowGlazing: 'NoData',
-        };
-
-        const partTypes = row.PartTypes.replaceAll(' ', '').split(';');
-        const insulationTypes = row.InsulationTypes.replaceAll(' ', '').split(';');
-        const insulationThickness = row.InsulationThickness.replaceAll(' ', '').split(';');
-        const insulationThicknessLowerBounds = row.InsulationThicknessLowerBound.replaceAll(' ', '').split(';');
-
-        partTypes.forEach((part, i) => {
-            if (this.isWallKey(part)) {
-                parts['WallConstruction'] = part;
-                parts['WallInsulation'] = insulationTypes[i];
-            } else if (this.isFloorKey(part)) {
-                parts['FloorConstruction'] = part;
-                parts['FloorInsulation'] = insulationTypes[i];
-            } else if (this.isRoofKey(part)) {
-                parts['RoofConstruction'] = part;
-                parts['RoofInsulationLocation'] = insulationTypes[i];
-                /** check thickness types */
-                let roofInsulationThickness = 'NoData';
-                const thickness = insulationThickness[i];
-                const thicknessLB = insulationThicknessLowerBounds[i];
-                if (thickness !== 'NoData' && thicknessLB === 'NoData') {
-                    roofInsulationThickness = `${thickness.split('.')[0]}mm`;
-                } else if (thickness === 'NoData' && thicknessLB !== 'NoData') {
-                    roofInsulationThickness = `${thicknessLB.split('.')[0]}+mm`;
-                }
-                parts['RoofInsulationThickness'] = roofInsulationThickness;
-            } else if (this.isWindowKey(part)) {
-                parts['WindowGlazing'] = part;
+    public setSelectedBuildingWeatherData(buildingWeatherData: BuildingWeatherDataModel): void {
+        if (!(buildingWeatherData.uprn in this._selectedBuildingsWeatherDetailsCache.keys())) {
+            // if all weather data is provided then cache the weather details for the building
+            if (
+                buildingWeatherData.buildingWindDrivenRainDataModel &&
+                buildingWeatherData.buildingIcingDaysDataModel &&
+                buildingWeatherData.buildingHotSummerDaysDataModel &&
+                buildingWeatherData.buildingSunlightHoursDataModel
+            ) {
+                this._selectedBuildingsWeatherDetailsCache.set(buildingWeatherData.uprn, buildingWeatherData);
             }
-        });
-        return parts;
+        }
+        this.selectedBuildingWeatherData.set(buildingWeatherData);
     }
 
-    public flagToInvestigate(building: BuildingModel): Observable<FlagHistory[]> {
-        const lodgementDate = building.LodgementDate ? `_${building.LodgementDate.replaceAll('-', '')}` : '';
-        return this.#http
-            .post<NonNullable<BuildingModel['Flagged']>>(
-                `${this.#backendApiEndpoint}/flag-to-investigate`,
-                {
-                    uri: `http://ndtp.co.uk/data#StructureUnitState_${building.UPRN}${lodgementDate}`,
-                },
-                { withCredentials: true },
-            )
-            .pipe(
-                switchMap((flagUri) => {
-                    const toid = building.TOID ?? building.ParentTOID;
-                    if (!toid) throw new Error(`Building ${building.UPRN} has no TOID`);
-                    building.Flagged = flagUri;
-                    const flag: FlagResponse = {
-                        UPRN: building.UPRN,
-                        TOID: building.TOID,
-                        Flagged: flagUri,
-                    };
-                    this.buildingsFlagged.update((f) => ({
-                        ...f,
-                        [toid]: f[toid] ? [...f[toid], flag] : [flag],
-                    }));
-
-                    /* if invalidaing flag for selected building, update the flag history */
-                    const { UPRN } = building;
-                    const selectedBuilding = this.selectedBuilding();
-                    if (selectedBuilding?.UPRN === UPRN) {
-                        return this.updateFlagHistory(UPRN);
-                    }
-                    return EMPTY;
-                }),
-            );
-    }
-
-    public invalidateFlag(building: BuildingModel, reason: InvalidateFlagReason): Observable<FlagHistory[]> {
-        /* If building has no flag, throw error */
-        const activeFlag = this.activeFlag();
-        if (activeFlag === undefined || activeFlag === 'loading' || !activeFlag) throw new Error(`Building ${building.UPRN} has no flag`);
-
-        /* convert reason string to enum key */
-        const keys = Object.keys(InvalidateFlagReason) as Array<keyof typeof InvalidateFlagReason>;
-        const key = keys.find((k) => InvalidateFlagReason[k] === reason);
-
-        return this.#http
-            .post<NonNullable<BuildingModel['Flagged']>>(
-                `${this.#backendApiEndpoint}/invalidate-flag`,
-                {
-                    flagUri: activeFlag.Flagged,
-                    assessmentTypeOverride: `http://ndtp.co.uk/ontology#${key}`,
-                },
-                { withCredentials: true },
-            )
-            .pipe(
-                switchMap(() => {
-                    const toid = building.TOID ?? building.ParentTOID;
-                    if (!toid) throw new Error(`Building ${building.UPRN} has no TOID`);
-                    /* set flagged property to undefined */
-                    building.Flagged = undefined;
-                    this.buildingsFlagged.update((b) => {
-                        /* remove building from flagged buildings */
-                        const index = b[toid].findIndex((b) => b.UPRN === building.UPRN);
-                        b[toid].splice(index, 1);
-                        return { ...b };
-                    });
-
-                    /* if invalidaing flag for selected building, update the flag history */
-                    const { UPRN } = building;
-                    const selectedBuilding = this.selectedBuilding();
-                    if (selectedBuilding?.UPRN === UPRN) {
-                        return this.updateFlagHistory(UPRN);
-                    }
-                    return EMPTY;
-                }),
-            );
-    }
-
-    /**
-     * Takes an array of flags and returns an array
-     * of the most current unique flags
-     * @param flags
-     * @returns current flags
-     */
-    private getCurrentFlags(flags: FlagResponse[]): FlagResponse[] {
-        const result = Object.values(
-            flags.reduce((acc: Record<string, FlagResponse>, { UPRN, Flagged, TOID }) => {
-                acc[UPRN] = { UPRN, Flagged, TOID };
-                return acc;
-            }, {}),
-        );
-        return result;
-    }
-
-    private mapFlagsToToids(flags: FlagResponse[]): FlagMap {
-        const flagMap: FlagMap = {};
-        flags.forEach((flag) => {
-            const toid = flag.TOID;
-            if (!toid) throw new Error(`Flag ${flag.UPRN} has no TOID`);
-            if (flagMap[toid]) {
-                flagMap[toid].push(flag);
-            } else {
-                flagMap[toid] = [flag];
-            }
-        });
-        return flagMap;
+    public getBuildingWeatherDetailsByUprn(uprn: string): BuildingWeatherDataModel | undefined {
+        return this._selectedBuildingsWeatherDetailsCache.get(uprn);
     }
 }
 

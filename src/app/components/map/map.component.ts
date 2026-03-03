@@ -94,6 +94,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             },
             icingDays: false,
             hotSummerDays: false,
+            deprivation: false,
+            sunlightHours: false,
         };
     }
 
@@ -241,11 +243,20 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         /** close popup if open and zoom is > 15 and remove selection*/
         this.#mapService.mapInstance.on('zoomend', () => {
             const zoom = this.#mapService.mapInstance.getZoom();
+            const wasShowingLayers = this.#uiStateService.showLayersAndControls();
+            const shouldShowLayers = zoom < 16;
 
             if (zoom < 16) {
                 this.#dataService.clearBuildingsCache();
             }
-            this.#uiStateService.setLayersAndControlsVisibility(zoom < 16);
+
+            this.#uiStateService.setLayersAndControlsVisibility(shouldShowLayers);
+
+            // When zooming to property-level, close any open layer popups.
+            if (wasShowingLayers && !shouldShowLayers) {
+                this.#mapService.clearAllPopups();
+            }
+
             this.updateLayersVisibility();
         });
     }
@@ -387,6 +398,42 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         }
     }
 
+    public toggleDeprivationLayer(): void {
+        const layerId = 'deprivation-layer';
+        const layer = this.#layerFactory.getLayer(layerId);
+
+        if (layer) {
+            if (this.layerStates.deprivation) {
+                layer.hide();
+                this.hideOutlineLayer(`${layerId}-outline`);
+                this.layerStates.deprivation = false;
+            } else {
+                this.hideAllLayers();
+                layer.show();
+                this.layerStates.deprivation = true;
+            }
+            this.updateLayersVisibility();
+        }
+    }
+
+    public toggleSunlightHoursLayer(): void {
+        const layerId = 'sunlight-hours-layer';
+        const layer = this.#layerFactory.getLayer(layerId);
+
+        if (layer) {
+            if (this.layerStates.sunlightHours) {
+                layer.hide();
+                this.hideOutlineLayer(`${layerId}-outline`);
+                this.layerStates.sunlightHours = false;
+            } else {
+                this.hideAllLayers();
+                layer.show();
+                this.layerStates.sunlightHours = true;
+            }
+            this.updateLayersVisibility();
+        }
+    }
+
     private hideAllLayers(): void {
         this.hideLayerGroup(this.layerStates.epc, 'epc', '-layer');
         this.hideLayerGroup(this.layerStates.epc, 'epc', '-layer-outline');
@@ -407,6 +454,22 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             `${hotSummerDaysLayer}-outline`,
             () => this.layerStates.hotSummerDays,
             (value) => (this.layerStates.hotSummerDays = value),
+        );
+
+        const deprivationLayer = 'deprivation-layer';
+        this.hideSingleLayerWithOutline(
+            deprivationLayer,
+            `${deprivationLayer}-outline`,
+            () => this.layerStates.deprivation,
+            (value) => (this.layerStates.deprivation = value),
+        );
+
+        const sunlightHoursLayer = 'sunlight-hours-layer';
+        this.hideSingleLayerWithOutline(
+            sunlightHoursLayer,
+            `${sunlightHoursLayer}-outline`,
+            () => this.layerStates.sunlightHours,
+            (value) => (this.layerStates.sunlightHours = value),
         );
     }
 

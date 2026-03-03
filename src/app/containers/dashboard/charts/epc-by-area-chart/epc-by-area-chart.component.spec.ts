@@ -151,7 +151,7 @@ describe('EpcByAreaChartComponent', () => {
             fixture.detectChanges();
 
             expect(dashboardService.getEPCByAreaLevel).toHaveBeenCalledWith('region', 'region', ['North West', 'London']);
-            expect(component.chartTitle()).toBe('Count of EPC ratings by');
+            expect(component.chartTitle()).toBe('EPC ratings by');
             expect(component.selectorLabel()).toBe('region');
             expect(component.titleSuffix()).toBe('');
         });
@@ -169,7 +169,7 @@ describe('EpcByAreaChartComponent', () => {
             fixture.detectChanges();
 
             expect(dashboardService.getEPCByAreaLevel).toHaveBeenCalledWith('county', 'county', ['Greater Manchester', 'Lancashire']);
-            expect(component.chartTitle()).toBe('Count of EPC ratings by');
+            expect(component.chartTitle()).toBe('EPC ratings by');
             expect(component.selectorLabel()).toBe('county');
         });
     });

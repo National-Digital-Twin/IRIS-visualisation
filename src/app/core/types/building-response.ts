@@ -1,4 +1,4 @@
-import { BuiltForm, EPCRating, PostCode, StructureUnitType } from '@core/enums';
+import { BuiltForm, EPCRating, StructureUnitType } from '@core/enums';
 
 export type EPCBuildingResponseModel = {
     BuiltForm: BuiltForm;
@@ -10,7 +10,7 @@ export type EPCBuildingResponseModel = {
     InsulationThicknessLowerBound: string;
     ParentTOID?: string;
     PartTypes: string;
-    PostCode: PostCode;
+    PostCode: string;
     StructureUnitType: StructureUnitType;
     UPRN: string;
     TOID?: string;

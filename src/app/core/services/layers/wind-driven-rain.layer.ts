@@ -3,7 +3,7 @@ import { FeatureCollection, Geometry } from 'geojson';
 import * as mapboxgl from 'mapbox-gl';
 import { LayerSpecification, MapMouseEvent } from 'mapbox-gl';
 import { firstValueFrom } from 'rxjs';
-import { ClimateDataService, WindDrivenRainProperties } from '../climate-data.service';
+import { ClimateDataService, WindDrivenRainLayerProperties } from '../climate-data.service';
 import { AbstractClimateLayer } from './climate-layer.abstract';
 
 export interface WindDrivenRainLayerConfig {
@@ -11,7 +11,7 @@ export interface WindDrivenRainLayerConfig {
     warmingScenario: string;
 }
 
-export class WindDrivenRainLayer extends AbstractClimateLayer<WindDrivenRainProperties> {
+export class WindDrivenRainLayer extends AbstractClimateLayer<WindDrivenRainLayerProperties> {
     private readonly config: WindDrivenRainLayerConfig;
 
     private static globalMaxValues?: { min: number; max: number };
@@ -42,10 +42,10 @@ export class WindDrivenRainLayer extends AbstractClimateLayer<WindDrivenRainProp
         return this.createLayerConfig(0, 1000, LAYER_COLORS.windDrivenRain);
     }
 
-    public async getSourceData(): Promise<FeatureCollection<Geometry, WindDrivenRainProperties>> {
+    public async getSourceData(): Promise<FeatureCollection<Geometry, WindDrivenRainLayerProperties>> {
         try {
             if (!this.data) {
-                const result = await firstValueFrom(this.climateDataService.getWindDrivenRainData());
+                const result = await firstValueFrom(this.climateDataService.getWindDrivenRainLayerData());
                 if (result) {
                     this.data = result;
                 } else {
@@ -73,7 +73,7 @@ export class WindDrivenRainLayer extends AbstractClimateLayer<WindDrivenRainProp
         }
     }
 
-    private getMaxValueForTemperatureScenario(properties: WindDrivenRainProperties | null): number {
+    private getMaxValueForTemperatureScenario(properties: WindDrivenRainLayerProperties | null): number {
         if (!properties) return 0;
 
         const prefix = this.config.type === 'twoDegree' ? 'wdr20_' : 'wdr40_';
@@ -81,7 +81,7 @@ export class WindDrivenRainLayer extends AbstractClimateLayer<WindDrivenRainProp
 
         let maxValue = 0;
         windDirections.forEach((direction) => {
-            const propertyKey = `${prefix}${direction}` as keyof WindDrivenRainProperties;
+            const propertyKey = `${prefix}${direction}` as keyof WindDrivenRainLayerProperties;
             const value = properties[propertyKey];
             if (typeof value === 'number' && value > maxValue) {
                 maxValue = value;
@@ -127,7 +127,7 @@ export class WindDrivenRainLayer extends AbstractClimateLayer<WindDrivenRainProp
 
         const feature = event.features?.[0];
         if (feature) {
-            const properties = feature.properties as WindDrivenRainProperties;
+            const properties = feature.properties as WindDrivenRainLayerProperties;
             const isTwoDegree = this.config.type === 'twoDegree';
             const dataPrefix = isTwoDegree ? 'wdr20_' : 'wdr40_';
 

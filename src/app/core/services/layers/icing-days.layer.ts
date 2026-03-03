@@ -1,12 +1,12 @@
 import { LAYER_COLORS } from '@core/config/layer-colors.config';
-import { ClimateDataService, IcingDaysProperties } from '@core/services/climate-data.service';
+import { ClimateDataService, IcingDaysLayerProperties } from '@core/services/climate-data.service';
 import { FeatureCollection, Geometry } from 'geojson';
 import * as mapboxgl from 'mapbox-gl';
 import { LayerSpecification, MapMouseEvent } from 'mapbox-gl';
 import { firstValueFrom } from 'rxjs';
 import { AbstractClimateLayer } from './climate-layer.abstract';
 
-export class IcingDaysLayer extends AbstractClimateLayer<IcingDaysProperties> {
+export class IcingDaysLayer extends AbstractClimateLayer<IcingDaysLayerProperties> {
     constructor(private readonly climateDataService: ClimateDataService) {
         super();
     }
@@ -26,10 +26,10 @@ export class IcingDaysLayer extends AbstractClimateLayer<IcingDaysProperties> {
         return this.createLayerConfig(0, 5, LAYER_COLORS.icingDays);
     }
 
-    public async getSourceData(): Promise<FeatureCollection<Geometry, IcingDaysProperties>> {
+    public async getSourceData(): Promise<FeatureCollection<Geometry, IcingDaysLayerProperties>> {
         try {
             if (!this.data) {
-                const result = await firstValueFrom(this.climateDataService.getIcingDaysData());
+                const result = await firstValueFrom(this.climateDataService.getIcingDaysLayerData());
                 if (result) {
                     this.data = result;
                 } else {
@@ -48,7 +48,7 @@ export class IcingDaysLayer extends AbstractClimateLayer<IcingDaysProperties> {
 
         const feature = event.features?.[0];
         if (feature) {
-            const properties = feature.properties as IcingDaysProperties;
+            const properties = feature.properties as IcingDaysLayerProperties;
 
             const popupContent = `
                 <div class="climate-data-popup">

@@ -2,14 +2,14 @@ version: '3'
 services:
     zookeeper:
         container_name: iris-zookeeper
-        image: bitnami/zookeeper:latest
+        image: bitnamilegacy/zookeeper:latest
         ports:
             - '2181:2181'
         environment:
             - ALLOW_ANONYMOUS_LOGIN=yes
     kafka:
         container_name: iris-kafka
-        image: 'bitnami/kafka:latest'
+        image: 'bitnamilegacy/kafka:3.5.1'
         depends_on:
             - zookeeper
         ports:
@@ -42,7 +42,7 @@ services:
             POSTGRES_PASSWORD: postgres
             POSTGRES_DB: iris
         ports:
-        - "5432:5432"
+            - '5432:5432'
     transparent-proxy:
         container_name: iris-transparent-proxy
         image: iris-transparent-proxy

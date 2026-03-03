@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
 import { LabelComponent } from '@components/label/label.component';
 import { BuildingModel } from '@core/models/building.model';
-import { DownloadBuilding } from '@core/models/download-data-warning.model';
+import { DownloadDataWarningResponse } from '@core/models/download-data-warning.model';
 import { SETTINGS, SettingsService } from '@core/services/settings.service';
 import { UtilService } from '@core/services/utils.service';
 import { Theme } from '@core/types/theme';
@@ -35,10 +35,8 @@ export class ResultsCardComponent {
     public select: InputSignal<boolean> = input(false);
 
     public cardSelected: OutputEmitterRef<BuildingModel> = output();
-    public downloadData: OutputEmitterRef<DownloadBuilding> = output();
+    public downloadData: OutputEmitterRef<{ uprn: string; format: DownloadDataWarningResponse }> = output();
     public emitViewDetails: OutputEmitterRef<BuildingModel> = output();
-    public flag: OutputEmitterRef<void> = output();
-    public removeFlag: OutputEmitterRef<void> = output();
     public toggleChecked: OutputEmitterRef<boolean> = output();
 
     get theme(): Signal<Theme> {
@@ -70,7 +68,7 @@ export class ResultsCardComponent {
             .afterClosed()
             .subscribe((download) => {
                 if (download) {
-                    this.downloadData.emit({ building: card, format: download });
+                    this.downloadData.emit({ uprn: card.UPRN, format: download });
                 }
             });
     }

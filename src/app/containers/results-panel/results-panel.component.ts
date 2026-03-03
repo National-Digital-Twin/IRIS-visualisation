@@ -12,7 +12,7 @@ import { ResultsCardExpandableComponent } from '@components/results-card-expanda
 import { ResultsPanelButtonComponent } from '@components/results-panel-button/results-panel-button.component';
 import { InfoPanelComponent } from '@containers/info-panel';
 import { BuildingModel } from '@core/models/building.model';
-import { DownloadBuilding, DownloadDataWarningData, DownloadDataWarningResponse } from '@core/models/download-data-warning.model';
+import { DownloadDataWarningData, DownloadDataWarningResponse } from '@core/models/download-data-warning.model';
 import { DataDownloadService } from '@core/services/data-download.service';
 import { DataService } from '@core/services/data.service';
 import { MAP_SERVICE } from '@core/services/map.token';
@@ -51,8 +51,6 @@ export class ResultsPanelComponent {
     public selectMultiple: boolean = false;
     public selectedCardUPRN = this.#utilService.selectedCardUPRN;
 
-    public flag: OutputEmitterRef<BuildingModel[]> = output();
-    public removeFlag: OutputEmitterRef<BuildingModel> = output();
     public resultsPanelCollapsed: OutputEmitterRef<boolean> = output();
 
     public viewPort = viewChild<CdkVirtualScrollViewport>(CdkVirtualScrollViewport);
@@ -183,20 +181,22 @@ export class ResultsPanelComponent {
                 map((download) => {
                     const checkedCards = this.checkedCards();
                     const buildingSelection = this.buildingSelection();
+                    const uprnsForCheckedCards = checkedCards.map((checkedCard) => checkedCard.UPRN);
+                    const uprnsForBuildingSelection = buildingSelection?.flatMap((bs) => bs.map((b) => b.UPRN)) ?? [];
 
                     switch (download) {
                         case 'xlsx':
                             if (this.selectMultiple) {
-                                this.#dataDownloadService.downloadXlsxData(checkedCards);
+                                this.#dataDownloadService.bulkDownloadXlsxData(uprnsForCheckedCards);
                             } else if (buildingSelection) {
-                                this.#dataDownloadService.downloadXlsxData(buildingSelection.flat());
+                                this.#dataDownloadService.bulkDownloadXlsxData(uprnsForBuildingSelection);
                             }
                             break;
                         case 'csv':
                             if (this.selectMultiple) {
-                                this.#dataDownloadService.downloadCSVData(checkedCards);
+                                this.#dataDownloadService.bulkDownloadCSVData(uprnsForCheckedCards);
                             } else if (buildingSelection) {
-                                this.#dataDownloadService.downloadCSVData(buildingSelection.flat());
+                                this.#dataDownloadService.bulkDownloadCSVData(uprnsForBuildingSelection);
                             }
                             break;
                     }
@@ -207,11 +207,11 @@ export class ResultsPanelComponent {
             .subscribe();
     }
 
-    public downloadBuilding(result: DownloadBuilding): void {
+    public downloadBuilding(result: { uprn: string; format: DownloadDataWarningResponse }): void {
         if (result.format === 'xlsx') {
-            this.#dataDownloadService.downloadXlsxData([result.building]);
+            this.#dataDownloadService.bulkDownloadXlsxData([result.uprn]);
         } else if (result.format === 'csv') {
-            this.#dataDownloadService.downloadCSVData([result.building]);
+            this.#dataDownloadService.bulkDownloadCSVData([result.uprn]);
         }
     }
 }

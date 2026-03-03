@@ -2,7 +2,6 @@ import {
     BuiltForm,
     FloorConstruction,
     FloorInsulation,
-    PostCode,
     RoofConstruction,
     RoofInsulationLocation,
     RoofInsulationThickness,
@@ -19,7 +18,6 @@ export type AdvancedFilter =
     | typeof BuiltForm
     | typeof FloorConstruction
     | typeof FloorInsulation
-    | typeof PostCode
     | typeof RoofConstruction
     | typeof RoofInsulationLocation
     | typeof RoofInsulationThickness
@@ -34,7 +32,7 @@ export interface DateFormModel {
     endYear: Moment | null;
 }
 export interface AdvancedFiltersFormModel {
-    PostCode: PostCode[] | null;
+    PostCode: string[] | null;
     BuiltForm: BuiltForm[] | null;
     WindowGlazing: WindowGlazing[] | null;
     WallConstruction: WallConstruction[] | null;
@@ -63,7 +61,6 @@ export interface MultiButtonFilterOption {
 export interface FilterProps {
     BuiltForm?: string[];
     EPC?: string[];
-    Flagged?: string[];
     FloorConstruction?: string[];
     FloorInsulation?: string[];
     WindowGlazing?: string[];
@@ -87,7 +84,6 @@ export type FilterKeys =
     | 'EPC'
     | 'FloorConstruction'
     | 'FloorInsulation'
-    | 'Flagged'
     | 'WindowGlazing'
     | 'PostCode'
     | 'StructureUnitType'

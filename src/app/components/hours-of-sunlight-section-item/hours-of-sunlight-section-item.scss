@@ -1,13 +1,10 @@
-export type FlagHistory = {
-    UPRN: string;
-    Flagged: string;
-    FlagType: string;
-    FlaggedByName: string;
-    FlagDate: string;
-    AssessmentDate: string;
-    AssessorName: string;
-    AssessmentReason: string;
-};
+@use 'src/styles/_tables.scss' as tables;
+
+.container {
+  padding-left: 5px;
+}
+
+@include tables.climate-data-table('0');
 
 // SPDX-License-Identifier: Apache-2.0
 // © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme

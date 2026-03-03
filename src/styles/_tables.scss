@@ -1,0 +1,33 @@
+@mixin climate-data-table($margin: 0 1rem) {
+    .data-table {
+        margin: $margin;
+
+        dl {
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+
+            border-radius: 0.5rem;
+
+            background-color: var(--mat-sys-surface-container-low);
+
+            dt,
+            dd {
+                margin: 0;
+                padding: 0.5rem;
+            }
+
+            dt:nth-child(4n + 1),
+            dd:nth-child(4n + 2) {
+                background-color: var(--mat-sys-surface-container);
+            }
+
+            dt:nth-child(1),
+            dd:nth-child(2) {
+                font-weight: var(--mat-sys-label-large-weight);
+                background-color: var(--mat-sys-surface-container-high);
+            }
+        }
+    }
+}

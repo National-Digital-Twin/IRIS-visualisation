@@ -1,0 +1,8 @@
+<mat-dialog-content>
+    <div class="downloadable-content" [innerHTML]="this.data.content"></div>
+</mat-dialog-content>
+<mat-dialog-actions cdkTrapFocus>
+    <button mat-button mat-dialog-close>Close</button>
+    <button mat-flat-button (click)="onDownload()" cdkFocusInitial data-testid="download-button"><mat-icon>file_download</mat-icon> Download</button>
+</mat-dialog-actions>
+<a [href]="this.pdfFilePathAndName" [download]="this.data.pdfFilename" style="display: none" id="downloadLink"></a>

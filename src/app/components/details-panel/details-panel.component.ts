@@ -1,5 +1,6 @@
+import { OverlayModule } from '@angular/cdk/overlay';
 import { AsyncPipe, DatePipe, NgClass, NgTemplateOutlet } from '@angular/common';
-import { CUSTOM_ELEMENTS_SCHEMA, Component, InputSignal, OnInit, OutputEmitterRef, inject, input, output } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, Component, InputSignal, OutputEmitterRef, inject, input, output } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -9,12 +10,12 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { DownloadWarningComponent } from '@components/download-warning/download-warning.component';
 import { LabelComponent } from '@components/label/label.component';
+import { MoreInfoSection } from '@components/more-info-section/more-info-section';
 import { InfoPanelComponent } from '@containers/info-panel';
 import {
     BuiltForm,
     FloorConstruction,
     FloorInsulation,
-    InvalidateFlagReason,
     RoofConstruction,
     RoofInsulationLocation,
     RoofInsulationThickness,
@@ -28,6 +29,7 @@ import { RoofShape } from '@core/enums/roof-shape';
 import { SolarPanelPresence } from '@core/enums/solar-panel-presence';
 import { BuildingModel } from '@core/models/building.model';
 import { DownloadDataWarningData, DownloadDataWarningResponse } from '@core/models/download-data-warning.model';
+import { ClimateDataService } from '@core/services/climate-data.service';
 import { DataService } from '@core/services/data.service';
 import { UtilService } from '@core/services/utils.service';
 import { EMPTY, switchMap } from 'rxjs';
@@ -35,7 +37,6 @@ import { EMPTY, switchMap } from 'rxjs';
 @Component({
     selector: 'c477-details-panel',
     imports: [
-        AsyncPipe,
         DatePipe,
         NgClass,
         NgTemplateOutlet,
@@ -46,32 +47,31 @@ import { EMPTY, switchMap } from 'rxjs';
         MatTabsModule,
         LabelComponent,
         InfoPanelComponent,
+        MoreInfoSection,
+        AsyncPipe,
+        OverlayModule,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
     templateUrl: './details-panel.component.html',
     styleUrl: './details-panel.component.scss',
 })
-export class DetailsPanelComponent implements OnInit {
+export class DetailsPanelComponent {
     readonly #dataService = inject(DataService);
     readonly #dialog = inject(MatDialog);
     readonly #utilService = inject(UtilService);
+    readonly #climateDataService = inject(ClimateDataService);
 
     public resultsPanelCollapsed: InputSignal<boolean> = input(false);
 
     public closePanel: OutputEmitterRef<void> = output();
     public downloadData: OutputEmitterRef<DownloadDataWarningResponse> = output();
-    public flag: OutputEmitterRef<BuildingModel[]> = output();
-    public getFlagHistory: OutputEmitterRef<string> = output();
-    public removeFlag: OutputEmitterRef<BuildingModel> = output();
 
-    public activeFlag$ = toObservable(this.#dataService.activeFlag);
     public builtForm: Record<string, string> = BuiltForm;
     public buildingDetails = this.#dataService.selectedBuilding;
     public buildingSelection = this.#dataService.buildingsSelection;
-    public flagHistory$ = toObservable(this.#dataService.flagHistory);
+    public buildingWeatherDetails = this.#dataService.selectedBuildingWeatherData;
     public floor: Record<string, string> = FloorConstruction;
     public floorInsulation: Record<string, string> = FloorInsulation;
-    public invalidateReason: Record<string, string> = InvalidateFlagReason;
     public roof: Record<string, string> = RoofConstruction;
     public roofInsulation: Record<string, string> = RoofInsulationLocation;
     public roofInsulationThickness: Record<string, string> = RoofInsulationThickness;
@@ -82,16 +82,20 @@ export class DetailsPanelComponent implements OnInit {
     public roofMaterial: Record<string, string> = RoofMaterial;
     public roofShape: Record<string, string> = RoofShape;
     public solarPanelPresence: Record<string, string> = SolarPanelPresence;
+    public warnOverlayIsOpen: boolean = false;
 
-    private readonly updateFlagHistory$ = toObservable(this.buildingDetails).pipe(
-        takeUntilDestroyed(),
-        switchMap((b) => (b ? this.#dataService.updateFlagHistory(b.UPRN) : EMPTY)),
-    );
-
-    /** subscribe to the flag history to make updates */
-    public ngOnInit(): void {
-        this.updateFlagHistory$.pipe().subscribe();
+    constructor() {
+        toObservable(this.buildingDetails)
+            .pipe(takeUntilDestroyed())
+            .subscribe(() => {
+                this.warnOverlayIsOpen = false;
+            });
     }
+
+    public readonly buildingExtremeWeatherSummaryData$ = toObservable(this.buildingDetails).pipe(
+        takeUntilDestroyed(),
+        switchMap((b) => (b ? this.#climateDataService.getExtremeWeatherSummaryData(b.UPRN) : EMPTY)),
+    );
 
     public getAddressSegment(index: number): string {
         return this.#utilService.splitAddress(index, this.buildingDetails()?.FullAddress);
@@ -120,16 +124,6 @@ export class DetailsPanelComponent implements OnInit {
             });
     }
 
-    public tabChanged($event: MatTabChangeEvent): void {
-        if ($event.tab.textLabel === 'Flag') {
-            const building = this.buildingDetails();
-            if (building) {
-                const { UPRN } = building;
-                this.#dataService.updateFlagHistory(UPRN).subscribe();
-            }
-        }
-    }
-
     public formatRoofAspectAreas(building?: BuildingModel): string {
         if (!building) return '';
         const entries: string[] = [];
@@ -155,6 +149,17 @@ export class DetailsPanelComponent implements OnInit {
         add('North West', building.RoofAspectAreaNorthwest);
         add('Unknown', building.RoofAspectAreaIndeterminable);
         return entries.join(', ');
+    }
+
+    public closeDetailsPanel(): void {
+        this.warnOverlayIsOpen = false;
+        this.closePanel.emit();
+    }
+
+    public tabChanged($event: MatTabChangeEvent): void {
+        if ($event.tab.id !== 'moreInfo') {
+            this.warnOverlayIsOpen = false;
+        }
     }
 }
 

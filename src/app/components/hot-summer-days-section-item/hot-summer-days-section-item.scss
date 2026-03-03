@@ -1,12 +1,10 @@
-export type FlagResponse = {
-    UPRN: string;
-    TOID?: string;
-    Flagged: string;
-};
+@use 'src/styles/_tables.scss' as tables;
 
-export type FlagMap = {
-    [key: string]: FlagResponse[];
-};
+.container {
+  padding-left: 5px;
+}
+
+@include tables.climate-data-table('0');
 
 // SPDX-License-Identifier: Apache-2.0
 // © Crown Copyright 2025. This work has been developed by the National Digital Twin Programme

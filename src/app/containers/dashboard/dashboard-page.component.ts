@@ -8,6 +8,7 @@ import { AreaFilter } from '../../core/models/area-filter.model';
 import { DashboardType } from './chart.service';
 import { BuildingFuelChartComponent } from './charts/building-fuel-chart/building-fuel-chart.component';
 import { CharacteristicsChartComponent } from './charts/characteristics-chart/characteristics-chart.component';
+import { DeprivationDimensionChartComponent } from './charts/deprivation-dimension-chart/deprivation-dimension-chart.component';
 import { EpcByAreaChartComponent } from './charts/epc-by-area-chart/epc-by-area-chart.component';
 import { EpcByFeatureChartComponent } from './charts/epc-by-feature-chart/epc-by-feature-chart.component';
 import { EpcRatingsOvertimeChartComponent } from './charts/epc-ratings-over-time-chart/epc-ratings-over-time-chart.component';
@@ -17,6 +18,7 @@ import { OverallEpcChartComponent } from './charts/overall-epc-chart/overall-epc
 import { SapTimelineByAreaChartComponent } from './charts/sap-timeline-by-area-chart/sap-timeline-by-area-chart.component';
 import { SapTimelineByPropertyTypeChartComponent } from './charts/sap-timeline-by-property-type-chart/sap-timeline-by-property-type-chart.component';
 import { SapTimelineChartComponent } from './charts/sap-timeline-chart/sap-timeline-chart.component';
+import { SunlightHoursByAreaChartComponent } from './charts/sunlight-hours-by-area-chart/sunlight-hours-by-area-chart.component';
 
 const AREA_FILTER_STORAGE_KEY = 'dashboard.areaFilter';
 
@@ -31,6 +33,7 @@ const AREA_FILTER_STORAGE_KEY = 'dashboard.areaFilter';
         OverallEpcChartComponent,
         EpcByAreaChartComponent,
         CharacteristicsChartComponent,
+        DeprivationDimensionChartComponent,
         SapTimelineChartComponent,
         EpcRatingsOvertimeChartComponent,
         BuildingFuelChartComponent,
@@ -39,6 +42,7 @@ const AREA_FILTER_STORAGE_KEY = 'dashboard.areaFilter';
         InDateVsExpiredEpcsComponent,
         SapTimelineByPropertyTypeChartComponent,
         SapTimelineByAreaChartComponent,
+        SunlightHoursByAreaChartComponent,
     ],
     templateUrl: './dashboard-page.component.html',
     styleUrl: './dashboard-page.component.scss',

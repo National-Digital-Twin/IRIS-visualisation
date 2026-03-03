@@ -1,12 +1,12 @@
 import { LAYER_COLORS } from '@core/config/layer-colors.config';
-import { ClimateDataService, HotSummerDaysProperties } from '@core/services/climate-data.service';
+import { ClimateDataService, HotSummerDaysLayerProperties } from '@core/services/climate-data.service';
 import { FeatureCollection, Geometry } from 'geojson';
 import * as mapboxgl from 'mapbox-gl';
 import { LayerSpecification, MapMouseEvent } from 'mapbox-gl';
 import { firstValueFrom } from 'rxjs';
 import { AbstractClimateLayer } from './climate-layer.abstract';
 
-export class HotSummerDaysLayer extends AbstractClimateLayer<HotSummerDaysProperties> {
+export class HotSummerDaysLayer extends AbstractClimateLayer<HotSummerDaysLayerProperties> {
     constructor(private readonly climateDataService: ClimateDataService) {
         super();
     }
@@ -23,10 +23,10 @@ export class HotSummerDaysLayer extends AbstractClimateLayer<HotSummerDaysProper
         return this.createLayerConfig(0, 10, LAYER_COLORS.hotSummerDays);
     }
 
-    public async getSourceData(): Promise<FeatureCollection<Geometry, HotSummerDaysProperties>> {
+    public async getSourceData(): Promise<FeatureCollection<Geometry, HotSummerDaysLayerProperties>> {
         try {
             if (!this.data) {
-                const result = await firstValueFrom(this.climateDataService.getHotSummerDaysData());
+                const result = await firstValueFrom(this.climateDataService.getHotSummerDaysLayerData());
                 if (result) {
                     this.data = result;
                 } else {
@@ -45,7 +45,7 @@ export class HotSummerDaysLayer extends AbstractClimateLayer<HotSummerDaysProper
 
         const feature = event.features?.[0];
         if (feature) {
-            const properties = feature.properties as HotSummerDaysProperties;
+            const properties = feature.properties as HotSummerDaysLayerProperties;
 
             const popupContent = `
                 <div class="climate-data-popup">

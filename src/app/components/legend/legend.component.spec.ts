@@ -37,4 +37,33 @@ describe('LegendComponent', () => {
             { rating: 'avg', sapPoints: '1-20' },
         ]);
     });
+
+    it('should show deprivation legend when deprivation layer is active', () => {
+        fixture.componentRef.setInput('layerState', {
+            epc: { region: false, county: false, district: false, ward: false },
+            windDrivenRain: { twoDegree: false, fourDegree: false },
+            icingDays: false,
+            hotSummerDays: false,
+            deprivation: true,
+        });
+        fixture.detectChanges();
+
+        expect(component.currentLegend().type).toBe('deprivation');
+        expect(component.currentLegend().title).toBe('High Deprivation');
+    });
+
+    it('should show sunlight hours legend when sunlight hours layer is active', () => {
+        fixture.componentRef.setInput('layerState', {
+            epc: { region: false, county: false, district: false, ward: false },
+            windDrivenRain: { twoDegree: false, fourDegree: false },
+            icingDays: false,
+            hotSummerDays: false,
+            deprivation: false,
+            sunlightHours: true,
+        });
+        fixture.detectChanges();
+
+        expect(component.currentLegend().type).toBe('sunlight-hours');
+        expect(component.currentLegend().title).toBe('Hours of sunlight');
+    });
 });
