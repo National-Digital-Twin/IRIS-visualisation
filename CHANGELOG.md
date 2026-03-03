@@ -49,7 +49,6 @@ This project follows **Semantic Versioning (SemVer)** ([semver.org](https://semv
 
 - [DPAV-2532]: refactored popup registration and management within the map to fix routing issues
 
-
 ## [0.95.0] - 2026-01-12
 
 ### Features
