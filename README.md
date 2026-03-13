@@ -4,6 +4,15 @@
 **Description:** `This repository functions as the client side of IRIS and contains front-end views and logic.`  
 **SPDX-License-Identifier:** `Apache-2.0 AND OGL-UK-3.0`  
 
+## ⚠️ Repository Relocation Notice
+
+ The code previously maintained in this repository has been migrated to the IRIS monorepo.
+
+ The current and actively maintained source code is available at:  
+ **https://github.com/National-Digital-Twin/IRIS**
+
+This repository is retained to preserve the history of earlier public releases but will no longer receive updates.
+
 ## Overview  
 IRIS is a digital tool designed to support data-driven decision-making for retrofitting domestic properties by identifying homes that could benefit from energy efficiency improvements. It enables stakeholders to assess housing stock based on energy performance data to help target funding schemes and policy interventions more effectively. IRIS is part of the NDTP Demonstrator Programme.
 
